@@ -1,1 +1,8 @@
 - <domain/ip>/admin/dashboard/user for dashboard 
+- <domain/ip>/register 
+- <domain/ip>/login
+
+- .env
+> DATABASE_URL=postgres://username:password@host:port/dbname
+
+psql -h 172.20.0.1 -U postgres -d livedoc
