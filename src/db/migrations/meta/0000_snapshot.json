@@ -1,0 +1,713 @@
+{
+  "id": "9a0ddd2f-4c50-4f43-bf4b-4aa5bbb21d87",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.appointment": {
+      "name": "appointment",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "patient_id": {
+          "name": "patient_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "doctor_id": {
+          "name": "doctor_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "time_slot": {
+          "name": "time_slot",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mode": {
+          "name": "mode",
+          "type": "appointment_mode",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "patient_type": {
+          "name": "patient_type",
+          "type": "patient_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_status": {
+          "name": "payment_status",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "visit_status": {
+          "name": "visit_status",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "appointment_patient_id_patient_id_fk": {
+          "name": "appointment_patient_id_patient_id_fk",
+          "tableFrom": "appointment",
+          "tableTo": "patient",
+          "columnsFrom": [
+            "patient_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "appointment_doctor_id_doctor_id_fk": {
+          "name": "appointment_doctor_id_doctor_id_fk",
+          "tableFrom": "appointment",
+          "tableTo": "doctor",
+          "columnsFrom": [
+            "doctor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.doctor": {
+      "name": "doctor",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "country": {
+          "name": "country",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "city": {
+          "name": "city",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "specialization": {
+          "name": "specialization",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "degree": {
+          "name": "degree",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "experience": {
+          "name": "experience",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "about_self": {
+          "name": "about_self",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "about_clinic": {
+          "name": "about_clinic",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "doctor_email_unique": {
+          "name": "doctor_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.drug": {
+      "name": "drug",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "generic_name": {
+          "name": "generic_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "brand_name": {
+          "name": "brand_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "details": {
+          "name": "details",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.patient": {
+      "name": "patient",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "age": {
+          "name": "age",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "weight": {
+          "name": "weight",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "present_address": {
+          "name": "present_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "permanent_address": {
+          "name": "permanent_address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gender": {
+          "name": "gender",
+          "type": "gender",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "patient_email_unique": {
+          "name": "patient_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.platform_subscription": {
+      "name": "platform_subscription",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "doctor_id": {
+          "name": "doctor_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subscription_type": {
+          "name": "subscription_type",
+          "type": "subscription_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price": {
+          "name": "price",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "billing_cycle": {
+          "name": "billing_cycle",
+          "type": "billing_cycle",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_billing": {
+          "name": "last_billing",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expire_date": {
+          "name": "expire_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verified": {
+          "name": "verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "platform_subscription_doctor_id_doctor_id_fk": {
+          "name": "platform_subscription_doctor_id_doctor_id_fk",
+          "tableFrom": "platform_subscription",
+          "tableTo": "doctor",
+          "columnsFrom": [
+            "doctor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.prescription": {
+      "name": "prescription",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "patient_id": {
+          "name": "patient_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "doctor_id": {
+          "name": "doctor_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "appointment_id": {
+          "name": "appointment_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "clinical_diagnosis": {
+          "name": "clinical_diagnosis",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "additional_advice": {
+          "name": "additional_advice",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "drugs": {
+          "name": "drugs",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "next_follow_up": {
+          "name": "next_follow_up",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "prescription_patient_id_patient_id_fk": {
+          "name": "prescription_patient_id_patient_id_fk",
+          "tableFrom": "prescription",
+          "tableTo": "patient",
+          "columnsFrom": [
+            "patient_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "prescription_doctor_id_doctor_id_fk": {
+          "name": "prescription_doctor_id_doctor_id_fk",
+          "tableFrom": "prescription",
+          "tableTo": "doctor",
+          "columnsFrom": [
+            "doctor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "prescription_appointment_id_appointment_id_fk": {
+          "name": "prescription_appointment_id_appointment_id_fk",
+          "tableFrom": "prescription",
+          "tableTo": "appointment",
+          "columnsFrom": [
+            "appointment_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.staff": {
+      "name": "staff",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "designation": {
+          "name": "designation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "roles": {
+          "name": "roles",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "chambers": {
+          "name": "chambers",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "staff_email_unique": {
+          "name": "staff_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.billing_cycle": {
+      "name": "billing_cycle",
+      "schema": "public",
+      "values": [
+        "monthly",
+        "quarterly",
+        "yearly"
+      ]
+    },
+    "public.gender": {
+      "name": "gender",
+      "schema": "public",
+      "values": [
+        "male",
+        "female",
+        "other"
+      ]
+    },
+    "public.appointment_mode": {
+      "name": "appointment_mode",
+      "schema": "public",
+      "values": [
+        "online",
+        "offline"
+      ]
+    },
+    "public.patient_type": {
+      "name": "patient_type",
+      "schema": "public",
+      "values": [
+        "new",
+        "old"
+      ]
+    },
+    "public.subscription_type": {
+      "name": "subscription_type",
+      "schema": "public",
+      "values": [
+        "basic",
+        "premium",
+        "enterprise"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
