@@ -5,37 +5,37 @@ const testimonials = [
     name: "Sophia Martinez",
     position: "Founder, Luxe Design Studio",
     text: "B-School transformed my business! I now earn 10x more and have true time freedom.",
-    image: "/sophia.jpg",
+    image: "/REVIEW.jpg",
   },
   {
     name: "James Carter",
     position: "CEO, GrowthHub Marketing",
     text: "The strategies I learned helped me land my dream clients consistently.",
-    image: "/james.jpg",
+    image: "/REVIEW.jpg",
   },
   {
     name: "Elena Roberts",
     position: "Co-Founder, EcoEssentials",
     text: "I tripled my revenue in one year after implementing B-School strategies.",
-    image: "/elena.jpg",
+    image: "/REVIEW.jpg",
   },
   {
     name: "Mark Lewis",
     position: "Founder, Freelance Mastery",
     text: "From side-hustle to full-time business in just 6 months after B-School.",
-    image: "/mark.jpg",
+    image: "/REVIEW.jpg",
   },
   {
     name: "Natasha Singh",
     position: "Online Course Creator",
     text: "B-School gave me the confidence to finally launch my online courses.",
-    image: "/natasha.jpg",
+    image: "/REVIEW.jpg",
   },
   {
     name: "Dylan Foster",
     position: "E-commerce Entrepreneur",
     text: "Best investment I've ever made. Highly recommend it to every entrepreneur.",
-    image: "/dylan.jpg",
+    image: "/REVIEW.jpg",
   },
 ];
 
