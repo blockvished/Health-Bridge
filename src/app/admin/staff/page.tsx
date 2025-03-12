@@ -6,7 +6,7 @@ import Footer from "../_common/Footer";
 import Topbar from "../_common/Topbar";
 const StaffPage = () => {
   return (
-    <div className="flex h-screen bg-gray-50 mb-8">
+    <div className="flex min-h-screen bg-gray-50 mb-8">
       <Sidebar />
       <div className="ml-60 flex-1 flex flex-col p-2">
         <Topbar />
