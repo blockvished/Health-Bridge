@@ -1,10 +1,20 @@
-import React from "react";
+"use client";
 
+import React from "react";
+import Sidebar from "../_common/Sidebar";
+import Footer from "../_common/Footer";
+import Topbar from "../_common/Topbar";
 const StaffPage = () => {
   return (
-    <div className="p-6 bg-white rounded-lg shadow">
-      <h1 className="text-2xl font-bold mb-4">Staff</h1>
-      <p>Manage staff members here.</p>
+    <div className="flex h-screen bg-gray-50 mb-8">
+      <Sidebar />
+      <div className="ml-60 flex-1 flex flex-col p-2">
+        <Topbar />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        StaffPage
+        </div>
+        <Footer />
+      </div>
     </div>
   );
 };

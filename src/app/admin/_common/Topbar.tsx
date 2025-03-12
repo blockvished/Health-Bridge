@@ -39,11 +39,11 @@ const Topbar: React.FC = () => {
           {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
               {[
-                { name: "Prescriptions", path: "/admin/prescriptions" },
+                { name: "Prescription", path: "/admin/prescription" },
                 { name: "Staff", path: "/admin/staff" },
-                { name: "Patients", path: "/admin/patients" },
-                { name: "Appointments", path: "/admin/appointments" },
-                { name: "Drugs", path: "/admin/drugs" },
+                { name: "Patient", path: "/admin/patients" },
+                { name: "Appointment", path: "/admin/appointment" },
+                { name: "Drug", path: "/admin/drugs" },
               ].map((item) => (
                 <Link
                   key={item.path}
