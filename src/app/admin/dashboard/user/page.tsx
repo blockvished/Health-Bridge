@@ -1,7 +1,6 @@
 "use client";
+
 import React from "react";
-import Link from "next/link";
-import { Bar, Chart } from "react-chartjs-2";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import {
@@ -28,8 +27,6 @@ ChartJS.register(
 );
 
 const Dashboard: React.FC = () => {
-  // Chart data
-
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
