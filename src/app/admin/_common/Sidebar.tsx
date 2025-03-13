@@ -12,8 +12,8 @@ const menuItems = [
     dropdown: [
       { name: "Departments", link: "/admin/department" },
       { name: "Set Schedule", link: "#" },
-      { name: "Consultation Settings", link: "#" },
-      { name: "QR Code", link: "#" },
+      { name: "Consultation Settings", link: "/admin/live_consults/settings" },
+      { name: "QR Code", link: "/admin/profile/qr_code" },
     ],
   },
   { name: "Transactions", link: "/admin/payment/lists", svg: "💳" },
