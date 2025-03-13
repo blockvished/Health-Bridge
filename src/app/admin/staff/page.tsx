@@ -51,7 +51,10 @@ const StaffPage = () => {
               </thead>
               <tbody>
                 {staffMembers.map((staff, index) => (
-                  <tr key={staff.id} className="hover:bg-gray-50 transition border-b border-gray-200">
+                  <tr
+                    key={staff.id}
+                    className="hover:bg-gray-50 transition border-b border-gray-200"
+                  >
                     <td className="p-3 text-gray-700">{index + 1}</td>
                     <td className="p-3">
                       <div className="w-10 h-10 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full font-semibold text-lg">
@@ -59,8 +62,12 @@ const StaffPage = () => {
                       </div>
                     </td>
                     <td className="p-3">
-                      <div className="font-semibold text-gray-900">{staff.name}</div>
-                      <div className="text-sm text-gray-500 font-medium">{staff.clinics}</div>
+                      <div className="font-semibold text-gray-900">
+                        {staff.name}
+                      </div>
+                      <div className="text-sm text-gray-500 font-medium">
+                        {staff.clinics}
+                      </div>
                       <div className="text-sm text-gray-500">{staff.email}</div>
                       <div className="text-sm text-gray-500">{staff.role}</div>
                     </td>

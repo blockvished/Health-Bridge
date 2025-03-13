@@ -9,10 +9,10 @@ const LearnFromBestSection: React.FC = () => {
           Learn From <span className="text-yellow-300">The Best</span>
         </h2>
         <p className="mt-4 text-lg leading-relaxed">
-          B-School is led by <span className="font-semibold">Marie Forleo</span>,
-          a <span className="italic">#1 New York Times</span> best-selling author
-          of <em>Everything is Figureoutable</em> and creator of the award-winning
-          show <span className="font-semibold">MarieTV</span>.
+          B-School is led by <span className="font-semibold">Marie Forleo</span>
+          , a <span className="italic">#1 New York Times</span> best-selling
+          author of <em>Everything is Figureoutable</em> and creator of the
+          award-winning show <span className="font-semibold">MarieTV</span>.
           <br />
           <br />
           Named by <span className="font-semibold">Oprah</span> as a thought

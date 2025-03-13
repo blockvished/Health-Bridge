@@ -100,47 +100,48 @@ const Sidebar = () => {
 
       {/* Sidebar Menu */}
       <nav className="flex-1 py-3 overflow-y-auto scrollbar-hide">
-  {menuItems.map((item, index) => (
-    <div key={index}>
-      {item.dropdown ? (
-        // Handle dropdown items
-        <div
-          onClick={() => toggleDropdown(index)}
-          className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer text-sm"
-        >
-          <span className="mr-2">{item.svg}</span>
-          <span>{item.name}</span>
-          <span className="ml-auto">{openDropdown === index ? "▾" : "▸"}</span>
-        </div>
-      ) : (
-        // Wrap non-dropdown items in Link
-        <Link
-          href={item.link}
-          className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer text-sm"
-        >
-          <span className="mr-2">{item.svg}</span>
-          <span>{item.name}</span>
-        </Link>
-      )}
+        {menuItems.map((item, index) => (
+          <div key={index}>
+            {item.dropdown ? (
+              // Handle dropdown items
+              <div
+                onClick={() => toggleDropdown(index)}
+                className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer text-sm"
+              >
+                <span className="mr-2">{item.svg}</span>
+                <span>{item.name}</span>
+                <span className="ml-auto">
+                  {openDropdown === index ? "▾" : "▸"}
+                </span>
+              </div>
+            ) : (
+              // Wrap non-dropdown items in Link
+              <Link
+                href={item.link}
+                className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer text-sm"
+              >
+                <span className="mr-2">{item.svg}</span>
+                <span>{item.name}</span>
+              </Link>
+            )}
 
-      {/* Dropdown Items */}
-      {item.dropdown && openDropdown === index && (
-        <div className="ml-6">
-          {item.dropdown.map((subItem, subIndex) => (
-            <Link
-              key={subIndex}
-              href={subItem.link}
-              className="block px-4 py-1 text-gray-400 hover:bg-gray-700 text-sm"
-            >
-              {subItem.name}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  ))}
-</nav>
-
+            {/* Dropdown Items */}
+            {item.dropdown && openDropdown === index && (
+              <div className="ml-6">
+                {item.dropdown.map((subItem, subIndex) => (
+                  <Link
+                    key={subIndex}
+                    href={subItem.link}
+                    className="block px-4 py-1 text-gray-400 hover:bg-gray-700 text-sm"
+                  >
+                    {subItem.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </nav>
     </div>
   );
 };

@@ -12,7 +12,7 @@ const PrescriptionsPage = () => {
       <div className="ml-60 flex-1 flex flex-col p-2">
         <Topbar />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        PrescriptionsPage
+          PrescriptionsPage
         </div>
         <Footer />
       </div>

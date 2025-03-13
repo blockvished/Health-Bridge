@@ -14,7 +14,8 @@ interface FAQ {
 const FaqSection: React.FC = () => {
   const faqs: FAQ[] = [
     {
-      question: "I'm new and don't have a business yet — will B-School work for me?",
+      question:
+        "I'm new and don't have a business yet — will B-School work for me?",
       answer:
         "Yes! Many students start with just an idea—or no idea at all—and leave with a thriving business. Success isn't linear, but with commitment, you can achieve your vision.",
       testimonial: {
@@ -55,13 +56,19 @@ const FaqSection: React.FC = () => {
     <section className="bg-gradient-to-b from-[#FEFEFF] to-[#F4FAFF] max-w-6xl mx-auto px-6 py-16 rounded-lg shadow-lg">
       {faqs.map((faq, index) => (
         <div key={index} className="mb-12">
-          <h3 className="text-3xl font-semibold text-[#0D47A1]">{faq.question}</h3>
+          <h3 className="text-3xl font-semibold text-[#0D47A1]">
+            {faq.question}
+          </h3>
           <p className="mt-4 text-lg bg-gradient-to-b from-[#F9FCFF] to-[#DFF3FC]">
             {faq.answer}
           </p>
           <div className="bg-[#E8F4FC] p-6 rounded-lg mt-6 shadow-md">
-            <p className="text-gray-800 italic text-lg">"{faq.testimonial.text}"</p>
-            <p className="mt-4 font-semibold text-gray-700">{faq.testimonial.author}</p>
+            <p className="text-gray-800 italic text-lg">
+              "{faq.testimonial.text}"
+            </p>
+            <p className="mt-4 font-semibold text-gray-700">
+              {faq.testimonial.author}
+            </p>
           </div>
           {index < faqs.length - 1 && (
             <div className="w-3/4 mx-auto my-10 border-t-2 border-[#B3E5FC] opacity-50"></div>

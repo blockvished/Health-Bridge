@@ -1,6 +1,6 @@
 # LiveDoctors
-Live Doctors platform feature update 
 
+Live Doctors platform feature update
 
 ---
 

@@ -27,14 +27,17 @@ const MediaFeaturesSection: React.FC = () => {
             >
               {media}
             </span>
-          )
+          ),
         )}
       </div>
 
       {/* Image Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-6 mt-8 max-w-5xl mx-auto">
         {mediaImages.map((src, index) => (
-          <div key={index} className="group overflow-hidden rounded-lg shadow-lg">
+          <div
+            key={index}
+            className="group overflow-hidden rounded-lg shadow-lg"
+          >
             <img
               src={src}
               className="w-full h-auto rounded-lg transform transition duration-300 group-hover:scale-105 group-hover:shadow-xl"

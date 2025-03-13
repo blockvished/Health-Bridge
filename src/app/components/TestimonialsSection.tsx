@@ -63,7 +63,7 @@ const TestimonialsSection: React.FC = () => {
 };
 
 // Testimonial Card Component
-const TestimonialCard: React.FC<{ testimonial: typeof testimonials[0] }> = ({
+const TestimonialCard: React.FC<{ testimonial: (typeof testimonials)[0] }> = ({
   testimonial,
 }) => {
   return (
@@ -82,7 +82,10 @@ const TestimonialCard: React.FC<{ testimonial: typeof testimonials[0] }> = ({
       </div>
 
       {/* Star Rating (Centered) */}
-      <div className="flex justify-center gap-1 text-yellow-500 text-lg" aria-label="5-star rating">
+      <div
+        className="flex justify-center gap-1 text-yellow-500 text-lg"
+        aria-label="5-star rating"
+      >
         {"★★★★★".split("").map((star, i) => (
           <span key={i}>{star}</span>
         ))}

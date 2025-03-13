@@ -24,7 +24,7 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
 
 const Dashboard: React.FC = () => {

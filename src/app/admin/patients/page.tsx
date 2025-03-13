@@ -32,7 +32,9 @@ const Patients: React.FC = () => {
         <div className="bg-white shadow-md rounded-xl overflow-hidden max-w-5xl mx-auto w-full p-6">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-xl font-semibold text-gray-800">All Patients</h1>
+            <h1 className="text-xl font-semibold text-gray-800">
+              All Patients
+            </h1>
             <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 text-sm rounded-lg shadow-sm">
               + Add new Patients
             </button>
@@ -55,13 +57,18 @@ const Patients: React.FC = () => {
               </thead>
               <tbody>
                 {patients.map((patient, index) => (
-                  <tr key={patient.id} className="border-b border-gray-200 hover:bg-gray-50 transition">
+                  <tr
+                    key={patient.id}
+                    className="border-b border-gray-200 hover:bg-gray-50 transition"
+                  >
                     <td className="p-3 text-gray-700">{index + 1}</td>
                     <td className="p-3 text-gray-700">{patient.mrNo}</td>
                     <td className="p-3 text-gray-700">{patient.name}</td>
                     <td className="p-3 text-gray-700">{patient.age}</td>
                     <td className="p-3 text-gray-700">{patient.phone}</td>
-                    <td className="p-3 text-gray-700">{patient.address || "-"}</td>
+                    <td className="p-3 text-gray-700">
+                      {patient.address || "-"}
+                    </td>
                     <td className="p-3">
                       <button className="bg-blue-100 text-blue-600 px-3 py-1 rounded-md text-sm flex items-center gap-1">
                         👁️ View
