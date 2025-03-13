@@ -5,7 +5,7 @@ import { useState } from "react";
 
 const menuItems = [
   { name: "Dashboard", link: "/admin/dashboard/user", svg: "🏠" },
-  { name: "Subscription", link: "#", svg: "📜" },
+  { name: "Subscription", link: "/admin/subscription", svg: "📜" },
   {
     name: "Settings",
     link: "#",
