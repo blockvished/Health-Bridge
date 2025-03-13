@@ -12,7 +12,7 @@ const menuItems = [
     dropdown: [
       { name: "Departments", link: "/admin/department" },
       { name: "Set Schedule", link: "#" },
-      { name: "Consultation Settings", link: "#" },
+      { name: "Consultation Settings", link: "/admin/live_consults/settings" },
       { name: "QR Code", link: "#" },
     ],
   },
