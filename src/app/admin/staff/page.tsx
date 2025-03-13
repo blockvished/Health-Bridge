@@ -1,7 +1,4 @@
 import React from "react";
-import Sidebar from "../_common/Sidebar";
-import Footer from "../_common/Footer";
-import Topbar from "../_common/Topbar";
 
 const staffMembers = [
   {

@@ -16,7 +16,7 @@ const menuItems = [
       { name: "QR Code", link: "#" },
     ],
   },
-  { name: "Transactions", link: "#", svg: "💳" },
+  { name: "Transactions", link: "/admin/payment/lists", svg: "💳" },
   { name: "Custom Domain", link: "#", svg: "🌐" },
   {
     name: "Payouts",
@@ -71,8 +71,8 @@ const menuItems = [
     ],
   },
   { name: "Rating & Reviews", link: "#", svg: "⭐" },
-  { name: "Contact", link: "#", svg: "📞" },
-  { name: "Change Password", link: "#", svg: "🔒" },
+  { name: "Contact", link: "/admin/contact/user", svg: "📞" },
+  { name: "Change Password", link: "/admin/change_password", svg: "🔒" },
   { name: "Logout", link: "#", svg: "🚪" },
 ];
 
