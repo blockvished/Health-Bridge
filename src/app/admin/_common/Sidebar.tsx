@@ -1,15 +1,16 @@
+"use client";
+
 import Link from "next/link";
 import { useState } from "react";
 
 const menuItems = [
   { name: "Dashboard", link: "/admin/dashboard/user", svg: "🏠" },
-  { name: "Subscription", link: "#", svg: "📜" },
+  { name: "Subscription", link: "/admin/subscription", svg: "📜" },
   {
     name: "Settings",
-    link: "#",
     svg: "⚙️",
     dropdown: [
-      { name: "Departments", link: "#" },
+      { name: "Departments", link: "/admin/department" },
       { name: "Set Schedule", link: "#" },
       { name: "Consultation Settings", link: "#" },
       { name: "QR Code", link: "#" },
@@ -19,7 +20,6 @@ const menuItems = [
   { name: "Custom Domain", link: "#", svg: "🌐" },
   {
     name: "Payouts",
-    link: "#",
     svg: "💰",
     dropdown: [
       { name: "Set Payout Account", link: "#" },
@@ -30,7 +30,6 @@ const menuItems = [
   { name: "Staff", link: "/admin/staff", svg: "👨‍⚕️" },
   {
     name: "Prescription Settings",
-    link: "#",
     svg: "📝",
     dropdown: [
       { name: "Additional Advices", link: "#" },
@@ -40,7 +39,6 @@ const menuItems = [
   { name: "Patients", link: "/admin/patients", svg: "🏥" },
   {
     name: "Appointments",
-    link: "#",
     svg: "📅",
     dropdown: [
       { name: "Create New", link: "/admin/appointment" },
@@ -49,7 +47,6 @@ const menuItems = [
   },
   {
     name: "Drugs",
-    link: "#",
     svg: "💊",
     dropdown: [
       { name: "Drugs", link: "/admin/drugs" },
@@ -58,7 +55,6 @@ const menuItems = [
   },
   {
     name: "Profile",
-    link: "#",
     svg: "👤",
     dropdown: [
       { name: "Personal Info", link: "#" },
@@ -68,7 +64,6 @@ const menuItems = [
   },
   {
     name: "Prescription",
-    link: "#",
     svg: "📜",
     dropdown: [
       { name: "Create New", link: "/admin/prescription" },
@@ -98,47 +93,48 @@ const Sidebar = () => {
 
       {/* Sidebar Menu */}
       <nav className="flex-1 py-3 overflow-y-auto scrollbar-hide">
-  {menuItems.map((item, index) => (
-    <div key={index}>
-      {item.dropdown ? (
-        // Handle dropdown items
-        <div
-          onClick={() => toggleDropdown(index)}
-          className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer text-sm"
-        >
-          <span className="mr-2">{item.svg}</span>
-          <span>{item.name}</span>
-          <span className="ml-auto">{openDropdown === index ? "▾" : "▸"}</span>
-        </div>
-      ) : (
-        // Wrap non-dropdown items in Link
-        <Link
-          href={item.link}
-          className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer text-sm"
-        >
-          <span className="mr-2">{item.svg}</span>
-          <span>{item.name}</span>
-        </Link>
-      )}
+        {menuItems.map((item, index) => (
+          <div key={index}>
+            {item.dropdown ? (
+              // Handle dropdown items
+              <div
+                onClick={() => toggleDropdown(index)}
+                className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer text-sm"
+              >
+                <span className="mr-2">{item.svg}</span>
+                <span>{item.name}</span>
+                <span className="ml-auto">
+                  {openDropdown === index ? "▾" : "▸"}
+                </span>
+              </div>
+            ) : (
+              // Wrap non-dropdown items in Link
+              <Link
+                href={item.link}
+                className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer text-sm"
+              >
+                <span className="mr-2">{item.svg}</span>
+                <span>{item.name}</span>
+              </Link>
+            )}
 
-      {/* Dropdown Items */}
-      {item.dropdown && openDropdown === index && (
-        <div className="ml-6">
-          {item.dropdown.map((subItem, subIndex) => (
-            <Link
-              key={subIndex}
-              href={subItem.link}
-              className="block px-4 py-1 text-gray-400 hover:bg-gray-700 text-sm"
-            >
-              {subItem.name}
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  ))}
-</nav>
-
+            {/* Dropdown Items */}
+            {item.dropdown && openDropdown === index && (
+              <div className="ml-6">
+                {item.dropdown.map((subItem, subIndex) => (
+                  <Link
+                    key={subIndex}
+                    href={subItem.link}
+                    className="block px-4 py-1 text-gray-400 hover:bg-gray-700 text-sm"
+                  >
+                    {subItem.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </nav>
     </div>
   );
 };

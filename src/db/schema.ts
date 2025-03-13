@@ -1,12 +1,29 @@
-import { pgTable, serial, text, varchar, integer, boolean, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  text,
+  varchar,
+  integer,
+  boolean,
+  timestamp,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // Enums for better type safety
 export const modeEnum = pgEnum("appointment_mode", ["online", "offline"]);
 export const patientTypeEnum = pgEnum("patient_type", ["new", "old"]);
 export const genderEnum = pgEnum("gender", ["male", "female", "other"]);
-export const subscriptionTypeEnum = pgEnum("subscription_type", ["basic", "premium", "enterprise"]);
-export const billingCycleEnum = pgEnum("billing_cycle", ["monthly", "quarterly", "yearly"]);
+export const subscriptionTypeEnum = pgEnum("subscription_type", [
+  "basic",
+  "premium",
+  "enterprise",
+]);
+export const billingCycleEnum = pgEnum("billing_cycle", [
+  "monthly",
+  "quarterly",
+  "yearly",
+]);
 
 // Staff Table
 export const staff = pgTable("staff", {
@@ -56,8 +73,12 @@ export const doctor = pgTable("doctor", {
 // Appointment Table
 export const appointment = pgTable("appointment", {
   id: serial("id").primaryKey(),
-  patientId: integer("patient_id").references(() => patient.id).notNull(),
-  doctorId: integer("doctor_id").references(() => doctor.id).notNull(),
+  patientId: integer("patient_id")
+    .references(() => patient.id)
+    .notNull(),
+  doctorId: integer("doctor_id")
+    .references(() => doctor.id)
+    .notNull(),
   date: timestamp("date").notNull(),
   timeSlot: text("time_slot").notNull(),
   mode: modeEnum("mode").notNull(), // Using enum
@@ -71,8 +92,12 @@ export const appointment = pgTable("appointment", {
 // Prescription Table
 export const prescription = pgTable("prescription", {
   id: serial("id").primaryKey(),
-  patientId: integer("patient_id").references(() => patient.id).notNull(),
-  doctorId: integer("doctor_id").references(() => doctor.id).notNull(), // Added doctorId
+  patientId: integer("patient_id")
+    .references(() => patient.id)
+    .notNull(),
+  doctorId: integer("doctor_id")
+    .references(() => doctor.id)
+    .notNull(), // Added doctorId
   appointmentId: integer("appointment_id").references(() => appointment.id), // Added appointment reference
   clinicalDiagnosis: text("clinical_diagnosis"),
   additionalAdvice: text("additional_advice"),
@@ -97,7 +122,9 @@ export const drug = pgTable("drug", {
 // Platform Subscription Table
 export const platformSubscription = pgTable("platform_subscription", {
   id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id").references(() => doctor.id).notNull(), // Added doctor reference
+  doctorId: integer("doctor_id")
+    .references(() => doctor.id)
+    .notNull(), // Added doctor reference
   subscriptionType: subscriptionTypeEnum("subscription_type").notNull(),
   price: integer("price"),
   billingCycle: billingCycleEnum("billing_cycle"),
@@ -147,9 +174,12 @@ export const prescriptionRelations = relations(prescription, ({ one }) => ({
   }),
 }));
 
-export const platformSubscriptionRelations = relations(platformSubscription, ({ one }) => ({
-  doctor: one(doctor, {
-    fields: [platformSubscription.doctorId],
-    references: [doctor.id],
+export const platformSubscriptionRelations = relations(
+  platformSubscription,
+  ({ one }) => ({
+    doctor: one(doctor, {
+      fields: [platformSubscription.doctorId],
+      references: [doctor.id],
+    }),
   }),
-}));
+);

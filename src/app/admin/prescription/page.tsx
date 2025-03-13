@@ -7,15 +7,8 @@ import Topbar from "../_common/Topbar";
 
 const PrescriptionsPage = () => {
   return (
-    <div className="flex h-screen bg-gray-50 mb-8">
-      <Sidebar />
-      <div className="ml-60 flex-1 flex flex-col p-2">
-        <Topbar />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        PrescriptionsPage
-        </div>
-        <Footer />
-      </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      PrescriptionsPage
     </div>
   );
 };

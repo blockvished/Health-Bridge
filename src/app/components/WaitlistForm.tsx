@@ -2,7 +2,10 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 
 const WaitlistForm: React.FC = () => {
-  const [formData, setFormData] = useState<{ firstName: string; email: string }>({
+  const [formData, setFormData] = useState<{
+    firstName: string;
+    email: string;
+  }>({
     firstName: "",
     email: "",
   });
