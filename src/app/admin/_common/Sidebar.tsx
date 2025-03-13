@@ -26,7 +26,7 @@ const menuItems = [
       { name: "Payouts", link: "#" },
     ],
   },
-  { name: "Consultations", link: "#", svg: "🩺" },
+  { name: "Consultations", link: "/admin/live_consults", svg: "🩺" },
   { name: "Staff", link: "/admin/staff", svg: "👨‍⚕️" },
   {
     name: "Prescription Settings",
