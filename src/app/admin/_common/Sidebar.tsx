@@ -8,10 +8,9 @@ const menuItems = [
   { name: "Subscription", link: "/admin/subscription", svg: "📜" },
   {
     name: "Settings",
-    link: "#",
     svg: "⚙️",
     dropdown: [
-      { name: "Departments", link: "#" },
+      { name: "Departments", link: "/admin/department" },
       { name: "Set Schedule", link: "#" },
       { name: "Consultation Settings", link: "#" },
       { name: "QR Code", link: "#" },
@@ -21,7 +20,6 @@ const menuItems = [
   { name: "Custom Domain", link: "#", svg: "🌐" },
   {
     name: "Payouts",
-    link: "#",
     svg: "💰",
     dropdown: [
       { name: "Set Payout Account", link: "#" },
@@ -32,7 +30,6 @@ const menuItems = [
   { name: "Staff", link: "/admin/staff", svg: "👨‍⚕️" },
   {
     name: "Prescription Settings",
-    link: "#",
     svg: "📝",
     dropdown: [
       { name: "Additional Advices", link: "#" },
@@ -42,7 +39,6 @@ const menuItems = [
   { name: "Patients", link: "/admin/patients", svg: "🏥" },
   {
     name: "Appointments",
-    link: "#",
     svg: "📅",
     dropdown: [
       { name: "Create New", link: "/admin/appointment" },
@@ -51,7 +47,6 @@ const menuItems = [
   },
   {
     name: "Drugs",
-    link: "#",
     svg: "💊",
     dropdown: [
       { name: "Drugs", link: "/admin/drugs" },
@@ -60,7 +55,6 @@ const menuItems = [
   },
   {
     name: "Profile",
-    link: "#",
     svg: "👤",
     dropdown: [
       { name: "Personal Info", link: "#" },
@@ -70,7 +64,6 @@ const menuItems = [
   },
   {
     name: "Prescription",
-    link: "#",
     svg: "📜",
     dropdown: [
       { name: "Create New", link: "/admin/prescription" },
