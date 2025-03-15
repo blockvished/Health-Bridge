@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
-const Topbar: React.FC = () => {
+const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({ onToggleSidebar }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <div className="flex justify-between items-center mb-6 relative ">
-      {/* Menu Button */}
-      <button className="p-2 rounded-full hover:bg-gray-100">
+    <div className="flex justify-between items-center mb-6 relative px-4 py-2">
+      {/* Sidebar Toggle Button */}
+      <button className="p-2 rounded-full hover:bg-gray-100" onClick={onToggleSidebar}>
         <svg
           className="w-6 h-6"
           fill="currentColor"
@@ -60,7 +60,7 @@ const Topbar: React.FC = () => {
                 <Link
                   key={item.path}
                   href={item.path}
-                  className="block px-4 py-2 hover:bg-gray-100"
+                  className="block px-4 py-2 hover:bg-gray-100 text-gray-800"
                   onClick={() => setDropdownOpen(false)} // Close dropdown after click
                 >
                   {item.name}
@@ -77,7 +77,7 @@ const Topbar: React.FC = () => {
             alt="Profile"
             className="w-8 h-8 rounded-full"
           />
-          <span>Dr...</span>
+          <span className="text-gray-800 font-medium">Dr...</span>
         </div>
       </div>
     </div>
