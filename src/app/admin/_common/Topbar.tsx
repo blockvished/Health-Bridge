@@ -7,7 +7,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({ onToggleSidebar }) 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <div className="flex justify-between items-center mb-6 relative px-4 py-2 ">
+    <div className="flex justify-between items-center mb-6 relative px-4 py-2">
       {/* Sidebar Toggle Button */}
       <button className="p-2 rounded-full hover:bg-gray-100" onClick={onToggleSidebar}>
         <svg
