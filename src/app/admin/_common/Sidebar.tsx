@@ -2,6 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import {
+  FaHospital,
+  FaClinicMedical,
+  FaUser,
+  FaSignOutAlt,
+} from "react-icons/fa";
 
 const menuItems = [
   { name: "Dashboard", link: "/admin/dashboard/user", svg: "🏠" },
@@ -78,25 +84,64 @@ const menuItems = [
 
 const Sidebar = () => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const toggleDropdown = (index: number) => {
     setOpenDropdown(openDropdown === index ? null : index);
   };
 
   return (
     <div className="w-60 bg-gray-800 text-white flex flex-col h-screen fixed left-0 top-0">
-      {/* Sidebar Header */}
-      <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-700 text-sm">
-        <span className="text-lg">🏥</span>
+      <div
+        className="flex items-center gap-3 px-4 py-4 border-b border-gray-700 text-sm cursor-pointer hover:bg-gray-700"
+        onClick={() => setIsModalOpen(true)}
+      >
+        <FaHospital className="text-lg" />
         <span className="font-semibold">Digambar Healthcare</span>
       </div>
 
-      {/* Sidebar Menu */}
+      {isModalOpen && (
+        <div className="absolute top-14 left-4 bg-white p-4 rounded-lg shadow-lg w-80 border">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-gray-700 font-semibold">
+              Your Live Doctors Accounts
+            </h3>
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✖
+            </button>
+          </div>
+
+          <div className="bg-blue-100 text-blue-600 p-3 rounded-md flex items-center justify-between">
+            <span>Digambar Healthcare Center</span>
+            <span>✔</span>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <Link
+              href="/admin/chamber"
+              className="flex items-center text-blue-600 hover:underline"
+            >
+              <FaClinicMedical className="mr-2" /> Manage Clinics
+            </Link>
+            <Link
+              href="/admin/profile"
+              className="flex items-center text-gray-700 hover:underline"
+            >
+              <FaUser className="mr-2" /> Manage Profile
+            </Link>
+            <button className="flex items-center text-red-600 hover:underline">
+              <FaSignOutAlt className="mr-2" /> Sign Out
+            </button>
+          </div>
+        </div>
+      )}
+
       <nav className="flex-1 py-3 overflow-y-auto scrollbar-hide">
         {menuItems.map((item, index) => (
           <div key={index}>
             {item.dropdown ? (
-              // Handle dropdown items
               <div
                 onClick={() => toggleDropdown(index)}
                 className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer text-sm"
@@ -108,7 +153,6 @@ const Sidebar = () => {
                 </span>
               </div>
             ) : (
-              // Wrap non-dropdown items in Link
               <Link
                 href={item.link}
                 className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer text-sm"
@@ -118,7 +162,6 @@ const Sidebar = () => {
               </Link>
             )}
 
-            {/* Dropdown Items */}
             {item.dropdown && openDropdown === index && (
               <div className="ml-6">
                 {item.dropdown.map((subItem, subIndex) => (
