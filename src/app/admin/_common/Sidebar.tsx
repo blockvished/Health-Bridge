@@ -17,13 +17,13 @@ const menuItems = [
     ],
   },
   { name: "Transactions", link: "/admin/payment/lists", svg: "💳" },
-  { name: "Custom Domain", link: "#", svg: "🌐" },
+  { name: "Custom Domain", link: "/admin/domain/", svg: "🌐" },
   {
     name: "Payouts",
     svg: "💰",
     dropdown: [
-      { name: "Set Payout Account", link: "#" },
-      { name: "Payouts", link: "#" },
+      { name: "Set Payout Account", link: "/admin/payouts/setup_account" },
+      { name: "Payouts", link: "/admin/payouts/user" },
     ],
   },
   { name: "Consultations", link: "/admin/live_consults", svg: "🩺" },
@@ -32,8 +32,8 @@ const menuItems = [
     name: "Prescription Settings",
     svg: "📝",
     dropdown: [
-      { name: "Additional Advices", link: "#" },
-      { name: "Diagnosis Tests", link: "#" },
+      { name: "Additional Advices", link: "/admin/additional_advises" },
+      { name: "Diagnosis Tests", link: "/admin/advise_investigation" },
     ],
   },
   { name: "Patients", link: "/admin/patients", svg: "🏥" },
@@ -50,16 +50,16 @@ const menuItems = [
     svg: "💊",
     dropdown: [
       { name: "Drugs", link: "/admin/drugs" },
-      { name: "Bulk Import Drugs", link: "#" },
+      { name: "Bulk Import Drugs", link: "/admin/drugs/import" },
     ],
   },
   {
     name: "Profile",
     svg: "👤",
     dropdown: [
-      { name: "Personal Info", link: "#" },
-      { name: "Manage Education", link: "#" },
-      { name: "Manage Experiences", link: "#" },
+      { name: "Personal Info", link: "/admin/profile" },
+      { name: "Manage Education", link: "/admin/educations" },
+      { name: "Manage Experiences", link: "/admin/experiences" },
     ],
   },
   {
@@ -67,10 +67,10 @@ const menuItems = [
     svg: "📜",
     dropdown: [
       { name: "Create New", link: "/admin/prescription" },
-      { name: "Prescriptions", link: "#" },
+      { name: "Prescriptions", link: "/admin/prescription/all_prescription" },
     ],
   },
-  { name: "Rating & Reviews", link: "#", svg: "⭐" },
+  { name: "Rating & Reviews", link: "/admin/dashboard/rating", svg: "⭐" },
   { name: "Contact", link: "/admin/contact/user", svg: "📞" },
   { name: "Change Password", link: "/admin/change_password", svg: "🔒" },
   { name: "Logout", link: "#", svg: "🚪" },
