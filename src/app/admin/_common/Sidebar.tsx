@@ -50,7 +50,7 @@ const menuItems = [
     svg: "💊",
     dropdown: [
       { name: "Drugs", link: "/admin/drugs" },
-      { name: "Bulk Import Drugs", link: "#" },
+      { name: "Bulk Import Drugs", link: "/admin/drugs/import" },
     ],
   },
   {
