@@ -1,6 +1,5 @@
 export default function BulkImportDrugs() {
     return (
-      <div className="p-6 bg-gray-100 min-h-screen flex justify-center items-center">
         <div className="bg-white p-5 rounded-lg shadow-md w-full max-w-2xl">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-700">Bulk Import Drugs</h3>
@@ -23,7 +22,6 @@ export default function BulkImportDrugs() {
             </button>
           </div>
         </div>
-      </div>
     );
   }
   

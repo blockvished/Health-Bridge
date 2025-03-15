@@ -57,9 +57,9 @@ const menuItems = [
     name: "Profile",
     svg: "👤",
     dropdown: [
-      { name: "Personal Info", link: "#" },
-      { name: "Manage Education", link: "#" },
-      { name: "Manage Experiences", link: "#" },
+      { name: "Personal Info", link: "/admin/profile" },
+      { name: "Manage Education", link: "/admin/educations" },
+      { name: "Manage Experiences", link: "/admin/experiences" },
     ],
   },
   {
