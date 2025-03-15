@@ -1,5 +1,5 @@
 import { AiFillHome, AiFillSetting, AiFillSchedule } from "react-icons/ai";
-import { FaUserMd, FaMoneyBillWave, FaUsers, FaPills, FaPrescription, FaStar, FaPhone, FaLock, FaSignOutAlt, FaEnvelope, FaFileAlt, FaCalendarAlt, FaWallet } from "react-icons/fa";
+import { FaUserMd, FaMoneyBillWave, FaUsers, FaPills, FaPrescription, FaStar, FaPhone, FaLock, FaSignOutAlt, FaEnvelope, FaFileAlt, FaCalendarAlt, FaWallet, FaUserInjured, FaQrcode, FaSlidersH, FaCalendarCheck, FaBuilding } from "react-icons/fa";
 import { MdDashboard, MdSubscriptions, MdPayment, MdDomain, MdLiveTv, MdPeople, MdMedicalServices, MdRateReview } from "react-icons/md";
 import { JSX } from "react";
 
@@ -7,7 +7,7 @@ export interface MenuItem {
     name: string;
     link?: string;
     svg: JSX.Element;
-    dropdown?: { name: string; link: string }[];
+    dropdown?: { name: string; link: string,svg?: JSX.Element }[];
   }
   
   export const menuItems: MenuItem[] = [
@@ -17,10 +17,10 @@ export interface MenuItem {
       name: "Settings",
       svg: <AiFillSetting />,
       dropdown: [
-        { name: "Departments", link: "/admin/department" },
-        { name: "Set Schedule", link: "/admin/appointment/assign" },
-        { name: "Consultation Settings", link: "/admin/live_consults/settings" },
-        { name: "QR Code", link: "/admin/profile/qr_code" },
+        { name: "Departments", link: "/admin/department", svg: <FaBuilding  /> },
+        { name: "Set Schedule", link: "/admin/appointment/assign", svg: <FaCalendarCheck  /> },
+        { name: "Consultation Settings", link: "/admin/live_consults/settings", svg: <FaSlidersH  /> },
+        { name: "QR Code", link: "/admin/profile/qr_code", svg: <FaQrcode  /> },
       ],
     },
     { name: "Transactions", link: "/admin/payment/lists", svg: <MdPayment /> },
@@ -37,13 +37,13 @@ export interface MenuItem {
     { name: "Staff", link: "/admin/staff", svg: <FaUsers  /> },
     {
       name: "Prescription Settings",
-      svg: <FaFileAlt  />,
+      svg: <FaPrescription />,
       dropdown: [
         { name: "Additional Advices", link: "/admin/additional_advises" },
         { name: "Diagnosis Tests", link: "/admin/advise_investigation" },
       ],
     },
-    { name: "Patients", link: "/admin/patients", svg: <FaUsers /> },
+    { name: "Patients", link: "/admin/patients", svg: <FaUserInjured  /> },
     {
       name: "Appointments",
       svg: <FaCalendarAlt  />,
@@ -71,7 +71,7 @@ export interface MenuItem {
     },
     {
       name: "Prescription",
-      svg: <FaPrescription />,
+      svg: <FaFileAlt  />,
       dropdown: [
         { name: "Create New", link: "/admin/prescription" },
         { name: "Prescriptions", link: "/admin/prescription/all_prescription" },
