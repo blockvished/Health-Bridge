@@ -6,7 +6,7 @@ import SidebarHeader from "./SidebarHeader";
 import SidebarMenu from "./SidebarMenu";
 import { menuItems } from "./menuItems";
 
-const Sidebar = () => {
+const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -15,10 +15,10 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-60 bg-gray-800 text-white flex flex-col h-screen fixed left-0 top-0">
-      <SidebarHeader onClick={() => setIsModalOpen(true)} />
+    <div className={`bg-gray-800 text-white flex flex-col h-screen fixed left-0 top-0 transition-all ${isCollapsed ? "w-20" : "w-60"}`}>
+      {!isCollapsed && <SidebarHeader onClick={() => setIsModalOpen(true)} />}
       {isModalOpen && <Modal onClose={() => setIsModalOpen(false)} />}
-      <SidebarMenu menuItems={menuItems} openDropdown={openDropdown} toggleDropdown={toggleDropdown} />
+      <SidebarMenu menuItems={menuItems} openDropdown={openDropdown} toggleDropdown={toggleDropdown} isCollapsed={isCollapsed} />
     </div>
   );
 };
