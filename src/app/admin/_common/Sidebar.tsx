@@ -67,10 +67,10 @@ const menuItems = [
     svg: "📜",
     dropdown: [
       { name: "Create New", link: "/admin/prescription" },
-      { name: "Prescriptions", link: "#" },
+      { name: "Prescriptions", link: "/admin/prescription/all_prescription" },
     ],
   },
-  { name: "Rating & Reviews", link: "#", svg: "⭐" },
+  { name: "Rating & Reviews", link: "/admin/dashboard/rating", svg: "⭐" },
   { name: "Contact", link: "/admin/contact/user", svg: "📞" },
   { name: "Change Password", link: "/admin/change_password", svg: "🔒" },
   { name: "Logout", link: "#", svg: "🚪" },
