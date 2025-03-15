@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { JSX } from "react";
+import { JSX, useState } from "react";
 import { FaAngleDoubleRight } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface MenuItem {
   name: string;
@@ -11,17 +12,21 @@ interface MenuItem {
 
 interface SidebarMenuProps {
   menuItems: MenuItem[];
-  openDropdown: number | null;
-  toggleDropdown: (index: number) => void;
   isCollapsed: boolean;
 }
 
-const SidebarMenu: React.FC<SidebarMenuProps> = ({
-  menuItems,
-  openDropdown,
-  toggleDropdown,
-  isCollapsed,
-}) => {
+const SidebarMenu: React.FC<SidebarMenuProps> = ({ menuItems, isCollapsed }) => {
+  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+  const [activeLink, setActiveLink] = useState<string | null>(null);
+
+  const toggleDropdown = (index: number) => {
+    setOpenDropdown((prev) => (prev === index ? null : index));
+  };
+
+  const closeDropdown = () => {
+    setOpenDropdown(null);
+  };
+
   return (
     <nav className="flex-1 py-2 overflow-y-auto scrollbar-hide">
       {menuItems.map((item, index) => (
@@ -29,49 +34,114 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
           {item.dropdown ? (
             <div
               onClick={() => toggleDropdown(index)}
-              className={`flex items-center px-2 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer rounded-md text-sm transition-all ${
+              className={`flex items-center px-2 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer rounded-md text-sm transition-all duration-300 ${
                 isCollapsed ? "justify-center" : ""
-              }`}
+              } ${openDropdown === index ? "bg-gray-600" : ""}`}
             >
-              <span className="text-lg">{item.svg}</span>
-              {!isCollapsed && <span className="ml-3 flex-1">{item.name}</span>}
+              <motion.span
+                className="text-lg"
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.2 }}
+              >
+                {item.svg}
+              </motion.span>
               {!isCollapsed && (
-                <span className="text-xs">
+                <motion.span
+                  className="ml-3 flex-1"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {item.name}
+                </motion.span>
+              )}
+              {!isCollapsed && (
+                <motion.span
+                  className="text-xs"
+                  initial={{ rotate: 0 }}
+                  animate={{ rotate: openDropdown === index ? 90 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
                   {openDropdown === index ? "▾" : "▸"}
-                </span>
+                </motion.span>
               )}
             </div>
           ) : (
             <Link
               href={item.link || "#"}
-              className={`flex items-center px-2 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer rounded-md text-sm transition-all ${
+              onClick={() => {
+                setActiveLink(item.link || "#");
+                closeDropdown(); // Close any open dropdown when clicking a normal link
+              }}
+              className={`flex items-center px-2 py-2 ${
+                activeLink === item.link ? "text-white font-bold" : "text-gray-300"
+              } hover:bg-gray-700 cursor-pointer rounded-md text-sm transition-all duration-300 ${
                 isCollapsed ? "justify-center" : ""
               }`}
             >
-              <span className="text-lg">{item.svg}</span>
-              {!isCollapsed && <span className="ml-3 flex-1">{item.name}</span>}
+              <motion.span
+                className="text-lg"
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.2 }}
+              >
+                {item.svg}
+              </motion.span>
+              {!isCollapsed && (
+                <motion.span
+                  className="ml-3 flex-1"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {item.name}
+                </motion.span>
+              )}
             </Link>
           )}
 
-          {!isCollapsed && item.dropdown && openDropdown === index && (
-            <div className="ml-5 mt-1 border-l border-gray-600 pl-2">
-              {item.dropdown.map((subItem, subIndex) => (
-                <Link
-                  key={subIndex}
-                  href={subItem.link}
-                  className="flex items-center gap-2 px-2 py-1 text-gray-400 hover:bg-gray-700 text-sm rounded-md transition-all"
-                >
-                  {!subItem.svg && (
-                    <FaAngleDoubleRight className="text-gray-500 text-xs" />
-                  )}
-                  {subItem.svg && (
-                    <span className="text-gray-500 text-xs">{subItem.svg}</span>
-                  )}
-                  {subItem.name}
-                </Link>
-              ))}
-            </div>
-          )}
+          {/* Dropdown Animation */}
+          <AnimatePresence>
+            {!isCollapsed && item.dropdown && openDropdown === index && (
+              <motion.div
+                className="ml-5 mt-1 border-l border-gray-600 pl-2"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {item.dropdown.map((subItem, subIndex) => (
+                  <Link
+                    key={subIndex}
+                    href={subItem.link}
+                    onClick={() => {
+                      setActiveLink(subItem.link);
+                      // Do NOT close the dropdown when clicking a submenu
+                    }}
+                    className={`flex items-center gap-2 px-2 py-1 ${
+                      activeLink === subItem.link ? "text-white font-bold" : "text-gray-400"
+                    } hover:bg-gray-700 text-sm rounded-md transition-all duration-300`}
+                  >
+                    {!subItem.svg && (
+                      <FaAngleDoubleRight className="text-gray-500 text-xs" />
+                    )}
+                    {subItem.svg && (
+                      <motion.span
+                        className="text-gray-500 text-xs"
+                        initial={{ scale: 0.8 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {subItem.svg}
+                      </motion.span>
+                    )}
+                    {subItem.name}
+                  </Link>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       ))}
     </nav>
