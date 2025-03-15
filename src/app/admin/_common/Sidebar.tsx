@@ -17,13 +17,13 @@ const menuItems = [
     ],
   },
   { name: "Transactions", link: "/admin/payment/lists", svg: "💳" },
-  { name: "Custom Domain", link: "#", svg: "🌐" },
+  { name: "Custom Domain", link: "/admin/domain/", svg: "🌐" },
   {
     name: "Payouts",
     svg: "💰",
     dropdown: [
-      { name: "Set Payout Account", link: "#" },
-      { name: "Payouts", link: "#" },
+      { name: "Set Payout Account", link: "/admin/payouts/setup_account" },
+      { name: "Payouts", link: "/admin/payouts/user" },
     ],
   },
   { name: "Consultations", link: "/admin/live_consults", svg: "🩺" },
@@ -32,8 +32,8 @@ const menuItems = [
     name: "Prescription Settings",
     svg: "📝",
     dropdown: [
-      { name: "Additional Advices", link: "#" },
-      { name: "Diagnosis Tests", link: "#" },
+      { name: "Additional Advices", link: "/admin/additional_advises" },
+      { name: "Diagnosis Tests", link: "/admin/advise_investigation" },
     ],
   },
   { name: "Patients", link: "/admin/patients", svg: "🏥" },
