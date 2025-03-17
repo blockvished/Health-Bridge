@@ -7,7 +7,7 @@ export default function CreatePrescription() {
   const [drug, setDrug] = useState("");
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen flex justify-center items-center">
+    <div className="p-6 min-h-screen flex justify-center items-center">
       <div
         className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl"
         style={{
@@ -125,7 +125,7 @@ export default function CreatePrescription() {
       </div>
 
       {/* Preview Button (right centered on the page) */}
-      <div className="fixed top-1/2 right-0 transform -translate-y-1/2 mr-6">
+      <div className="fixed top-1/4 right-0 transform -translate-y-1/2 mr-6">
         <button className="bg-blue-500 text-white px-6 py-3 rounded-md flex items-center gap-2 hover:bg-blue-600 transition duration-300">
           <FaPrint /> Preview
         </button>
