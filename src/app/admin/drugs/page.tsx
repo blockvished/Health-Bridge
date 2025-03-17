@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Sidebar from "../_common/Sidebar";
-import Footer from "../_common/Footer";
-import Topbar from "../_common/Topbar";
+import { FaEdit, FaTrashAlt } from "react-icons/fa"; // Importing React Icons
 
 const Drugs: React.FC = () => {
   const [drugs, setDrugs] = useState([
@@ -59,13 +57,13 @@ const Drugs: React.FC = () => {
                   </td>
                   <td className="p-3 flex gap-2">
                     <button className="p-1.5 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8">
-                      ✏️
+                      <FaEdit className="text-gray-600" />
                     </button>
                     <button
                       className="p-1.5 border rounded-md bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center w-8 h-8"
                       onClick={() => handleDelete(drug.id)}
                     >
-                      🗑️
+                      <FaTrashAlt className="text-white" />
                     </button>
                   </td>
                 </tr>

@@ -1,4 +1,5 @@
 import React from "react";
+import { FaTrash } from "react-icons/fa"; // Import FaTrash from react-icons
 
 const contacts = [
   {
@@ -38,8 +39,8 @@ const ContactTable = () => {
                 <td className="p-3 text-gray-500">{contact.message}</td>
                 <td className="p-3 text-gray-500">{contact.date}</td>
                 <td className="p-3">
-                  <button className="p-1.5 border rounded-md bg-red-100 text-red-600 hover:bg-red-200 transition flex items-center justify-center w-8 h-8">
-                    🔒
+                  <button className="p-2 border rounded-md bg-red-100 text-red-600 hover:bg-red-200 transition flex items-center justify-center w-8 h-8">
+                    <FaTrash className="text-xl" />
                   </button>
                 </td>
               </tr>

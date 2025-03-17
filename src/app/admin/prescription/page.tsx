@@ -1,4 +1,3 @@
-
 "use client";
 import { useState } from "react";
 import { FaPlus, FaPrint, FaHospital } from "react-icons/fa";
@@ -8,9 +7,9 @@ export default function CreatePrescription() {
   const [drug, setDrug] = useState("");
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen flex justify-center items-center">
+    <div className="p-6 min-h-screen flex justify-center items-center">
       <div
-        className="bg-white p-8 rounded-lg shadow-lg border"
+        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-3xl"
         style={{
           width: "794px", // A4 width
           height: "1123px", // A4 height
@@ -19,43 +18,44 @@ export default function CreatePrescription() {
         }}
       >
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-700">Create New Prescription</h2>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-blue-600 transition">
-            <FaPrint /> Preview
-          </button>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold text-gray-800">Create New Prescription</h2>
         </div>
 
         {/* Doctor & Hospital Info */}
         <div className="flex justify-between items-center border-b pb-4 mb-4">
           <div>
-            <h3 className="text-lg font-semibold">Dr. Dheeraj Singh</h3>
+            <h3 className="text-lg font-semibold text-gray-700">Dr. Dheeraj Singh</h3>
             <p className="text-gray-600 text-sm">doctor1@livedoctors.in</p>
             <p className="text-gray-600 text-sm">Cardiology</p>
             <p className="text-gray-600 text-sm">MBBS, MD</p>
           </div>
           <div className="text-right flex flex-col items-end">
-            <FaHospital className="text-green-500 text-3xl" />
+            <FaHospital className="text-green-500 text-4xl" />
             <p className="text-sm font-semibold">Digambar Healthcare Center</p>
             <p className="text-xs text-gray-500">Gorakhpur, U.P. India</p>
           </div>
         </div>
 
         {/* Form Section */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {/* Clinical Diagnosis & Patient Name */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700">Clinical Diagnosis</label>
-              <input className="border p-2 rounded-md w-full" type="text" placeholder="Enter diagnosis" />
+              <input className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="Enter diagnosis" />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700">Patient Name *</label>
-              <div className="flex gap-2">
-                <select className="border p-2 rounded-md w-full" value={patient} onChange={(e) => setPatient(e.target.value)}>
+              <div className="flex gap-3">
+                <select
+                  className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={patient}
+                  onChange={(e) => setPatient(e.target.value)}
+                >
                   <option>Select Patient</option>
                 </select>
-                <button className="bg-gray-200 px-3 py-1 rounded-md text-sm flex items-center gap-1">
+                <button className="bg-gray-200 px-3 py-2 rounded-md text-sm flex items-center gap-1 hover:bg-gray-300 transition">
                   <FaPlus /> Add
                 </button>
               </div>
@@ -63,18 +63,22 @@ export default function CreatePrescription() {
           </div>
 
           {/* Additional Advice & Drug */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700">Additional Advice</label>
-              <input className="border p-2 rounded-md w-full" type="text" placeholder="Enter advice" />
+              <input className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="Enter advice" />
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700">Drug *</label>
-              <div className="flex gap-2">
-                <select className="border p-2 rounded-md w-full" value={drug} onChange={(e) => setDrug(e.target.value)}>
+              <div className="flex gap-3">
+                <select
+                  className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={drug}
+                  onChange={(e) => setDrug(e.target.value)}
+                >
                   <option>Select Drug</option>
                 </select>
-                <button className="bg-gray-200 px-3 py-1 rounded-md text-sm flex items-center gap-1">
+                <button className="bg-gray-200 px-3 py-2 rounded-md text-sm flex items-center gap-1 hover:bg-gray-300 transition">
                   <FaPlus /> Add
                 </button>
               </div>
@@ -82,10 +86,10 @@ export default function CreatePrescription() {
           </div>
 
           {/* Advice */}
-          <div className="flex items-center gap-2">
-            <label className="block text-sm font-semibold text-gray-700 w-20">Advice</label>
-            <input className="border p-2 rounded-md flex-grow" type="text" placeholder="Enter advice" />
-            <button className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm flex items-center gap-1 hover:bg-blue-600 transition">
+          <div className="flex items-center gap-3">
+            <label className="block text-sm font-semibold text-gray-700 w-24">Advice</label>
+            <input className="border border-gray-300 p-3 rounded-md flex-grow bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="Enter advice" />
+            <button className="bg-blue-500 text-white px-6 py-2 rounded-md text-sm flex items-center gap-1 hover:bg-blue-600 transition">
               <FaPlus /> Add
             </button>
           </div>
@@ -93,20 +97,20 @@ export default function CreatePrescription() {
           {/* Diagnosis Tests */}
           <div>
             <label className="block text-sm font-semibold text-gray-700">Diagnosis Tests</label>
-            <input className="border p-2 rounded-md w-full" type="text" placeholder="Enter tests" />
+            <input className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="Enter tests" />
           </div>
 
           {/* Next Follow Up */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700">Next Follow Up</label>
-              <select className="border p-2 rounded-md w-full">
+              <select className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option>Select days</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700">&nbsp;</label>
-              <select className="border p-2 rounded-md w-full">
+              <select className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option>Select time</option>
               </select>
             </div>
@@ -115,16 +119,16 @@ export default function CreatePrescription() {
           {/* Notes */}
           <div>
             <label className="block text-sm font-semibold text-gray-700">Notes</label>
-            <textarea className="border p-2 rounded-md w-full" rows={3} placeholder="Enter notes"></textarea>
+            <textarea className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" rows={4} placeholder="Enter notes"></textarea>
           </div>
         </div>
+      </div>
 
-        {/* Footer */}
-        <div className="flex justify-end mt-6">
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-blue-600 transition">
-            <FaPrint /> Preview
-          </button>
-        </div>
+      {/* Preview Button (right centered on the page) */}
+      <div className="fixed top-1/4 right-0 transform -translate-y-1/2 mr-6">
+        <button className="bg-blue-500 text-white px-6 py-3 rounded-md flex items-center gap-2 hover:bg-blue-600 transition duration-300">
+          <FaPrint /> Preview
+        </button>
       </div>
     </div>
   );
