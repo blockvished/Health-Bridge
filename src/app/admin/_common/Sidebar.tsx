@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Modal from "./SidebarModal"; // Assuming you have a Modal component
+import LeftPopup from "./LeftPopup";
 import SidebarHeader from "./SidebarHeader";
 import SidebarMenu from "./SidebarMenu";
 import { menuItems } from "./menuItems";
@@ -28,7 +28,7 @@ const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
       <SidebarHeader onClick={handleModalToggle} isCollapsed={isCollapsed} />
 
       {/* Toggleable Modal */}
-      {isModalOpen && <Modal onClose={handleModalToggle} />}
+      {isModalOpen && <LeftPopup onClose={handleModalToggle} />}
 
       {/* Sidebar Menu */}
       <SidebarMenu
