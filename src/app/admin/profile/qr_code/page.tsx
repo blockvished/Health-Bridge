@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { FaShareAlt, FaDownload } from "react-icons/fa";
 
 const QRCodePage: React.FC = () => {
   const qrSrc = "/path-to-your-existing-qrcode.png"; // Replace with actual QR code URL
@@ -15,24 +16,22 @@ const QRCodePage: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-6">
-      {/* Header */}
-      <div className="bg-white shadow-md rounded-xl p-6 max-w-4xl mx-auto w-full">
-        <div className="flex justify-between items-center mb-6">
+    <div className="w-full">
+      <div className="bg-white shadow-md rounded-xl p-4 max-w-2xl w-full">
+        <div className="flex justify-between items-center mb-2">
           <h1 className="text-2xl font-semibold text-gray-800">QR Code</h1>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md">
-            🔗 Share QR Code
+          <button className="flex items-center bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">
+            <FaShareAlt className="mr-2" /> Share QR Code
           </button>
         </div>
 
-        {/* QR Code Display */}
-        <div className="flex flex-col items-center bg-gray-100 p-6 rounded-lg shadow-md">
-          <img src={qrSrc} alt="QR Code" className="w-56 h-56 rounded-lg border" />
+        <div className="flex flex-col p-6 rounded-lg ">
+          <img src={qrSrc} alt="QR Code" className="w-77 h-77 rounded-lg border" />
           <button
             onClick={handleDownload}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center"
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center w-1/3"
           >
-            ⬇ Download
+            <FaDownload className="mr-2" /> Download
           </button>
         </div>
       </div>

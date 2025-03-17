@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { FaEye } from "react-icons/fa";
 
 const payments = [
   {
@@ -38,13 +39,17 @@ const PaymentsPage = () => {
                 className="hover:bg-gray-50 transition border-b border-gray-200"
               >
                 <td className="p-3 text-gray-700">{index + 1}</td>
-                <td className="p-3 font-semibold text-gray-900">{payment.plan}</td>
+                <td className="p-3 font-semibold text-gray-900">
+                  {payment.plan}
+                </td>
                 <td className="p-3 text-gray-700">{payment.billingCycle}</td>
-                <td className="p-3 font-medium text-gray-900">{payment.price}</td>
+                <td className="p-3 font-medium text-gray-900">
+                  {payment.price}
+                </td>
                 <td className="p-3 text-gray-700">{payment.date}</td>
                 <td className="p-3">
-                  <button className="p-2 border rounded-md bg-gray-200 hover:bg-gray-300 transition text-sm flex items-center">
-                    👁️ View
+                  <button className="p-2 bg-gray-200 rounded-md hover:bg-gray-300 transition flex items-center justify-center gap-2">
+                    <FaEye /> View
                   </button>
                 </td>
               </tr>

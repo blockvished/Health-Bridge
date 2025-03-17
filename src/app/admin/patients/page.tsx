@@ -2,6 +2,8 @@ import React from "react";
 import Sidebar from "../_common/Sidebar";
 import Footer from "../_common/Footer";
 import Topbar from "../_common/Topbar";
+import { MdDelete } from "react-icons/md";
+import { FiEdit, FiEye } from "react-icons/fi";
 
 const patients = [
   {
@@ -62,15 +64,15 @@ const Patients: React.FC = () => {
                 <td className="p-3 text-gray-700">{patient.address || "-"}</td>
                 <td className="p-3">
                   <button className="bg-blue-100 text-blue-600 px-3 py-1 rounded-md text-sm flex items-center gap-1">
-                    👁️ View
+                    <FiEye /> View
                   </button>
                 </td>
                 <td className="p-3 flex gap-2">
                   <button className="p-2 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8">
-                    ✏️
+                    <FiEdit />
                   </button>
                   <button className="p-2 border rounded-md bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center w-8 h-8">
-                    🗑️
+                    <MdDelete />
                   </button>
                 </td>
               </tr>

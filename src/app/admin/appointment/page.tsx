@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Sidebar from "../_common/Sidebar";
-import Footer from "../_common/Footer";
-import Topbar from "../_common/Topbar";
+import { FiCalendar, FiTrash } from "react-icons/fi";
+import { MdOutlineDateRange } from "react-icons/md";
 
 const appointmentsData = [
   {
@@ -57,6 +56,24 @@ const appointmentsData = [
 
 const Appointments = () => {
   const [appointments, setAppointments] = useState(appointmentsData);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Filter appointments based on search input
+  const filteredAppointments = appointments.filter((apt) =>
+    `${apt.patient.name} ${apt.patient.mrNo} ${apt.patient.phone} ${apt.patient.email} ${apt.scheduleDate}`
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredAppointments.length / entriesPerPage);
+  const startIndex = (currentPage - 1) * entriesPerPage;
+  const displayedAppointments = filteredAppointments.slice(
+    startIndex,
+    startIndex + entriesPerPage
+  );
 
   return (
     <div className="flex max-w-6xl mx-auto gap-6 p-6">
@@ -101,8 +118,8 @@ const Appointments = () => {
           ))}
         </select>
 
-        <button className="bg-blue-500 text-white w-full py-2 rounded-md hover:bg-blue-600">
-          + Add Serial
+        <button className="bg-blue-500 text-white w-full py-2 rounded-md hover:bg-blue-600 flex items-center justify-center gap-2">
+          <FiCalendar /> Add Serial
         </button>
       </div>
 
@@ -110,9 +127,36 @@ const Appointments = () => {
       <div className="bg-white shadow-md rounded-xl p-6 w-2/3">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold text-gray-800">Appointments</h2>
-          <button className="text-gray-600 text-sm border px-3 py-1 rounded-md">
-            📅 List by date
+          <button className="text-gray-600 text-sm border px-3 py-1 rounded-md flex items-center gap-1">
+            <MdOutlineDateRange /> List by date
           </button>
+        </div>
+
+        <div className="flex justify-between items-center mb-4">
+          <label className="text-sm text-gray-600">
+            Show
+            <select
+              className="border rounded-md px-2 py-1 mx-2"
+              value={entriesPerPage}
+              onChange={(e) => {
+                setEntriesPerPage(Number(e.target.value));
+                setCurrentPage(1); // Reset to first page
+              }}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+            entries
+          </label>
+          <input
+            type="text"
+            placeholder="Search..."
+            className="border px-3 py-1 rounded-md"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
 
         <div className="overflow-x-auto">
@@ -128,12 +172,14 @@ const Appointments = () => {
               </tr>
             </thead>
             <tbody>
-              {appointments.map((apt, index) => (
+              {displayedAppointments.map((apt, index) => (
                 <tr
                   key={apt.id}
                   className="border-b border-gray-200 hover:bg-gray-50 transition"
                 >
-                  <td className="p-3 text-gray-700">{index + 1}</td>
+                  <td className="p-3 text-gray-700">
+                    {startIndex + index + 1}
+                  </td>
                   <td className="p-3 text-gray-700">{apt.serialNo}</td>
                   <td className="p-3 text-gray-700">
                     {apt.patient.name ? (
@@ -152,29 +198,11 @@ const Appointments = () => {
                       "-"
                     )}
                   </td>
+                  <td className="p-3">{apt.scheduleDate}</td>
+                  <td className="p-3">{apt.type}</td>
                   <td className="p-3">
-                    <span className="text-blue-500 font-medium">
-                      {apt.scheduleDate}
-                    </span>
-                    <br />
-                    <span className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded-md">
-                      {apt.scheduleTime}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <span
-                      className={`px-3 py-1 rounded-md text-sm ${
-                        apt.type === "Online"
-                          ? "bg-red-100 text-red-600"
-                          : "bg-gray-200 text-gray-700"
-                      }`}
-                    >
-                      {apt.type}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <button className="p-2 border rounded-md bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center w-8 h-8">
-                      🗑️
+                    <button className="p-2 border rounded-md bg-red-500 text-white hover:bg-red-600 transition">
+                      <FiTrash />
                     </button>
                   </td>
                 </tr>
@@ -183,22 +211,36 @@ const Appointments = () => {
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-          <span>
-            Showing 1 to {appointments.length} of {appointments.length} entries
+        {/* Pagination Controls */}
+        {/* Pagination Controls */}
+        <div className="flex justify-between items-center mt-4">
+          <button
+            className={`px-4 py-2 rounded-md transition ${
+              currentPage === 1
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
+            Previous
+          </button>
+
+          <span className="text-gray-700 font-medium">
+            Page {currentPage} of {totalPages}
           </span>
-          <div className="flex items-center gap-2">
-            <button className="border px-3 py-1 rounded-md text-gray-500 cursor-not-allowed">
-              Previous
-            </button>
-            <span className="bg-blue-500 text-white px-3 py-1 rounded-md">
-              1
-            </span>
-            <button className="border px-3 py-1 rounded-md text-gray-500 cursor-not-allowed">
-              Next
-            </button>
-          </div>
+
+          <button
+            className={`px-4 py-2 rounded-md transition ${
+              currentPage === totalPages
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
