@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { FaTrash } from "react-icons/fa";
 
 const daysOfWeek = [
   "Sunday",
@@ -53,10 +54,11 @@ const AppointmentsSchedule = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        <label className="block text-gray-700 font-medium mb-2">Set Interval</label>
-        <div className="flex items-center gap-2">
+    <div className="flex gap-4">
+      {/* Left Section */}
+      <div className="w-1/3 bg-white p-4 rounded-md shadow min-h-fit">
+        <label className="text-gray-700 font-medium">Set Interval</label>
+        <div className="flex items-center gap-2 mt-2">
           <input
             type="number"
             value={interval}
@@ -64,14 +66,15 @@ const AppointmentsSchedule = () => {
             className="border p-2 rounded w-16"
           />
           <span>Minutes</span>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded">Update</button>
+          <button className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800">Update</button>
         </div>
       </div>
       
-      <div className="bg-white p-4 rounded-lg shadow-md">
+      {/* Right Section */}
+      <div className="w-2/3 bg-white p-4 rounded-lg shadow-md">
         <h2 className="text-lg font-semibold mb-4">Set Appointments Schedule</h2>
         {daysOfWeek.map((day) => (
-          <div key={day} className="mb-4">
+          <div key={day} className="mb-4 border-b border-gray-300 pb-4">
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2">
                 <input
@@ -104,7 +107,7 @@ const AppointmentsSchedule = () => {
                       onClick={() => removeTime(day, index)}
                       className="text-red-500"
                     >
-                      ❌
+                      <FaTrash />
                     </button>
                   </div>
                 ))}
@@ -118,7 +121,7 @@ const AppointmentsSchedule = () => {
             )}
           </div>
         ))}
-        <button className="bg-blue-500 text-white w-full py-2 rounded-md mt-4">Update</button>
+        <button className="bg-blue-500 text-white w-full py-2 rounded-md mt-4 hover:bg-blue-600">Update</button>
       </div>
     </div>
   );
