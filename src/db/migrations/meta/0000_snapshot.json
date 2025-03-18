@@ -1,5 +1,5 @@
 {
-  "id": "9a0ddd2f-4c50-4f43-bf4b-4aa5bbb21d87",
+  "id": "c44c4ca7-dec0-4f19-8541-c52b48fdc02c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -87,8 +87,12 @@
           "name": "appointment_patient_id_patient_id_fk",
           "tableFrom": "appointment",
           "tableTo": "patient",
-          "columnsFrom": ["patient_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "patient_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -96,8 +100,12 @@
           "name": "appointment_doctor_id_doctor_id_fk",
           "tableFrom": "appointment",
           "tableTo": "doctor",
-          "columnsFrom": ["doctor_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "doctor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -200,7 +208,9 @@
         "doctor_email_unique": {
           "name": "doctor_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},
@@ -345,7 +355,9 @@
         "patient_email_unique": {
           "name": "patient_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},
@@ -428,8 +440,12 @@
           "name": "platform_subscription_doctor_id_doctor_id_fk",
           "tableFrom": "platform_subscription",
           "tableTo": "doctor",
-          "columnsFrom": ["doctor_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "doctor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -519,8 +535,12 @@
           "name": "prescription_patient_id_patient_id_fk",
           "tableFrom": "prescription",
           "tableTo": "patient",
-          "columnsFrom": ["patient_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "patient_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -528,8 +548,12 @@
           "name": "prescription_doctor_id_doctor_id_fk",
           "tableFrom": "prescription",
           "tableTo": "doctor",
-          "columnsFrom": ["doctor_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "doctor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -537,8 +561,12 @@
           "name": "prescription_appointment_id_appointment_id_fk",
           "tableFrom": "prescription",
           "tableTo": "appointment",
-          "columnsFrom": ["appointment_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "appointment_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -617,7 +645,9 @@
         "staff_email_unique": {
           "name": "staff_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},
@@ -629,27 +659,45 @@
     "public.billing_cycle": {
       "name": "billing_cycle",
       "schema": "public",
-      "values": ["monthly", "quarterly", "yearly"]
+      "values": [
+        "monthly",
+        "quarterly",
+        "yearly"
+      ]
     },
     "public.gender": {
       "name": "gender",
       "schema": "public",
-      "values": ["male", "female", "other"]
+      "values": [
+        "male",
+        "female",
+        "other"
+      ]
     },
     "public.appointment_mode": {
       "name": "appointment_mode",
       "schema": "public",
-      "values": ["online", "offline"]
+      "values": [
+        "online",
+        "offline"
+      ]
     },
     "public.patient_type": {
       "name": "patient_type",
       "schema": "public",
-      "values": ["new", "old"]
+      "values": [
+        "new",
+        "old"
+      ]
     },
     "public.subscription_type": {
       "name": "subscription_type",
       "schema": "public",
-      "values": ["basic", "premium", "enterprise"]
+      "values": [
+        "basic",
+        "premium",
+        "enterprise"
+      ]
     }
   },
   "schemas": {},

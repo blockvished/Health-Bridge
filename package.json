@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:generate": "drizzle-kit generate:pg",
+    "db:gen": "drizzle-kit generate",
     "db:migrate": "node -r dotenv/config src/db/migrate.ts",
     "db:studio": "drizzle-kit studio"
   },
