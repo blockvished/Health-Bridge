@@ -11,3 +11,4 @@ npx drizzle-kit generate
 npx drizzle-kit migrate
 
 "db:migrate": "tsx src/db/migrate.ts",
+ngrok http 3000
