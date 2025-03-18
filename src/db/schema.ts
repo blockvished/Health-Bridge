@@ -49,11 +49,11 @@ export const patient = pgTable("patient", {
   presentAddress: text("present_address"),
   permanentAddress: text("permanent_address"),
   gender: genderEnum("gender"),
+  doctorId: integer("doctor_id").notNull().references(() => doctor.id), // Foreign key to the doctor table
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Doctor Table
 export const doctor = pgTable("doctor", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
