@@ -6,3 +6,8 @@
 > DATABASE_URL=postgres://username:password@host:port/dbname
 
 psql -h 172.20.0.1 -U postgres -d livedoc
+
+npx drizzle-kit generate
+npx drizzle-kit migrate
+
+"db:migrate": "tsx src/db/migrate.ts",

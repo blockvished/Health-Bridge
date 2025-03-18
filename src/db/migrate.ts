@@ -1,4 +1,3 @@
-// idk why migrate was created
 // src/db/migrate.js
 const { drizzle } = require("drizzle-orm/postgres-js");
 const { migrate } = require("drizzle-orm/postgres-js/migrator");
