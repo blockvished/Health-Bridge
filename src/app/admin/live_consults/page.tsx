@@ -3,6 +3,7 @@ import { FiSettings, FiEdit } from "react-icons/fi";
 import { BsCameraVideo } from "react-icons/bs";
 import { MdDelete } from "react-icons/md";
 import { FaDollarSign } from "react-icons/fa";
+import Link from "next/link";
 
 const consultations = [
   {
@@ -36,9 +37,11 @@ const ConsultationsPage = () => {
     <div className="bg-white shadow-md rounded-xl overflow-hidden max-w-6xl mx-auto w-full p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-800">Consultations</h1>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm rounded-lg shadow-md flex items-center gap-2">
-          <FiSettings /> Settings
-        </button>
+        <Link href="/admin/live_consults/settings">
+  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm rounded-lg shadow-md flex items-center gap-2">
+    <FiSettings /> Settings
+  </button>
+</Link>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border-0 text-left">

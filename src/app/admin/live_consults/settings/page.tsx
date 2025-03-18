@@ -16,7 +16,7 @@ const LiveConsultationSettings = () => {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold text-gray-800">Consultation Settings</h1>
         <button
-          onClick={() => router.push("/consultations")}
+          onClick={() => router.push("/admin/live_consults")}
           className="flex items-center bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition"
         >
           <MdOutlineVideoCall className="mr-2" /> Consultations
