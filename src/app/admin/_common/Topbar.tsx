@@ -50,7 +50,8 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({ onToggleSidebar }) 
         {/* Create as New Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            // className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full hover:bg-blue-300 hover:text-white hover:bg-blue-700 transition"
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
