@@ -85,17 +85,12 @@ const Profile: React.FC = () => {
             {renderTabContent()}
           </div>
 
-          {/* Save Button */}
-          {(activeTab === "Social Settings" ||
-            activeTab === "SEO Settings" ||
-            activeTab === "Custom JS") && (
-            <div className="px-6 pb-6 border-l border-r border-b border-gray-200 rounded-b-lg">
-              <button className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center text-sm shadow-md hover:bg-blue-600 transition">
-                <FaCheck className="mr-2" />
-                Save Changes
-              </button>
-            </div>
-          )}
+          <div className="px-6 pb-6 border-l border-r border-b border-gray-200 rounded-b-lg">
+            <button className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center text-sm shadow-md hover:bg-blue-600 transition">
+              <FaCheck className="mr-2" />
+              Save Changes
+            </button>
+          </div>
         </div>
       </div>
     </div>
