@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { FaVideo, FaRupeeSign } from "react-icons/fa";
-import { MdOutlineVideoCall } from "react-icons/md";
+import { FaRupeeSign, FaCalendarAlt } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
 const LiveConsultationSettings = () => {
@@ -12,72 +11,99 @@ const LiveConsultationSettings = () => {
   const router = useRouter();
 
   return (
-    <div className="max-w-2xl w-full p-6 bg-white shadow-md rounded-xl">
+    <div className="max-w-lg w-full p-4">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold text-gray-800">Consultation Settings</h1>
+        <h1 className="text-lg font-medium text-gray-800">Consultation Settings</h1>
         <button
           onClick={() => router.push("/admin/live_consults")}
-          className="flex items-center bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition"
+          className="flex items-center bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-sm"
         >
-          <MdOutlineVideoCall className="mr-2" /> Consultations
+          <FaCalendarAlt className="mr-1" size={14} /> Consultations
         </button>
       </div>
 
-      <div className="space-y-4">
-        {/* Consultation Fees */}
-        <div>
-          <label className="block text-gray-700 font-medium">Consultation Fees *</label>
-          <div className="flex items-center border rounded-md p-2 mt-1 bg-gray-100">
-            <FaRupeeSign className="text-gray-600 mr-2" />
-            <input
-              type="text"
-              className="w-full bg-transparent focus:outline-none"
-              value={consultationFee}
-              onChange={(e) => setConsultationFee(e.target.value)}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="space-y-6">
+          {/* Consultation Fees */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Consultation Fees <span className="text-red-500">*</span>
+            </label>
+            <div className="flex">
+              <div className="bg-gray-200 flex items-center justify-center px-4 rounded-l-md border border-gray-300">
+                <span className="text-gray-600">₹</span>
+              </div>
+              <input
+                type="text"
+                className="w-full border border-gray-300 rounded-r-md p-2 focus:outline-none"
+                value={consultationFee}
+                onChange={(e) => setConsultationFee(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Video Meeting Option */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Active video meeting option <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <select
+                className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none appearance-none"
+                value={meetingOption}
+                onChange={(e) => setMeetingOption(e.target.value)}
+              >
+                <option>Google Meet</option>
+                <option>Zoom</option>
+                <option>Microsoft Teams</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </div>
+            </div>
+            <p className="text-red-500 text-xs mt-1">This selected video meeting option will be used for your video consultation with patients</p>
+          </div>
+
+          {/* Meeting Link */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Google Meet Invitation link <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              className="w-full border border-gray-300 rounded-md p-2 h-24 focus:outline-none"
+              value={meetingLink}
+              onChange={(e) => setMeetingLink(e.target.value)}
             />
           </div>
-        </div>
 
-        {/* Video Meeting Option */}
-        <div>
-          <label className="block text-gray-700 font-medium">Active Video Meeting Option *</label>
-          <select
-            className="mt-1 w-full p-2 border rounded-md bg-gray-100 focus:outline-none"
-            value={meetingOption}
-            onChange={(e) => setMeetingOption(e.target.value)}
-          >
-            <option>Google Meet</option>
-            <option>Zoom</option>
-            <option>Microsoft Teams</option>
-          </select>
-          <p className="text-red-500 text-sm mt-1">This selected video meeting option will be used for your video consultation with patients</p>
-        </div>
+          {/* Live Consultation Toggle */}
+          <div className="flex items-center">
+            <div className="relative inline-block w-10 mr-2 align-middle">
+              <input
+                type="checkbox"
+                id="toggle"
+                className="sr-only"
+                checked={liveConsultation}
+                onChange={() => setLiveConsultation(!liveConsultation)}
+              />
+              <div className={`block w-10 h-6 rounded-full ${liveConsultation ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+              <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${liveConsultation ? 'transform translate-x-4' : ''}`}></div>
+            </div>
+            <div>
+              <label htmlFor="toggle" className="text-gray-700 font-medium cursor-pointer">
+                Live Consultation
+              </label>
+              <p className="text-gray-500 text-xs">Enable to allow patients for online consultation</p>
+            </div>
+          </div>
 
-        {/* Meeting Link */}
-        <div>
-          <label className="block text-gray-700 font-medium">Google Meet Invitation Link *</label>
-          <textarea
-            className="mt-1 w-full p-2 border rounded-md bg-gray-100 focus:outline-none"
-            value={meetingLink}
-            onChange={(e) => setMeetingLink(e.target.value)}
-          />
+          {/* Save Changes Button */}
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition w-full hidden">
+            Save Changes
+          </button>
         </div>
-
-        {/* Live Consultation Toggle */}
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            className="accent-blue-500"
-            checked={liveConsultation}
-            onChange={() => setLiveConsultation(!liveConsultation)}
-          />
-          <span className="text-gray-700">Enable Live Consultation</span>
-        </div>
-
-        {/* Save Changes Button */}
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition w-full">
-          Save Changes
-        </button>
       </div>
     </div>
   );
