@@ -1,13 +1,20 @@
+"use client";
+
 import React from "react";
-import { FaPlus } from "react-icons/fa"; // Import the plus icon from react-icons
+import { useRouter } from "next/navigation"; // Import useRouter
+import { FaPlus, FaTrash } from "react-icons/fa"; // Import icons
 
 export default function Prescriptions() {
+  const router = useRouter();
   return (
     <div className="bg-gray-50 p-6 rounded-lg shadow-lg w-full max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-semibold text-gray-800">Prescriptions</h3>
-        <button className="bg-gray-600 text-white text-sm px-6 py-3 rounded-lg flex items-center hover:bg-gray-700 transition">
+        <button
+          className="bg-gray-600 text-white text-sm px-6 py-3 rounded-lg flex items-center hover:bg-gray-700 transition"
+          onClick={() => router.push("/admin/prescription")} // Navigate on click
+        >
           <FaPlus className="mr-2" />
           Create New Prescription
         </button>
@@ -28,11 +35,7 @@ export default function Prescriptions() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td colSpan={7} className="text-center text-gray-500 py-4">No data available</td>
-            </tr>
-            {/* Example row */}
-            {/* <tr className="hover:bg-gray-50 transition-all">
+            <tr className="hover:bg-gray-50 transition-all">
               <td className="py-3 px-4 text-gray-700">1</td>
               <td className="py-3 px-4 text-gray-700">12345</td>
               <td className="py-3 px-4 text-gray-700">John Doe</td>
@@ -44,7 +47,7 @@ export default function Prescriptions() {
                   <FaTrash />
                 </button>
               </td>
-            </tr> */}
+            </tr>
           </tbody>
         </table>
       </div>
