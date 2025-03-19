@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LeftPopup from "./LeftPopup";
 import SidebarHeader from "./SidebarHeader";
 import SidebarMenu from "./SidebarMenu";
@@ -20,6 +20,11 @@ const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
     setIsModalOpen((prev) => !prev);
   };
 
+  // Close the modal when clicking outside
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div
       className={`bg-gray-800 text-white flex flex-col h-screen fixed left-0 top-0 shadow-xl transition-all duration-300 ease-in-out ${isCollapsed ? "w-20 opacity-90" : "w-60 opacity-100"}`}
@@ -28,7 +33,7 @@ const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
       <SidebarHeader onClick={handleModalToggle} isCollapsed={isCollapsed} />
 
       {/* Toggleable Modal */}
-      {isModalOpen && <LeftPopup onClose={handleModalToggle} />}
+      {isModalOpen && <LeftPopup onClose={handleCloseModal} />}
 
       {/* Sidebar Menu */}
       <SidebarMenu

@@ -1,7 +1,7 @@
-import { FaClinicMedical, FaUser, FaSignOutAlt, FaTimes, FaHospital } from "react-icons/fa";
+import { FaClinicMedical, FaUser, FaSignOutAlt, FaTimes, FaHospital } from "react-icons/fa"; 
 import { FaCheck } from "react-icons/fa6";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface LeftPopupProps {
   onClose: () => void;
@@ -9,13 +9,22 @@ interface LeftPopupProps {
 
 const LeftPopup: React.FC<LeftPopupProps> = ({ onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const popupRef = useRef<HTMLDivElement | null>(null);
 
-  // Trigger the slide-in effect when the popup is mounted
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 50); // Small delay for smooth transition
+
+    // Close popup when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle closing animation
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(onClose, 300); // Delay unmounting to let animation play
@@ -23,6 +32,7 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose }) => {
 
   return (
     <div
+      ref={popupRef}
       className={`absolute top-14 left-14 bg-white p-4 rounded-lg shadow-xl w-96 border 
       transform transition-all duration-300 ease-in-out 
       ${isVisible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2"}`}
