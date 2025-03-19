@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { FiCalendar, FiTrash } from "react-icons/fi";
 import { MdOutlineDateRange } from "react-icons/md";
@@ -59,6 +59,8 @@ const Appointments = () => {
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const router = useRouter();
 
   // Filter appointments based on search input
   const filteredAppointments = appointments.filter((apt) =>
@@ -127,7 +129,10 @@ const Appointments = () => {
       <div className="bg-white shadow-md rounded-xl p-6 w-2/3">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold text-gray-800">Appointments</h2>
-          <button className="text-gray-600 text-sm border px-3 py-1 rounded-md flex items-center gap-1">
+          <button
+            onClick={() => router.push("/admin/appointment/all_list")}
+            className="text-gray-600 text-sm border px-3 py-1 rounded-md flex items-center gap-1 hover:bg-gray-100"
+          >
             <MdOutlineDateRange /> List by date
           </button>
         </div>

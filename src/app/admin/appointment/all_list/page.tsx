@@ -1,3 +1,5 @@
+"use client"; // Ensure this is a client component
+import { useRouter } from "next/navigation";
 import {
   FaArrowLeft,
   FaCalendarAlt,
@@ -6,6 +8,8 @@ import {
 } from "react-icons/fa";
 
 export default function AppointmentsPage() {
+  const router = useRouter(); // Get the router instance
+
   const appointments = [
     { date: "22 Jul 2024" },
     { date: "18 Mar 2025" },
@@ -19,7 +23,11 @@ export default function AppointmentsPage() {
         <h3 className="font-semibold text-lg text-gray-700">
           Appointments list by date
         </h3>
-        <button className="flex items-center gap-2 text-gray-600 text-sm bg-gray-100 px-3 py-1.5 rounded-md shadow hover:bg-gray-200">
+        {/* Fix the Back Button */}
+        <button
+          onClick={() => router.back()} // Navigate back
+          className="flex items-center gap-2 text-gray-600 text-sm bg-gray-100 px-3 py-1.5 rounded-md shadow hover:bg-gray-200"
+        >
           <FaArrowLeft />
           Back
         </button>
@@ -54,7 +62,7 @@ export default function AppointmentsPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  {/* ✅ Button is now fully aligned to the right */}
+                  {/* See List Button */}
                   <div className="flex justify-end">
                     <button className="flex items-center gap-2 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md text-sm shadow-sm hover:bg-gray-200">
                       <FaEye />
