@@ -9,7 +9,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex bg-gray-50">
       <Sidebar isCollapsed={isCollapsed} />
       <div className={`flex-1 flex flex-col p-6 transition-all ${isCollapsed ? "ml-20" : "ml-60"}`}>
         <Topbar onToggleSidebar={() => setIsCollapsed(!isCollapsed)} />

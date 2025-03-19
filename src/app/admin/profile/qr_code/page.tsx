@@ -25,8 +25,8 @@ const QRCodePage: React.FC = () => {
           </button>
         </div>
 
-        <div className="flex flex-col p-6 rounded-lg ">
-          <img src={qrSrc} alt="QR Code" className="w-77 h-77 rounded-lg border" />
+        <div className="flex flex-col p-6">
+          <img src={qrSrc} alt="QR Code" className="w-77 h-77 p-6 border border-gray-300" />
           <button
             onClick={handleDownload}
             className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center w-1/3"
