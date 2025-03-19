@@ -9,7 +9,7 @@ export default function AdvisesPage() {
       <div className="bg-white p-4 rounded-lg shadow-md">
         <div className="flex justify-between items-center">
           <h3 className="font-semibold text-lg text-gray-700">
-            {isCreating ? "Create New Advice" : "All Additional Advises"}
+            {isCreating ? "Create New" : "All Additional Advises"}
           </h3>
           {!isCreating && (
             <button
