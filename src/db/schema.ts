@@ -24,7 +24,6 @@ export const billingCycleEnum = pgEnum("billing_cycle", [
   "quarterly",
   "yearly",
 ]);
-export const sortOrderEnum = pgEnum("sort_order_enum", ["asc", "desc"]);
 export const consultationModeEnum = pgEnum("consultation_mode", ["zoom", "google_meet", "ms_teams"]);
 
 // Staff Table
@@ -81,7 +80,7 @@ export const doctorEducation = pgTable("doctor_education", {
   yearFrom: integer("year_from"),
   yearTo: integer("year_to"),
   details: text("details"),
-  sortOrder: sortOrderEnum("sort_order"), // Using enum instead of integer
+  sortOrder: integer("sort_order"),
 });
 
 // Doctor Experience Table (One-to-One with Doctor)
@@ -92,7 +91,7 @@ export const doctorExperience = pgTable("doctor_experience", {
   yearFrom: integer("year_from"),
   yearTo: integer("year_to"), // could be null for current positions
   details: text("details"),
-  sortOrder: sortOrderEnum("sort_order"), // Using enum instead of integer
+  sortOrder: integer("sort_order"),
 });
 
 // Doctor Social Media Table (One-to-One with Doctor)
