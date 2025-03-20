@@ -1,14 +1,7 @@
 import React, { useState } from "react";
 
+// Define or import the Doctor type
 interface Doctor {
-  name: string;
-  specialty: string;
-  degrees: string;
-  email: string;
-  city: string;
-  country: string;
-  experience: string;
-  aboutMe: string;
   metaTags: string[];
   seoDescription: string;
 }
@@ -17,8 +10,10 @@ interface SEOSettingsTabProps {
   doctor: Doctor;
 }
 
+
 const MetaTagsInput: React.FC<{ metaTags: string[]; setMetaTags: (tags: string[]) => void }> = ({ metaTags, setMetaTags }) => {
   const [inputValue, setInputValue] = useState("");
+  
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if ((event.key === " " || event.key === "Enter") && inputValue.trim() !== "") {

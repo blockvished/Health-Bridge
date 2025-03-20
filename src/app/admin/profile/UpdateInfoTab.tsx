@@ -2,24 +2,25 @@ import React from "react";
 
 interface Doctor {
   name: string;
-  specialty: string;
-  degrees: string;
   email: string;
-  city: string;
+  phone: string;
   country: string;
+  city: string;
+  specialization: string;
+  degrees: string;
   experience: string;
-  aboutMe: string;
-  aboutMyClinic?: string;
-  metaTags: string[];
-  seoDescription: string;
+  aboutSelf: string;
+  aboutClinic?: string;
 }
 
 interface UpdateInfoTabProps {
-  doctor: Doctor;
+  doctor: Doctor | null;
 }
 
 const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
-  // Function to auto-resize textarea based on content
+  const [metaTags, setMetaTags] = React.useState<string[]>([]);
+  const [seoDescription, setSeoDescription] = React.useState<string>("");
+
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = e.target;
     textarea.style.height = 'auto';
@@ -42,11 +43,11 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
       <div className="flex flex-wrap gap-8 mb-6">
         <div className="flex flex-col items-center">
           <div className="w-32 h-32 bg-gray-100 rounded-md flex items-center justify-center mb-2 overflow-hidden">
-            <img 
+            {/* <img 
               src="/api/placeholder/128/128" 
               alt="Doctor profile" 
               className="w-full h-full object-cover"
-            />
+            /> */}
           </div>
           <button className="mt-2 bg-gray-100 text-gray-600 px-3 py-2 rounded flex items-center space-x-2 text-sm">
             <svg
@@ -69,11 +70,11 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         
         <div className="flex flex-col items-center">
           <div className="w-48 h-32 bg-gray-100 rounded-md flex items-center justify-center mb-2">
-            <img 
+            {/* <img 
               src="/api/placeholder/192/128" 
               alt="Doctor signature" 
               className="w-3/4 h-auto object-contain"
-            />
+            /> */}
           </div>
           <button className="mt-2 bg-gray-100 text-gray-600 px-3 py-2 rounded flex items-center space-x-2 text-sm">
             <svg
@@ -103,7 +104,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor.name}
+          defaultValue={doctor?.name}
         />
       </div>
       <div>
@@ -113,7 +114,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="email"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor.email}
+          defaultValue={doctor?.email}
         />
       </div>
       <div>
@@ -156,7 +157,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor.city}
+          defaultValue={doctor?.city}
         />
       </div>
       <div>
@@ -166,7 +167,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor.specialty}
+          defaultValue={doctor?.specialization}
         />
       </div>
       <div>
@@ -175,7 +176,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          defaultValue={doctor.degrees}
+          defaultValue={doctor?.degrees}
           onChange={handleTextareaChange}
         />
       </div>
@@ -186,7 +187,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="number"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor.experience}
+          defaultValue={doctor?.experience}
         />
       </div>
       <div>
@@ -195,7 +196,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          defaultValue={doctor.aboutMe}
+          defaultValue={doctor?.aboutSelf}
           onChange={handleTextareaChange}
         />
       </div>
@@ -205,7 +206,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          defaultValue={doctor.aboutMyClinic || ""}
+          defaultValue={doctor?.aboutClinic || ""}
           onChange={handleTextareaChange}
         />
       </div>
