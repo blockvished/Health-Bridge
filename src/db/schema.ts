@@ -24,7 +24,7 @@ export const billingCycleEnum = pgEnum("billing_cycle", [
   "quarterly",
   "yearly",
 ]);
-
+export const sortOrderEnum = pgEnum("sort_order_enum", ["asc", "desc"]);
 export const consultationModeEnum = pgEnum("consultation_mode", ["zoom", "google_meet", "ms_teams"]);
 
 // Staff Table
@@ -72,6 +72,29 @@ export const doctor = pgTable("doctor", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+
+// Doctor Education Table (One-to-One with Doctor)
+export const doctorEducation = pgTable("doctor_education", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id").references(() => doctor.id).notNull(),
+  title: text("title").notNull(),
+  yearFrom: integer("year_from"),
+  yearTo: integer("year_to"),
+  details: text("details"),
+  sortOrder: sortOrderEnum("sort_order"), // Using enum instead of integer
+});
+
+// Doctor Experience Table (One-to-One with Doctor)
+export const doctorExperience = pgTable("doctor_experience", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id").references(() => doctor.id).notNull(),
+  title: text("title").notNull(),
+  yearFrom: integer("year_from"),
+  yearTo: integer("year_to"), // could be null for current positions
+  details: text("details"),
+  sortOrder: sortOrderEnum("sort_order"), // Using enum instead of integer
+});
+
 // Doctor Social Media Table (One-to-One with Doctor)
 export const doctorSocial = pgTable("doctor_social", {
   id: serial("id").primaryKey(),
@@ -81,6 +104,19 @@ export const doctorSocial = pgTable("doctor_social", {
   instagram: text("instagram"),
   linkedin: text("linkedin"),
 });
+
+export const doctorSeo = pgTable("doctor_seo", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id").notNull().unique().references(() => doctor.id),
+  description: text("description"), // Single description per doctor
+});
+
+export const doctorMetaTags = pgTable("doctor_meta_tags", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id").notNull().references(() => doctor.id),
+  tag: text("tag").notNull(), // Each row stores one tag
+});
+
 
 // Doctor Custom JS Table (One-to-One with Doctor)
 export const doctorCustomJs = pgTable("doctor_custom_js", {
