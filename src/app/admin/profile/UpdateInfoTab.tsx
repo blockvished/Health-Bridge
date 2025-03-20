@@ -7,7 +7,7 @@ interface Doctor {
   country: string;
   city: string;
   specialization: string;
-  degrees: string;
+  degree: string;
   experience: string;
   aboutSelf: string;
   aboutClinic?: string;
@@ -176,7 +176,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          defaultValue={doctor?.degrees}
+          defaultValue={doctor?.degree}
           onChange={handleTextareaChange}
         />
       </div>

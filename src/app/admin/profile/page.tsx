@@ -15,7 +15,7 @@ interface Doctor {
   country: string;
   city: string;
   specialization: string;
-  degrees: string;
+  degree: string;
   experience: string;
   aboutSelf: string;
   aboutClinic?: string;
