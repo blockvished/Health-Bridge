@@ -25,6 +25,8 @@ export const billingCycleEnum = pgEnum("billing_cycle", [
   "yearly",
 ]);
 
+export const consultationModeEnum = pgEnum("consultation_mode", ["zoom", "google_meet", "ms_teams"]);
+
 // Staff Table
 export const staff = pgTable("staff", {
   id: serial("id").primaryKey(),
@@ -68,6 +70,32 @@ export const doctor = pgTable("doctor", {
   aboutClinic: text("about_clinic"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Doctor Social Media Table (One-to-One with Doctor)
+export const doctorSocial = pgTable("doctor_social", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id").notNull().unique().references(() => doctor.id),
+  facebook: text("facebook"),
+  twitter: text("twitter"),
+  instagram: text("instagram"),
+  linkedin: text("linkedin"),
+});
+
+// Doctor Custom JS Table (One-to-One with Doctor)
+export const doctorCustomJs = pgTable("doctor_custom_js", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id").notNull().unique().references(() => doctor.id),
+  customJs: text("custom_js"),
+});
+
+// Doctor Consultation Settings Table (One-to-One with Doctor)
+export const doctorConsultation = pgTable("doctor_consultation", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id").notNull().unique().references(() => doctor.id),
+  consultationFees: integer("consultation_fees"),
+  mode: consultationModeEnum("mode"), // Enforced ENUM type
+  consultationLink: text("consultation_link"),
 });
 
 // Appointment Table
