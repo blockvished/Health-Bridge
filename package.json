@@ -9,6 +9,7 @@
     "lint": "next lint",
     "db:gen": "drizzle-kit generate",
     "db:migrate": "node -r dotenv/config src/db/migrate.ts",
+    "db:addDoctor": "npx ts-node src/db/addDoctor.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
