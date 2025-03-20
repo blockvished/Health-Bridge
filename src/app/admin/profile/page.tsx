@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaUserEdit, FaGlobe, FaSearch, FaCode, FaCheck } from "react-icons/fa";
 import UpdateInfoTab from "./UpdateInfoTab";
 import SocialSettingsTab from "./SocialSettingsTab";
@@ -8,8 +8,40 @@ import SEOSettingsTab from "./SEOSettingsTab";
 import CustomJSTab from "./CustomJSTab";
 import ProfileCard from "./ProfileCard";
 
+interface Doctor {
+  name: string;
+  email: string;
+  phone: string;
+  country: string;
+  city: string;
+  specialization: string;
+  degree: string;
+  experience: string;
+  aboutSelf: string;
+  aboutClinic?: string;
+}
+
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("Update Info");
+  const [doctorData, setDoctorData] = useState<Doctor | null>(null);
+
+
+  useEffect(() => {
+    const fetchDoctor = async () => {
+      try {
+        const response = await fetch("/api/doctor");
+        const data = await response.json();
+        if (data.length > 0) {
+          setDoctorData(data[0]);
+          console.log(data);
+        }
+      } catch (error) {
+        console.error("Error fetching doctor data:", error);
+      }
+    };
+
+    fetchDoctor();
+  }, []);
 
   const tabs = [
     { name: "Update Info", icon: <FaUserEdit /> },
@@ -18,30 +50,17 @@ const Profile: React.FC = () => {
     { name: "Custom JS", icon: <FaCode /> },
   ];
 
-  const doctor = {
-    name: "Dr. Dheeraj Singh",
-    specialty: "Cardiology",
-    degrees: "MBBS, MD",
-    email: "drdheeraj@doctor.in",
-    city: "Chandigarh",
-    country: "India",
-    experience: "8",
-    aboutMe:
-      "Hello and thank you for visiting my Doctor's profile. I want to let you know that here at my office my staff and I will do our best to make you comfortable. I believe in ethics, as a health provider being ethical is not just a remembered value, but a strongly observed one.",
-    aboutMyClinic:
-      "Dr. Dheeraj Singh has a distinguished 16-year career in cardiology. He has served at three prestigious hospitals, where he has made significant contributions and played pivotal roles in advancing cardiology care. His extensive experience encompasses a wide range of cardiology services, including diagnosis, treatment, and management of various heart conditions.",
-    metaTags: ["cardiology", "cardiologist", "heart"],
-    seoDescription: "Best Cardiologist in Chandigarh, Punjab",
-  };
+  const metaTags = ["cardiology", "cardiologist", "heart"];
+  const seoDescription = "Best Cardiologist in Chandigarh, Punjab";
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "Update Info":
-        return <UpdateInfoTab doctor={doctor} />;
+        return <UpdateInfoTab doctor={doctorData} />;
       case "Social Settings":
         return <SocialSettingsTab />;
       case "SEO Settings":
-        return <SEOSettingsTab doctor={doctor} />;
+        return <SEOSettingsTab doctor={{ metaTags, seoDescription }} />;
       case "Custom JS":
         return <CustomJSTab />;
       default:
