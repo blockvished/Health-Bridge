@@ -21,7 +21,7 @@ CREATE TABLE "doctor" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"email" varchar(255) NOT NULL,
-	"phone" varchar(20) NOT NULL,
+	"phone" varchar(20),
 	"country" text,
 	"city" text,
 	"specialization" text,
@@ -54,6 +54,7 @@ CREATE TABLE "patient" (
 	"present_address" text,
 	"permanent_address" text,
 	"gender" "gender",
+	"doctor_id" integer NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
 	CONSTRAINT "patient_email_unique" UNIQUE("email")
@@ -101,6 +102,7 @@ CREATE TABLE "staff" (
 --> statement-breakpoint
 ALTER TABLE "appointment" ADD CONSTRAINT "appointment_patient_id_patient_id_fk" FOREIGN KEY ("patient_id") REFERENCES "public"."patient"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "appointment" ADD CONSTRAINT "appointment_doctor_id_doctor_id_fk" FOREIGN KEY ("doctor_id") REFERENCES "public"."doctor"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "patient" ADD CONSTRAINT "patient_doctor_id_doctor_id_fk" FOREIGN KEY ("doctor_id") REFERENCES "public"."doctor"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "platform_subscription" ADD CONSTRAINT "platform_subscription_doctor_id_doctor_id_fk" FOREIGN KEY ("doctor_id") REFERENCES "public"."doctor"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "prescription" ADD CONSTRAINT "prescription_patient_id_patient_id_fk" FOREIGN KEY ("patient_id") REFERENCES "public"."patient"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "prescription" ADD CONSTRAINT "prescription_doctor_id_doctor_id_fk" FOREIGN KEY ("doctor_id") REFERENCES "public"."doctor"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

@@ -1,5 +1,5 @@
 {
-  "id": "c44c4ca7-dec0-4f19-8541-c52b48fdc02c",
+  "id": "67aacaac-bc06-4275-a97b-b3774d00e307",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -142,7 +142,7 @@
           "name": "phone",
           "type": "varchar(20)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "country": {
           "name": "country",
@@ -333,6 +333,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "doctor_id": {
+          "name": "doctor_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -349,7 +355,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "patient_doctor_id_doctor_id_fk": {
+          "name": "patient_doctor_id_doctor_id_fk",
+          "tableFrom": "patient",
+          "tableTo": "doctor",
+          "columnsFrom": [
+            "doctor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "patient_email_unique": {
