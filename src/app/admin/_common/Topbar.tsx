@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { FiUser, FiEdit, FiLock, FiLogOut } from "react-icons/fi";
-import { doctor } from "../../../db/schema";
 
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   onToggleSidebar,
@@ -139,7 +138,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               className="w-8 h-8 rounded-full"
             />
             <span className="text-gray-800 font-medium">
-              {doctorData?.name?.slice(0, 5)}...
+              {doctorData?.name?.slice(0, 7)}...
             </span>
 
             <svg
