@@ -21,7 +21,7 @@ const EducationTable = ({ doctorId = 1 }) => {
     const fetchExperienceData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/education/${doctorId}`);
+        const response = await fetch(`/api/doctor/education/${doctorId}`);
 
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
@@ -49,36 +49,41 @@ const EducationTable = ({ doctorId = 1 }) => {
           <FaPlus /> Create New
         </button>
       </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-gray-600">
-              <th className="py-2 px-4 text-left">#</th>
-              <th className="py-2 px-4 text-left">Title</th>
-              <th className="py-2 px-4 text-left">Details</th>
-              <th className="py-2 px-4 text-left">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {educationData.map((edu, index) => (
-              <tr key={edu.id} className="border-t">
-                <td className="py-2 px-4">{index + 1}</td>
-                <td className="py-2 px-4">{edu.title}</td>
-                <td className="py-2 px-4">{edu.details}</td>
-                <td className="py-2 px-4 flex gap-2">
-                  <button className="bg-gray-200 text-gray-700 px-2 py-1 rounded">
-                    <FaEdit />
-                  </button>
-                  <button className="bg-red-100 text-red-500 px-2 py-1 rounded">
-                    <FaTrash />
-                  </button>
-                </td>
+      {loading ? (
+        <div className="py-8 text-center">Loading education data...</div>
+      ) : error ? (
+        <div className="py-8 text-center text-red-500">{error}</div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100 text-gray-600">
+                <th className="py-2 px-4 text-left">#</th>
+                <th className="py-2 px-4 text-left">Title</th>
+                <th className="py-2 px-4 text-left">Details</th>
+                <th className="py-2 px-4 text-left">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {educationData.map((edu, index) => (
+                <tr key={edu.id} className="border-t">
+                  <td className="py-2 px-4">{index + 1}</td>
+                  <td className="py-2 px-4">{edu.title}</td>
+                  <td className="py-2 px-4">{edu.details}</td>
+                  <td className="py-2 px-4 flex gap-2">
+                    <button className="bg-gray-200 text-gray-700 px-2 py-1 rounded">
+                      <FaEdit />
+                    </button>
+                    <button className="bg-red-100 text-red-500 px-2 py-1 rounded">
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

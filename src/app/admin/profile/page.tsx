@@ -33,7 +33,7 @@ const Profile: React.FC = () => {
         const data = await response.json();
         if (data.length > 0) {
           setDoctorData(data[0]);
-          console.log(data);
+          // console.log(data);
         }
       } catch (error) {
         console.error("Error fetching doctor data:", error);
