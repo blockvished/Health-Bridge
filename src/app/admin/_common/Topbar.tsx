@@ -78,6 +78,8 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
         </svg>
       </button>
 
+      
+
       {/* Right Section: Create as New Button & Profile */}
       <div className="flex items-center gap-2 md:gap-4">
         {/* Create as New Dropdown */}
