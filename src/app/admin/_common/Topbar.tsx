@@ -87,14 +87,14 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
             className="flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full hover:bg-blue-300 hover:text-white hover:bg-blue-700 transition"
             onClick={() => setDropdownOpen(!dropdownOpen)}
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
                 d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
                 clipRule="evenodd"
               />
             </svg>
-            Create as New
+            <span className="hidden sm:inline">Create as New</span>
           </button>
 
           <div
@@ -137,7 +137,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               alt="Profile"
               className="w-8 h-8 rounded-full"
             />
-            <span className="text-gray-800 font-medium">
+            <span className="text-gray-800 font-medium hidden sm:inline">
               {doctorData?.name?.slice(0, 7)}...
             </span>
 
