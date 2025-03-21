@@ -1,10 +1,45 @@
+"use client";
+import { useEffect, useState } from "react";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 
-const EducationTable = () => {
-  const educationData = [
-    { id: 1, title: "MD (Cardiology)", details: "Govt Medical College, Chandigarh" },
-    { id: 2, title: "MBBS", details: "Govt Medical College, Chandigarh" },
-  ];
+interface Education {
+  id: number;
+  doctorId: number;
+  title: string;
+  yearFrom: number;
+  yearTo: number;
+  details: string;
+  sortOrder: number;
+}
+
+const EducationTable = ({ doctorId = 1 }) => {
+  const [educationData, setEducationData] = useState<Education[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchExperienceData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/education/${doctorId}`);
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setEducationData(data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching experience data:", err);
+        setError("Failed to load experience data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExperienceData();
+  }, [doctorId]);
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-md">

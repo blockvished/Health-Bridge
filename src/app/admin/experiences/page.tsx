@@ -1,26 +1,46 @@
+"use client";
+import { useEffect, useState } from "react";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 
-const ExperienceTable = () => {
-  const experienceData = [
-    {
-      id: 1,
-      title: "Cardiologist, Digambar Healthcare Center",
-      details:
-        "Introduced innovative preventive cardiology practices and managed complex cardiology...",
-    },
-    {
-      id: 2,
-      title: "Cardiologist, Max Hospital Delhi",
-      details:
-        "Developed and implemented advanced treatment protocols. He led a team of cardiologists...",
-    },
-    {
-      id: 3,
-      title: "Cardiologist, Surya Laxmi Hospital",
-      details:
-        "Established a comprehensive heart failure management program. He played a key role...",
-    },
-  ];
+// Define the type for the experience data
+interface Experience {
+  id: number;
+  doctorId: number;
+  title: string;
+  yearFrom: number;
+  yearTo: number;
+  details: string;
+  sortOrder: number;
+}
+
+const ExperienceTable = ({ doctorId = 1 }) => {
+  const [experienceData, setExperienceData] = useState<Experience[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchExperienceData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/experience/${doctorId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setExperienceData(data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching experience data:", err);
+        setError("Failed to load experience data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExperienceData();
+  }, [doctorId]);
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-md">
@@ -31,35 +51,49 @@ const ExperienceTable = () => {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-100 text-gray-600">
-              <th className="py-2 px-4 text-left">#</th>
-              <th className="py-2 px-4 text-left">Title</th>
-              <th className="py-2 px-4 text-left">Details</th>
-              <th className="py-2 px-4 text-left">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {experienceData.map((exp, index) => (
-              <tr key={exp.id} className="border-t">
-                <td className="py-2 px-4">{index + 1}</td>
-                <td className="py-2 px-4">{exp.title}</td>
-                <td className="py-2 px-4">{exp.details}</td>
-                <td className="py-2 px-4 flex gap-2">
-                  <button className="bg-gray-200 text-gray-700 px-2 py-1 rounded">
-                    <FaEdit />
-                  </button>
-                  <button className="bg-red-100 text-red-500 px-2 py-1 rounded">
-                    <FaTrash />
-                  </button>
-                </td>
+      {loading ? (
+        <div className="py-8 text-center">Loading experience data...</div>
+      ) : error ? (
+        <div className="py-8 text-center text-red-500">{error}</div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100 text-gray-600">
+                <th className="py-2 px-4 text-left">#</th>
+                <th className="py-2 px-4 text-left">Title</th>
+                <th className="py-2 px-4 text-left">Duration</th>
+                <th className="py-2 px-4 text-left">Details</th>
+                <th className="py-2 px-4 text-left">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {experienceData.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center">No experience data available</td>
+                </tr>
+              ) : (
+                experienceData.map((exp, index) => (
+                  <tr key={exp.id} className="border-t">
+                    <td className="py-2 px-4">{index + 1}</td>
+                    <td className="py-2 px-4">{exp.title}</td>
+                    <td className="py-2 px-4">{exp.yearFrom} - {exp.yearTo}</td>
+                    <td className="py-2 px-4">{exp.details}</td>
+                    <td className="py-2 px-4 flex gap-2">
+                      <button className="bg-gray-200 text-gray-700 px-2 py-1 rounded">
+                        <FaEdit />
+                      </button>
+                      <button className="bg-red-100 text-red-500 px-2 py-1 rounded">
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
