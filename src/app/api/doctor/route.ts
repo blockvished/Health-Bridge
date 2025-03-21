@@ -15,7 +15,7 @@ export async function GET() {
     const db = drizzle(sql);
 
     const requestedDoctor = await db.select().from(doctor).limit(1);
-    console.log(requestedDoctor)
+    // console.log(requestedDoctor)
     return NextResponse.json(requestedDoctor);
   } catch (error) {
     console.error("Error fetching doctor data:", error);
