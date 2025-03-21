@@ -22,7 +22,7 @@ const ExperienceTable = ({ doctorId = 1 }) => {
     const fetchExperienceData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/experience/${doctorId}`);
+        const response = await fetch(`/api/doctor/experience/${doctorId}`);
         
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
