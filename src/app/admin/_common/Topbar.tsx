@@ -79,7 +79,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
       </button>
 
       {/* Right Section: Create as New Button & Profile */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-4">
         {/* Create as New Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
