@@ -27,7 +27,8 @@ const Sidebar = ({ isCollapsed }: { isCollapsed: boolean }) => {
 
   return (
     <div
-      className={`bg-gray-800 text-white flex flex-col h-screen fixed left-0 top-0 shadow-xl transition-all duration-300 ease-in-out ${isCollapsed ? "w-20 opacity-90" : "w-60 opacity-100"}`}
+      className={`bg-gray-800 text-white flex flex-col h-screen fixed left-0 top-0 shadow-xl transition-all duration-300 ease-in-out 
+        ${isCollapsed ? "w-20 opacity-90 hidden sm:block" : "w-60 opacity-100 block sm:block"}`}
     >
       {/* Sidebar Header */}
       <SidebarHeader onClick={handleModalToggle} isCollapsed={isCollapsed} />
