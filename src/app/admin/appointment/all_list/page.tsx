@@ -18,14 +18,14 @@ export default function AppointmentsPage() {
   ];
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-4xl">
-      <div className="flex justify-between items-center">
+    <div className="bg-white p-4 md:p-6 rounded-lg shadow-md w-full max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="flex justify-between items-center gap-4 flex-wrap">
         <h3 className="font-semibold text-lg text-gray-700">
-          Appointments list by date
+          Appointments List
         </h3>
-        {/* Fix the Back Button */}
         <button
-          onClick={() => router.back()} // Navigate back
+          onClick={() => router.back()}
           className="flex items-center gap-2 text-gray-600 text-sm bg-gray-100 px-3 py-1.5 rounded-md shadow hover:bg-gray-200"
         >
           <FaArrowLeft />
@@ -33,15 +33,16 @@ export default function AppointmentsPage() {
         </button>
       </div>
 
-      <div className="mt-4">
-        <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
+      {/* Responsive Table Wrapper */}
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full border border-gray-200 rounded-lg overflow-hidden min-w-[400px]">
           <thead>
             <tr className="bg-gray-100 text-left text-gray-600 text-sm">
-              <th className="border border-gray-200 px-4 py-2">Date</th>
-              <th className="border border-gray-200 px-4 py-2 text-right">
+              <th className="border border-gray-200 px-3 py-2">Date</th>
+              <th className="border border-gray-200 px-3 py-2 text-right">
                 Patients
               </th>
-              <th className="border border-gray-200 px-4 py-2 text-right">
+              <th className="border border-gray-200 px-3 py-2 text-right">
                 Action
               </th>
             </tr>
@@ -49,11 +50,13 @@ export default function AppointmentsPage() {
           <tbody>
             {appointments.map((appointment, index) => (
               <tr key={index} className="border border-gray-200">
-                <td className="px-4 py-3 flex items-center gap-2">
+                <td className="px-3 py-3 flex items-center gap-2">
                   <FaCalendarAlt className="text-blue-500" />
-                  <span className="text-blue-600">{appointment.date}</span>
+                  <span className="text-blue-600 text-sm md:text-base">
+                    {appointment.date}
+                  </span>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-3 py-3 text-right">
                   <div className="flex items-center justify-end gap-2">
                     <FaUserFriends className="text-gray-600" />
                     <span className="bg-gray-100 px-3 py-1 rounded text-gray-700 text-sm">
@@ -61,7 +64,7 @@ export default function AppointmentsPage() {
                     </span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-right">
+                <td className="px-3 py-3 text-right">
                   {/* See List Button */}
                   <div className="flex justify-end">
                     <button className="flex items-center gap-2 bg-gray-100 text-gray-700 px-3 py-1.5 rounded-md text-sm shadow-sm hover:bg-gray-200">
