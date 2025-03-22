@@ -24,48 +24,49 @@ const DrugForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
         {/* Form */}
         <form>
-  <div className="mb-4">
-    <label className="block text-gray-700 font-medium">
-      Name <span className="text-red-500">*</span>
-    </label>
-    <input
-      type="text"
-      className="w-full px-4 py-2 border border-gray-300 rounded-md"
-      required
-    />
-  </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium">
+              Name <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
 
-  <div className="mb-4">
-    <label className="block text-gray-700 font-medium">Generic Name</label>
-    <input
-      type="text"
-      className="w-full px-4 py-2 border border-gray-300 rounded-md"
-    />
-  </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium">
+              Generic Name
+            </label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            />
+          </div>
 
-  <div className="mb-4">
-    <label className="block text-gray-700 font-medium">Brand Name</label>
-    <input
-      type="text"
-      className="w-full px-4 py-2 border border-gray-300 rounded-md"
-    />
-  </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium">
+              Brand Name
+            </label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            />
+          </div>
 
-  <div className="mb-4">
-    <label className="block text-gray-700 font-medium">Details</label>
-    <textarea
-      className="w-full px-4 py-2 border border-gray-300 rounded-md h-24"
-    ></textarea>
-  </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 font-medium">Details</label>
+            <textarea className="w-full px-4 py-2 border border-gray-300 rounded-md h-24"></textarea>
+          </div>
 
-  <button
-    type="submit"
-    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-  >
-    ✓ Save Changes
-  </button>
-</form>
-
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+          >
+            ✓ Save Changes
+          </button>
+        </form>
       </div>
     </div>
   );
@@ -123,9 +124,13 @@ const Drugs: React.FC = () => {
                 >
                   <td className="p-3 text-gray-700">{index + 1}</td>
                   <td className="p-3">
-                    <div className="font-semibold text-gray-900">{drug.name}</div>
+                    <div className="font-semibold text-gray-900">
+                      {drug.name}
+                    </div>
                   </td>
-                  <td className="p-3 text-gray-700 whitespace-pre-line">{drug.details}</td>
+                  <td className="p-3 text-gray-700 whitespace-pre-line">
+                    {drug.details}
+                  </td>
                   <td className="p-3 flex gap-2">
                     <button className="p-1.5 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8">
                       <FaEdit className="text-gray-600" />
