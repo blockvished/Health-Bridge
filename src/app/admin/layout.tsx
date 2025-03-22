@@ -10,44 +10,57 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(
-    typeof window !== "undefined" && window.innerWidth < 768
-  );
+  // Initialize with a default value that works for server rendering
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
+    // Check if we're on a mobile device
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      setIsCollapsed(mobile);
+    };
+    
+    checkMobile();
+    
     const handleResize = () => {
-      setIsCollapsed(window.innerWidth < 768);
+      checkMobile();
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(false); // Reset mobile sidebar state when switching to desktop
+      }
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setSidebarOpen(!sidebarOpen);
+    } else {
+      setIsCollapsed(!isCollapsed);
+    }
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <div className="flex flex-1">
-        {/* Sidebar */}
-        <Sidebar isCollapsed={isCollapsed} />
-
-        {/* Main Content Area */}
-        <div
-          className={`flex flex-col flex-1 transition-all duration-300 ${
-            isCollapsed ? "md:ml-20 ml-0" : "md:ml-60 ml-0"
-          }`}
+    <div className="bg-gray-50">
+      <div className="flex h-screen">
+        <Sidebar 
+          isCollapsed={isCollapsed} 
+          isMobile={isMobile} 
+          sidebarOpen={sidebarOpen}
+        />
+        <div 
+          className={`flex flex-col w-full transition-all duration-300 ${
+            isCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-64"
+          } ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
         >
-          {/* Topbar (adjusts on mobile when sidebar is open) */}
-          <div
-            className={`transition-all duration-300 ${
-              isCollapsed ? "md:pl-0 pl-20" : "md:pl-0 pl-60"
-            }`}
-          >
-            <Topbar onToggleSidebar={() => setIsCollapsed(!isCollapsed)} />
-          </div>
-
-          {/* Page Content */}
-          <main className="flex-1 p-4">{children}</main>
-
-          {/* Footer */}
+          <Topbar onToggleSidebar={toggleSidebar} />
+          <main className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}>
+            {children}
+          </main>
           <Footer />
         </div>
       </div>
