@@ -90,9 +90,9 @@ const Drugs: React.FC = () => {
   if (showForm) return <DrugForm onClose={() => setShowForm(false)} />;
 
   return (
-    <div className="p-6">
+    <div className="p-3">
       {/* Main Container */}
-      <div className="bg-white shadow-md rounded-xl overflow-hidden max-w-4xl mx-auto w-full p-6">
+      <div className="bg-white shadow-md rounded-xl overflow-hidden max-w-4xl mx-auto w-full p-3">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-gray-800">Drugs</h1>
