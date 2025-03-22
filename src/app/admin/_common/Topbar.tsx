@@ -2,8 +2,17 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { FiUser, FiEdit, FiLock, FiLogOut } from "react-icons/fi";
+import {
+  FiUser,
+  FiEdit,
+  FiLock,
+  FiLogOut,
+  FiMenu,
+  FiChevronDown,
+} from "react-icons/fi";
 import MobileTitle from "./MobileTitle";
+import { MdAddCircle } from "react-icons/md";
+import { FaCaretDown } from "react-icons/fa";
 
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   onToggleSidebar,
@@ -66,38 +75,26 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   return (
     <>
       <MobileTitle />
-      <div className="flex justify-between items-center px-4 py-2">
+      <div className="flex justify-between items-center px-8 py-6 z-100">
         {/* Left: Sidebar Toggle Button */}
         <button
           className="p-2 rounded-full hover:bg-gray-100"
           onClick={onToggleSidebar}
         >
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-              clipRule="evenodd"
-            />
-          </svg>
+          <FiMenu className="w-6 h-6" />
         </button>
 
         {/* Right Section: Create as New Button & Profile */}
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-4 md:gap-4">
           {/* Create as New Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
-              // className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
               className="flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full hover:bg-blue-300 hover:text-white hover:bg-blue-700 transition"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <MdAddCircle className="w-8 h-8" />
               <span className="hidden sm:inline">Create as New</span>
+              <FaCaretDown className="w-5 h-5" />
             </button>
 
             <div
@@ -144,17 +141,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                 {doctorData?.name?.slice(0, 7)}...
               </span>
 
-              <svg
-                className="w-4 h-4 text-gray-600"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <FiChevronDown className="w-5 h-5 text-gray-600" />
             </button>
 
             <div
