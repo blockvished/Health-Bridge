@@ -15,16 +15,15 @@ const domains = [
 
 const DomainTable = () => {
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <div className="bg-white shadow-md rounded-lg p-4">
+      <div className="bg-white shadow-md rounded-lg p-4 md:m-8 lg:m-8">
         <div className="flex justify-between items-center pb-4 border-b border-gray-300">
           <h2 className="text-lg font-semibold">Domain</h2>
-          <div className="flex gap-2">
-            <button className="bg-red-500 text-white px-3 py-1.5 rounded flex items-center gap-2 text-sm">
-              <FaCog /> DNS Settings
+          <div className="flex gap-1.5">
+            <button className="bg-red-500 text-white px-2.5 py-1 rounded flex items-center gap-1 text-sm">
+              <FaCog className="text-xs" /> DNS Settings
             </button>
-            <button className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded flex items-center gap-2 text-sm">
-              <FaPlus /> Create New
+            <button className="bg-gray-200 text-gray-700 px-2.5 py-1 rounded flex items-center gap-1 text-sm">
+              <FaPlus className="text-xs" /> Create New
             </button>
           </div>
         </div>
@@ -47,7 +46,9 @@ const DomainTable = () => {
                   <td className="p-2">{domain.currentDomain}</td>
                   <td className="p-2">{domain.customDomain}</td>
                   <td className="p-2">{domain.date}</td>
-                  <td className={`p-2 ${domain.status === "Active" ? "text-green-600" : "text-red-600"}`}>{domain.status}</td>
+                  <td className={`p-2 ${domain.status === "Active" ? "text-green-600" : "text-red-600"}`}>
+                    {domain.status}
+                  </td>
                   <td className="p-2">
                     <button className="bg-blue-500 text-white px-3 py-1.5 rounded flex items-center gap-2 text-sm">
                       <FaEdit /> Manage
@@ -58,7 +59,7 @@ const DomainTable = () => {
             </tbody>
           </table>
         </div>
-      </div>
+
     </div>
   );
 };

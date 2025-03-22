@@ -13,5 +13,5 @@ npx drizzle-kit migrate
 "db:migrate": "tsx src/db/migrate.ts",
 ngrok http 3000
 
-          <div className="hidden md:block">
-                <div className="block md:hidden">
+<div className="hidden md:block">
+<div className="block md:hidden">

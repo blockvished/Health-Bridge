@@ -1,5 +1,7 @@
 "use client";
 import React, { useState } from "react";
+import { FaCheck } from "react-icons/fa";
+
 import { FaRupeeSign, FaCalendarAlt } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
@@ -13,7 +15,9 @@ const LiveConsultationSettings = () => {
   return (
     <div className="max-w-lg w-full p-4">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-lg font-medium text-gray-800">Consultation Settings</h1>
+        <h1 className="text-lg font-medium text-gray-800">
+          Consultation Settings
+        </h1>
         <button
           onClick={() => router.push("/admin/live_consults")}
           className="flex items-center bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-sm"
@@ -45,7 +49,8 @@ const LiveConsultationSettings = () => {
           {/* Video Meeting Option */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">
-              Active video meeting option <span className="text-red-500">*</span>
+              Active video meeting option{" "}
+              <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <select
@@ -58,18 +63,33 @@ const LiveConsultationSettings = () => {
                 <option>Microsoft Teams</option>
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                <svg
+                  className="w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  ></path>
                 </svg>
               </div>
             </div>
-            <p className="text-red-500 text-xs mt-1">This selected video meeting option will be used for your video consultation with patients</p>
+            <p className="text-red-500 text-xs mt-1">
+              This selected video meeting option will be used for your video
+              consultation with patients
+            </p>
           </div>
 
           {/* Meeting Link */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">
-              Google Meet Invitation link <span className="text-red-500">*</span>
+              Google Meet Invitation link{" "}
+              <span className="text-red-500">*</span>
             </label>
             <textarea
               className="w-full border border-gray-300 rounded-md p-2 h-24 focus:outline-none"
@@ -88,20 +108,34 @@ const LiveConsultationSettings = () => {
                 checked={liveConsultation}
                 onChange={() => setLiveConsultation(!liveConsultation)}
               />
-              <div className={`block w-10 h-6 rounded-full ${liveConsultation ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
-              <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${liveConsultation ? 'transform translate-x-4' : ''}`}></div>
+              <div
+                className={`block w-10 h-6 rounded-full ${
+                  liveConsultation ? "bg-blue-500" : "bg-gray-300"
+                }`}
+              ></div>
+              <div
+                className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${
+                  liveConsultation ? "transform translate-x-4" : ""
+                }`}
+              ></div>
             </div>
             <div>
-              <label htmlFor="toggle" className="text-gray-700 font-medium cursor-pointer">
+              <label
+                htmlFor="toggle"
+                className="text-gray-700 font-medium cursor-pointer"
+              >
                 Live Consultation
               </label>
-              <p className="text-gray-500 text-xs">Enable to allow patients for online consultation</p>
+              <p className="text-gray-500 text-xs">
+                Enable to allow patients for online consultation
+              </p>
             </div>
           </div>
 
           {/* Save Changes Button */}
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition w-full hidden">
-            Save Changes
+
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition flex items-center gap-2 w-fit">
+            <FaCheck className="w-4 h-4" /> Save Changes
           </button>
         </div>
       </div>
