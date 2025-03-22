@@ -9,8 +9,8 @@ const DrugForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const router = useRouter();
 
   return (
-    <div className="p-6">
-      <div className="bg-white shadow-md rounded-xl max-w-4xl mx-auto w-full p-6">
+    <div className="p-3">
+      <div className="bg-white shadow-md rounded-xl max-w-4xl mx-auto w-full p-3">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Create New</h2>
