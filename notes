@@ -14,4 +14,4 @@ npx drizzle-kit migrate
 ngrok http 3000
 
           <div className="hidden md:block">
-                <div className="block md:hidden">
+          <div className="block md:hidden">
