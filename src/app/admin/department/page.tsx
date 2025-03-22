@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { FaPen, FaTrash, FaPlus, FaCheck, FaArrowLeft } from "react-icons/fa";
+import { FaPen, FaTrash, FaPlus, FaCheck } from "react-icons/fa";
+import { IoArrowBack } from "react-icons/io5";
 
-// 🔹 DepartmentForm Component
 const DepartmentForm: React.FC<{ 
   onSave: (name: string) => void; 
   onCancel: () => void; 
@@ -11,28 +11,29 @@ const DepartmentForm: React.FC<{
   const [name, setName] = useState("");
 
   return (
-    <div className="mt-4">
-      <h2 className="text-lg font-semibold text-gray-800 mb-3">Add New Department</h2>
-      <label className="block text-sm font-medium text-gray-600 mb-1">Department Name</label>
+    <div className="w-full bg-white p-6 mx-auto">
+      {/* Header with Back Button */}
+      <div className="flex justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-800">Add New Department</h2>
+      </div>
+
+      {/* Input Field */}
+      <label className="block text-sm font-medium text-gray-600 mb-1">Title</label>
       <input
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+        className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 outline-none"
         placeholder="Enter department name"
       />
-      <div className="flex flex-col sm:flex-row items-center gap-3 mt-4">
+
+      {/* Buttons */}
+      <div className="mt-4 flex justify-start">
         <button
           onClick={() => onSave(name)}
-          className="flex items-center justify-center gap-2 w-full sm:w-auto bg-blue-600 text-white px-5 py-2.5 rounded-lg shadow hover:bg-blue-700 transition"
+          className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-md shadow hover:bg-blue-700 transition"
         >
           <FaCheck /> Save
-        </button>
-        <button
-          onClick={onCancel}
-          className="flex items-center justify-center gap-2 w-full sm:w-auto bg-gray-200 text-gray-700 px-5 py-2.5 rounded-lg shadow hover:bg-gray-300 transition"
-        >
-          <FaArrowLeft /> Back
         </button>
       </div>
     </div>
@@ -59,14 +60,13 @@ const DepartmentPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-row justify-between items-center pb-4 border-b border-gray-200">
         <h1 className="text-xl font-semibold text-gray-800">Departments</h1>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 mt-2 sm:mt-0 rounded-lg shadow-sm hover:bg-gray-200 transition"
-          >
-            <FaPlus className="text-gray-500" /> Add New
-          </button>
-        )}
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 mt-2 sm:mt-0 rounded-lg shadow-sm hover:bg-gray-200 transition"
+        >
+          {showForm ? <IoArrowBack className="text-gray-500" /> : <FaPlus className="text-gray-500" />}
+          {showForm ? "Back" : "Add New"}
+        </button>
       </div>
 
       {/* Add New Department Form */}

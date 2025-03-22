@@ -163,34 +163,34 @@ const AppointmentsSchedule: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 p-4 bg-gray-50 min-h-screen">
-      {/* Left Panel */}
-      <div className="w-full md:w-1/3 bg-white p-6 rounded-lg shadow-sm">
+    <div className="flex flex-col md:flex-row gap-4 p-4 bg-gray-50 min-h-screen">
+      {/* Left Panel - Responsive Adjustments */}
+      <div className="w-full md:w-1/3 bg-white p-4 sm:p-6 rounded-lg shadow-sm">
         <h3 className="text-gray-700 font-medium mb-4">Set Interval</h3>
-        <div className="flex">
+        <div className="flex flex-col sm:flex-row">
           <input 
             type="number" 
             value={interval} 
             onChange={(e) => setInterval(Number(e.target.value))} 
-            className="border border-gray-200 p-2 rounded-l-md w-full focus:outline-none" 
+            className="border border-gray-200 p-2 rounded-t-md sm:rounded-l-md sm:rounded-tr-none w-full focus:outline-none" 
             min="1" 
             max="60" 
           />
-          <span className="bg-gray-100 p-2 rounded-r-md border border-l-0 border-gray-200 text-gray-600">
+          <span className="bg-gray-100 p-2 rounded-b-md sm:rounded-r-md sm:rounded-l-none border border-t-0 sm:border-t border-gray-200 text-gray-600 text-center">
             Minutes
           </span>
         </div>
         <button 
           onClick={() => {/* Handle update */}} 
-          className="mt-4 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+          className="mt-4 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors w-full sm:w-auto"
         >
           Update
         </button>
       </div>
 
-      {/* Right Panel */}
-      <div className="w-full md:w-2/3 bg-white p-6 rounded-lg shadow-sm">
-        <h2 className="text-xl font-medium text-gray-800 mb-6">Set Appointments Schedule</h2>
+      {/* Right Panel - Responsive Adjustments */}
+      <div className="w-full md:w-2/3 bg-white p-4 sm:p-6 rounded-lg shadow-sm">
+        <h2 className="text-lg sm:text-xl font-medium text-gray-800 mb-6">Set Appointments Schedule</h2>
         
         {daysOfWeek.map(day => (
           <div key={day} className="py-4 border-b border-gray-100 last:border-b-0">
@@ -202,16 +202,16 @@ const AppointmentsSchedule: React.FC = () => {
                   onChange={() => toggleDay(day)} 
                   className="sr-only peer" 
                 />
-                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all"></div>
               </label>
-              <span className="ml-3 text-gray-700 font-medium">{day}</span>
+              <span className="ml-2 sm:ml-3 text-sm sm:text-base text-gray-700 font-medium">{day}</span>
             </div>
 
             {schedule[day].active && (
               <div className="space-y-4">
                 {schedule[day].times.map((time, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className="time-select relative flex-1">
+                  <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full">
+                    <div className="time-select relative w-full sm:flex-1">
                       <TimeInput 
                         value={time.from} 
                         onClick={() => toggleDropdown(day, index, "from")} 
@@ -226,8 +226,8 @@ const AppointmentsSchedule: React.FC = () => {
                         />
                       )}
                     </div>
-                    <span className="text-gray-500 font-light">to</span>
-                    <div className="time-select relative flex-1">
+                    <span className="text-gray-500 font-light sm:mx-2">to</span>
+                    <div className="time-select relative w-full sm:flex-1">
                       <TimeInput 
                         value={time.to} 
                         onClick={() => toggleDropdown(day, index, "to")} 
@@ -244,7 +244,7 @@ const AppointmentsSchedule: React.FC = () => {
                     </div>
                     <button 
                       onClick={() => removeTime(day, index)} 
-                      className="text-red-500 bg-red-50 p-2 rounded-full hover:bg-red-100 transition-colors"
+                      className="text-red-500 bg-red-50 p-2 rounded-full hover:bg-red-100 transition-colors self-end sm:self-auto"
                     >
                       <FaTrash size={14} />
                     </button>
@@ -252,7 +252,7 @@ const AppointmentsSchedule: React.FC = () => {
                 ))}
                 <button 
                   onClick={() => addNewTime(day)} 
-                  className="text-gray-600 flex items-center gap-2 hover:text-blue-600 transition-colors"
+                  className="text-gray-600 flex items-center gap-2 hover:text-blue-600 transition-colors text-sm sm:text-base"
                 >
                   <FaPlus size={12} className="text-gray-400" /> 
                   <span>Add new time</span>
