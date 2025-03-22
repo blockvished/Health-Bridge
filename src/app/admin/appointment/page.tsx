@@ -52,6 +52,100 @@ const appointmentsData = [
     scheduleTime: "09:00 AM - 01:00 PM",
     type: "Offline",
   },
+  {
+    id: 5,
+    serialNo: "1",
+    patient: { name: "", mrNo: "", phone: "", email: "" },
+    scheduleDate: "24 Mar 2025",
+    scheduleTime: "09:00 AM - 01:00 PM",
+    type: "Online",
+  },
+  {
+    id: 6,
+    serialNo: "1",
+    patient: {
+      name: "Raj Kumar",
+      mrNo: "28705",
+      phone: "9650561756",
+      email: "patient@livedoctors.in",
+    },
+    scheduleDate: "19 Mar 2025",
+    scheduleTime: "09:00 AM - 01:00 PM",
+    type: "Offline",
+  },
+  {
+    id: 7,
+    serialNo: "1",
+    patient: {
+      name: "Patient",
+      mrNo: "45826",
+      phone: "924062456",
+      email: "patient@gmail.com",
+    },
+    scheduleDate: "18 Mar 2025",
+    scheduleTime: "09:00 AM - 01:00 PM",
+    type: "Offline",
+  },
+  {
+    id: 8,
+    serialNo: "1",
+    patient: {
+      name: "Raj Kumar",
+      mrNo: "28705",
+      phone: "9650561756",
+      email: "patient@livedoctors.in",
+    },
+    scheduleDate: "22 Jul 2024",
+    scheduleTime: "09:00 AM - 01:00 PM",
+    type: "Offline",
+  },
+  {
+    id: 81,
+    serialNo: "1",
+    patient: { name: "", mrNo: "", phone: "", email: "" },
+    scheduleDate: "24 Mar 2025",
+    scheduleTime: "09:00 AM - 01:00 PM",
+    type: "Online",
+  },
+  {
+    id: 27,
+    serialNo: "1",
+    patient: {
+      name: "Raj Kumar",
+      mrNo: "28705",
+      phone: "9650561756",
+      email: "patient@livedoctors.in",
+    },
+    scheduleDate: "19 Mar 2025",
+    scheduleTime: "09:00 AM - 01:00 PM",
+    type: "Offline",
+  },
+  {
+    id: 63,
+    serialNo: "1",
+    patient: {
+      name: "Patient",
+      mrNo: "45826",
+      phone: "924062456",
+      email: "patient@gmail.com",
+    },
+    scheduleDate: "18 Mar 2025",
+    scheduleTime: "09:00 AM - 01:00 PM",
+    type: "Offline",
+  },
+  {
+    id: 44,
+    serialNo: "1",
+    patient: {
+      name: "Raj Kumar",
+      mrNo: "28705",
+      phone: "9650561756",
+      email: "patient@livedoctors.in",
+    },
+    scheduleDate: "22 Jul 2024",
+    scheduleTime: "09:00 AM - 01:00 PM",
+    type: "Offline",
+  },
 ];
 
 const Appointments = () => {
@@ -78,15 +172,18 @@ const Appointments = () => {
   );
 
   return (
-    <div className="flex max-w-6xl mx-auto gap-6 p-6">
+    <div className="mx-auto gap-6 p-4 md:p-6 flex flex-col md:flex-row">
       {/* Left: Add Appointment Form */}
-      <div className="bg-white shadow-md rounded-xl p-6 w-1/3">
+      <div className="bg-white shadow-md rounded-xl p-4 md:p-6 w-full md:w-1/3 mb-6 md:mb-0">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">
           Add Appointment
         </h2>
 
         <label className="text-sm text-gray-600">Date</label>
-        <input type="date" className="w-full p-2 border rounded-md mt-1 mb-3" />
+        <input
+          type="date"
+          className="w-full p-2 border border-gray-300 rounded-md mt-1 mb-3"
+        />
 
         <label className="text-sm text-gray-600">Appointment Type</label>
         <div className="flex gap-4 mb-3">
@@ -111,7 +208,7 @@ const Appointments = () => {
         </div>
 
         <label className="text-sm text-gray-600">Patient</label>
-        <select className="w-full p-2 border rounded-md mt-1 mb-4">
+        <select className="w-full p-2 border border-gray-300 rounded-md mt-1 mb-4">
           <option>Select</option>
           {appointments.map((apt) => (
             <option key={apt.id} value={apt.patient.name}>
@@ -126,39 +223,67 @@ const Appointments = () => {
       </div>
 
       {/* Right: Appointments Table */}
-      <div className="bg-white shadow-md rounded-xl p-6 w-2/3">
-        <div className="flex justify-between items-center mb-4">
+      <div className="mx-auto p-4 md:p-6 flex flex-col gap-6 w-full md:w-2/3 border border-gray-300 rounded-xl shadow-md bg-white">
+        <div className="flex flex-row justify-between items-center gap-3">
           <h2 className="text-lg font-semibold text-gray-800">Appointments</h2>
           <button
             onClick={() => router.push("/admin/appointment/all_list")}
-            className="text-gray-600 text-sm border px-3 py-1 rounded-md flex items-center gap-1 hover:bg-gray-100"
+            className="text-gray-600 text-sm border px-3 py-1 rounded-md flex items-center gap-1 hover:bg-gray-100 w-auto justify-center"
           >
             <MdOutlineDateRange /> List by date
           </button>
         </div>
 
-        <div className="flex justify-between items-center mb-4">
-          <label className="text-sm text-gray-600">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2 md:gap-3 mb-4">
+          {/* Entries Dropdown */}
+          <label className="text-sm text-gray-600 flex items-center w-full md:w-auto">
             Show
-            <select
-              className="border rounded-md px-2 py-1 mx-2"
-              value={entriesPerPage}
-              onChange={(e) => {
-                setEntriesPerPage(Number(e.target.value));
-                setCurrentPage(1); // Reset to first page
-              }}
-            >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
+            <div className="relative mx-2 w-24">
+              <select
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-700 focus:ring-2 focus:ring-gray-400 focus:outline-none transition w-full appearance-none cursor-pointer shadow-sm"
+                value={entriesPerPage}
+                onChange={(e) => {
+                  setEntriesPerPage(Number(e.target.value));
+                  setCurrentPage(1); // Reset to first page
+                }}
+              >
+                <option className="p-2 rounded-md hover:bg-gray-100" value={10}>
+                  10
+                </option>
+                <option className="p-2 rounded-md hover:bg-gray-100" value={50}>
+                  50
+                </option>
+                <option
+                  className="p-2 rounded-md hover:bg-gray-100"
+                  value={100}
+                >
+                  100
+                </option>
+              </select>
+              {/* Custom Chevron Icon */}
+              <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4 text-gray-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </span>
+            </div>
             entries
           </label>
+
+          {/* Search Input */}
           <input
             type="text"
             placeholder="Search..."
-            className="border px-3 py-1 rounded-md"
+            className="border border-gray-300 px-3 py-2 rounded-md text-sm w-full md:w-auto focus:ring-2 focus:ring-gray-400 focus:outline-none transition text-gray-700 placeholder-gray-400 shadow-sm"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -216,7 +341,6 @@ const Appointments = () => {
           </table>
         </div>
 
-        {/* Pagination Controls */}
         {/* Pagination Controls */}
         <div className="flex justify-between items-center mt-4">
           <button
