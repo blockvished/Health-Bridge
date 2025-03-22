@@ -33,7 +33,7 @@ const QRCodePage: React.FC = () => {
           />
           <button
             onClick={handleDownload}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center w-auto"
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center w-fit"
           >
             <FaDownload className="mr-2" /> Download
           </button>

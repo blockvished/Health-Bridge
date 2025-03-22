@@ -75,7 +75,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   return (
     <>
       <MobileTitle />
-      <div className="flex justify-between items-center px-8 py-6 z-100">
+      <div className="flex justify-between items-center px-3 py-3 z-100">
         {/* Left: Sidebar Toggle Button */}
         <button
           className="p-2 rounded-full hover:bg-gray-100"
@@ -92,7 +92,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               className="flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full hover:bg-blue-300 hover:text-white hover:bg-blue-700 transition"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              <MdAddCircle className="w-8 h-8" />
+              <MdAddCircle className="w-6 h-6" />
               <span className="hidden sm:inline">Create as New</span>
               <FaCaretDown className="w-5 h-5" />
             </button>
@@ -135,7 +135,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               <img
                 src="/REVIEW.jpg"
                 alt="Profile"
-                className="w-8 h-8 rounded-full"
+                className="w-6 h-6 rounded-full"
               />
               <span className="text-gray-800 font-medium hidden sm:inline">
                 {doctorData?.name?.slice(0, 7)}...
