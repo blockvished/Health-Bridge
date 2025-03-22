@@ -15,7 +15,7 @@ const domains = [
 
 const DomainTable = () => {
   return (
-      <div className="bg-white shadow-md rounded-lg p-4">
+      <div className="bg-white shadow-md rounded-lg p-4 md:m-8 lg:m-8">
         <div className="flex justify-between items-center pb-4 border-b border-gray-300">
           <h2 className="text-lg font-semibold">Domain</h2>
           <div className="flex gap-1.5">
