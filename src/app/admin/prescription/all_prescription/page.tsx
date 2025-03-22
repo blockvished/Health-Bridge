@@ -1,28 +1,31 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation"; // Import useRouter
-import { FaPlus, FaTrash } from "react-icons/fa"; // Import icons
+import { useRouter } from "next/navigation";
+import { FaPlus, FaTrash } from "react-icons/fa";
 
 export default function Prescriptions() {
   const router = useRouter();
+
   return (
-    <div className="bg-gray-50 p-6 rounded-lg shadow-lg w-full max-w-5xl mx-auto">
+    <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-semibold text-gray-800">Prescriptions</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800">
+          Prescriptions
+        </h3>
         <button
-          className="bg-gray-600 text-white text-sm px-6 py-3 rounded-lg flex items-center hover:bg-gray-700 transition"
-          onClick={() => router.push("/admin/prescription")} // Navigate on click
+          className="bg-gray-400 text-white text-xs px-2 py-1 sm:text-sm sm:px-4 sm:py-2 rounded-md flex items-center hover:bg-gray-500 transition"
+          onClick={() => router.push("/admin/prescription")}
         >
-          <FaPlus className="mr-2" />
+          <FaPlus className="mr-1 sm:mr-2" />
           Create New Prescription
         </button>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse table-auto">
+        <table className="w-full border-collapse table-auto min-w-[600px]">
           <thead className="bg-gray-100 text-gray-700 text-sm">
             <tr>
               <th className="py-3 px-4 text-left border-b">#</th>
