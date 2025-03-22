@@ -11,8 +11,8 @@ const DepartmentForm: React.FC<{
   const [name, setName] = useState("");
 
   return (
-    <div className="mt-6">
-      <h2 className="text-md font-semibold text-gray-800 mb-4">Add New Department</h2>
+    <div className="mt-4">
+      <h2 className="text-lg font-semibold text-gray-800 mb-3">Add New Department</h2>
       <label className="block text-sm font-medium text-gray-600 mb-1">Department Name</label>
       <input
         type="text"
@@ -21,16 +21,16 @@ const DepartmentForm: React.FC<{
         className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
         placeholder="Enter department name"
       />
-      <div className="flex items-center gap-3 mt-4">
+      <div className="flex flex-col sm:flex-row items-center gap-3 mt-4">
         <button
           onClick={() => onSave(name)}
-          className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg shadow hover:bg-blue-700 transition"
+          className="flex items-center justify-center gap-2 w-full sm:w-auto bg-blue-600 text-white px-5 py-2.5 rounded-lg shadow hover:bg-blue-700 transition"
         >
           <FaCheck /> Save
         </button>
         <button
           onClick={onCancel}
-          className="flex items-center gap-2 bg-gray-200 text-gray-700 px-5 py-2.5 rounded-lg shadow hover:bg-gray-300 transition"
+          className="flex items-center justify-center gap-2 w-full sm:w-auto bg-gray-200 text-gray-700 px-5 py-2.5 rounded-lg shadow hover:bg-gray-300 transition"
         >
           <FaArrowLeft /> Back
         </button>
@@ -55,16 +55,16 @@ const DepartmentPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-4xl">
+    <div className="bg-white shadow-lg rounded-xl p-4 w-full max-w-lg sm:max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex justify-between items-center pb-4 border-b border-gray-200">
-        <h1 className="text-lg font-semibold text-gray-800">Departments</h1>
+      <div className="flex flex-row justify-between items-center pb-4 border-b border-gray-200">
+        <h1 className="text-xl font-semibold text-gray-800">Departments</h1>
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg shadow-sm hover:bg-gray-200 transition"
+            className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 mt-2 sm:mt-0 rounded-lg shadow-sm hover:bg-gray-200 transition"
           >
-            <FaPlus className="text-gray-500" /> Add New Department
+            <FaPlus className="text-gray-500" /> Add New
           </button>
         )}
       </div>
@@ -73,7 +73,7 @@ const DepartmentPage: React.FC = () => {
       {showForm ? (
         <DepartmentForm onSave={addDepartment} onCancel={() => setShowForm(false)} />
       ) : (
-        /* Table */
+        // Table
         <div className="overflow-x-auto mt-4">
           <table className="w-full border-collapse">
             <thead className="bg-gray-50">
