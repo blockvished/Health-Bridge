@@ -6,7 +6,7 @@ const Subscription: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState("Yearly");
 
   return (
-    <div className="flex flex-col items-start p-6 space-y-4">
+    <div className="flex flex-col items-center md:items-start p-4 space-y-4">
       {/* Toggle Buttons */}
       <div className="flex gap-2">
         <button
@@ -32,8 +32,8 @@ const Subscription: React.FC = () => {
       </div>
 
       {/* Subscription Card */}
-      <div className="bg-white rounded-lg shadow-md w-80 border border-gray-200">
-        <div className=" p-5 ">
+      <div className="bg-white rounded-lg shadow-md w-full max-w-sm border border-gray-200 mx-auto">
+        <div className="p-5">
           <h2 className="text-lg font-semibold mb-3">Subscription</h2>
           <div className="border-t border-gray-300 pt-3 space-y-1">
             <p className="text-gray-700 font-medium">
@@ -54,10 +54,10 @@ const Subscription: React.FC = () => {
             </p>
           </div>
         </div>
-          <div className="bg-green-100 border-t border-gray-300 text-green-700 flex items-center justify-between w-full rounded-b-lg">
-            <span className="p-3">Payment Status:</span>
-            <span className="font-semibold p-3">✔ Verified</span>
-          </div>
+        <div className="bg-green-100 border-t border-gray-300 text-green-700 flex items-center justify-between w-full rounded-b-lg">
+          <span className="p-3">Payment Status:</span>
+          <span className="font-semibold p-3">✔ Verified</span>
+        </div>
       </div>
     </div>
   );

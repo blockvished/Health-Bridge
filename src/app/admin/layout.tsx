@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "./_common/Sidebar";
 import Topbar from "./_common/Topbar";
 import Footer from "./_common/Footer";
@@ -10,19 +10,57 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  // Initialize with a default value that works for server rendering
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    // Check if we're on a mobile device
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      setIsCollapsed(mobile);
+    };
+    
+    checkMobile();
+    
+    const handleResize = () => {
+      checkMobile();
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(false); // Reset mobile sidebar state when switching to desktop
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setSidebarOpen(!sidebarOpen);
+    } else {
+      setIsCollapsed(!isCollapsed);
+    }
+  };
 
   return (
-    <div className=" bg-gray-50">
+    <div className="bg-gray-50">
       <div className="flex h-screen">
-        <Sidebar isCollapsed={isCollapsed} />
-        <div
-          className={`flex-1 flex flex-col p-6 transition-all ${
-            isCollapsed ? "ml-20" : "ml-60"
-          }`}
+        <Sidebar 
+          isCollapsed={isCollapsed} 
+          isMobile={isMobile} 
+          sidebarOpen={sidebarOpen}
+        />
+        <div 
+          className={`flex flex-col w-full transition-all duration-300 ${
+            isCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-64"
+          } ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
         >
-          <Topbar onToggleSidebar={() => setIsCollapsed(!isCollapsed)} />
-          <main className="flex-1 p-6">{children}</main>
+          <Topbar onToggleSidebar={toggleSidebar} />
+          <main className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}>
+            {children}
+          </main>
           <Footer />
         </div>
       </div>
