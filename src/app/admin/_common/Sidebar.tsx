@@ -25,6 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [isMounted, setIsMounted] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const sidebarButtonRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
   // Set isMounted to true after component mounts
@@ -77,9 +78,11 @@ const Sidebar: React.FC<SidebarProps> = ({
         return;
       }
 
-      // Close popup if clicking outside
-      if (showPopup) {
-        setShowPopup(false);
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(event.target as Node)
+      ) {
+        closePopup();
       }
     };
 
