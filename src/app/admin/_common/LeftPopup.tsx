@@ -5,24 +5,38 @@ import { useState, useEffect, useRef } from "react";
 
 interface LeftPopupProps {
   onClose: () => void;
+  isMobile?: boolean;
 }
 
-const LeftPopup: React.FC<LeftPopupProps> = ({ onClose }) => {
+const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
   const [isVisible, setIsVisible] = useState(false);
   const popupRef = useRef<HTMLDivElement | null>(null);
+  
+  // Determine mobile breakpoint using window width
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    if (typeof window !== 'undefined') {
+      setWindowWidth(window.innerWidth);
+      window.addEventListener('resize', handleResize);
+    }
+    
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
+  
+  // Determine if we're on a mobile device (either via prop or window width)
+  const isMobileDevice = isMobile || (windowWidth < 768);
 
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 50); // Small delay for smooth transition
-
-    // Close popup when clicking outside
-    const handleClickOutside = (event: MouseEvent) => {
-      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
-        handleClose();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleClose = () => {
@@ -30,12 +44,25 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose }) => {
     setTimeout(onClose, 300); // Delay unmounting to let animation play
   };
 
+  // Get position classes based on device type
+  const getPositionClasses = () => {
+    if (isMobileDevice) {
+      // The popup should be positioned on the left as shown in the image for mobile
+      return "top-16 left-4";
+    } else {
+      // Keep the desktop position as is
+      return "top-14 left-14"; 
+    }
+  };
+
   return (
     <div
       ref={popupRef}
-      className={`absolute top-14 left-14 bg-white p-4 rounded-lg shadow-xl w-96 border 
-      transform transition-all duration-300 ease-in-out 
+      className={`absolute ${getPositionClasses()} bg-white  rounded-lg shadow-xl 
+      ${isMobileDevice ? 'w-[75%] max-w-[320px] p-2 text-xs ' : 'w-96 p-4'}
+      transform transition-all duration-300 ease-in-out z-[9999]
       ${isVisible ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2"}`}
+      onClick={(e) => e.stopPropagation()} // Prevent clicks inside the popup from closing it
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
