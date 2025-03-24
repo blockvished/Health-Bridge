@@ -25,7 +25,6 @@ const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("Update Info");
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
 
-
   useEffect(() => {
     const fetchDoctor = async () => {
       try {
@@ -33,7 +32,6 @@ const Profile: React.FC = () => {
         const data = await response.json();
         if (data.length > 0) {
           setDoctorData(data[0]);
-          // console.log(data);
         }
       } catch (error) {
         console.error("Error fetching doctor data:", error);
@@ -69,47 +67,52 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 min-h-screen p-6">
-      <div className="flex gap-6">
+    <div className="flex flex-col md:flex-row min-h-screen p-4 md:p-6 gap-4 md:gap-6">
+      {/* Left Column - Profile Card */}
+      <div className="w-full md:w-1/4">
         <ProfileCard />
+      </div>
 
-        {/* Right Column */}
-        <div className="w-3/4 bg-white rounded-lg shadow-lg">
-          {/* Tabs Container */}
-          <div className="flex border border-gray-200 rounded-t-lg">
-            {tabs.map((tab) => (
-              <button
-                key={tab.name}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all ${
+      {/* Right Column */}
+      <div className="w-full md:w-3/4 bg-white rounded-lg shadow-lg md:ml-6">
+        {/* Tabs Container */}
+        <div className="flex flex-col md:flex-row border border-gray-200 rounded-t-lg">
+          {tabs.map((tab) => (
+            <button
+              key={tab.name}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all 
+                ${
                   activeTab === tab.name
-                    ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                    ? "text-blue-600 md:border-b-2 border-blue-600 bg-blue-50"
                     : "text-gray-600 hover:text-blue-500"
+                }
+                border-b md:border-b-0 ${
+                  activeTab !== tab.name ? "border-gray-200" : ""
                 }`}
-                onClick={() => setActiveTab(tab.name)}
+              onClick={() => setActiveTab(tab.name)}
+            >
+              <span
+                className={`text-sm ${
+                  activeTab === tab.name ? "text-blue-600" : "text-gray-500"
+                }`}
               >
-                <span
-                  className={`mr-2 ${
-                    activeTab === tab.name ? "text-blue-600" : "text-gray-500"
-                  }`}
-                >
-                  {tab.icon}
-                </span>
-                {tab.name}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab Content */}
-          <div className="p-6 border-l border-r border-b border-gray-200 rounded-b-lg">
-            {renderTabContent()}
-          </div>
-
-          <div className="px-6 pb-6 border-l border-r border-b border-gray-200 rounded-b-lg">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center text-sm shadow-md hover:bg-blue-600 transition">
-              <FaCheck className="mr-2" />
-              Save Changes
+                {tab.icon}
+              </span>
+              <span className="whitespace-nowrap">{tab.name}</span>
             </button>
-          </div>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-4 md:p-6 border-l border-r border-b border-gray-200 rounded-b-lg">
+          {renderTabContent()}
+        </div>
+
+        <div className="px-4 md:px-6 pb-4 md:pb-6 border-l border-r border-b border-gray-200 rounded-b-lg">
+          <button className="w-full md:w-auto bg-blue-500 text-white px-4 py-2 rounded-md flex items-center justify-center text-sm shadow-md hover:bg-blue-600 transition">
+            <FaCheck className="mr-2" />
+            Save Changes
+          </button>
         </div>
       </div>
     </div>
