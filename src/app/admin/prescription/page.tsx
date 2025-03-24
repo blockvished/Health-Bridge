@@ -1,112 +1,274 @@
 "use client";
+
 import { useState } from "react";
-import { FaPlus, FaPrint, FaHospital } from "react-icons/fa";
+import { FaHospital, FaPlus, FaPrint, FaTimes } from "react-icons/fa";
+
+function DrugEntry({ onRemove, isRemovable, bgColor }: { onRemove: () => void; isRemovable: boolean; bgColor: string }) {
+  const [dosages, setDosages] = useState([{ id: 0 }]);
+
+  const addDosage = () => setDosages([...dosages, { id: Date.now() }]);
+  const removeDosage = (id: number) => setDosages(dosages.filter((d) => d.id !== id));
+
+  return (
+    <div className={`p-2 flex flex-col gap-3 relative ${bgColor}`}>
+      {isRemovable && (
+        <button
+          onClick={onRemove}
+          className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+        >
+          <FaTimes />
+        </button>
+      )}
+      <div className="flex flex-wrap gap-2 items-center">
+        <select className="border border-gray-300 p-2 w-1/3 min-w-[200px]">
+          <option>Select Drug</option>
+          <option>Avil</option>
+        </select>
+      </div>
+
+      {dosages.map((dosage, index) => (
+        <div key={dosage.id} className="flex flex-col gap-2 rounded">
+          <div className="flex flex-nowrap gap-2">
+            {["Morning", "Afternoon", "Evening", "Night"].map((time) => (
+              <select
+                key={time}
+                className="border border-gray-300 p-2 rounded-md w-1/4"
+              >
+                {[
+                  "0",
+                  "½",
+                  "1",
+                  "2",
+                  "3",
+                  "4",
+                  "0.5 ml",
+                  "1 ml",
+                  "2 ml",
+                  "3 ml",
+                  "4 ml",
+                  "5 ml",
+                ].map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap md:flex-nowrap gap-2">
+            {/* First two select elements (Stay in the same row on mobile) */}
+            <div className="flex w-full md:w-auto gap-2">
+              <select className="border border-gray-300 p-2 rounded-md flex-1">
+                {[...Array(31).keys()].map((num) => (
+                  <option key={num} value={num + 1}>
+                    {num + 1}
+                  </option>
+                ))}
+              </select>
+
+              <select className="border border-gray-300 p-2 rounded-md flex-1">
+                <option>Days</option>
+                <option>Months</option>
+                <option>Years</option>
+              </select>
+            </div>
+
+            {/* Remaining select elements (Move to next row on mobile) */}
+            <select className="border border-gray-300 p-2 rounded-md flex-1 w-full md:w-auto">
+              <option>Before/After Meal</option>
+              <option>Before Meal</option>
+              <option>After Meal</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Enter Note"
+              className="border border-gray-300 p-2 rounded-md flex-1"
+            />
+
+            {index !== 0 && (
+              <button
+                onClick={() => removeDosage(dosage.id)}
+                className="w-8 h-8 flex items-center justify-center rounded-md bg-red-100 text-red-700 hover:bg-red-200"
+              >
+                <FaTimes className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+      <button
+        onClick={addDosage}
+        className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
+      >
+        <FaPlus /> Add Dosage
+      </button>
+    </div>
+  );
+}
 
 export default function CreatePrescription() {
   const [patient, setPatient] = useState("");
-  const [drug, setDrug] = useState("");
+  const [drugs, setDrugs] = useState([{ id: 0 }]);
+
+  const addDrugEntry = () => setDrugs([...drugs, { id: Date.now() }]);
+  const removeDrugEntry = (id: number) => setDrugs(drugs.filter((d) => d.id !== id));
 
   return (
-    <div className="p-4 min-h-screen flex justify-center items-center bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl md:p-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl md:text-2xl font-semibold text-gray-800">Create New Prescription</h2>
-        </div>
-
-        {/* Doctor & Hospital Info */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 mb-4">
+    <div className="p-4 min-h-screen md:p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold text-gray-800">
+          Create New Prescription
+        </h2>
+      </div>
+      <div className="bg-white p-4 md:p-8 rounded-lg shadow-lg w-full max-w-6xl">
+        {/* Doctor Info */}
+        <div className="flex justify-between items-center border-b pb-4 mb-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-700">Dr. Dheeraj Singh</h3>
+            <h3 className="text-lg font-semibold text-gray-700">
+              Dr. Dheeraj Singh
+            </h3>
             <p className="text-gray-600 text-sm">doctor1@livedoctors.in</p>
             <p className="text-gray-600 text-sm">Cardiology</p>
             <p className="text-gray-600 text-sm">MBBS, MD</p>
           </div>
-          <div className="text-left md:text-right flex flex-col items-start md:items-end mt-4 md:mt-0">
-            <FaHospital className="text-green-500 text-3xl md:text-4xl" />
+          <div className="text-right flex flex-col items-end">
+            <FaHospital className="text-green-500 text-4xl" />
             <p className="text-sm font-semibold">Digambar Healthcare Center</p>
             <p className="text-xs text-gray-500">Gorakhpur, U.P. India</p>
           </div>
         </div>
 
-        {/* Form Section */}
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Clinical Diagnosis</label>
-              <input className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="Enter diagnosis" />
+        {/* Main Form */}
+        <div className="grid grid-cols-1 md:grid-cols-[30%_70%] gap-6">
+          <div className="space-y-4">
+            <div className="block text-sm font-medium text-gray-700 mb-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Clinical Diagnosis
+                </label>
+                <input
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700">Patient Name *</label>
-              <div className="flex gap-3">
-                <select className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" value={patient} onChange={(e) => setPatient(e.target.value)}>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Additional Advice
+              </label>
+              <input
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Advice
+              </label>
+              <input
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Diagnosis Tests
+              </label>
+              <input
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Next Follow Up
+                </label>
+                <input
+                  type="number"
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Duration
+                </label>
+                <select className="w-full p-2 border border-gray-300 rounded-md">
+                  <option>Days</option>
+                  <option>Weeks</option>
+                  <option>Months</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Notes
+              </label>
+              <textarea
+                className="w-full p-2 border border-gray-300 rounded-md h-32 focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          {/* Right Column - Drugs */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Patient Name
+              </label>
+              {/* Patient dropdown - full width on mobile, 50% on desktop */}
+              <div className="flex flex-col md:flex-row gap-2">
+                <select
+                  className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
+                  value={patient}
+                  onChange={(e) => setPatient(e.target.value)}
+                >
                   <option>Select Patient</option>
                 </select>
-                <button className="bg-gray-200 px-3 py-2 rounded-md text-sm flex items-center gap-1 hover:bg-gray-300 transition">
-                  <FaPlus /> Add
-                </button>
+
+                {/* Buttons - full width on mobile but inside a flex container for 50-50 split */}
+                <div className="flex w-full md:w-1/2 gap-2">
+                  <button className="w-1/2 bg-blue-100 text-blue-600 px-3 py-2 rounded-md text-sm hover:bg-blue-200 flex items-center justify-center gap-1">
+                    <FaPlus /> New Patient
+                  </button>
+                  <button className="w-1/2 bg-blue-100 text-blue-600 px-3 py-2 rounded-md text-sm hover:bg-blue-200 flex items-center justify-center gap-1">
+                    <FaPlus /> New Drug
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Additional Advice</label>
-              <input className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="Enter advice" />
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm font-semibold text-gray-700">
+                Medications
+              </h3>
+              <button
+                onClick={addDrugEntry}
+                className="bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 flex items-center gap-1"
+              >
+                <FaPlus /> Add Item
+              </button>
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Drug *</label>
-              <div className="flex gap-3">
-                <select className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" value={drug} onChange={(e) => setDrug(e.target.value)}>
-                  <option>Select Drug</option>
-                </select>
-                <button className="bg-gray-200 px-3 py-2 rounded-md text-sm flex items-center gap-1 hover:bg-gray-300 transition">
-                  <FaPlus /> Add
-                </button>
-              </div>
+            <div className="space-y-4">
+              {drugs.map((drug, index) => (
+                <DrugEntry
+                  key={drug.id}
+                  isRemovable={index !== 0}
+                  onRemove={() => removeDrugEntry(drug.id)}
+                  bgColor={index === 0 ? "bg-white" : "bg-[#f4f6f9]"}
+                />
+              ))}
             </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-            <label className="block text-sm font-semibold text-gray-700 md:w-24">Advice</label>
-            <input className="border border-gray-300 p-3 rounded-md flex-grow bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="Enter advice" />
-            <button className="bg-blue-500 text-white px-6 py-2 rounded-md text-sm flex items-center gap-1 hover:bg-blue-600 transition">
-              <FaPlus /> Add
-            </button>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Diagnosis Tests</label>
-            <input className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" placeholder="Enter tests" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Next Follow Up</label>
-              <select className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>Select days</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-700">Time</label>
-              <select className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option>Select time</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-gray-700">Notes</label>
-            <textarea className="border border-gray-300 p-3 rounded-md w-full bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" rows={4} placeholder="Enter notes"></textarea>
           </div>
         </div>
-      </div>
 
-      {/* Preview Button */}
-      <div className="fixed bottom-6 right-6 md:top-1/4 md:right-0 md:transform md:-translate-y-1/2 md:mr-6">
-        <button className="bg-blue-500 text-white px-6 py-3 rounded-md flex items-center gap-2 hover:bg-blue-600 transition duration-300">
-          <FaPrint /> Preview
-        </button>
+        {/* Preview Button */}
+        <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6">
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 flex items-center gap-2">
+            <FaPrint className="text-white" />
+            <span className="hidden md:inline">Preview</span>
+          </button>
+        </div>
       </div>
     </div>
   );
