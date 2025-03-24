@@ -1,4 +1,5 @@
-- sidebar topbar popup
+- sidebar on button click should goto but also close the popup
 - patient page check
 - (profile -personal and prescriptions- create, chamber) page reponsitivity
 - buttons fix uniformity
+- animations
