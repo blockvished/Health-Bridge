@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { FaHospital, FaPlus, FaPrint, FaTimes } from "react-icons/fa";
 
-function DrugEntry({ onRemove, isRemovable, bgColor  }) {
+function DrugEntry({ onRemove, isRemovable, bgColor }: { onRemove: () => void; isRemovable: boolean; bgColor: string }) {
   const [dosages, setDosages] = useState([{ id: 0 }]);
 
   const addDosage = () => setDosages([...dosages, { id: Date.now() }]);
-  const removeDosage = (id) => setDosages(dosages.filter((d) => d.id !== id));
+  const removeDosage = (id: number) => setDosages(dosages.filter((d) => d.id !== id));
 
   return (
     <div className={`p-2 flex flex-col gap-3 relative ${bgColor}`}>
@@ -115,7 +115,7 @@ export default function CreatePrescription() {
   const [drugs, setDrugs] = useState([{ id: 0 }]);
 
   const addDrugEntry = () => setDrugs([...drugs, { id: Date.now() }]);
-  const removeDrugEntry = (id) => setDrugs(drugs.filter((d) => d.id !== id));
+  const removeDrugEntry = (id: number) => setDrugs(drugs.filter((d) => d.id !== id));
 
   return (
     <div className="p-4 min-h-screen md:p-6">
