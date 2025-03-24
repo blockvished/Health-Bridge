@@ -7,10 +7,11 @@ import LeftPopup from "./LeftPopup";
 const MobileTitle = () => {
   const [showPopup, setShowPopup] = useState(false);
   const mobileTitleRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   // Toggle popup function
   const togglePopup = () => {
-    setShowPopup(!showPopup);
+    setShowPopup((prev) => !prev);
   };
 
   // Close popup function
@@ -21,24 +22,23 @@ const MobileTitle = () => {
   // Handle clicks outside the popup
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Don't close if clicking on the mobile title button
       if (
         mobileTitleRef.current &&
         mobileTitleRef.current.contains(event.target as Node)
       ) {
-        return;
+        return; // Don't close when clicking the title
       }
 
-      // Close popup if clicking outside
-      if (showPopup) {
-        setShowPopup(false);
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(event.target as Node)
+      ) {
+        closePopup();
       }
     };
 
-    // Add event listener
     document.addEventListener("mousedown", handleClickOutside);
 
-    // Cleanup
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -79,7 +79,11 @@ const MobileTitle = () => {
         {/* Right Section - Chevron */}
         <FiChevronRight className="text-gray-400 text-lg" />
       </div>
-      {showPopup && <LeftPopup onClose={closePopup} isMobile={true} />}
+      {showPopup && (
+        <div ref={popupRef}>
+          <LeftPopup onClose={closePopup} isMobile={true} />
+        </div>
+      )}
     </>
   );
 };
