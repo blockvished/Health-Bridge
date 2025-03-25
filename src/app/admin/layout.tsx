@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Sidebar from "./_common/Sidebar";
+import SidebarDoctor from "./_common/SidebarDoctor";
+import SidebarPatient from "./_common/SidebarPatient";
 import Topbar from "./_common/Topbar";
 import Footer from "./_common/Footer";
 
@@ -47,7 +48,12 @@ export default function AdminLayout({
   return (
     <div className="bg-gray-50">
       <div className="flex h-screen">
-        <Sidebar 
+        {/* <SidebarDoctor
+          isCollapsed={isCollapsed} 
+          isMobile={isMobile} 
+          sidebarOpen={sidebarOpen}
+        /> */}
+        <SidebarPatient
           isCollapsed={isCollapsed} 
           isMobile={isMobile} 
           sidebarOpen={sidebarOpen}
