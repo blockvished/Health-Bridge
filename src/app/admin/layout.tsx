@@ -49,23 +49,23 @@ export default function AdminLayout({
   return (
     <div className="bg-gray-50">
       <div className="flex h-screen">
-        {/* <SidebarDoctor
-          isCollapsed={isCollapsed} 
-          isMobile={isMobile} 
-          sidebarOpen={sidebarOpen}
-        /> */}
-        <SidebarPatient
+        <SidebarDoctor
           isCollapsed={isCollapsed} 
           isMobile={isMobile} 
           sidebarOpen={sidebarOpen}
         />
+        {/* <SidebarPatient
+          isCollapsed={isCollapsed} 
+          isMobile={isMobile} 
+          sidebarOpen={sidebarOpen}
+        /> */}
         <div 
           className={`flex flex-col w-full transition-all duration-300 ${
             isCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-64"
           } ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
         >
-          {/* <TopbarDoctor onToggleSidebar={toggleSidebar} /> */}
-          <TopbarPatient onToggleSidebar={toggleSidebar} />
+          <TopbarDoctor onToggleSidebar={toggleSidebar} />
+          {/* <TopbarPatient onToggleSidebar={toggleSidebar} /> */}
           <main className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}>
             {children}
           </main>
