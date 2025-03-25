@@ -3,83 +3,11 @@
 import { useState } from "react";
 import { FaHospital, FaPlus, FaPrint, FaTimes } from "react-icons/fa";
 
-// Define types for our state
-type Dosage = {
-  id: number;
-  morning: string;
-  afternoon: string;
-  evening: string;
-  night: string;
-  durationValue: string;
-  durationUnit: string;
-  mealTime: string;
-  note: string;
-};
+function DrugEntry({ onRemove, isRemovable, bgColor }: { onRemove: () => void; isRemovable: boolean; bgColor: string }) {
+  const [dosages, setDosages] = useState([{ id: 0 }]);
 
-type Drug = {
-  id: number;
-  name: string;
-  dosages: Dosage[];
-};
-
-type PrescriptionState = {
-  patient: string;
-  clinicalDiagnosis: string;
-  additionalAdvice: string;
-  advice: string;
-  diagnosisTests: string;
-  nextFollowUp: string;
-  followUpDuration: string;
-  notes: string;
-  drugs: Drug[];
-};
-
-function DrugEntry({
-  drug,
-  onRemove,
-  isRemovable,
-  bgColor,
-  onDrugChange,
-}: {
-  drug: Drug;
-  onRemove: () => void;
-  isRemovable: boolean;
-  bgColor: string;
-  onDrugChange: (updatedDrug: Drug) => void;
-}) {
-  const addDosage = () => {
-    const newDosage: Dosage = {
-      id: Date.now(),
-      morning: "0",
-      afternoon: "0",
-      evening: "0",
-      night: "0",
-      durationValue: "1",
-      durationUnit: "Days",
-      mealTime: "Before/After Meal",
-      note: "",
-    };
-    onDrugChange({
-      ...drug,
-      dosages: [...drug.dosages, newDosage],
-    });
-  };
-
-  const removeDosage = (id: number) => {
-    onDrugChange({
-      ...drug,
-      dosages: drug.dosages.filter((d) => d.id !== id),
-    });
-  };
-
-  const updateDosage = (id: number, field: keyof Dosage, value: string) => {
-    onDrugChange({
-      ...drug,
-      dosages: drug.dosages.map((dosage) =>
-        dosage.id === id ? { ...dosage, [field]: value } : dosage
-      ),
-    });
-  };
+  const addDosage = () => setDosages([...dosages, { id: Date.now() }]);
+  const removeDosage = (id: number) => setDosages(dosages.filter((d) => d.id !== id));
 
   return (
     <div className={`p-2 flex flex-col gap-3 relative ${bgColor}`}>
@@ -92,28 +20,19 @@ function DrugEntry({
         </button>
       )}
       <div className="flex flex-wrap gap-2 items-center">
-        <select
-          className="border border-gray-300 p-2 w-1/3 min-w-[200px]"
-          value={drug.name}
-          onChange={(e) => onDrugChange({ ...drug, name: e.target.value })}
-        >
-          <option value="">Select Drug</option>
-          <option value="Avil">Avil</option>
-          {/* Add more drug options here */}
+        <select className="border border-gray-300 p-2 w-1/3 min-w-[200px]">
+          <option>Select Drug</option>
+          <option>Avil</option>
         </select>
       </div>
 
-      {drug.dosages.map((dosage, index) => (
+      {dosages.map((dosage, index) => (
         <div key={dosage.id} className="flex flex-col gap-2 rounded">
           <div className="flex flex-nowrap gap-2">
-            {["morning", "afternoon", "evening", "night"].map((time) => (
+            {["Morning", "Afternoon", "Evening", "Night"].map((time) => (
               <select
                 key={time}
                 className="border border-gray-300 p-2 rounded-md w-1/4"
-                value={dosage[time as keyof Dosage]}
-                onChange={(e) =>
-                  updateDosage(dosage.id, time as keyof Dosage, e.target.value)
-                }
               >
                 {[
                   "0",
@@ -138,14 +57,9 @@ function DrugEntry({
           </div>
 
           <div className="flex flex-wrap md:flex-nowrap gap-2">
+            {/* First two select elements (Stay in the same row on mobile) */}
             <div className="flex w-full md:w-auto gap-2">
-              <select
-                className="border border-gray-300 p-2 rounded-md flex-1"
-                value={dosage.durationValue}
-                onChange={(e) =>
-                  updateDosage(dosage.id, "durationValue", e.target.value)
-                }
-              >
+              <select className="border border-gray-300 p-2 rounded-md flex-1">
                 {[...Array(31).keys()].map((num) => (
                   <option key={num} value={num + 1}>
                     {num + 1}
@@ -153,29 +67,18 @@ function DrugEntry({
                 ))}
               </select>
 
-              <select
-                className="border border-gray-300 p-2 rounded-md flex-1"
-                value={dosage.durationUnit}
-                onChange={(e) =>
-                  updateDosage(dosage.id, "durationUnit", e.target.value)
-                }
-              >
-                <option value="Days">Days</option>
-                <option value="Months">Months</option>
-                <option value="Years">Years</option>
+              <select className="border border-gray-300 p-2 rounded-md flex-1">
+                <option>Days</option>
+                <option>Months</option>
+                <option>Years</option>
               </select>
             </div>
 
-            <select
-              className="border border-gray-300 p-2 rounded-md flex-1 w-full md:w-auto"
-              value={dosage.mealTime}
-              onChange={(e) =>
-                updateDosage(dosage.id, "mealTime", e.target.value)
-              }
-            >
-              <option value="Before/After Meal">Before/After Meal</option>
-              <option value="Before Meal">Before Meal</option>
-              <option value="After Meal">After Meal</option>
+            {/* Remaining select elements (Move to next row on mobile) */}
+            <select className="border border-gray-300 p-2 rounded-md flex-1 w-full md:w-auto">
+              <option>Before/After Meal</option>
+              <option>Before Meal</option>
+              <option>After Meal</option>
             </select>
           </div>
 
@@ -184,8 +87,6 @@ function DrugEntry({
               type="text"
               placeholder="Enter Note"
               className="border border-gray-300 p-2 rounded-md flex-1"
-              value={dosage.note}
-              onChange={(e) => updateDosage(dosage.id, "note", e.target.value)}
             />
 
             {index !== 0 && (
@@ -210,82 +111,11 @@ function DrugEntry({
 }
 
 export default function CreatePrescription() {
-  const [prescription, setPrescription] = useState<PrescriptionState>({
-    patient: "",
-    clinicalDiagnosis: "",
-    additionalAdvice: "",
-    advice: "",
-    diagnosisTests: "",
-    nextFollowUp: "",
-    followUpDuration: "Days",
-    notes: "",
-    drugs: [
-      {
-        id: 0,
-        name: "",
-        dosages: [
-          {
-            id: 0,
-            morning: "0",
-            afternoon: "0",
-            evening: "0",
-            night: "0",
-            durationValue: "1",
-            durationUnit: "Days",
-            mealTime: "Before/After Meal",
-            note: "",
-          },
-        ],
-      },
-    ],
-  });
+  const [patient, setPatient] = useState("");
+  const [drugs, setDrugs] = useState([{ id: 0 }]);
 
-  const addDrugEntry = () => {
-    setPrescription((prev) => ({
-      ...prev,
-      drugs: [
-        ...prev.drugs,
-        {
-          id: Date.now(),
-          name: "",
-          dosages: [
-            {
-              id: Date.now() + 1,
-              morning: "0",
-              afternoon: "0",
-              evening: "0",
-              night: "0",
-              durationValue: "1",
-              durationUnit: "Days",
-              mealTime: "Before/After Meal",
-              note: "",
-            },
-          ],
-        },
-      ],
-    }));
-  };
-
-  const removeDrugEntry = (id: number) => {
-    setPrescription((prev) => ({
-      ...prev,
-      drugs: prev.drugs.filter((d) => d.id !== id),
-    }));
-  };
-
-  const updateDrug = (id: number, updatedDrug: Drug) => {
-    setPrescription((prev) => ({
-      ...prev,
-      drugs: prev.drugs.map((drug) => (drug.id === id ? updatedDrug : drug)),
-    }));
-  };
-
-  const handleInputChange = (field: keyof PrescriptionState, value: string) => {
-    setPrescription((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const addDrugEntry = () => setDrugs([...drugs, { id: Date.now() }]);
+  const removeDrugEntry = (id: number) => setDrugs(drugs.filter((d) => d.id !== id));
 
   return (
     <div className="p-4 min-h-screen md:p-6">
@@ -322,10 +152,6 @@ export default function CreatePrescription() {
                 </label>
                 <input
                   className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={prescription.clinicalDiagnosis}
-                  onChange={(e) =>
-                    handleInputChange("clinicalDiagnosis", e.target.value)
-                  }
                 />
               </div>
             </div>
@@ -335,10 +161,6 @@ export default function CreatePrescription() {
               </label>
               <input
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                value={prescription.additionalAdvice}
-                onChange={(e) =>
-                  handleInputChange("additionalAdvice", e.target.value)
-                }
               />
             </div>
             <div>
@@ -347,8 +169,6 @@ export default function CreatePrescription() {
               </label>
               <input
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                value={prescription.advice}
-                onChange={(e) => handleInputChange("advice", e.target.value)}
               />
             </div>
             <div>
@@ -357,10 +177,6 @@ export default function CreatePrescription() {
               </label>
               <input
                 className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                value={prescription.diagnosisTests}
-                onChange={(e) =>
-                  handleInputChange("diagnosisTests", e.target.value)
-                }
               />
             </div>
             <div className="grid md:grid-cols-2 gap-4">
@@ -371,26 +187,16 @@ export default function CreatePrescription() {
                 <input
                   type="number"
                   className="w-full p-2 border border-gray-300 rounded-md"
-                  value={prescription.nextFollowUp}
-                  onChange={(e) =>
-                    handleInputChange("nextFollowUp", e.target.value)
-                  }
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Duration
                 </label>
-                <select
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                  value={prescription.followUpDuration}
-                  onChange={(e) =>
-                    handleInputChange("followUpDuration", e.target.value)
-                  }
-                >
-                  <option value="Days">Days</option>
-                  <option value="Weeks">Weeks</option>
-                  <option value="Months">Months</option>
+                <select className="w-full p-2 border border-gray-300 rounded-md">
+                  <option>Days</option>
+                  <option>Weeks</option>
+                  <option>Months</option>
                 </select>
               </div>
             </div>
@@ -400,8 +206,6 @@ export default function CreatePrescription() {
               </label>
               <textarea
                 className="w-full p-2 border border-gray-300 rounded-md h-32 focus:ring-2 focus:ring-blue-500"
-                value={prescription.notes}
-                onChange={(e) => handleInputChange("notes", e.target.value)}
               />
             </div>
           </div>
@@ -412,15 +216,17 @@ export default function CreatePrescription() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Patient Name
               </label>
+              {/* Patient dropdown - full width on mobile, 50% on desktop */}
               <div className="flex flex-col md:flex-row gap-2">
                 <select
                   className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
-                  value={prescription.patient}
-                  onChange={(e) => handleInputChange("patient", e.target.value)}
+                  value={patient}
+                  onChange={(e) => setPatient(e.target.value)}
                 >
-                  <option value="">Select Patient</option>
+                  <option>Select Patient</option>
                 </select>
 
+                {/* Buttons - full width on mobile but inside a flex container for 50-50 split */}
                 <div className="flex w-full md:w-1/2 gap-2">
                   <button className="w-1/2 bg-blue-100 text-blue-600 px-3 py-2 rounded-md text-sm hover:bg-blue-200 flex items-center justify-center gap-1">
                     <FaPlus /> New Patient
@@ -444,16 +250,12 @@ export default function CreatePrescription() {
               </button>
             </div>
             <div className="space-y-4">
-              {prescription.drugs.map((drug, index) => (
+              {drugs.map((drug, index) => (
                 <DrugEntry
                   key={drug.id}
-                  drug={drug}
                   isRemovable={index !== 0}
                   onRemove={() => removeDrugEntry(drug.id)}
                   bgColor={index === 0 ? "bg-white" : "bg-[#f4f6f9]"}
-                  onDrugChange={(updatedDrug) =>
-                    updateDrug(drug.id, updatedDrug)
-                  }
                 />
               ))}
             </div>
@@ -462,12 +264,7 @@ export default function CreatePrescription() {
 
         {/* Preview Button */}
         <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6">
-          <button
-            onClick={() => {
-              console.log("Prescription data:", prescription);
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 flex items-center gap-2"
-          >
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 flex items-center gap-2">
             <FaPrint className="text-white" />
             <span className="hidden md:inline">Preview</span>
           </button>
