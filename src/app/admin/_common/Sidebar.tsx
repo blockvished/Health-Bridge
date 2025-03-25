@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa";
 import { FiChevronRight } from "react-icons/fi";
-import { menuItemsDoctor, menuItemsPatient } from "./menuItems";
+import { menuItemsDoctor } from "./menuItems";
 import LeftPopup from "./LeftPopup";
 
 interface SidebarProps {
@@ -35,10 +35,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   // Toggle dropdown menu
   const toggleDropdown = (name: string) => {
-    setOpenDropdowns((prev) => ({
-      ...prev,
-      [name]: !prev[name],
-    }));
+    setOpenDropdowns((prev) => {
+      // Create a new object with all dropdowns closed
+      const newDropdowns: { [key: string]: boolean } = {};
+
+      // If the clicked dropdown was not previously open, open it
+      if (!prev[name]) {
+        newDropdowns[name] = true;
+      }
+
+      return newDropdowns;
+    });
   };
 
   // Toggle popup function
@@ -52,10 +59,9 @@ const Sidebar: React.FC<SidebarProps> = ({
     setShowPopup(false);
   };
 
-  // Check if the current route is active
   const isActiveRoute = (route: string) => {
     if (!route || route === "#") return false;
-    return pathname === route || pathname.startsWith(route);
+    return pathname === route;
   };
 
   // Determine sidebar width and visibility
@@ -174,34 +180,61 @@ const Sidebar: React.FC<SidebarProps> = ({
                         )}
                     </button>
                     {(!isCollapsed || (isMobile && sidebarOpen)) &&
-                      isMounted &&
-                      openDropdowns[item.name] && (
-                        <ul className="pl-6 bg-gray-700">
-                          {item.dropdown.map((subItem, subIndex) => (
-                            <li key={subIndex}>
-                              <Link
-                                href={subItem.link}
-                                className={`block py-1.5 px-3 hover:bg-gray-600 ${
-                                  isActiveRoute(subItem.link)
-                                    ? "text-blue-400"
-                                    : ""
-                                } ${isMobile ? "text-sm" : ""}`}
+                      isMounted && (
+                        <div
+                          className={`
+                            overflow-hidden transition-all duration-900 ease-in-out
+                            ${
+                              openDropdowns[item.name]
+                                ? "max-h-96 opacity-100"
+                                : "max-h-0 opacity-0"
+                            }
+                          `}
+                        >
+                          <ul className="space-y-1">
+                            {item.dropdown.map((subItem, subIndex) => (
+                              <li
+                                key={subIndex}
+                                className={`
+                                  transform transition-all duration-300 ease-out
+                                  ${
+                                    openDropdowns[item.name]
+                                      ? "translate-y-0 opacity-100 delay-75"
+                                      : "-translate-y-1 opacity-0"
+                                  }
+                                `}
                               >
-                                {subItem.svg && (
-                                  <span className="mr-1.5">{subItem.svg}</span>
-                                )}
-                                {subItem.name}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
+                                <Link
+                                  href={subItem.link}
+                                  className={`flex items-center py-1.5 px-6 hover:bg-gray-600 ${
+                                    isActiveRoute(subItem.link)
+                                      ? "text-blue-400"
+                                      : "text-gray-300"
+                                  } ${isMobile ? "text-xs" : "text-sm"}`}
+                                >
+                                  {subItem.svg && (
+                                    <span className="mr-2">{subItem.svg}</span>
+                                  )}
+                                  {!subItem.svg && (
+                                    <span className="mr-2">
+                                      <FaAngleRight />
+                                    </span>
+                                  )}
+                                  {subItem.name}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       )}
                   </div>
                 ) : (
                   <Link
                     href={item.link || "#"}
-                    className={`flex items-center py-1.5 px-3 hover:bg-gray-700 transition-colors ${
-                      isActiveRoute(item.link || "") ? "bg-blue-500" : ""
+                    className={`flex items-center py-1.5 px-3 transition-colors ${
+                      isActiveRoute(item.link || "")
+                        ? "bg-blue-500"
+                        : "text-gray-300"
                     } ${
                       !isCollapsed || (isMobile && sidebarOpen)
                         ? ""

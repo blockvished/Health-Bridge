@@ -64,7 +64,7 @@ export const menuItemsDoctor: MenuItem[] = [
     ],
   },
   { name: "Transactions", link: "/admin/payment/lists", svg: <MdPayment /> },
-  { name: "Custom Domain", link: "/admin/domain/", svg: <MdDomain /> },
+  { name: "Custom Domain", link: "/admin/domain", svg: <MdDomain /> },
   {
     name: "Payouts",
     svg: <FaWallet />,
