@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa";
 import { FiChevronRight } from "react-icons/fi";
-import { MenuItem, menuItems } from "./menuItems";
+import { menuItemsDoctor, menuItemsPatient } from "./menuItems";
 import LeftPopup from "./LeftPopup";
 
 interface SidebarProps {
@@ -140,7 +140,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Menu items */}
         <nav className="mt-1">
           <ul>
-            {menuItems.map((item, index) => (
+            {menuItemsDoctor.map((item, index) => (
               <li key={index} className="mb-0.5">
                 {item.dropdown ? (
                   <div>
