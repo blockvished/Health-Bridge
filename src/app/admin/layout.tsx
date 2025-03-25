@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Sidebar from "./_common/Sidebar";
-import Topbar from "./_common/Topbar";
+import SidebarDoctor from "./_common/SidebarDoctor";
+import SidebarPatient from "./_common/SidebarPatient";
+import TopbarDoctor from "./_common/TopbarDoctor";
+import TopbarPatient from "./_common/TopbarPatient";
 import Footer from "./_common/Footer";
 
 export default function AdminLayout({
@@ -47,7 +49,12 @@ export default function AdminLayout({
   return (
     <div className="bg-gray-50">
       <div className="flex h-screen">
-        <Sidebar 
+        {/* <SidebarDoctor
+          isCollapsed={isCollapsed} 
+          isMobile={isMobile} 
+          sidebarOpen={sidebarOpen}
+        /> */}
+        <SidebarPatient
           isCollapsed={isCollapsed} 
           isMobile={isMobile} 
           sidebarOpen={sidebarOpen}
@@ -57,7 +64,8 @@ export default function AdminLayout({
             isCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-64"
           } ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
         >
-          <Topbar onToggleSidebar={toggleSidebar} />
+          {/* <TopbarDoctor onToggleSidebar={toggleSidebar} /> */}
+          <TopbarPatient onToggleSidebar={toggleSidebar} />
           <main className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}>
             {children}
           </main>
