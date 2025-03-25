@@ -10,7 +10,7 @@ import {
   FiMenu,
   FiChevronDown,
 } from "react-icons/fi";
-import MobileTitle from "./MobileTitle";
+import MobileTitle from "./MobileTitleDoctor";
 import { MdAddCircle } from "react-icons/md";
 import { FaCaretDown } from "react-icons/fa";
 

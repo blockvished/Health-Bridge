@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import SidebarDoctor from "./_common/SidebarDoctor";
 import SidebarPatient from "./_common/SidebarPatient";
-import Topbar from "./_common/Topbar";
+import TopbarDoctor from "./_common/TopbarDoctor";
+import TopbarPatient from "./_common/TopbarPatient";
 import Footer from "./_common/Footer";
 
 export default function AdminLayout({
@@ -63,7 +64,8 @@ export default function AdminLayout({
             isCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-64"
           } ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
         >
-          <Topbar onToggleSidebar={toggleSidebar} />
+          {/* <TopbarDoctor onToggleSidebar={toggleSidebar} /> */}
+          <TopbarPatient onToggleSidebar={toggleSidebar} />
           <main className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}>
             {children}
           </main>
