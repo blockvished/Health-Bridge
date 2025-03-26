@@ -14,6 +14,7 @@ import {
 import IncomeChart from "./_common/Chart";
 import NetIncomeTable from "./_common/NetIncomeTable";
 import PlansByUserChart from "./_common/PlansByUserChart"
+import RecentUsers from "./_common/RecentUsers";
 
 // Register Chart.js components
 ChartJS.register(
@@ -119,7 +120,7 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <IncomeChart />
         <PlansByUserChart />
-        <NetIncomeTable />
+        <RecentUsers />
         <NetIncomeTable />
       </div>
     </div>

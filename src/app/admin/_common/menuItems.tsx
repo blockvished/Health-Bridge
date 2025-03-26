@@ -206,12 +206,12 @@ export const menuItemsAdmin: MenuItem[] = [
       { name: "Settings", link: "/admin/domain/settings" },
     ],
   },
-  { name: "Appearance", link: "/admin/settings", svg: <BsFillPaletteFill /> },
-  { name: "Language", link: "/admin/settings", svg: <FaLanguage /> },
-  { name: "Plans", link: "/admin/settings", svg: <RiFileListFill /> },
-  { name: "Transactions", link: "/admin/settings", svg: <MdAttachMoney /> },
-  { name: "Departments", link: "/admin/settings", svg: <MdBusiness /> },
-  { name: "Users", link: "/admin/settings", svg: <FaUsers /> },
+  { name: "Appearance", link: "/admin/settings/appearance", svg: <BsFillPaletteFill /> },
+  { name: "Language", link: "/admin/language", svg: <FaLanguage /> },
+  { name: "Plans", link: "/admin/package", svg: <RiFileListFill /> },
+  { name: "Transactions", link: "/admin/payment/transactions", svg: <MdAttachMoney /> },
+  { name: "Departments", link: "/admin/department", svg: <MdBusiness /> },
+  { name: "Users", link: "/admin/users", svg: <FaUsers /> },
 
   {
     name: "Drugs",

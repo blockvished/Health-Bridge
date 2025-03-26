@@ -1,7 +1,7 @@
 const NetIncomeTable: React.FC = () => (
   <div className="bg-white p-6 rounded-lg shadow">
     <h2 className="text-lg font-semibold mb-4">Net Income</h2>
-    <div className="flex items-center justify-between py-3 border-b mb-4">
+    <div className="flex items-center justify-between py-3 border-b border-gray-200 mb-4">
       <div className="flex items-center">
         <span className="mr-2">Fiscal year</span>
         <svg
