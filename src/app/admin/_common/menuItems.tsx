@@ -148,3 +148,5 @@ export const menuItemsPatient: MenuItem[] = [
   { name: "Change Password", link: "/admin/change_password", svg: <FaLock /> },
   { name: "Logout", link: "#", svg: <FaSignOutAlt /> },
 ];
+
+export const menuItemsAdmin: MenuItem[] = []
