@@ -1,11 +1,16 @@
 import { AiFillHome, AiFillSetting, AiFillSchedule } from "react-icons/ai";
+import { BsFillPaletteFill } from "react-icons/bs";
+import { RiFileListFill, RiPagesFill } from "react-icons/ri";
 import {
   FaUserMd,
   FaMoneyBillWave,
   FaUsers,
+  FaLanguage,
+  FaMoneyCheckAlt,
   FaPills,
   FaPrescription,
   FaStar,
+  FaShareAlt,
   FaPhone,
   FaLock,
   FaSignOutAlt,
@@ -18,6 +23,10 @@ import {
   FaSlidersH,
   FaCalendarCheck,
   FaBuilding,
+  FaDollarSign,
+  FaBlog,
+  FaProjectDiagram,
+  FaQuestionCircle,
 } from "react-icons/fa";
 import {
   MdDashboard,
@@ -28,8 +37,12 @@ import {
   MdPeople,
   MdMedicalServices,
   MdRateReview,
+  MdBusiness,
+  MdAttachMoney,
+  MdMiscellaneousServices,
 } from "react-icons/md";
 import { JSX } from "react";
+import { GiPill } from "react-icons/gi";
 
 export interface MenuItem {
   name: string;
@@ -149,4 +162,79 @@ export const menuItemsPatient: MenuItem[] = [
   { name: "Logout", link: "#", svg: <FaSignOutAlt /> },
 ];
 
-export const menuItemsAdmin: MenuItem[] = []
+export const menuItemsAdmin: MenuItem[] = [
+  { name: "Dashboard", link: "/admin/dashboard", svg: <MdDashboard /> },
+  { name: "Settings", link: "/admin/settings", svg: <AiFillSetting /> },
+  {
+    name: "Payment Settings",
+    svg: <FaDollarSign />,
+    dropdown: [
+      {
+        name: "Online Payments",
+        link: "/admin/payment/settings/online",
+      },
+      {
+        name: "Offline Payments",
+        link: "/admin/payment/settings/offline",
+      },
+    ],
+  },
+  {
+    name: "Payouts",
+    svg: <FaWallet />,
+    dropdown: [
+      { name: "Payout Settings", link: "/admin/payouts/settings" },
+      { name: "Add Payout", link: "/admin/payouts/add" },
+      { name: "Payout Requests", link: "/admin/payouts/requests" },
+      { name: "Completed", link: "/admin/payouts/completed" },
+    ],
+  },
+  {
+    name: "Affiliate",
+    svg: <FaShareAlt />,
+    dropdown: [
+      { name: "Affiliate Settings", link: "/admin/referral/settings" },
+      { name: "Payout Requests", link: "/admin/referral/payout_request" },
+      { name: "Completed", link: "/admin/referral/completed_payout" },
+    ],
+  },
+  {
+    name: "Custom Domain",
+    svg: <MdDomain />,
+    dropdown: [
+      { name: "Requests", link: "/admin/domain/request" },
+      { name: "Settings", link: "/admin/domain/settings" },
+    ],
+  },
+  { name: "Appearance", link: "/admin/settings", svg: <BsFillPaletteFill /> },
+  { name: "Language", link: "/admin/settings", svg: <FaLanguage /> },
+  { name: "Plans", link: "/admin/settings", svg: <RiFileListFill /> },
+  { name: "Transactions", link: "/admin/settings", svg: <MdAttachMoney /> },
+  { name: "Departments", link: "/admin/settings", svg: <MdBusiness /> },
+  { name: "Users", link: "/admin/settings", svg: <FaUsers /> },
+
+  {
+    name: "Drugs",
+    svg: <GiPill />,
+    dropdown: [
+      { name: "Drugs", link: "/admin/drugs" },
+      { name: "Bulk Import Drugs", link: "/admin/file/import/drugs" },
+    ],
+  },
+  {
+    name: "Blog",
+    svg: <FaBlog />,
+    dropdown: [
+      { name: "Add Category", link: "/admin/blog_category" },
+      { name: "Blog Posts", link: "/admin/blog" },
+    ],
+  },
+
+  { name: "Workflow", link: "/admin/workflow", svg: <FaProjectDiagram  /> },
+  { name: "Services", link: "/admin/services", svg: <MdMiscellaneousServices  /> },
+  { name: "Pages", link: "/admin/pages", svg: <RiPagesFill  /> },
+  { name: "FAQs", link: "/admin/faq", svg: <FaQuestionCircle   /> },
+  { name: "Contact", link: "/admin/contact", svg: <FaEnvelope /> },
+  { name: "Change Password", link: "/change_password", svg: <FaLock /> },
+  { name: "Logout", link: "#", svg: <FaSignOutAlt /> },
+];
