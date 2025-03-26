@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa";
 import { FiChevronRight } from "react-icons/fi";
-import { menuItemsDoctor } from "./menuItems";
+import { menuItemsAdmin } from "./menuItems";
 import LeftPopup from "./LeftPopup";
 
 interface SidebarProps {
@@ -27,7 +27,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const sidebarButtonRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-
   // Set isMounted to true after component mounts
   useEffect(() => {
     setIsMounted(true);
@@ -121,32 +120,33 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Sidebar header */}
         {!isMobile && (
-          <div
-            className="flex items-center p-3 border-b border-gray-700 cursor-pointer"
-            onClick={togglePopup}
-            ref={sidebarButtonRef}
+  <Link href="/" className="block">
+    <div
+      className="flex items-center p-3 border-b border-gray-700 cursor-pointer"
+      ref={sidebarButtonRef}
+    >
+      {isMounted && (!isCollapsed || (isMobile && sidebarOpen)) ? (
+        <div className="flex items-center space-x-2">
+          <img alt="Logo" className="h-6 w-6" />
+          <span
+            className={`font-bold truncate ${isMobile ? "text-sm" : ""}`}
           >
-            {isMounted && (!isCollapsed || (isMobile && sidebarOpen)) ? (
-              <div className="flex items-center space-x-2">
-                <img alt="Logo" className="h-6 w-6" />
-                <span
-                  className={`font-bold truncate ${isMobile ? "text-sm" : ""}`}
-                >
-                  Digambar Healthcare
-                </span>
-              </div>
-            ) : (
-              <div className="flex justify-center">
-                <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
-              </div>
-            )}
-          </div>
-        )}
+            Live Doctors
+          </span>
+        </div>
+      ) : (
+        <div className="flex justify-center">
+          <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
+        </div>
+      )}
+    </div>
+  </Link>
+)}
 
         {/* Menu items */}
         <nav className="mt-1">
           <ul>
-            {menuItemsDoctor.map((item, index) => (
+            {menuItemsAdmin.map((item, index) => (
               <li key={index} className="mb-0.5">
                 {item.dropdown ? (
                   <div>

@@ -3,8 +3,10 @@
 import React, { useEffect, useState } from "react";
 import SidebarDoctor from "./_common/SidebarDoctor";
 import SidebarPatient from "./_common/SidebarPatient";
+import SidebarAdmin from "./_common/SidebarAdmin ";
 import TopbarDoctor from "./_common/TopbarDoctor";
 import TopbarPatient from "./_common/TopbarPatient";
+import TopbarAdmin from "./_common/TopbarAdmin";
 import Footer from "./_common/Footer";
 
 export default function AdminLayout({
@@ -24,9 +26,9 @@ export default function AdminLayout({
       setIsMobile(mobile);
       setIsCollapsed(mobile);
     };
-    
+
     checkMobile();
-    
+
     const handleResize = () => {
       checkMobile();
       if (window.innerWidth >= 768) {
@@ -49,24 +51,33 @@ export default function AdminLayout({
   return (
     <div className="bg-gray-50">
       <div className="flex h-screen">
-        <SidebarDoctor
-          isCollapsed={isCollapsed} 
-          isMobile={isMobile} 
+        {/* <SidebarDoctor
+          isCollapsed={isCollapsed}
+          isMobile={isMobile}
           sidebarOpen={sidebarOpen}
         />
-        {/* <SidebarPatient
+        <SidebarPatient
           isCollapsed={isCollapsed} 
           isMobile={isMobile} 
+          sidebarOpen={sidebarOpen} 
+        />       
+          */}
+        <SidebarAdmin
+          isCollapsed={isCollapsed}
+          isMobile={isMobile}
           sidebarOpen={sidebarOpen}
-        /> */}
-        <div 
+        />
+        <div
           className={`flex flex-col w-full transition-all duration-300 ${
             isCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-64"
           } ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
         >
-          <TopbarDoctor onToggleSidebar={toggleSidebar} />
+          {/* <TopbarDoctor onToggleSidebar={toggleSidebar} /> */}
           {/* <TopbarPatient onToggleSidebar={toggleSidebar} /> */}
-          <main className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}>
+          <TopbarAdmin onToggleSidebar={toggleSidebar} />
+          <main
+            className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
+          >
             {children}
           </main>
           <Footer />
