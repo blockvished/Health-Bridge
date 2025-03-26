@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import Link from 'next/link';
 
 interface User {
@@ -64,19 +65,19 @@ const UserIcon = () => (
 
 const RecentUsers = () => {
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-200">
+    <div className="bg-white bg-white p-6 rounded-lg shadow">
       <div className="p-4 border-b border-gray-200">
         <h2 className="text-lg font-semibold text-gray-800">Recently joined Users</h2>
       </div>
       <ul>
         {users.map((user, index) => (
-          <li key={index} className="flex items-center justify-between p-4 border-b border-gray-200 last:border-none hover:bg-gray-50 transition-colors">
+          <li key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-gray-200 last:border-none hover:bg-gray-50 transition-colors">
             <div className="flex items-center gap-4">
               <UserIcon />
               <div>
-                <p className="font-semibold text-gray-800">{user.name}</p>
-                <p className="text-gray-500 text-sm">{user.email}</p>
-                <div className="flex items-center gap-2 mt-1">
+                <p className="font-semibold text-gray-800 text-sm sm:text-base">{user.name}</p>
+                <p className="text-gray-500 text-xs sm:text-sm">{user.email}</p>
+                <div className="flex flex-wrap items-center gap-2 mt-1">
                   {user.status === "verified" ? (
                     <span className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full flex items-center">
                       <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
@@ -92,7 +93,7 @@ const RecentUsers = () => {
                 </div>
               </div>
             </div>
-            <span className="text-gray-500 text-sm">{user.joined}</span>
+            <span className="text-gray-500 text-xs sm:text-sm mt-2 sm:mt-0">{user.joined}</span>
           </li>
         ))}
       </ul>
