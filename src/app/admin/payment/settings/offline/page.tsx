@@ -18,7 +18,7 @@ const AddOfflinePayment: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100 p-6">
+    <div className="flex min-h-screen">
       {/* Centered Form Container */}
       <div className="w-full max-w-2xl mx-auto bg-white p-6 rounded-md shadow-sm">
         <h2 className="text-lg font-semibold mb-4">Add Offline Payment</h2>
