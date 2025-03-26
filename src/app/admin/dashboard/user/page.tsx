@@ -11,9 +11,9 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import IncomeChart from "./components/Chart";
-import AppointmentsTable from "./components/AppointmentsTable";
-import NetIncomeTable from "./components/NetIncomeTable";
+import IncomeChart from "../_common/Chart";
+import AppointmentsTable from "../_common/AppointmentsTable";
+import NetIncomeTable from "../_common/NetIncomeTable";
 
 // Register Chart.js components
 ChartJS.register(
