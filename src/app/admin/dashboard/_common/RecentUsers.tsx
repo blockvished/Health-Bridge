@@ -1,4 +1,5 @@
 "use client";
+import Link from 'next/link';
 
 interface User {
   name: string;
@@ -95,9 +96,9 @@ const RecentUsers = () => {
           </li>
         ))}
       </ul>
-      <div className="text-center p-4 border-t border-gray-200">
-        <button className="text-blue-600 text-sm hover:underline">See all Users →</button>
-      </div>
+      <Link href="/admin/users" className="block text-center p-4 border-t border-gray-200 hover:bg-gray-100 cursor-pointer transition-colors">
+        <span className="text-blue-600 text-sm">See all Users →</span>
+      </Link>
     </div>
   );
 };
