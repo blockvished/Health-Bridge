@@ -12,7 +12,7 @@ export default function PayoutSettings() {
   const [swiftEnabled, setSwiftEnabled] = useState(true);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg border border-gray-200">
+    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg border border-gray-200 w-full">
       <h2 className="text-xl font-semibold mb-4">Payout Settings</h2>
 
       <div className="flex items-center mb-4 cursor-pointer" onClick={() => setPayoutsEnabled(!payoutsEnabled)}>
@@ -21,7 +21,7 @@ export default function PayoutSettings() {
       </div>
 
       <p className="text-sm text-gray-500 mb-4">
-        Enable to active payouts module and receive patients appointment payment to admin account.
+        Enable to activate payouts module and receive patient appointment payments to admin account.
       </p>
 
       <div className="mb-4">
@@ -54,16 +54,16 @@ export default function PayoutSettings() {
       </div>
 
       <h3 className="text-lg font-medium mb-2">Enable / Disable Payout Methods</h3>
-      <div className="flex gap-4 mb-6">
-        <div className={`flex items-center border border-gray-300 rounded p-2 cursor-pointer ${paypalEnabled ? 'bg-gray-100' : ''}`} onClick={() => setPaypalEnabled(!paypalEnabled)}>
+      <div className="flex flex-wrap gap-4 mb-6">
+        <div className={`flex items-center border border-gray-300 rounded p-2 cursor-pointer w-full sm:w-auto ${paypalEnabled ? 'bg-gray-100' : ''}`} onClick={() => setPaypalEnabled(!paypalEnabled)}>
           {paypalEnabled ? <FiToggleRight size={24} className="text-blue-500" /> : <FiToggleLeft size={24} className="text-gray-400" />}
           <span className="ml-2">Enable Paypal</span>
         </div>
-        <div className={`flex items-center border border-gray-300 rounded p-2 cursor-pointer ${ibanEnabled ? 'bg-gray-100' : ''}`} onClick={() => setIbanEnabled(!ibanEnabled)}>
+        <div className={`flex items-center border border-gray-300 rounded p-2 cursor-pointer w-full sm:w-auto ${ibanEnabled ? 'bg-gray-100' : ''}`} onClick={() => setIbanEnabled(!ibanEnabled)}>
           {ibanEnabled ? <FiToggleRight size={24} className="text-blue-500" /> : <FiToggleLeft size={24} className="text-gray-400" />}
           <span className="ml-2">Enable IBAN</span>
         </div>
-        <div className={`flex items-center border border-gray-300 rounded p-2 cursor-pointer ${swiftEnabled ? 'bg-gray-100' : ''}`} onClick={() => setSwiftEnabled(!swiftEnabled)}>
+        <div className={`flex items-center border border-gray-300 rounded p-2 cursor-pointer w-full sm:w-auto ${swiftEnabled ? 'bg-gray-100' : ''}`} onClick={() => setSwiftEnabled(!swiftEnabled)}>
           {swiftEnabled ? <FiToggleRight size={24} className="text-blue-500" /> : <FiToggleLeft size={24} className="text-gray-400" />}
           <span className="ml-2">Enable Swift</span>
         </div>
