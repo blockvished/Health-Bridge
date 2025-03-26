@@ -97,9 +97,6 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                 alt="Profile"
                 className="w-6 h-6 rounded-full"
               />
-              <span className="text-gray-800 font-medium hidden sm:inline">
-               Patient name
-              </span>
 
               <FiChevronDown className="w-5 h-5 text-gray-600" />
             </button>
@@ -118,12 +115,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                   alt="Profile"
                   className="w-12 h-12 rounded-full"
                 />
-                <div>
-                  <h4 className="text-gray-800 font-semibold text-sm">
-                 Patient name
-                  </h4>
-                  <p className="text-xs text-gray-500">patient email</p>
-                </div>
+                <div>Live Doctor</div>
               </div>
 
               {/* Profile Actions */}

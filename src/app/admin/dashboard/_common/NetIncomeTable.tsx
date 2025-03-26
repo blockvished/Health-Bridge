@@ -1,7 +1,9 @@
+import React from 'react';
+
 const NetIncomeTable: React.FC = () => (
-  <div className="bg-white p-6 rounded-lg shadow">
+  <div className="bg-white p-6 rounded-lg shadow min-h-[200px] flex flex-col h-min">
     <h2 className="text-lg font-semibold mb-4">Net Income</h2>
-    <div className="flex items-center justify-between py-3 border-b mb-4">
+    <div className="flex items-center justify-between py-3 border-b border-gray-200 mb-4">
       <div className="flex items-center">
         <span className="mr-2">Fiscal year</span>
         <svg
@@ -20,7 +22,7 @@ const NetIncomeTable: React.FC = () => (
       <span className="font-medium">2024</span>
     </div>
 
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center mt-auto">
       <span>Income</span>
       <span className="text-blue-600 font-semibold">$1000</span>
     </div>
