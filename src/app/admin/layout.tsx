@@ -55,13 +55,13 @@ export default function AdminLayout({
           isCollapsed={isCollapsed}
           isMobile={isMobile}
           sidebarOpen={sidebarOpen}
-        />
-        <SidebarPatient
+        /> */}
+        {/* <SidebarPatient
           isCollapsed={isCollapsed} 
           isMobile={isMobile} 
           sidebarOpen={sidebarOpen} 
-        />       
-          */}
+        />        */}
+         
         <SidebarAdmin
           isCollapsed={isCollapsed}
           isMobile={isMobile}
