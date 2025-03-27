@@ -10,7 +10,19 @@ interface DomainRequest {
   action: string;
 }
 
-const CustomDomainRequest: React.FC<{ requests: DomainRequest[] }> = ({ requests }) => {
+const CustomDomainRequest: React.FC = () => {
+  const dummyData: DomainRequest[] = [
+    {
+      id: 1,
+      currentDomain: "https://www.livedoctors.in/",
+      customDomain: "test.com",
+      date: "15 Jul 2024",
+      status: "Pending",
+      action: "...", // Use three dots for the action
+    },
+    // Add more dummy data if needed
+  ];
+
   return (
     <div className="bg-white rounded-lg p-4 shadow-md">
       <h2 className="text-lg font-semibold mb-4">Domain Request</h2>
@@ -26,7 +38,7 @@ const CustomDomainRequest: React.FC<{ requests: DomainRequest[] }> = ({ requests
           </tr>
         </thead>
         <tbody>
-          {requests.map((request) => (
+          {dummyData.map((request) => (
             <tr key={request.id} className="border-t">
               <td className="py-2">{request.id}</td>
               <td className="py-2">{request.currentDomain}</td>

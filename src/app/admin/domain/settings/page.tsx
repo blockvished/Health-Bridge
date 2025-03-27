@@ -1,10 +1,13 @@
+"use client";
 // CustomDomainSettings.tsx
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const CustomDomainSettings: React.FC = () => {
   const [title, setTitle] = useState("Custom Domain Integration Guideline");
-  const [shortDetails, setShortDetails] = useState("Custom Domain Integration Guideline short details");
+  const [shortDetails, setShortDetails] = useState(
+    "Custom Domain Integration Guideline short details"
+  );
   const [details, setDetails] = useState(""); // You'll need a rich text editor for this
   const [serverIp, setServerIp] = useState("200.201.231.122");
   const [type1, setType1] = useState("CNAME Record");
@@ -76,86 +79,88 @@ const CustomDomainSettings: React.FC = () => {
           onChange={(e) => setServerIp(e.target.value)}
           className="w-full border rounded-lg p-2"
         />
+        <p className="text-xs text-blue-600 mt-1">
+          This IP address will be used to setup users custom domain &gt; DNS
+          settings
+        </p>
       </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Type1</label>
-        <input
-          type="text"
-          value={type1}
-          onChange={(e) => setType1(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
+      <div className="grid grid-cols-4 gap-4 mb-4">
+        <div>
+          <label className="block font-medium mb-1">Type1</label>
+          <input
+            type="text"
+            value={type1}
+            onChange={(e) => setType1(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium mb-1">Host1</label>
+          <input
+            type="text"
+            value={host1}
+            onChange={(e) => setHost1(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium mb-1">Value1</label>
+          <input
+            type="text"
+            value={value1}
+            onChange={(e) => setValue1(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium mb-1">TTL1</label>
+          <input
+            type="text"
+            value={ttl1}
+            onChange={(e) => setTtl1(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
       </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Host1</label>
-        <input
-          type="text"
-          value={host1}
-          onChange={(e) => setHost1(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Value1</label>
-        <input
-          type="text"
-          value={value1}
-          onChange={(e) => setValue1(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">TTL1</label>
-        <input
-          type="text"
-          value={ttl1}
-          onChange={(e) => setTtl1(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Type2</label>
-        <input
-          type="text"
-          value={type2}
-          onChange={(e) => setType2(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Host2</label>
-        <input
-          type="text"
-          value={host2}
-          onChange={(e) => setHost2(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Value2</label>
-        <input
-          type="text"
-          value={value2}
-          onChange={(e) => setValue2(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">TTL2</label>
-        <input
-          type="text"
-          value={ttl2}
-          onChange={(e) => setTtl2(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
+      <div className="grid grid-cols-4 gap-4 mb-4">
+        <div>
+          <label className="block font-medium mb-1">Type2</label>
+          <input
+            type="text"
+            value={type2}
+            onChange={(e) => setType2(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium mb-1">Host2</label>
+          <input
+            type="text"
+            value={host2}
+            onChange={(e) => setHost2(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium mb-1">Value2</label>
+          <input
+            type="text"
+            value={value2}
+            onChange={(e) => setValue2(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+        <div>
+          <label className="block font-medium mb-1">TTL2</label>
+          <input
+            type="text"
+            value={ttl2}
+            onChange={(e) => setTtl2(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
       </div>
 
       <Button onClick={handleSaveSettings} className="bg-blue-500 text-white">
