@@ -13,7 +13,11 @@ import PreferencesSettings from "./PreferencesSettings";
 import ZoomSettings from "./ZoomSettings";
 import Email from "./EmailSettings";
 import ReCaptchaV2Settings from "./RecaptchaV2";
-
+import SocialSettings from "./SocialSettingsForm";
+import DoctorVerificationForm from "./DoctorVerificationForm";
+import WhatsappSettings from "./WhatsappSettings";
+import TwilioSmsSettings from "./TwilioSmsSettings";
+import PwaSettings from "./PwaSettings";
 
 const tabs = [
   { id: "website", label: "Website Settings", icon: Settings },
@@ -62,11 +66,11 @@ export default function SettingsPage() {
         {activeTab === "zoom" && <ZoomSettings />}
         {activeTab === "email" && <Email />}
         {activeTab === "recaptcha" && <ReCaptchaV2Settings />}
-        {activeTab === "social" && <ZoomSettings />}
-        {activeTab === "doctors" && <ZoomSettings />}
-        {activeTab === "whatsapp" && <ZoomSettings />}
-        {activeTab === "twilio" && <ZoomSettings />}
-        {activeTab === "pwa" && <ZoomSettings />}
+        {activeTab === "social" && <SocialSettings />}
+        {activeTab === "doctors" && <DoctorVerificationForm />}
+        {activeTab === "whatsapp" && <WhatsappSettings />}
+        {activeTab === "twilio" && <TwilioSmsSettings />}
+        {activeTab === "pwa" && <PwaSettings />}
       </div>
     </div>
   );
