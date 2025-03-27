@@ -12,6 +12,7 @@ import WebsiteSettings from "./WebsiteSettings";
 import PreferencesSettings from "./PreferencesSettings";
 import ZoomSettings from "./ZoomSettings";
 import Email from "./EmailSettings";
+import ReCaptchaV2Settings from "./RecaptchaV2";
 
 
 const tabs = [
@@ -60,7 +61,7 @@ export default function SettingsPage() {
         {activeTab === "preferences" && <PreferencesSettings />}
         {activeTab === "zoom" && <ZoomSettings />}
         {activeTab === "email" && <Email />}
-        {activeTab === "recaptcha" && <Email />}
+        {activeTab === "recaptcha" && <ReCaptchaV2Settings />}
         {activeTab === "social" && <ZoomSettings />}
         {activeTab === "doctors" && <ZoomSettings />}
         {activeTab === "whatsapp" && <ZoomSettings />}
