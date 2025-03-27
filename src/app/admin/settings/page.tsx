@@ -1,15 +1,18 @@
 "use client";
 import { useState } from "react";
-import {Paintbrush,
+import {
+  Paintbrush,
   Settings,
   Shield,
   MessageCircle,
   Globe,
   List,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import WebsiteSettings from "./WebsiteSettings";
 import PreferencesSettings from "./PreferencesSettings";
+import ZoomSettings from "./ZoomSettings";
+import Email from "./EmailSettings";
+
 
 const tabs = [
   { id: "website", label: "Website Settings", icon: Settings },
@@ -54,7 +57,15 @@ export default function SettingsPage() {
       {/* Content Area */}
       <div className="w-3/4 ml-6 bg-white p-6">
         {activeTab === "website" && <WebsiteSettings />}
-        {activeTab === "preferences" && <PreferencesSettings />} {/* Added this line */}
+        {activeTab === "preferences" && <PreferencesSettings />}
+        {activeTab === "zoom" && <ZoomSettings />}
+        {activeTab === "email" && <Email />}
+        {activeTab === "recaptcha" && <Email />}
+        {activeTab === "social" && <ZoomSettings />}
+        {activeTab === "doctors" && <ZoomSettings />}
+        {activeTab === "whatsapp" && <ZoomSettings />}
+        {activeTab === "twilio" && <ZoomSettings />}
+        {activeTab === "pwa" && <ZoomSettings />}
       </div>
     </div>
   );
