@@ -22,6 +22,7 @@ import { useRouter } from 'next/navigation';
 const PayoutRequests = () => {
   const router = useRouter();
   const [filter, setFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Sample payout requests data
   const payoutRequests = [
@@ -45,7 +46,14 @@ const PayoutRequests = () => {
       amount: 3000,
       status: 'Rejected',
       date: '2025-03-17'
-    }
+    },
+     {
+        id: 4,
+        user: 'John Smith',
+        amount: 3500,
+        status: 'Pending',
+        date: '2025-03-18'
+      },
   ];
 
   const handleAddPayout = () => {
@@ -61,18 +69,24 @@ const PayoutRequests = () => {
     }
   };
 
+  const filteredRequests = payoutRequests.filter(request => {
+    const filterMatch = filter === 'All' || request.status === filter;
+    const searchMatch = request.user.toLowerCase().includes(searchQuery.toLowerCase());
+    return filterMatch && searchMatch;
+  });
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Payout Requests</h1>
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 border bg-white rounded-md">
+      <div className="flex flex-col sm:flex-row justify-between items-center">
+        <h1 className="text-2xl font-bold mb-2 sm:mb-0">Payout Requests</h1>
         <Button onClick={handleAddPayout}>
           Add Payout
         </Button>
       </div>
 
-      <div className="flex space-x-4 mb-4">
+      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
         <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter" />
           </SelectTrigger>
           <SelectContent>
@@ -85,26 +99,25 @@ const PayoutRequests = () => {
 
         <Input 
           placeholder="Search users" 
-          className="w-[250px]"
+          className="w-full sm:w-[250px]"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>User</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {payoutRequests
-            .filter(request => 
-              filter === 'All' || request.status === filter
-            )
-            .map((request) => (
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>User</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredRequests.map((request) => (
               <TableRow key={request.id}>
                 <TableCell>{request.user}</TableCell>
                 <TableCell>₹{request.amount.toLocaleString()}</TableCell>
@@ -121,8 +134,9 @@ const PayoutRequests = () => {
                 </TableCell>
               </TableRow>
             ))}
-        </TableBody>
-      </Table>
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };

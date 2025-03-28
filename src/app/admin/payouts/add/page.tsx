@@ -21,7 +21,7 @@ const PayoutForm = () => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
+    <div className="p-6 bg-white border rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Add Payout</h2>
         <Link href="/admin/payouts/requests">
@@ -39,7 +39,7 @@ const PayoutForm = () => {
             onValueChange={setSelectedUser}
             required
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full border rounded-md"> {/* Added border here */}
               <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
@@ -60,7 +60,7 @@ const PayoutForm = () => {
             onChange={(e) => setAmount(e.target.value)}
             placeholder="Enter amount"
             required
-            className="w-full"
+            className="w-full border rounded-md" // Added border here
             prefix="₹"
           />
         </div>
@@ -74,7 +74,7 @@ const PayoutForm = () => {
             onValueChange={setWithdrawalMethod}
             required
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full border rounded-md"> {/* Added border here */}
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
