@@ -4,9 +4,9 @@ import React, { useState } from "react";
 import { FaPen, FaTrash, FaPlus, FaCheck } from "react-icons/fa";
 import { IoArrowBack } from "react-icons/io5";
 
-const DepartmentForm: React.FC<{ 
-  onSave: (name: string) => void; 
-  onCancel: () => void; 
+const DepartmentForm: React.FC<{
+  onSave: (name: string) => void;
+  onCancel: () => void;
 }> = ({ onSave, onCancel }) => {
   const [name, setName] = useState("");
 
@@ -14,11 +14,15 @@ const DepartmentForm: React.FC<{
     <div className="w-full bg-white p-6 mx-auto">
       {/* Header with Back Button */}
       <div className="flex justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-800">Add New Department</h2>
+        <h2 className="text-lg font-semibold text-gray-800">
+          Add New Department
+        </h2>
       </div>
 
       {/* Input Field */}
-      <label className="block text-sm font-medium text-gray-600 mb-1">Title</label>
+      <label className="block text-sm font-medium text-gray-600 mb-1">
+        Title
+      </label>
       <input
         type="text"
         value={name}
@@ -43,9 +47,33 @@ const DepartmentForm: React.FC<{
 // 🔹 Main Department Page Component
 const DepartmentPage: React.FC = () => {
   const [departments, setDepartments] = useState([
-    { id: 1, name: "HR" },
-    { id: 2, name: "IT" },
-    { id: 3, name: "Finance" },
+    { id: 1, name: "Physiotherapist" },
+    { id: 2, name: "Ayurvedic doctors" },
+    { id: 3, name: "Sexologist" },
+    { id: 4, name: "Urologist" },
+    { id: 5, name: "Allopathic doctor" },
+    { id: 6, name: "Homoeopathic" },
+    { id: 7, name: "Otolaryngologist" },
+    { id: 8, name: "Veterinarian" },
+    { id: 9, name: "Pulmonologist" },
+    { id: 10, name: "Gastroenterologist" },
+    { id: 11, name: "Gynaecologist" },
+    { id: 12, name: "Hepatologist" },
+    { id: 13, name: "Psychiatrist" },
+    { id: 14, name: "Oncologist" },
+    { id: 15, name: "Nephrologist" },
+    { id: 16, name: "Dentist" },
+    { id: 17, name: "Ophthalmologist" },
+    { id: 18, name: "Paediatrician" },
+    { id: 19, name: "Neurologist" },
+    { id: 20, name: "Orthopedic" },
+    { id: 21, name: "Dermatologist" },
+    { id: 22, name: "Cardiologist" },
+    { id: 23, name: "Psychology" },
+    { id: 24, name: "Physiotherapy" },
+    { id: 25, name: "Naturopathy" },
+    { id: 26, name: "Allopathy" },
+    { id: 27, name: "Ayurveda" },
   ]);
   const [showForm, setShowForm] = useState(false);
 
@@ -64,14 +92,21 @@ const DepartmentPage: React.FC = () => {
           onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 mt-2 sm:mt-0 rounded-lg shadow-sm hover:bg-gray-200 transition"
         >
-          {showForm ? <IoArrowBack className="text-gray-500" /> : <FaPlus className="text-gray-500" />}
+          {showForm ? (
+            <IoArrowBack className="text-gray-500" />
+          ) : (
+            <FaPlus className="text-gray-500" />
+          )}
           {showForm ? "Back" : "Add New"}
         </button>
       </div>
 
       {/* Add New Department Form */}
       {showForm ? (
-        <DepartmentForm onSave={addDepartment} onCancel={() => setShowForm(false)} />
+        <DepartmentForm
+          onSave={addDepartment}
+          onCancel={() => setShowForm(false)}
+        />
       ) : (
         // Table
         <div className="overflow-x-auto mt-4">
@@ -79,13 +114,20 @@ const DepartmentPage: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="p-3 text-left text-gray-600 font-medium">#</th>
-                <th className="p-3 text-left text-gray-600 font-medium">Name</th>
-                <th className="p-3 text-left text-gray-600 font-medium">Action</th>
+                <th className="p-3 text-left text-gray-600 font-medium">
+                  Name
+                </th>
+                <th className="p-3 text-left text-gray-600 font-medium">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
               {departments.map((dept) => (
-                <tr key={dept.id} className="border-b border-gray-200 hover:bg-gray-50 transition">
+                <tr
+                  key={dept.id}
+                  className="border-b border-gray-200 hover:bg-gray-50 transition"
+                >
                   <td className="p-3 text-gray-900">{dept.id}</td>
                   <td className="p-3 text-gray-900">{dept.name}</td>
                   <td className="p-3 flex gap-2">
