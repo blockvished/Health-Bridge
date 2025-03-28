@@ -45,13 +45,17 @@ const DoctorVerificationForm: React.FC = () => {
             onChange={(e) => setEnableVerification(e.target.checked)}
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          <div className="w-9 h-5 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-300 peer-focus:outline-none peer-checked:bg-blue-600 transition-all duration-300">
+            <span className="absolute top-0.5 left-0.5 bg-white rounded-full w-4 h-4 transition-transform duration-300 peer-checked:translate-x-4"></span>
+          </div>
         </label>
-        <span className="ml-2">Enable to force all doctors to verify their profile to submit the required documents by admin</span>
+        <span className="ml-2 text-sm">
+          Enable to force all doctors to verify their profile to submit the required documents by admin
+        </span>
       </div>
 
-      <Button onClick={handleAddVerificationField} className="mt-4">
-        Add New
+      <Button onClick={handleAddVerificationField} className="mt-4 bg-gray-100 text-gray-700 hover:bg-gray-200">
+        + Add New
       </Button>
 
       {verificationFields.map((field, index) => (
@@ -60,23 +64,23 @@ const DoctorVerificationForm: React.FC = () => {
             type="text"
             value={field}
             onChange={(e) => handleVerificationFieldChange(index, e.target.value)}
-            className="w-full border rounded-lg p-2 mr-2"
+            className="w-full border rounded-md p-2 mr-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" // Styled input
           />
-          <Button variant="outline" onClick={() => handleRemoveVerificationField(index)}>
+          <Button variant="outline" onClick={() => handleRemoveVerificationField(index)} className="text-red-500 border-red-500 hover:bg-red-100">
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       ))}
 
-      <div className="flex items-start mt-4">
+      <div className="flex items-start mt-4 bg-blue-50 rounded-md p-3">
         <Info className="w-4 h-4 mr-2 text-blue-500" />
-        <p className="text-sm">
+        <p className="text-sm text-gray-600">
           In this section you can add required doctors certificate/document name and files upload option will be shown on doctors panel to verify their account via admin.
         </p>
       </div>
 
-      <Button onClick={handleSaveSettings} className="mt-4">
-        Save Changes
+      <Button onClick={handleSaveSettings} className="mt-4 bg-blue-500 text-white hover:bg-blue-600">
+        ✓ Save Changes
       </Button>
     </div>
   );

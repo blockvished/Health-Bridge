@@ -1,7 +1,7 @@
 // EmailSettings.tsx
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Globe, Send } from "lucide-react"; // Import Globe and Send icons
+import { Globe, Send } from "lucide-react";
 
 const EmailSettings: React.FC = () => {
   const [mailType, setMailType] = useState("smtp");
@@ -13,7 +13,6 @@ const EmailSettings: React.FC = () => {
   const [mailEncryption, setMailEncryption] = useState("SSL");
 
   const handleSaveSettings = () => {
-    // Implement logic to save email settings
     console.log("Saving Email Settings:", {
       mailType,
       mailTitle,
@@ -26,7 +25,6 @@ const EmailSettings: React.FC = () => {
   };
 
   const handleSendTestMail = () => {
-    // Implement logic to send test mail
     console.log("Sending Test Mail...");
   };
 
@@ -34,7 +32,7 @@ const EmailSettings: React.FC = () => {
     <div>
       <h2 className="text-lg font-semibold mb-4">Email Settings</h2>
 
-      <div className="border rounded-lg p-4 mb-4">
+      <div className="border-l-4 border-black-500 rounded-lg p-4 mb-4">
         <div className="flex items-center mb-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -77,91 +75,93 @@ const EmailSettings: React.FC = () => {
         <p className="ml-7">→ Less secure app on</p>
       </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Mail Type</label>
-        <select
-          value={mailType}
-          onChange={(e) => setMailType(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        >
-          <option value="smtp">smtp</option>
-          {/* Add other mail type options if needed */}
-        </select>
+      <div className="space-y-4">
+        <div>
+          <label className="block font-medium mb-1">Mail Type</label>
+          <select
+            value={mailType}
+            onChange={(e) => setMailType(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          >
+            <option value="smtp">smtp</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1">Mail Title</label>
+          <input
+            type="text"
+            value={mailTitle}
+            onChange={(e) => setMailTitle(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1">Mail Host</label>
+          <input
+            type="text"
+            value={mailHost}
+            onChange={(e) => setMailHost(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1">Mail Port</label>
+          <input
+            type="text"
+            value={mailPort}
+            onChange={(e) => setMailPort(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1">Mail Username</label>
+          <input
+            type="text"
+            value={mailUsername}
+            onChange={(e) => setMailUsername(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1">Mail Password</label>
+          <input
+            type="password"
+            value={mailPassword}
+            onChange={(e) => setMailPassword(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium mb-1">Mail Encryption</label>
+          <select
+            value={mailEncryption}
+            onChange={(e) => setMailEncryption(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          >
+            <option value="SSL">SSL</option>
+            <option value="TLS">TLS</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-1">
+            <Globe className="inline-block w-4 h-4 mr-1" />
+            SSL is used for port 465/25, TLS is used for port 587
+          </p>
+        </div>
       </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Mail Title</label>
-        <input
-          type="text"
-          value={mailTitle}
-          onChange={(e) => setMailTitle(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Mail Host</label>
-        <input
-          type="text"
-          value={mailHost}
-          onChange={(e) => setMailHost(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Mail Port</label>
-        <input
-          type="text"
-          value={mailPort}
-          onChange={(e) => setMailPort(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Mail Username</label>
-        <input
-          type="text"
-          value={mailUsername}
-          onChange={(e) => setMailUsername(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Mail Password</label>
-        <input
-          type="password"
-          value={mailPassword}
-          onChange={(e) => setMailPassword(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Mail Encryption</label>
-        <select
-          value={mailEncryption}
-          onChange={(e) => setMailEncryption(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        >
-          <option value="SSL">SSL</option>
-          <option value="TLS">TLS</option>
-          {/* Add other encryption options if needed */}
-        </select>
-        <p className="text-xs text-gray-500 mt-1">
-          <Globe className="inline-block w-4 h-4 mr-1" />
-          SSL is used for port 465/25, TLS is used for port 587
-        </p>
-      </div>
-
-      <div className="flex justify-between items-center mt-6">
-        <Button onClick={handleSendTestMail} className="flex items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-2">
+        <Button onClick={handleSendTestMail} className="flex items-center w-full sm:w-auto">
           <Send className="w-4 h-4 mr-2" />
           Send Test Mail
         </Button>
-        <Button onClick={handleSaveSettings}>Save My Changes</Button>
+        <Button onClick={handleSaveSettings} className="w-full sm:w-auto">
+          Save My Changes
+        </Button>
       </div>
     </div>
   );
