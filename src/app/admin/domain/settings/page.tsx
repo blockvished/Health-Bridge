@@ -38,7 +38,7 @@ const CustomDomainSettings: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-md">
+    <div className="bg-white rounded-lg p-4 sm:p-6 shadow-md">
       <h2 className="text-lg font-semibold mb-4">Domain Settings</h2>
 
       <div className="mb-4">
@@ -85,7 +85,7 @@ const CustomDomainSettings: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <div>
           <label className="block font-medium mb-1">Type1</label>
           <input
@@ -124,7 +124,7 @@ const CustomDomainSettings: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <div>
           <label className="block font-medium mb-1">Type2</label>
           <input
