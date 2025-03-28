@@ -21,7 +21,7 @@ import PwaSettings from "./PwaSettings";
 
 const tabs = [
   { id: "website", label: "Website Settings", icon: Settings },
-  { id: "preferences", label: "preferences", icon: Paintbrush },
+  { id: "preferences", label: "Preferences", icon: Paintbrush },
   { id: "zoom", label: "Zoom Settings", icon: Globe },
   { id: "email", label: "Email Settings", icon: MessageCircle },
   { id: "recaptcha", label: "reCAPTCHA V2 Settings", icon: Shield },
@@ -36,20 +36,17 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("website");
 
   return (
-    <div className="flex min-h-screen bg-white rounded-lg shadow-md bg-[#f0f2f5] p-6">
-      {" "}
-      {/* Light grayish background */}
-      {/* Sidebar */}
+    <div className="flex min-h-screen bg-white rounded-lg shadow-md bg-[#f0f2f5] p-6 m-6">
       <div className="w-1/4">
-        <h2 className="text-lg font-semibold mb-4">⚙️ Manage Settings</h2>
+        <h2 className="text-lg font-semibold mb-4 border-b border-gray-300 pb-2">⚙️ Manage Settings</h2>
         <div className="space-y-2">
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={`w-full flex items-center gap-2 p-2 rounded-lg transition ${
+              className={`w-full flex items-center gap-2 p-2 rounded-md transition cursor-pointer ${ // Changed rounded-lg to rounded-md
                 activeTab === tab.id
-                  ? "bg-[#e0e0e0] font-semibold"
-                  : "hover:bg-[#f5f5f5]" // Lighter gray for active, slightly lighter for hover
+                  ? "bg-gray-600 text-white"
+                  : "hover:bg-[#f5f5f5]"
               }`}
               onClick={() => setActiveTab(tab.id)}
             >
@@ -59,8 +56,7 @@ export default function SettingsPage() {
           ))}
         </div>
       </div>
-      {/* Content Area */}
-      <div className="w-3/4 ml-6 bg-white p-6">
+      <div className="w-3/4 ml-6 mt-6 bg-white p-6">
         {activeTab === "website" && <WebsiteSettings />}
         {activeTab === "preferences" && <PreferencesSettings />}
         {activeTab === "zoom" && <ZoomSettings />}

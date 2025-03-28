@@ -34,7 +34,8 @@ const EmailSettings: React.FC = () => {
     <div>
       <h2 className="text-lg font-semibold mb-4">Email Settings</h2>
 
-      <div className="border rounded-lg p-4 mb-4">
+
+      <div className="border-l-4 border-black-500 rounded-lg p-4 mb-4">
         <div className="flex items-center mb-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
