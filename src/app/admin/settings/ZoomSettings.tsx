@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, AlertTriangle } from "lucide-react"; // Import icons
+import { Check, AlertTriangle } from "lucide-react";
 
 interface InputFieldProps {
   label: string;
@@ -23,7 +23,7 @@ const InputField: React.FC<InputFieldProps> = ({
         type={type}
         value={value}
         onChange={onChange}
-        className="w-full border rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500" // Added focus styles
+        className="w-full border rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>
   );
@@ -32,25 +32,21 @@ const InputField: React.FC<InputFieldProps> = ({
 const ZoomSettings: React.FC = () => {
   const [accountId, setAccountId] = useState("Prgenix");
   const [clientId, setClientId] = useState("ekhjg");
-  const [clientSecret, setClientSecret] = useState("****************"); // Masked for security
+  const [clientSecret, setClientSecret] = useState("****************");
 
   const handleCreateZoomApp = () => {
-    // Implement logic to create Zoom app
     console.log("Creating Zoom App...");
   };
 
   const handleZoomIntegrationDoc = () => {
-    // Implement logic to open Zoom integration documentation
-    window.open("https://doxe.originlabsoft.com/docs/#docs_zoom", "_blank"); // Open in new tab
+    window.open("https://doxe.originlabsoft.com/docs/#docs_zoom", "_blank");
   };
 
   const handleCheckApiConnection = () => {
-    // Implement logic to check API connection
     console.log("Checking API Connection...");
   };
 
   const handleSubmit = () => {
-    // Implement logic to save Zoom settings
     console.log("Saving Zoom Settings...");
   };
 
@@ -58,11 +54,11 @@ const ZoomSettings: React.FC = () => {
     <div>
       <h2 className="text-lg font-semibold mb-4">Zoom Settings</h2>
 
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
         <Button
           variant="outline"
           onClick={handleCreateZoomApp}
-          className="text-red-500 border-red-500 hover:bg-red-500 hover:text-white" // Red styles
+          className="w-full sm:w-auto text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
         >
           <AlertTriangle className="mr-2 h-4 w-4" />
           Create Zoom App
@@ -70,7 +66,7 @@ const ZoomSettings: React.FC = () => {
         <Button
           variant="outline"
           onClick={handleZoomIntegrationDoc}
-          className="text-green-500 border-green-500 hover:bg-green-500 hover:text-white" // Green styles
+          className="w-full sm:w-auto text-green-500 border-green-500 hover:bg-green-500 hover:text-white"
         >
           <Check className="mr-2 h-4 w-4" />
           Zoom Integration doc
@@ -96,16 +92,19 @@ const ZoomSettings: React.FC = () => {
         />
       </div>
 
-      <div className="flex justify-between items-center mt-6">
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-2">
         <Button
           variant="outline"
           onClick={handleCheckApiConnection}
-          className="text-red-500 border-red-500 hover:bg-red-500 hover:text-white" // Red styles
+          className="w-full sm:w-auto text-red-500 border-red-500 hover:bg-red-500 hover:text-white"
         >
           <AlertTriangle className="mr-2 h-4 w-4" />
           Check API Connection
         </Button>
-        <Button onClick={handleSubmit} className="bg-blue-500 text-white hover:bg-blue-600">
+        <Button
+          onClick={handleSubmit}
+          className="w-full sm:w-auto bg-blue-500 text-white hover:bg-blue-600"
+        >
           <Check className="mr-2 h-4 w-4" />
           Save Changes
         </Button>

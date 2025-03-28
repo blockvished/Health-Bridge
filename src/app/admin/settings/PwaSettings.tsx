@@ -1,7 +1,7 @@
 // PwaSettings.tsx
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react"; // Import Upload icon
+import { Upload } from "lucide-react";
 
 const PwaSettings: React.FC = () => {
   const [enablePwa, setEnablePwa] = useState(true);
@@ -14,7 +14,6 @@ const PwaSettings: React.FC = () => {
   };
 
   const handleSaveSettings = () => {
-    // Implement logic to save PWA settings
     console.log("Saving PWA Settings:", {
       enablePwa,
       logoFile,
@@ -42,8 +41,8 @@ const PwaSettings: React.FC = () => {
       </div>
 
       <div className="mb-4">
-        <div className="flex items-center">
-          <div className="border rounded-lg p-4 mr-4">
+        <div className="flex flex-col sm:flex-row items-center">
+          <div className="border rounded-lg p-4 mb-2 sm:mb-0 sm:mr-4">
             {logoFile ? (
               <img src={URL.createObjectURL(logoFile)} alt="PWA Logo" className="w-24 h-24" />
             ) : (

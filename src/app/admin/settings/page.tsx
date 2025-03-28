@@ -36,37 +36,41 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("website");
 
   return (
-    <div className="flex min-h-screen bg-white rounded-lg shadow-md bg-[#f0f2f5] p-6 m-6">
-      <div className="w-1/4">
-        <h2 className="text-lg font-semibold mb-4 border-b border-gray-300 pb-2">⚙️ Manage Settings</h2>
-        <div className="space-y-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`w-full flex items-center gap-2 p-2 rounded-md transition cursor-pointer ${ // Changed rounded-lg to rounded-md
-                activeTab === tab.id
-                  ? "bg-gray-600 text-white"
-                  : "hover:bg-[#f5f5f5]"
-              }`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              <tab.icon size={18} />
-              {tab.label}
-            </button>
-          ))}
+    <div className="bg-white rounded-lg shadow-md bg-[#f0f2f5] p-4 m-4">
+      <h2 className="text-lg font-semibold mb-4 border-b border-gray-300 pb-2">
+        ⚙️ Manage Settings
+      </h2>
+      <div className="flex flex-col md:flex-row">
+        <div className="md:w-1/4 mb-4 md:mb-0">
+          <div className="space-y-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                className={`w-full flex items-center gap-2 p-2 rounded-md transition cursor-pointer ${
+                  activeTab === tab.id
+                    ? "bg-gray-600 text-white"
+                    : "hover:bg-[#f5f5f5]"
+                }`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                <tab.icon size={18} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="w-3/4 ml-6 mt-6 bg-white p-6">
-        {activeTab === "website" && <WebsiteSettings />}
-        {activeTab === "preferences" && <PreferencesSettings />}
-        {activeTab === "zoom" && <ZoomSettings />}
-        {activeTab === "email" && <Email />}
-        {activeTab === "recaptcha" && <ReCaptchaV2Settings />}
-        {activeTab === "social" && <SocialSettings />}
-        {activeTab === "doctors" && <DoctorVerificationForm />}
-        {activeTab === "whatsapp" && <WhatsappSettings />}
-        {activeTab === "twilio" && <TwilioSmsSettings />}
-        {activeTab === "pwa" && <PwaSettings />}
+        <div className="md:w-3/4 md:ml-6 mt-4 md:mt-0 bg-white p-4">
+          {activeTab === "website" && <WebsiteSettings />}
+          {activeTab === "preferences" && <PreferencesSettings />}
+          {activeTab === "zoom" && <ZoomSettings />}
+          {activeTab === "email" && <Email />}
+          {activeTab === "recaptcha" && <ReCaptchaV2Settings />}
+          {activeTab === "social" && <SocialSettings />}
+          {activeTab === "doctors" && <DoctorVerificationForm />}
+          {activeTab === "whatsapp" && <WhatsappSettings />}
+          {activeTab === "twilio" && <TwilioSmsSettings />}
+          {activeTab === "pwa" && <PwaSettings />}
+        </div>
       </div>
     </div>
   );
