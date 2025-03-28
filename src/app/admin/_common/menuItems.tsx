@@ -218,7 +218,7 @@ export const menuItemsAdmin: MenuItem[] = [
     svg: <GiPill />,
     dropdown: [
       { name: "Drugs", link: "/admin/drugs" },
-      { name: "Bulk Import Drugs", link: "/admin/file/import/drugs" },
+      { name: "Bulk Import Drugs", link: "/admin/drugs/import" },
     ],
   },
   {
