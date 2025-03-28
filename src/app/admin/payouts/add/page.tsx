@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const PayoutForm = () => {
   const [selectedUser, setSelectedUser] = useState('');
@@ -20,8 +21,14 @@ const PayoutForm = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-6">Add Payout</h2>
+    <div className="p-6 bg-white border rounded-lg shadow-md">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold">Add Payout</h2>
+        <Link href="/admin/payouts/requests">
+          <Button variant="outline" size="sm">Payouts</Button>
+        </Link>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -32,7 +39,7 @@ const PayoutForm = () => {
             onValueChange={setSelectedUser}
             required
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full border rounded-md"> {/* Added border here */}
               <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
@@ -53,7 +60,8 @@ const PayoutForm = () => {
             onChange={(e) => setAmount(e.target.value)}
             placeholder="Enter amount"
             required
-            className="w-full"
+            className="w-full border rounded-md" // Added border here
+            prefix="₹"
           />
         </div>
 
@@ -66,7 +74,7 @@ const PayoutForm = () => {
             onValueChange={setWithdrawalMethod}
             required
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full border rounded-md"> {/* Added border here */}
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
