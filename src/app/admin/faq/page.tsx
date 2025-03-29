@@ -291,7 +291,7 @@ const FAQPage: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirmation.show && (
-        <div className="fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-30">
+        <div className="fixed inset-0 flex justify-center items-center z-50 bg-opacity-30">
           <div className="bg-white p-5 rounded-lg shadow-lg max-w-md w-full">
             <p className="text-lg font-medium mb-3">Confirm Deletion</p>
             <p className="mb-4 text-sm text-gray-600">Are you sure you want to delete this FAQ?</p>
