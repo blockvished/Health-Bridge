@@ -219,17 +219,17 @@ const FAQPage: React.FC = () => {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-left">
               <tr>
-                <th className="px-4 py-3 w-12 font-medium text-gray-700">#</th>
-                <th className="px-4 py-3 w-64 font-medium text-gray-700">Title</th>
-                <th className="px-4 py-3 font-medium text-gray-700">Details</th>
-                <th className="px-4 py-3 w-24 text-right font-medium text-gray-700">Action</th>
+                <th className="px-4 py-3 w-12 font-medium text-gray-700 whitespace-nowrap">#</th>
+                <th className="px-4 py-3 w-1/4 font-medium text-gray-700 whitespace-nowrap">Title</th>
+                <th className="px-4 py-3 font-medium text-gray-700 whitespace-nowrap">Details</th>
+                <th className="px-4 py-3 w-24 text-right font-medium text-gray-700 whitespace-nowrap">Action</th>
               </tr>
             </thead>
             <tbody>
               {faqs.map((faq) => (
                 <tr key={faq.id} className="border-t border-gray-100">
-                  <td className="px-4 py-3 text-gray-700">{faq.id}</td>
-                  <td className="px-4 py-3 text-gray-800 align-top">
+                  <td className="px-4 py-3 text-gray-700 align-top whitespace-nowrap">{faq.id}</td>
+                  <td className="px-4 py-3 text-gray-800 align-top w-1/4">
                     {editingFAQ === faq.id ? (
                       <Input
                         type="text"
@@ -252,7 +252,7 @@ const FAQPage: React.FC = () => {
                       faq.details
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right align-top">
+                  <td className="px-4 py-3 text-right align-top whitespace-nowrap">
                     {editingFAQ === faq.id ? (
                       <Button
                         onClick={() => handleSaveEdit(faq.id)}
