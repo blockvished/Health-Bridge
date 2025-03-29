@@ -51,11 +51,11 @@ export default function AdminLayout({
   return (
     <div>
       <div className="flex h-screen">
-        <SidebarDoctor
+        {/* <SidebarDoctor
           isCollapsed={isCollapsed}
           isMobile={isMobile}
           sidebarOpen={sidebarOpen}
-        />
+        /> */}
         {/* <SidebarPatient
           isCollapsed={isCollapsed} 
           isMobile={isMobile} 
