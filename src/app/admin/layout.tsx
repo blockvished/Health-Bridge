@@ -62,11 +62,11 @@ export default function AdminLayout({
           sidebarOpen={sidebarOpen} 
         />        */}
          
-        <SidebarAdmin
+        {/* <SidebarAdmin
           isCollapsed={isCollapsed}
           isMobile={isMobile}
           sidebarOpen={sidebarOpen}
-        />
+        /> */}
         <div
           className={`flex flex-col w-full transition-all duration-300 ${
             isCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-64"
