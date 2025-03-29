@@ -136,7 +136,7 @@ export const menuItemsDoctor: MenuItem[] = [
     svg: <FaStar />,
   },
   { name: "Contact", link: "/admin/contact/user", svg: <FaEnvelope /> },
-  { name: "Change Password", link: "/admin/change_password", svg: <FaLock /> },
+  { name: "Change Password", link: "/change_password", svg: <FaLock /> },
   { name: "Logout", link: "#", svg: <FaSignOutAlt /> },
 ];
 
@@ -158,7 +158,7 @@ export const menuItemsPatient: MenuItem[] = [
     link: "/admin/patient/prescriptions",
     svg: <FaFileAlt />,
   },
-  { name: "Change Password", link: "/admin/change_password", svg: <FaLock /> },
+  { name: "Change Password", link: "/change_password", svg: <FaLock /> },
   { name: "Logout", link: "#", svg: <FaSignOutAlt /> },
 ];
 

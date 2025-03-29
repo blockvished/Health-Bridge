@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import SidebarDoctor from "./_common/SidebarDoctor";
-import SidebarPatient from "./_common/SidebarPatient";
-import SidebarAdmin from "./_common/SidebarAdmin ";
-import TopbarDoctor from "./_common/TopbarDoctor";
-import TopbarPatient from "./_common/TopbarPatient";
-import TopbarAdmin from "./_common/TopbarAdmin";
-import Footer from "./_common/Footer";
+import SidebarDoctor from "../admin/_common/SidebarDoctor";
+import SidebarPatient from "../admin/_common/SidebarPatient";
+import SidebarAdmin from "../admin/_common/SidebarAdmin ";
+import TopbarDoctor from "../admin/_common/TopbarDoctor";
+import TopbarPatient from "../admin/_common/TopbarPatient";
+import TopbarAdmin from "../admin/_common/TopbarAdmin";
+import Footer from "../admin/_common/Footer";
+import ChangePassword from "./ChangePassword";
 
 export default function AdminLayout({
   children,
@@ -49,13 +50,13 @@ export default function AdminLayout({
   };
 
   return (
-    <div>
+    <div className="bg-gray-50">
       <div className="flex h-screen">
-        <SidebarDoctor
+        {/* <SidebarDoctor
           isCollapsed={isCollapsed}
           isMobile={isMobile}
           sidebarOpen={sidebarOpen}
-        />
+        /> */}
         {/* <SidebarPatient
           isCollapsed={isCollapsed} 
           isMobile={isMobile} 
@@ -73,11 +74,12 @@ export default function AdminLayout({
           } ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
         >
           {/* <TopbarDoctor onToggleSidebar={toggleSidebar} /> */}
+          {/* <TopbarPatient onToggleSidebar={toggleSidebar} /> */}
           <TopbarAdmin onToggleSidebar={toggleSidebar} />
           <main
             className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
           >
-            {children}
+            <ChangePassword/ >
           </main>
           <Footer />
         </div>
