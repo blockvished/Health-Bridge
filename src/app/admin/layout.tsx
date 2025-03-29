@@ -51,22 +51,22 @@ export default function AdminLayout({
   return (
     <div>
       <div className="flex h-screen">
-        <SidebarDoctor
+        {/* <SidebarDoctor
           isCollapsed={isCollapsed}
           isMobile={isMobile}
           sidebarOpen={sidebarOpen}
-        />
+        /> */}
         {/* <SidebarPatient
           isCollapsed={isCollapsed} 
           isMobile={isMobile} 
           sidebarOpen={sidebarOpen} 
         />        */}
          
-        {/* <SidebarAdmin
+        <SidebarAdmin
           isCollapsed={isCollapsed}
           isMobile={isMobile}
           sidebarOpen={sidebarOpen}
-        /> */}
+        />
         <div
           className={`flex flex-col w-full transition-all duration-300 ${
             isCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-64"

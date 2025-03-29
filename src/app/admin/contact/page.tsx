@@ -183,13 +183,9 @@ const ContactTable: React.FC = () => {
       {/* Delete Confirmation Modal */}
       {deleteConfirmation.show && (
         <div className="fixed inset-0 flex justify-center items-center z-50">
-          {" "}
-          {/* Added z-50 */}
-          <div className="fixed inset-0 bg-black bg-opacity-50"></div>{" "}
-          {/* Overlay */}
-          <div className="bg-white p-6 rounded-lg shadow-lg z-10 relative">
+          <div className="bg-white p-6 rounded-lg shadow-lg z-10 relative border border-gray-300 max-w-md w-full">
             {" "}
-            {/* Modal Content */}
+            {/* Added max-w-md w-full */}
             <p className="text-lg font-semibold mb-4">Confirm Deletion</p>
             <p className="mb-4">
               Are you sure you want to delete this contact?
