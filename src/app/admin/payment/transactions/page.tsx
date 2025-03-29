@@ -1,4 +1,4 @@
-"use client"
+"use client";
 // Transactions.tsx
 import React, { useState } from 'react';
 
@@ -53,134 +53,139 @@ const Transactions: React.FC = () => {
     setCurrentPage(page);
   };
 
-    const getPageNumbers = () => {
-        const pages = [];
-        if (totalPages <= 7) {
-            for (let i = 1; i <= totalPages; i++) {
-                pages.push(i);
-            }
-        } else {
-            if (currentPage <= 3) {
-                for (let i = 1; i <= 4; i++) {
-                    pages.push(i);
-                }
-                pages.push('...');
-                pages.push(totalPages - 1);
-                pages.push(totalPages);
-            } else if (currentPage >= totalPages - 2) {
-                pages.push(1);
-                pages.push(2);
-                pages.push('...');
-                for (let i = totalPages - 3; i <= totalPages; i++) {
-                    pages.push(i);
-                }
-            }
-            else {
-                pages.push(1);
-                pages.push(2);
-                pages.push('...');
-                pages.push(currentPage - 1);
-                pages.push(currentPage);
-                pages.push(currentPage + 1);
-                pages.push('...');
-                pages.push(totalPages - 1);
-                pages.push(totalPages);
-            }
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
         }
-        return pages;
-    };
+        pages.push('...');
+        pages.push(totalPages - 1);
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push(2);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push(2);
+        pages.push('...');
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push('...');
+        pages.push(totalPages - 1);
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-md">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Payments</h2>
-        <div className="flex items-center">
-          <label className="mr-2 text-sm">Show</label>
-          <select
-            className="border rounded-lg p-1 text-sm mr-4"
-            value={entriesPerPage}
-            onChange={(e) => {
-              setEntriesPerPage(parseInt(e.target.value));
-              setCurrentPage(1); // Reset to first page when changing entries per page
-            }}
-          >
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
-          <label className="mr-2 text-sm">entries</label>
-          <label className="mr-2 text-sm">Search:</label>
-          <input
-            type="text"
-            className="border rounded-lg p-1 text-sm"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => {
+    <div className="bg-white rounded-lg p-4 md:p-6 shadow-md overflow-x-auto">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+        <h2 className="text-lg font-semibold mb-2 md:mb-0">Payments</h2>
+        <div className="flex flex-col md:flex-row items-start md:items-center">
+          <div className="flex items-center mb-2 md:mb-0 md:mr-4">
+            <label className="mr-2 text-sm">Show</label>
+            <select
+              className="border rounded-lg p-1 text-sm"
+              value={entriesPerPage}
+              onChange={(e) => {
+                setEntriesPerPage(parseInt(e.target.value));
+                setCurrentPage(1); // Reset to first page when changing entries per page
+              }}
+            >
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            <label className="ml-2 text-sm">entries</label>
+          </div>
+          <div className="flex items-center">
+            <label className="mr-2 text-sm">Search:</label>
+            <input
+              type="text"
+              className="border rounded-lg p-1 text-sm"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => {
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
-            }}
-          />
+              }}
+            />
+          </div>
         </div>
       </div>
-      <table className="w-full text-left">
-        <thead>
-          <tr className="text-gray-500">
-            <th className="py-2">#</th>
-            <th className="py-2">User</th>
-            <th className="py-2">Plan</th>
-            <th className="py-2">Billing Cycle</th>
-            <th className="py-2">Price</th>
-            <th className="py-2">Status</th>
-            <th className="py-2">Date</th>
-            <th className="py-2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentTransactions.map((transaction) => (
-            <tr key={transaction.id}>
-              <td className="py-2">{transaction.id}</td>
-              <td className="py-2">
-                <div className="flex items-center">
-                  {transaction.name && transaction.email ? (
-                    <>
-                      <span className="bg-blue-200 rounded-full w-6 h-6 flex items-center justify-center text-xs mr-2">
-                        {transaction.name.charAt(0)}
-                      </span>
-                      <div>
-                        <div>{transaction.name}</div>
-                        <div className="text-xs text-gray-500">{transaction.email}</div>
-                      </div>
-                    </>
-                  ) : (
-                    <span className="bg-gray-200 rounded-full w-6 h-6 flex items-center justify-center text-xs mr-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                      </svg>
-                    </span>
-                  )}
-                </div>
-              </td>
-              <td className="py-2">{transaction.plan}</td>
-              <td className="py-2">{transaction.frequency}</td>
-              <td className="py-2">₹{transaction.amount.toFixed(2)}</td>
-              <td className="py-2">
-                <span className="bg-red-100 text-red-700 rounded-lg p-1 text-xs">
-                  {transaction.status}
-                </span>
-              </td>
-              <td className="py-2">{transaction.date}</td>
-              <td className="py-2">
-                <button className="bg-green-100 text-green-700 rounded-lg p-1 text-xs">
-                  View
-                </button>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left min-w-[600px]">
+          <thead>
+            <tr className="text-gray-500">
+              <th className="py-2">#</th>
+              <th className="py-2">User</th>
+              <th className="py-2">Plan</th>
+              <th className="py-2">Billing Cycle</th>
+              <th className="py-2">Price</th>
+              <th className="py-2">Status</th>
+              <th className="py-2">Date</th>
+              <th className="py-2">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="flex justify-between items-center mt-4">
-        <div className="text-sm text-gray-500">
+          </thead>
+          <tbody>
+            {currentTransactions.map((transaction) => (
+              <tr key={transaction.id}>
+                <td className="py-2">{transaction.id}</td>
+                <td className="py-2">
+                  <div className="flex items-center">
+                    {transaction.name && transaction.email ? (
+                      <>
+                        <span className="bg-blue-200 rounded-full w-6 h-6 flex items-center justify-center text-xs mr-2">
+                          {transaction.name.charAt(0)}
+                        </span>
+                        <div>
+                          <div>{transaction.name}</div>
+                          <div className="text-xs text-gray-500">{transaction.email}</div>
+                        </div>
+                      </>
+                    ) : (
+                      <span className="bg-gray-200 rounded-full w-6 h-6 flex items-center justify-center text-xs mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="py-2">{transaction.plan}</td>
+                <td className="py-2">{transaction.frequency}</td>
+                <td className="py-2">₹{transaction.amount.toFixed(2)}</td>
+                <td className="py-2">
+                  <span className="bg-red-100 text-red-700 rounded-lg p-1 text-xs">
+                    {transaction.status}
+                  </span>
+                </td>
+                <td className="py-2">{transaction.date}</td>
+                <td className="py-2">
+                  <button className="bg-green-100 text-green-700 rounded-lg p-1 text-xs">
+                    View
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex flex-col md:flex-row justify-between items-center mt-4">
+        <div className="text-sm text-gray-500 mb-2 md:mb-0">
           Showing {startIndex + 1} to {Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length} entries
         </div>
         <div className="flex items-center">
@@ -192,18 +197,18 @@ const Transactions: React.FC = () => {
             Previous
           </button>
           {getPageNumbers().map((page, index) =>
-             page === '...' ? (
-                <span key={`ellipsis-${index}`} className="mx-1 text-sm">...</span>
-              ) : (
-                <button
-                  key={page}
-                  className={`rounded-lg p-1 text-xs mr-1 ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                  onClick={() => handlePageChange(page as number)}
-                  disabled={currentPage === page}
-                >
-                  {page}
-                </button>
-              )
+            page === '...' ? (
+              <span key={`ellipsis-${index}`} className="mx-1 text-sm">...</span>
+            ) : (
+              <button
+                key={page}
+                className={`rounded-lg p-1 text-xs mr-1 ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                onClick={() => handlePageChange(page as number)}
+                disabled={currentPage === page}
+              >
+                {page}
+              </button>
+            )
           )}
           <button
             className="bg-gray-200 rounded-lg p-1 text-xs"

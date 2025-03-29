@@ -3,19 +3,37 @@
 import React, { useState } from "react";
 import { FaPen, FaTrash, FaPlus, FaCheck } from "react-icons/fa";
 import { IoArrowBack } from "react-icons/io5";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+interface Department {
+  id: number;
+  name: string;
+}
 
 const DepartmentForm: React.FC<{
-  onSave: (name: string) => void;
+  onSave: (name: string, id?: number) => void;
   onCancel: () => void;
-}> = ({ onSave, onCancel }) => {
-  const [name, setName] = useState("");
+  initialName?: string;
+  initialId?: number;
+}> = ({ onSave, onCancel, initialName, initialId }) => {
+  const [name, setName] = useState(initialName || "");
 
   return (
     <div className="w-full bg-white p-6 mx-auto">
       {/* Header with Back Button */}
       <div className="flex justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-800">
-          Add New Department
+          {initialId ? "Edit Department" : "Add New Department"}
         </h2>
       </div>
 
@@ -34,7 +52,7 @@ const DepartmentForm: React.FC<{
       {/* Buttons */}
       <div className="mt-4 flex justify-start">
         <button
-          onClick={() => onSave(name)}
+          onClick={() => onSave(name, initialId)}
           className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-md shadow hover:bg-blue-700 transition"
         >
           <FaCheck /> Save
@@ -46,7 +64,7 @@ const DepartmentForm: React.FC<{
 
 // 🔹 Main Department Page Component
 const DepartmentPage: React.FC = () => {
-  const [departments, setDepartments] = useState([
+  const [departments, setDepartments] = useState<Department[]>([
     { id: 1, name: "Physiotherapist" },
     { id: 2, name: "Ayurvedic doctors" },
     { id: 3, name: "Sexologist" },
@@ -76,11 +94,28 @@ const DepartmentPage: React.FC = () => {
     { id: 27, name: "Ayurveda" },
   ]);
   const [showForm, setShowForm] = useState(false);
+  const [editDepartment, setEditDepartment] = useState<Department | null>(null);
+  const [deleteDepartmentId, setDeleteDepartmentId] = useState<number | null>(null);
 
-  const addDepartment = (name: string) => {
+  const addDepartment = (name: string, id?: number) => {
     if (name.trim() === "") return;
-    setDepartments([...departments, { id: departments.length + 1, name }]);
+    if (id) {
+      setDepartments(departments.map(dept => dept.id === id ? { ...dept, name } : dept));
+    } else {
+      setDepartments([...departments, { id: departments.length + 1, name }]);
+    }
     setShowForm(false);
+    setEditDepartment(null);
+  };
+
+  const handleDelete = (id: number) => {
+    setDepartments(departments.filter(dept => dept.id !== id));
+    setDeleteDepartmentId(null);
+  };
+
+  const handleEdit = (dept: Department) => {
+    setEditDepartment(dept);
+    setShowForm(true);
   };
 
   return (
@@ -89,7 +124,10 @@ const DepartmentPage: React.FC = () => {
       <div className="flex flex-row justify-between items-center pb-4 border-b border-gray-200">
         <h1 className="text-xl font-semibold text-gray-800">Departments</h1>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setShowForm(!showForm);
+            setEditDepartment(null);
+          }}
           className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 mt-2 sm:mt-0 rounded-lg shadow-sm hover:bg-gray-200 transition"
         >
           {showForm ? (
@@ -105,7 +143,12 @@ const DepartmentPage: React.FC = () => {
       {showForm ? (
         <DepartmentForm
           onSave={addDepartment}
-          onCancel={() => setShowForm(false)}
+          onCancel={() => {
+            setShowForm(false);
+            setEditDepartment(null);
+          }}
+          initialName={editDepartment?.name}
+          initialId={editDepartment?.id}
         />
       ) : (
         // Table
@@ -131,12 +174,34 @@ const DepartmentPage: React.FC = () => {
                   <td className="p-3 text-gray-900">{dept.id}</td>
                   <td className="p-3 text-gray-900">{dept.name}</td>
                   <td className="p-3 flex gap-2">
-                    <button className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">
+                    <button
+                      className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                      onClick={() => handleEdit(dept)}
+                    >
                       <FaPen className="text-gray-600" />
                     </button>
-                    <button className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition">
-                      <FaTrash />
-                    </button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition">
+                          <FaTrash />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete {dept.name}.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(dept.id)}>
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </td>
                 </tr>
               ))}
