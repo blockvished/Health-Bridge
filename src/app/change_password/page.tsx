@@ -1,79 +1,89 @@
-"use client"
-import React, { useState, ChangeEvent, FormEvent } from "react";
-import { FaLock } from "react-icons/fa"; // Import lock icon
+"use client";
 
-const ChangePassword: React.FC = () => {
-  // State for old password, new password, and confirm password
-  const [oldPassword, setOldPassword] = useState<string>("");
-  const [newPassword, setNewPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
+import React, { useEffect, useState } from "react";
+import SidebarDoctor from "../admin/_common/SidebarDoctor";
+import SidebarPatient from "../admin/_common/SidebarPatient";
+import SidebarAdmin from "../admin/_common/SidebarAdmin ";
+import TopbarDoctor from "../admin/_common/TopbarDoctor";
+import TopbarPatient from "../admin/_common/TopbarPatient";
+import TopbarAdmin from "../admin/_common/TopbarAdmin";
+import Footer from "../admin/_common/Footer";
+import ChangePassword from "./ChangePassword";
 
-  // Handle input change
-  const handleOldPasswordChange = (e: ChangeEvent<HTMLInputElement>) => setOldPassword(e.target.value);
-  const handleNewPasswordChange = (e: ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value);
-  const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value);
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // Initialize with a default value that works for server rendering
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Handle form submission
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    // You can handle the password change logic here
-    console.log("Old Password:", oldPassword);
-    console.log("New Password:", newPassword);
-    console.log("Confirm Password:", confirmPassword);
+  useEffect(() => {
+    // Check if we're on a mobile device
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      setIsCollapsed(mobile);
+    };
+
+    checkMobile();
+
+    const handleResize = () => {
+      checkMobile();
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(false); // Reset mobile sidebar state when switching to desktop
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    if (isMobile) {
+      setSidebarOpen(!sidebarOpen);
+    } else {
+      setIsCollapsed(!isCollapsed);
+    }
   };
 
   return (
-    <div className="bg-gray-100 shadow-xl rounded-2xl max-w-lg mx-auto w-full p-8">
-      <h1 className="text-3xl font-semibold text-gray-800 mb-6">Change Password</h1>
-      <form className="space-y-6" onSubmit={handleSubmit}>
-        <div>
-          <label className="block text-gray-600 font-medium mb-2">Old Password</label>
-          <div className="relative">
-            <input
-              type="password"
-              value={oldPassword}
-              onChange={handleOldPasswordChange}
-              className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-400"
-              placeholder="Enter old password"
-            />
-            <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          </div>
-        </div>
-        <div>
-          <label className="block text-gray-600 font-medium mb-2">New Password</label>
-          <div className="relative">
-            <input
-              type="password"
-              value={newPassword}
-              onChange={handleNewPasswordChange}
-              className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-400"
-              placeholder="Enter new password"
-            />
-            <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          </div>
-        </div>
-        <div>
-          <label className="block text-gray-600 font-medium mb-2">Confirm New Password</label>
-          <div className="relative">
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={handleConfirmPasswordChange}
-              className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-400"
-              placeholder="Confirm new password"
-            />
-            <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          </div>
-        </div>
-        <button
-          type="submit"
-          className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 text-sm rounded-lg shadow-md w-full focus:outline-none focus:ring-2 focus:ring-gray-500"
+    <div className="bg-gray-50">
+      <div className="flex h-screen">
+        {/* <SidebarDoctor
+          isCollapsed={isCollapsed}
+          isMobile={isMobile}
+          sidebarOpen={sidebarOpen}
+        /> */}
+        {/* <SidebarPatient
+          isCollapsed={isCollapsed} 
+          isMobile={isMobile} 
+          sidebarOpen={sidebarOpen} 
+        />        */}
+         
+        <SidebarAdmin
+          isCollapsed={isCollapsed}
+          isMobile={isMobile}
+          sidebarOpen={sidebarOpen}
+        />
+        <div
+          className={`flex flex-col w-full transition-all duration-300 ${
+            isCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-64"
+          } ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
         >
-          Update
-        </button>
-      </form>
+          {/* <TopbarDoctor onToggleSidebar={toggleSidebar} /> */}
+          {/* <TopbarPatient onToggleSidebar={toggleSidebar} /> */}
+          <TopbarAdmin onToggleSidebar={toggleSidebar} />
+          <main
+            className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
+          >
+            <ChangePassword/ >
+          </main>
+          <Footer />
+        </div>
+      </div>
     </div>
   );
-};
-
-export default ChangePassword;
+}
