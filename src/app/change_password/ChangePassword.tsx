@@ -1,76 +1,139 @@
-"use client"
+"use client";
+
 import React, { useState, ChangeEvent, FormEvent } from "react";
-import { FaLock } from "react-icons/fa"; // Import lock icon
+import { FaLock } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const ChangePassword: React.FC = () => {
-  // State for old password, new password, and confirm password
   const [oldPassword, setOldPassword] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [showOldPassword, setShowOldPassword] = useState<boolean>(false);
+  const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [passwordMatchError, setPasswordMatchError] = useState<boolean>(false);
 
-  // Handle input change
   const handleOldPasswordChange = (e: ChangeEvent<HTMLInputElement>) => setOldPassword(e.target.value);
   const handleNewPasswordChange = (e: ChangeEvent<HTMLInputElement>) => setNewPassword(e.target.value);
-  const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) => setConfirmPassword(e.target.value);
+  const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) =>
+    setConfirmPassword(e.target.value);
 
-  // Handle form submission
+  const toggleOldPasswordVisibility = () => setShowOldPassword(!showOldPassword);
+  const toggleNewPasswordVisibility = () => setShowNewPassword(!showNewPassword);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(!showConfirmPassword);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // You can handle the password change logic here
+    if (newPassword !== confirmPassword) {
+      setPasswordMatchError(true);
+      return;
+    }
+    setPasswordMatchError(false);
     console.log("Old Password:", oldPassword);
     console.log("New Password:", newPassword);
     console.log("Confirm Password:", confirmPassword);
+    // Add your password change logic here
   };
 
   return (
-    <div className="bg-gray-100 shadow-xl rounded-2xl max-w-lg mx-auto w-full p-8">
-      <h1 className="text-3xl font-semibold text-gray-800 mb-6">Change Password</h1>
-      <form className="space-y-6" onSubmit={handleSubmit}>
+    <div className="bg-white shadow-md rounded-2xl max-w-lg mx-auto w-full p-8">
+      <h1 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+        Change Password
+      </h1>
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
-          <label className="block text-gray-600 font-medium mb-2">Old Password</label>
-          <div className="relative">
+          <label className="block text-sm font-medium text-gray-700">
+            Old Password
+          </label>
+          <div className="relative mt-1 rounded-md shadow-sm">
             <input
-              type="password"
+              type={showOldPassword ? "text" : "password"}
               value={oldPassword}
               onChange={handleOldPasswordChange}
-              className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-400"
+              className="block w-full border-gray-300 rounded-md py-2 pl-3 pr-10 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               placeholder="Enter old password"
             />
-            <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+              {showOldPassword ? (
+                <FaEyeSlash
+                  className="h-5 w-5 text-gray-400 cursor-pointer"
+                  onClick={toggleOldPasswordVisibility}
+                />
+              ) : (
+                <FaEye
+                  className="h-5 w-5 text-gray-400 cursor-pointer"
+                  onClick={toggleOldPasswordVisibility}
+                />
+              )}
+            </div>
           </div>
         </div>
         <div>
-          <label className="block text-gray-600 font-medium mb-2">New Password</label>
-          <div className="relative">
+          <label className="block text-sm font-medium text-gray-700">
+            New Password
+          </label>
+          <div className="relative mt-1 rounded-md shadow-sm">
             <input
-              type="password"
+              type={showNewPassword ? "text" : "password"}
               value={newPassword}
               onChange={handleNewPasswordChange}
-              className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-400"
+              className="block w-full border-gray-300 rounded-md py-2 pl-3 pr-10 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               placeholder="Enter new password"
             />
-            <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+              {showNewPassword ? (
+                <FaEyeSlash
+                  className="h-5 w-5 text-gray-400 cursor-pointer"
+                  onClick={toggleNewPasswordVisibility}
+                />
+              ) : (
+                <FaEye
+                  className="h-5 w-5 text-gray-400 cursor-pointer"
+                  onClick={toggleNewPasswordVisibility}
+                />
+              )}
+            </div>
           </div>
         </div>
         <div>
-          <label className="block text-gray-600 font-medium mb-2">Confirm New Password</label>
-          <div className="relative">
+          <label className="block text-sm font-medium text-gray-700">
+            Confirm New Password
+          </label>
+          <div className="relative mt-1 rounded-md shadow-sm">
             <input
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={handleConfirmPasswordChange}
-              className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder-gray-400"
+              className="block w-full border-gray-300 rounded-md py-2 pl-3 pr-10 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               placeholder="Confirm new password"
             />
-            <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+              {showConfirmPassword ? (
+                <FaEyeSlash
+                  className="h-5 w-5 text-gray-400 cursor-pointer"
+                  onClick={toggleConfirmPasswordVisibility}
+                />
+              ) : (
+                <FaEye
+                  className="h-5 w-5 text-gray-400 cursor-pointer"
+                  onClick={toggleConfirmPasswordVisibility}
+                />
+              )}
+            </div>
           </div>
+          {passwordMatchError && (
+            <p className="mt-2 text-sm text-red-600">Passwords do not match.</p>
+          )}
         </div>
-        <button
-          type="submit"
-          className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 text-sm rounded-lg shadow-md w-full focus:outline-none focus:ring-2 focus:ring-gray-500"
-        >
-          Update
-        </button>
+        <div>
+          <button
+            type="submit"
+            className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Update Password
+          </button>
+        </div>
       </form>
     </div>
   );
