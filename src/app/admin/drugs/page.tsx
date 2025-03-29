@@ -1,36 +1,78 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
+interface Drug {
+  id: number;
+  name: string;
+  genericName?: string;
+  brandName?: string;
+  details?: string;
+}
 
 // Drug Form Component
-const DrugForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const router = useRouter();
+const DrugForm: React.FC<{
+  onClose: () => void;
+  drug?: Drug;
+  onSubmit: (drug: Drug) => void;
+}> = ({ onClose, drug, onSubmit }) => {
+  const [formData, setFormData] = useState<Drug>({
+    id: drug?.id || Date.now(),
+    name: drug?.name || "",
+    genericName: drug?.genericName || "",
+    brandName: drug?.brandName || "",
+    details: drug?.details || "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+    onClose();
+  };
 
   return (
     <div className="p-3">
       <div className="bg-white shadow-md rounded-xl max-w-4xl mx-auto w-full p-3">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Create New</h2>
-          <button
-            onClick={onClose} // Closes the form
-            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-sm"
-          >
+          <h2 className="text-xl font-semibold text-gray-800">
+            {drug ? "Edit Drug" : "Create New"}
+          </h2>
+          <Button onClick={onClose} variant="outline" size="sm">
             ≡ Drugs
-          </button>
+          </Button>
         </div>
 
         {/* Form */}
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 font-medium">
               Name <span className="text-red-500">*</span>
             </label>
-            <input
+            <Input
               type="text"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
               required
             />
           </div>
@@ -39,9 +81,11 @@ const DrugForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <label className="block text-gray-700 font-medium">
               Generic Name
             </label>
-            <input
+            <Input
               type="text"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+              name="genericName"
+              value={formData.genericName}
+              onChange={handleChange}
             />
           </div>
 
@@ -49,23 +93,27 @@ const DrugForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <label className="block text-gray-700 font-medium">
               Brand Name
             </label>
-            <input
+            <Input
               type="text"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+              name="brandName"
+              value={formData.brandName}
+              onChange={handleChange}
             />
           </div>
 
           <div className="mb-4">
             <label className="block text-gray-700 font-medium">Details</label>
-            <textarea className="w-full px-4 py-2 border border-gray-300 rounded-md h-24"></textarea>
+            <Textarea
+              name="details"
+              value={formData.details}
+              onChange={handleChange}
+              className="h-24"
+            />
           </div>
 
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-          >
+          <Button type="submit">
             ✓ Save Changes
-          </button>
+          </Button>
         </form>
       </div>
     </div>
@@ -75,20 +123,44 @@ const DrugForm: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 // Main Drugs Component
 const Drugs: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
-  const [drugs, setDrugs] = useState([
+  const [drugs, setDrugs] = useState<Drug[]>([
     { id: 1, name: "Avil", details: "Used for allergies and cold symptoms." },
     {
       id: 2,
       name: "Crocin",
-      details: "Generic: Paracetamol\nBrand: Cipla\nParacetamol 350 mg",
+      genericName: "Paracetamol",
+      brandName: "Cipla",
+      details: "Paracetamol 350 mg",
     },
   ]);
+  const [selectedDrug, setSelectedDrug] = useState<Drug | undefined>(undefined);
 
   const handleDelete = (id: number) => {
     setDrugs(drugs.filter((drug) => drug.id !== id));
   };
 
-  if (showForm) return <DrugForm onClose={() => setShowForm(false)} />;
+  const handleEdit = (drug: Drug) => {
+    setSelectedDrug(drug);
+    setShowForm(true);
+  };
+
+  const handleFormSubmit = (drug: Drug) => {
+    if (selectedDrug) {
+      setDrugs(drugs.map((d) => (d.id === drug.id ? drug : d)));
+    } else {
+      setDrugs([...drugs, drug]);
+    }
+    setSelectedDrug(undefined);
+  };
+
+  if (showForm)
+    return (
+      <DrugForm
+        onClose={() => setShowForm(false)}
+        drug={selectedDrug}
+        onSubmit={handleFormSubmit}
+      />
+    );
 
   return (
     <div className="p-3">
@@ -97,12 +169,7 @@ const Drugs: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-gray-800">Drugs</h1>
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm rounded-lg shadow-md"
-          >
-            + Add new drug
-          </button>
+          <Button onClick={() => setShowForm(true)}>+ Add new drug</Button>
         </div>
 
         {/* Table */}
@@ -124,23 +191,41 @@ const Drugs: React.FC = () => {
                 >
                   <td className="p-3 text-gray-700">{index + 1}</td>
                   <td className="p-3">
-                    <div className="font-semibold text-gray-900">
-                      {drug.name}
-                    </div>
+                    <div className="font-semibold text-gray-900">{drug.name}</div>
                   </td>
                   <td className="p-3 text-gray-700 whitespace-pre-line">
                     {drug.details}
                   </td>
                   <td className="p-3 flex gap-2">
-                    <button className="p-1.5 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8">
-                      <FaEdit className="text-gray-600" />
-                    </button>
-                    <button
-                      className="p-1.5 border rounded-md bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center w-8 h-8"
-                      onClick={() => handleDelete(drug.id)}
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      onClick={() => handleEdit(drug)}
                     >
-                      <FaTrashAlt className="text-white" />
-                    </button>
+                      <FaEdit className="text-gray-600" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="icon">
+                          <FaTrashAlt className="text-white" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete {drug.name}.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(drug.id)}>
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </td>
                 </tr>
               ))}
