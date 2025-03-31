@@ -2,18 +2,10 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import {
-  FiUser,
-  FiEdit,
-  FiLock,
-  FiLogOut,
-  FiMenu,
-  FiChevronDown,
-} from "react-icons/fi";
+import { FiLock, FiLogOut, FiMenu, FiChevronDown } from "react-icons/fi";
 import MobileTitle from "./MobileTitlePatientNAdmin";
-import { MdAddCircle } from "react-icons/md";
-import { FaCaretDown } from "react-icons/fa";
 import { live_doctors_icon } from "./global_variables";
+import Image from "next/image";
 
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   onToggleSidebar,
@@ -95,7 +87,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
             >
               <img
                 src={live_doctors_icon}
-                alt="Profile"
+                alt="live doctors"
                 className="w-6 h-6 rounded-full"
               />
 
@@ -110,14 +102,18 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               }`}
             >
               {/* Profile Info Section */}
-              <div className="flex items-center gap-3 p-4 border-b border-gray-200">
-                <img
-                  src={live_doctors_icon}
-                  alt="Profile"
-                  className="w-12 h-12 rounded-full"
-                />
-                <div>Live Doctor</div>
-              </div>
+              <Link href="/">
+                <div className="flex items-center gap-3 p-4 border-b border-gray-200 cursor-pointer">
+                  <Image
+                    src={live_doctors_icon}
+                    alt="live doctors"
+                    width={48}
+                    height={48}
+                    className="rounded-full"
+                  />
+                  <div>Live Doctor</div>
+                </div>
+              </Link>
 
               {/* Profile Actions */}
               <ul className="py-2">

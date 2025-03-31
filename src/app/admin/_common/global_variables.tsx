@@ -1,5 +1,5 @@
 const live_doctors_icon: string = "/icon_live_doctors.png";
 
-const general: string = "";
+const temp: string = "/REVIEW.jpg";
 
-export { live_doctors_icon, general };
+export { live_doctors_icon, temp };

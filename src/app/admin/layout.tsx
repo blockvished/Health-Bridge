@@ -51,11 +51,11 @@ export default function AdminLayout({
   return (
     <div>
       <div className="flex h-screen">
-        <SidebarDoctor
+        {/* <SidebarDoctor
           isCollapsed={isCollapsed}
           isMobile={isMobile}
           sidebarOpen={sidebarOpen}
-        />
+        /> */}
         {/* <SidebarPatient
           isCollapsed={isCollapsed} 
           isMobile={isMobile} 
@@ -73,8 +73,8 @@ export default function AdminLayout({
           } ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
         >
           {/* <TopbarDoctor onToggleSidebar={toggleSidebar} /> */}
-          <TopbarAdmin onToggleSidebar={toggleSidebar} />
-          {/* <TopbarPatient onToggleSidebar={toggleSidebar} /> */}
+          {/* <TopbarAdmin onToggleSidebar={toggleSidebar} /> */}
+          <TopbarPatient onToggleSidebar={toggleSidebar} />
 
           <main
             className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
