@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { FiChevronRight } from "react-icons/fi";
-import LeftPopup from "./LeftPopup";
+import { useRouter } from "next/navigation";
+import { live_doctors_icon } from "./global_variables"; // Assuming this path is correct
 
 const MobileTitle = () => {
   const [showPopup, setShowPopup] = useState(false);
   const mobileTitleRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Toggle popup function
   const togglePopup = () => {
@@ -44,14 +45,19 @@ const MobileTitle = () => {
     };
   }, [showPopup]);
 
+  const handleTitleClick = () => {
+    router.push("/");
+  };
+
   return (
     <>
       <div
-        className="flex items-center justify-between px-4 py-2 bg-white shadow-md rounded-full w-full max-w-[90%] mx-auto mt-4 md:hidden"
+        className="flex items-center justify-center px-4 py-2 bg-white shadow-md rounded-full w-full max-w-[90%] mx-auto mt-4 md:hidden cursor-pointer" // Added cursor-pointer
         ref={mobileTitleRef}
+        onClick={handleTitleClick} // Added onClick handler
       >
         <div className="flex items-center gap-3 rounded-full px-3 py-1">
-          live doctors icon
+          <img src={live_doctors_icon} alt="Live Doctors" className="w-8 h-8"/>
         </div>
       </div>
     </>
