@@ -46,7 +46,7 @@ export default function SettingsPage() {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                className={`w-full flex items-center gap-2 p-2 rounded-md transition cursor-pointer ${
+                className={`w-full flex items-center gap-2 p-2 rounded-sm transition cursor-pointer ${
                   activeTab === tab.id
                     ? "bg-gray-600 text-white"
                     : "hover:bg-[#f5f5f5]"

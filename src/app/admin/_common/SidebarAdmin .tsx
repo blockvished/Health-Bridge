@@ -120,28 +120,30 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Sidebar header */}
         {!isMobile && (
-  <Link href="/" className="block">
-    <div
-      className="flex items-center p-3 border-b border-gray-700 cursor-pointer"
-      ref={sidebarButtonRef}
-    >
-      {isMounted && (!isCollapsed || (isMobile && sidebarOpen)) ? (
-        <div className="flex items-center space-x-2">
-          <img alt="Logo" className="h-6 w-6" />
-          <span
-            className={`font-bold truncate ${isMobile ? "text-sm" : ""}`}
-          >
-            Live Doctors
-          </span>
-        </div>
-      ) : (
-        <div className="flex justify-center">
-          <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
-        </div>
-      )}
-    </div>
-  </Link>
-)}
+          <Link href="/" className="block">
+            <div
+              className="flex items-center p-3 border-b border-gray-700 cursor-pointer"
+              ref={sidebarButtonRef}
+            >
+              {isMounted && (!isCollapsed || (isMobile && sidebarOpen)) ? (
+                <div className="flex items-center space-x-2">
+                  <img alt="Logo" className="h-6 w-6" />
+                  <span
+                    className={`font-bold truncate ${
+                      isMobile ? "text-sm" : ""
+                    }`}
+                  >
+                    Live Doctors
+                  </span>
+                </div>
+              ) : (
+                <div className="flex justify-center">
+                  <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
+                </div>
+              )}
+            </div>
+          </Link>
+        )}
 
         {/* Menu items */}
         <nav className="mt-1">
