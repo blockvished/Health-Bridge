@@ -13,6 +13,7 @@ import {
 import MobileTitle from "./MobileTitlePatientNAdmin";
 import { MdAddCircle } from "react-icons/md";
 import { FaCaretDown } from "react-icons/fa";
+import { live_doctors_icon } from "./global_variables";
 
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   onToggleSidebar,
@@ -93,7 +94,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
               <img
-                src="/REVIEW.jpg"
+                src={live_doctors_icon}
                 alt="Profile"
                 className="w-6 h-6 rounded-full"
               />
@@ -114,7 +115,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               {/* Profile Info Section */}
               <div className="flex items-center gap-3 p-4 border-b border-gray-200">
                 <img
-                  src="/REVIEW.jpg"
+                  src={live_doctors_icon}
                   alt="Profile"
                   className="w-12 h-12 rounded-full"
                 />
