@@ -2,9 +2,10 @@
 const { drizzle } = require("drizzle-orm/postgres-js");
 const { migrate } = require("drizzle-orm/postgres-js/migrator");
 const postgres = require("postgres");
-require("dotenv").config();
+import dotenv from "dotenv";
 
 const runMigration = async () => {
+  dotenv.config();
   const connectionString = process.env.DATABASE_URL;
 
   if (!connectionString) {

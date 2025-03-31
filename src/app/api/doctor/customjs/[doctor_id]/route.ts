@@ -1,13 +1,12 @@
-// app/api/education/[doctor_id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { eq } from "drizzle-orm";
-import { doctorCustomJs } from "../../../../../db/schema"
+import { doctorCustomJs } from "../../../../../db/schema";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { doctor_id: string } }
+  context: { params: { doctor_id: string } } // Correct type definition
 ) {
   try {
     const connectionString = process.env.DATABASE_URL;
@@ -15,10 +14,8 @@ export async function GET(
       throw new Error("DATABASE_URL is not set in environment variables.");
     }
 
-    // Await params before accessing its properties
-    const { doctor_id } = await params;
-    const doctorId = parseInt(doctor_id, 10);
-    
+    const doctorId = parseInt(context.params.doctor_id, 10);
+
     if (isNaN(doctorId)) {
       return NextResponse.json({ error: "Invalid Doctor ID" }, { status: 400 });
     }
@@ -31,9 +28,12 @@ export async function GET(
       .from(doctorCustomJs)
       .where(eq(doctorCustomJs.doctorId, doctorId));
 
-    return NextResponse.json(doctorCustomJsData[0]);
+    return NextResponse.json(doctorCustomJsData);
   } catch (error) {
     console.error("Error fetching doctor education data:", error);
-    return NextResponse.json({ error: "Failed to fetch doctor education data" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch doctor education data" },
+      { status: 500 }
+    );
   }
 }

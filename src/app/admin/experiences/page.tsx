@@ -13,7 +13,7 @@ interface Experience {
   sortOrder: number;
 }
 
-const ExperienceTable = ({ doctorId = 1 }) => {
+const ExperienceTable = ({ doctorId = 1 }: { doctorId?: number }) => {
   const [experienceData, setExperienceData] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,11 +23,11 @@ const ExperienceTable = ({ doctorId = 1 }) => {
       try {
         setLoading(true);
         const response = await fetch(`/api/doctor/experience/${doctorId}`);
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status}`);
         }
-        
+
         const data = await response.json();
         setExperienceData(data);
         setError(null);
@@ -98,4 +98,7 @@ const ExperienceTable = ({ doctorId = 1 }) => {
   );
 };
 
-export default ExperienceTable;
+// ✅ Fix: Ensure a valid default export in `page.tsx`
+export default function Page() {
+  return <ExperienceTable doctorId={1} />;
+}

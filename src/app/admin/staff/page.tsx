@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
 import { FiArrowLeft, FiCamera, FiEdit, FiTrash2 } from "react-icons/fi";
-import Image from "next/image";
 
 type StaffMember = {
   id: number;
@@ -95,7 +94,7 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
             onClick={triggerFileInput}
           >
             {imagePreview ? (
-              <Image
+              <img
                 src={imagePreview}
                 alt="Profile Preview"
                 width={96}
@@ -244,7 +243,7 @@ const StaffPage: React.FC = () => {
                     <td className="p-3 text-gray-700">{index + 1}</td>
                     <td className="p-3">
                       {staff.imageUrl ? (
-                        <Image
+                        <img
                           src={staff.imageUrl}
                           alt={staff.name}
                           width={40}

@@ -97,19 +97,24 @@ export default function WebsiteSettings() {
           label="Copyright"
           defaultValue="Copyright: © 2024. Live Doctors. All Rights Reserved. An Initiative of Prgenix"
         />
-
         <InputField
           label="Set trial days"
           type="number"
           value={trialDays}
           onChange={(e) => setTrialDays(Number(e.target.value))}
         />
+        <p className="text-red-600 text-sm mt-0">
+          <span className="font-bold">!</span> Set 0 to disable trial option
+        </p>
         <InputField
           label="Email before the plan ends"
           type="number"
           value={emailBeforePlanEnds}
           onChange={(e) => setEmailBeforePlanEnds(Number(e.target.value))}
         />
+        <p className="text-red-600 text-sm mt-0">
+          <span className="font-bold">!</span> Set 0 to disable this option
+        </p>
 
         <div>
           <p className="font-medium">Currency</p>

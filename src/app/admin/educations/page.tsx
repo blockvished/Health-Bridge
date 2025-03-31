@@ -12,7 +12,7 @@ interface Education {
   sortOrder: number;
 }
 
-const EducationTable = ({ doctorId = 1 }) => {
+const EducationTable = ({ doctorId = 1 }: { doctorId?: number }) => {
   const [educationData, setEducationData] = useState<Education[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -88,4 +88,6 @@ const EducationTable = ({ doctorId = 1 }) => {
   );
 };
 
-export default EducationTable;
+export default function Page() {
+  return <EducationTable doctorId={1} />;
+}

@@ -21,7 +21,7 @@ const PayoutForm = () => {
   };
 
   return (
-    <div className="p-6 bg-white border rounded-lg shadow-md">
+    <div className="mx-auto p-4 bg-white shadow rounded-lg border border-gray-200 w-full md:max-w-3xl"> {/* Adjusted max-width */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Add Payout</h2>
         <Link href="/admin/payouts/requests">

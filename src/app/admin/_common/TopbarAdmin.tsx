@@ -5,7 +5,6 @@ import Link from "next/link";
 import { FiLock, FiLogOut, FiMenu, FiChevronDown } from "react-icons/fi";
 import MobileTitle from "./MobileTitlePatientNAdmin";
 import { live_doctors_icon } from "./global_variables";
-import Image from "next/image";
 
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   onToggleSidebar,
@@ -104,7 +103,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               {/* Profile Info Section */}
               <Link href="/">
                 <div className="flex items-center gap-3 p-4 border-b border-gray-200 cursor-pointer">
-                  <Image
+                  <img
                     src={live_doctors_icon}
                     alt="live doctors"
                     width={48}
