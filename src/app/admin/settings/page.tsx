@@ -36,30 +36,30 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("website");
 
   return (
-    <div className="bg-white rounded-lg shadow-md bg-[#f0f2f5] p-4 m-4">
-      <h2 className="text-lg font-semibold mb-4 border-b border-gray-300 pb-2">
-        ⚙️ Manage Settings
+    <div className="bg-white rounded-lg shadow-md bg-gray-50 p-4 m-4">
+      <h2 className="text-xl font-semibold mb-4 border-b border-gray-200 pb-2">
+        ⚙️ Settings
       </h2>
-      <div className="flex flex-col md:flex-row">
-        <div className="md:w-1/4 mb-4 md:mb-0">
-          <div className="space-y-2">
+      <div className="flex flex-col md:flex-row gap-6">
+        <aside className="md:w-1/4">
+          <nav className="space-y-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                className={`w-full flex items-center gap-2 p-2 rounded-sm transition cursor-pointer ${
+                className={`w-full flex items-center gap-2 p-2 rounded-md transition-colors duration-200 cursor-pointer ${
                   activeTab === tab.id
-                    ? "bg-gray-600 text-white"
-                    : "hover:bg-[#f5f5f5]"
+                    ? "bg-gray-800 text-white"
+                    : "hover:bg-gray-100"
                 }`}
                 onClick={() => setActiveTab(tab.id)}
               >
-                <tab.icon size={18} />
-                {tab.label}
+                <tab.icon size={16} />
+                <span className="text-sm">{tab.label}</span>
               </button>
             ))}
-          </div>
-        </div>
-        <div className="md:w-3/4 md:ml-6 mt-4 md:mt-0 bg-white p-4">
+          </nav>
+        </aside>
+        <main className="md:w-3/4 bg-white p-6 rounded-md shadow-sm">
           {activeTab === "website" && <WebsiteSettings />}
           {activeTab === "preferences" && <PreferencesSettings />}
           {activeTab === "zoom" && <ZoomSettings />}
@@ -70,7 +70,7 @@ export default function SettingsPage() {
           {activeTab === "whatsapp" && <WhatsappSettings />}
           {activeTab === "twilio" && <TwilioSmsSettings />}
           {activeTab === "pwa" && <PwaSettings />}
-        </div>
+        </main>
       </div>
     </div>
   );
