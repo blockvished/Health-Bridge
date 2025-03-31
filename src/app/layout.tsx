@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Live Doctors",
   description: "Live Doctors for the doctors",
+  icons: {
+    icon: "/favicon.ico", // Path to your favicon
+  },
 };
 
 export default function RootLayout({

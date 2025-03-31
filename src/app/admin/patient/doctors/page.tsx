@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 
 const doctors = [
@@ -32,7 +31,7 @@ export default function DoctorList() {
               <tr key={doctor.id} className="border-b last:border-none">
                 <td className="p-4">{doctor.id}</td>
                 <td className="p-4">
-                  <Image
+                  <img
                     src={doctor.image}
                     alt={doctor.name}
                     width={50}
