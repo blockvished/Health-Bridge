@@ -7,6 +7,7 @@ import { FaAngleDown, FaAngleRight } from "react-icons/fa";
 import { FiChevronRight } from "react-icons/fi";
 import { menuItemsDoctor } from "./menuItems";
 import LeftPopup from "./LeftPopup";
+import { live_doctors_icon, temp } from "./global_variables";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -128,7 +129,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           >
             {isMounted && (!isCollapsed || (isMobile && sidebarOpen)) ? (
               <div className="flex items-center space-x-2">
-                <img alt="Logo" className="h-6 w-6" />
+                <img src={temp} alt="Logo" className="h-6 w-6" />
                 <span
                   className={`font-bold truncate ${isMobile ? "text-sm" : ""}`}
                 >
@@ -137,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             ) : (
               <div className="flex justify-center">
-                <img src="/logo.svg" alt="Logo" className="h-6 w-6" />
+                <img src={temp} alt="Logo" className="h-6 w-6" />
               </div>
             )}
           </div>

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { live_doctors_icon } from "../_common/global_variables";
 
 export default function WebsiteSettings() {
   const [trialDays, setTrialDays] = useState(30);
@@ -40,20 +41,37 @@ export default function WebsiteSettings() {
   return (
     <div>
       <h2 className="text-lg font-semibold mb-4">Website Settings</h2>
-
-      <div className="flex flex-col md:flex-row gap-4 bg-[#f9f9f9] p-4 rounded-lg md:justify-between">
-        <div className="flex items-center justify-between w-full md:w-auto">
-          <UploadButton label="Upload Favicon" />
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-12 p-6">
+        {/* Favicon */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center justify-center">
+            <img src={live_doctors_icon} alt="Favicon" className="w-16 h-16" />
+          </div>
+          <div className="w-[160px]">
+            <UploadButton label="Upload Favicon" />
+          </div>
         </div>
-        <div className="flex items-center justify-between w-full md:w-auto">
-          <div className="flex flex-col items-center">
-            <img src="/logo.png" alt="Logo" className="w-20 mb-2" />
+
+        {/* Logo */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center justify-center">
+            <img src="/logo_live_doctors.png" alt="Logo" className="h-16" />
+          </div>
+          <div className="w-[160px]">
             <UploadButton label="Upload Logo" />
           </div>
         </div>
-        <div className="flex items-center justify-between w-full md:w-auto">
-          <div className="flex flex-col items-center">
-            <img src="/doctor.png" alt="Doctor" className="w-20 mb-2" />
+
+        {/* Doctor Image */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center justify-center">
+            <img
+              src="/hero.webp"
+              alt="Doctor"
+              className="w-16 h-16 rounded-full object-cover"
+            />
+          </div>
+          <div className="w-[160px]">
             <UploadButton label="Upload Home Image" />
           </div>
         </div>
@@ -145,13 +163,22 @@ function InputField({
 
 function UploadButton({ label }: { label: string }) {
   return (
-    <Button
-      variant="outline"
-      className="flex items-center gap-2 bg-[#e0e0e0] cursor-not-allowed w-full"
-    >
-      <Upload size={16} />
-      {label}
-    </Button>
+    <button className="flex items-center gap-2 bg-[#e8e8e8] hover:bg-[#d8d8d8] rounded-lg py-3 px-4 text-xs text-gray-700 border-none w-full whitespace-nowrap">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="flex-shrink-0"
+      >
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="17 8 12 3 7 8" />
+        <line x1="12" y1="3" x2="12" y2="15" />
+      </svg>
+      <span className="flex-shrink-0">{label}</span>
+    </button>
   );
 }
 
