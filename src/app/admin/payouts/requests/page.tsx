@@ -76,7 +76,7 @@ const PayoutRequests = () => {
   });
 
   return (
-    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 border bg-white rounded-md">
+    <div className="mx-auto p-4 bg-white shadow rounded-lg border border-gray-200 w-full md:max-w-3xl"> {/* Adjusted max-width */}
       <div className="flex flex-col sm:flex-row justify-between items-center">
         <h1 className="text-2xl font-bold mb-2 sm:mb-0">Payout Requests</h1>
         <Button onClick={handleAddPayout}>
