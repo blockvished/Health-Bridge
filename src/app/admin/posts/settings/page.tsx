@@ -39,154 +39,62 @@ const TabPanel: React.FC<TabPanelProps> = ({
   );
 };
 
-interface a11yProps {
-  index: number;
-  id: string;
-  "aria-controls": string;
-}
-
-function a11yProps(index: number): a11yProps {
-  return {
-    index: index,
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
+// Define the tab data structure to avoid repetition
+interface TabData {
+  label: string;
+  component: React.ReactNode;
 }
 
 const SocialSettings: React.FC = () => {
-  const [value, setValue] = useState(0);
+  const [activeTab, setActiveTab] = useState(0);
 
-  const handleChange = (
-    event: React.SyntheticEvent | null,
-    newValue: number
-  ) => {
-    setValue(newValue);
-  };
+  // Create an array of tab data to make the code more maintainable
+  const tabs: TabData[] = [
+    { label: "General", component: <GeneralSettings /> },
+    { label: "Facebook", component: <FacebookSettings /> },
+    { label: "Twitter", component: <TwitterSettings /> },
+    { label: "LinkedIn", component: <LinkedInSettings /> },
+    { label: "Tumblr", component: <TumblrSettings /> },
+    { label: "Pinterest", component: <PinterestSettings /> },
+    {
+      label: "Google Business Profile",
+      component: <GoogleBusinessProfileSettings />,
+    },
+    { label: "Reddit", component: <RedditSettings /> },
+    { label: "Instagram", component: <InstagramSettings /> },
+    { label: "Youtube", component: <YoutubeSettings /> },
+  ];
 
   return (
-    <div className="w-full mx-auto">
-      <div className="flex flex-wrap border-b border-gray-300"> {/* Removed border-b from parent div */}
-        <button
-          onClick={() => handleChange(null, 0)}
-          className={`px-4 py-2 border-none bg-none cursor-pointer ${
-            value === 0 ? "border-b-2 border-blue-500 font-bold" : "font-normal"
-          }`}
-          {...a11yProps(0)}
-        >
-          General
-        </button>
-        <button
-          onClick={() => handleChange(null, 1)}
-          className={`px-4 py-2 border-none bg-none cursor-pointer ${
-            value === 1 ? "border-b-2 border-blue-500 font-bold" : "font-normal"
-          }`}
-          {...a11yProps(1)}
-        >
-          Facebook
-        </button>
-        <button
-          onClick={() => handleChange(null, 2)}
-          className={`px-4 py-2 border-none bg-none cursor-pointer ${
-            value === 2 ? "border-b-2 border-blue-500 font-bold" : "font-normal"
-          }`}
-          {...a11yProps(2)}
-        >
-          Twitter
-        </button>
-        <button
-          onClick={() => handleChange(null, 3)}
-          className={`px-4 py-2 border-none bg-none cursor-pointer ${
-            value === 3 ? "border-b-2 border-blue-500 font-bold" : "font-normal"
-          }`}
-          {...a11yProps(3)}
-        >
-          LinkedIn
-        </button>
-        <button
-          onClick={() => handleChange(null, 4)}
-          className={`px-4 py-2 border-none bg-none cursor-pointer ${
-            value === 4 ? "border-b-2 border-blue-500 font-bold" : "font-normal"
-          }`}
-          {...a11yProps(4)}
-        >
-          Tumblr
-        </button>
-        <button
-          onClick={() => handleChange(null, 5)}
-          className={`px-4 py-2 border-none bg-none cursor-pointer ${
-            value === 5 ? "border-b-2 border-blue-500 font-bold" : "font-normal"
-          }`}
-          {...a11yProps(5)}
-        >
-          Pinterest
-        </button>
-        <button
-          onClick={() => handleChange(null, 6)}
-          className={`px-4 py-2 border-none bg-none cursor-pointer ${
-            value === 6 ? "border-b-2 border-blue-500 font-bold" : "font-normal"
-          }`}
-          {...a11yProps(6)}
-        >
-          Google Business Profile
-        </button>
-        <button
-          onClick={() => handleChange(null, 7)}
-          className={`px-4 py-2 border-none bg-none cursor-pointer ${
-            value === 7 ? "border-b-2 border-blue-500 font-bold" : "font-normal"
-          }`}
-          {...a11yProps(7)}
-        >
-          Reddit
-        </button>
-        <button
-          onClick={() => handleChange(null, 8)}
-          className={`px-4 py-2 border-none bg-none cursor-pointer ${
-            value === 8 ? "border-b-2 border-blue-500 font-bold" : "font-normal"
-          }`}
-          {...a11yProps(8)}
-        >
-          Instagram
-        </button>
-        <button
-          onClick={() => handleChange(null, 9)}
-          className={`px-4 py-2 border-none bg-none cursor-pointer ${
-            value === 9 ? "border-b-2 border-blue-500 font-bold" : "font-normal"
-          }`}
-          {...a11yProps(9)}
-        >
-          Youtube
-        </button>
+    <div className="w-full mx-auto px-4 sm:px-6">
+      <div className="border-b border-gray-200">
+        <div className="flex flex-wrap overflow-x-auto whitespace-nowrap">
+          {tabs.map((tab, index) => (
+            <button
+              key={index}
+              onClick={() => setActiveTab(index)}
+              className={`px-2 py-2 border-b-2 transition-colors focus:outline-none m-1 text-sm sm:text-base cursor-pointer ${
+                // Added cursor-pointer
+                activeTab === index
+                  ? "border-blue-900 font-semibold text-blue-900"
+                  : "border-transparent hover:text-blue-300 hover:border-blue-300"
+              }`}
+              id={`simple-tab-${index}`}
+              aria-controls={`simple-tabpanel-${index}`}
+              aria-selected={activeTab === index}
+              role="tab"
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
-      <TabPanel value={value} index={0}>
-        <GeneralSettings />
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        <FacebookSettings />
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        <TwitterSettings />
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-        <LinkedInSettings />
-      </TabPanel>
-      <TabPanel value={value} index={4}>
-        <TumblrSettings />
-      </TabPanel>
-      <TabPanel value={value} index={5}>
-        <PinterestSettings />
-      </TabPanel>
-      <TabPanel value={value} index={6}>
-        <GoogleBusinessProfileSettings />
-      </TabPanel>
-      <TabPanel value={value} index={7}>
-        <RedditSettings />
-      </TabPanel>
-      <TabPanel value={value} index={8}>
-        <InstagramSettings />
-      </TabPanel>
-      <TabPanel value={value} index={9}>
-        <YoutubeSettings />
-      </TabPanel>
+
+      {tabs.map((tab, index) => (
+        <TabPanel key={index} value={activeTab} index={index}>
+          {tab.component}
+        </TabPanel>
+      ))}
     </div>
   );
 };
