@@ -1,3 +1,40 @@
+"use client";
+
+// Reusable User Table
+const UserTable = ({
+  users,
+  deleteUser,
+}: {
+  users: User[];
+  deleteUser: (userId: string) => void;
+}) => (
+  <table className="mt-4 w-full">
+    <thead>
+      <tr>
+        <th className="text-left">User ID</th>
+        <th className="text-left">Account Name</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {users.map((user) => (
+        <tr key={user.userId}>
+          <td className="border px-4 py-2">{user.userId}</td>
+          <td className="border px-4 py-2">{user.accountName}</td>
+          <td className="border px-4 py-2">
+            <button
+              onClick={() => deleteUser(user.userId)}
+              className="text-red-600"
+            >
+              Delete Account
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+
 import React, { useState, ChangeEvent } from "react";
 import type { NextPage } from "next";
 
@@ -63,121 +100,74 @@ const ToggleSwitch = ({
   </div>
 );
 
-// Reusable User Input Form
-const UserForm = ({
-  newUser,
-  handleInputChange,
-  addUser,
+// Reusable Input with Validation
+const InputField = ({
+  label,
+  value,
+  onChange,
+  placeholder,
   error,
 }: {
-  newUser: User;
-  handleInputChange: (
-    e: ChangeEvent<HTMLInputElement>,
-    field: keyof User
-  ) => void;
-  addUser: () => void;
+  label: string;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
   error: string;
 }) => (
   <div className="mt-4">
+    <label className="block text-sm font-medium text-gray-700">{label}</label>
     <input
       type="text"
-      placeholder="User ID"
-      value={newUser.userId}
-      onChange={(e) => handleInputChange(e, "userId")}
-      className="border p-2 rounded mr-2"
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      className="border p-2 rounded mt-1 w-full"
     />
-    <input
-      type="text"
-      placeholder="Account Name"
-      value={newUser.accountName}
-      onChange={(e) => handleInputChange(e, "accountName")}
-      className="border p-2 rounded mr-2"
-    />
-    <button
-      onClick={addUser}
-      className="bg-blue-600 text-white px-4 py-2 rounded"
-    >
-      Add Account
-    </button>
     {error && <p className="text-red-500 mt-2">{error}</p>}
   </div>
 );
 
-// Reusable User Table
-const UserTable = ({
-  users,
-  deleteUser,
+// Reusable Button
+const Button = ({
+  label,
+  onClick,
+  className,
 }: {
-  users: User[];
-  deleteUser: (userId: string) => void;
+  label: string;
+  onClick: () => void;
+  className: string;
 }) => (
-  <table className="mt-4 w-full">
-    <thead>
-      <tr>
-        <th className="text-left">User ID</th>
-        <th className="text-left">Account Name</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {users.map((user) => (
-        <tr key={user.userId}>
-          <td className="border px-4 py-2">{user.userId}</td>
-          <td className="border px-4 py-2">{user.accountName}</td>
-          <td className="border px-4 py-2">
-            <button
-              onClick={() => deleteUser(user.userId)}
-              className="text-red-600"
-            >
-              Delete Account
-            </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
+  <button onClick={onClick} className={`px-4 py-2 rounded ${className}`}>
+    {label}
+  </button>
 );
 
-// Reusable Select Users component
-const SelectUsers = ({
-  users,
-  selectedUsers,
-  handleSelectChange,
-  handleSelectAll,
+// Reusable Select Input for Multiple Selection
+const SelectMultiple = ({
+  label,
+  value,
+  onChange,
+  options,
 }: {
-  users: User[];
-  selectedUsers: string[];
-  handleSelectChange: (e: ChangeEvent<HTMLSelectElement>) => void;
-  handleSelectAll: () => void;
+  label: string;
+  value: string[];
+  onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  options: User[];
 }) => (
   <div>
-    <label
-      htmlFor="autopostUsers"
-      className="block text-sm font-medium text-gray-700"
-    >
-      Autopost Posts to Facebook of the user(s)
-    </label>
+    <label className="block text-sm font-medium text-gray-700">{label}</label>
     <select
-      id="autopostUsers"
       multiple
+      value={value}
+      onChange={onChange}
       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-      value={selectedUsers}
-      onChange={handleSelectChange}
     >
-      {users.map((user) => (
+      {options.map((user) => (
         <option key={user.userId} value={user.userId}>
           {user.accountName}
         </option>
       ))}
     </select>
-    <div className="mt-2">
-      <button
-        onClick={handleSelectAll}
-        className="bg-gray-200 text-gray-700 px-3 py-1 rounded mr-2"
-      >
-        {users.length === selectedUsers.length ? "Select None" : "Select All"}
-      </button>
-    </div>
   </div>
 );
 
@@ -235,55 +225,19 @@ const FacebookSettings: NextPage = () => {
     }));
   };
 
-  const handleSelectUser = (userId: string) => {
-    setSettings((prev) => {
-      if (prev.selectedUsers.includes(userId)) {
-        return {
-          ...prev,
-          selectedUsers: prev.selectedUsers.filter((id) => id !== userId),
-        };
-      } else {
-        return {
-          ...prev,
-          selectedUsers: [...prev.selectedUsers, userId],
-        };
-      }
-    });
+  const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(
+      e.target.selectedOptions,
+      (option) => option.value
+    );
+    setSettings((prev) => ({
+      ...prev,
+      selectedUsers: selectedOptions,
+    }));
   };
 
   const handleToggle = (key: keyof Settings) => {
-    if (
-      key === "autoPosting" ||
-      key === "proxyEnabled" ||
-      key === "apiEnabled"
-    ) {
-      setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
-    }
-  };
-
-  const handleSelectAllUsers = () => {
-    if (settings.users.length === settings.selectedUsers.length) {
-      setSettings((prev) => ({ ...prev, selectedUsers: [] }));
-    } else {
-      setSettings((prev) => ({
-        ...prev,
-        selectedUsers: prev.users.map((user) => user.userId),
-      }));
-    }
-  };
-
-  const handleLinkPostingChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSettings((prev) => ({
-      ...prev,
-      linkPosting: e.target.value as "link" | "image",
-    }));
-  };
-
-  const handleUrlShortenerChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSettings((prev) => ({
-      ...prev,
-      urlShortener: e.target.value as "default" | "bitly",
-    }));
+    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
@@ -307,55 +261,121 @@ const FacebookSettings: NextPage = () => {
       </SettingsSection>
 
       <SettingsSection title="API Settings">
-        <p className="text-sm text-gray-500">
-          Enable API access for third-party integrations.
-        </p>
-        <div className="flex items-center space-x-4">
-          <label className="flex items-center">
-            <input
-              type="radio"
-              value="app"
-              checked={settings.authType === "app"}
-              onChange={() => handleAuthTypeChange("app")}
-              className="mr-2"
-            />
-            Facebook App Method
-          </label>
-          <label className="flex items-center">
-            <input
-              type="radio"
-              value="graph"
-              checked={settings.authType === "graph"}
-              onChange={() => handleAuthTypeChange("graph")}
-              className="mr-2"
-            />
-            Facebook Graph API
-          </label>
+        <div className="bg-gray-100 border border-gray-300 rounded p-4 mb-4">
+          <div className="flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-blue-600 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <p className="text-sm">
+              <strong>Note:</strong> You have only 1 account to add
+            </p>
+          </div>
         </div>
-        <UserForm
-          newUser={newUser}
-          handleInputChange={handleInputChange}
-          addUser={addUser}
-          error={error}
-        />
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Select Authentication Type
+          </label>
+          <div className="mt-2 flex items-center space-x-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                value="app"
+                checked={settings.authType === "app"}
+                onChange={() => handleAuthTypeChange("app")}
+                className="mr-2"
+              />
+              Facebook App Method
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                value="graph"
+                checked={settings.authType === "graph"}
+                onChange={() => handleAuthTypeChange("graph")}
+                className="mr-2"
+              />
+              Facebook Graph API
+            </label>
+          </div>
+        </div>
+        {error && (
+          <div
+            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+            role="alert"
+          >
+            <strong className="font-bold">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 inline-block mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              Alert:
+            </strong>
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              User ID
+            </label>
+            <input
+              type="text"
+              value={newUser.userId}
+              onChange={(e) => handleInputChange(e, "userId")}
+              placeholder="Enter User ID"
+              className="mt-1 block w-full border p-2 rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Account Name
+            </label>
+            <input
+              type="text"
+              value={newUser.accountName}
+              onChange={(e) => handleInputChange(e, "accountName")}
+              placeholder="Enter Account Name"
+              className="mt-1 block w-full border p-2 rounded"
+            />
+          </div>
+          <div>
+            <button
+              onClick={addUser}
+              className="bg-blue-600 text-white px-4 py-2 rounded mt-6"
+            >
+              Add Account
+            </button>
+          </div>
+        </div>
         <UserTable users={settings.users} deleteUser={deleteUser} />
       </SettingsSection>
-
       <SettingsSection title="Autopost Settings">
-        <SelectUsers
-          users={settings.users}
-          selectedUsers={settings.selectedUsers}
-          handleSelectChange={(e) => {
-            const selectedOptions = Array.from(
-              e.target.selectedOptions,
-              (option) => option.value
-            );
-            setSettings((prev) => ({
-              ...prev,
-              selectedUsers: selectedOptions,
-            }));
-          }}
-          handleSelectAll={handleSelectAllUsers}
+        <SelectMultiple
+          label="Select Users"
+          value={settings.selectedUsers}
+          onChange={handleSelectChange}
+          options={settings.users}
         />
         <div className="mt-4">
           <label
@@ -367,7 +387,12 @@ const FacebookSettings: NextPage = () => {
           <select
             id="linkPostingType"
             value={settings.linkPosting}
-            onChange={handleLinkPostingChange}
+            onChange={(e) =>
+              setSettings({
+                ...settings,
+                linkPosting: e.target.value as "link" | "image",
+              })
+            }
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           >
             <option value="link">Link posting</option>
@@ -384,7 +409,12 @@ const FacebookSettings: NextPage = () => {
           <select
             id="urlShortenerType"
             value={settings.urlShortener}
-            onChange={handleUrlShortenerChange}
+            onChange={(e) =>
+              setSettings({
+                ...settings,
+                urlShortener: e.target.value as "default" | "bitly",
+              })
+            }
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           >
             <option value="default">Default</option>
@@ -393,9 +423,11 @@ const FacebookSettings: NextPage = () => {
         </div>
       </SettingsSection>
 
-      <button className="mt-6 px-5 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-        Save
-      </button>
+      <Button
+        label="Save"
+        onClick={() => console.log("Settings saved!")}
+        className="bg-blue-600 text-white mt-6"
+      />
     </div>
   );
 };
