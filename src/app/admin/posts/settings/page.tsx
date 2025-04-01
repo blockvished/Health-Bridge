@@ -66,8 +66,8 @@ const SocialSettings: React.FC = () => {
   ];
 
   return (
-    <div className="w-full mx-auto px-4 sm:px-6">
-      <div className="border-b border-gray-200">
+    <div className="w-full mx-auto px-4 sm:px-6 bg-white rounded-sm">
+      <div>
         <div className="flex flex-wrap overflow-x-auto whitespace-nowrap">
           {tabs.map((tab, index) => (
             <button

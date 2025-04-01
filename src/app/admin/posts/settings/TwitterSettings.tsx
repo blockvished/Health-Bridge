@@ -144,7 +144,7 @@ const SelectMultiple = ({
   </div>
 );
 
-const FacebookSettings: NextPage = () => {
+const TwitterSettings: NextPage = () => {
   const [settings, setSettings] = useState<Settings>({
     authType: "app",
     users: [],
@@ -218,18 +218,9 @@ const FacebookSettings: NextPage = () => {
       <SettingsSection title="General Settings">
         <ToggleSwitch
           label="Enable Autoposting"
-          description="Enable this if you want to automatically post new content to Facebook."
+          description="Enable this button, if you want to automatically post your new content to Twitter."
           enabled={settings.autoPosting}
           onToggle={() => handleToggle("autoPosting")}
-        />
-      </SettingsSection>
-
-      <SettingsSection title="Proxy Settings">
-        <ToggleSwitch
-          label="Enable Proxy"
-          description="Enable / Disable Proxy setting for Facebook."
-          enabled={settings.proxyEnabled}
-          onToggle={() => handleToggle("proxyEnabled")}
         />
       </SettingsSection>
 
@@ -405,4 +396,4 @@ const FacebookSettings: NextPage = () => {
   );
 };
 
-export default FacebookSettings;
+export default TwitterSettings;

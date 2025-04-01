@@ -1,4 +1,5 @@
 "use client";
+import SelectDropdown from "./SelectDropdown"
 
 // Reusable User Table
 const UserTable = ({
@@ -214,7 +215,7 @@ const FacebookSettings: NextPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-6 space-y-6">
       <SettingsSection title="General Settings">
         <ToggleSwitch
           label="Enable Autoposting"
