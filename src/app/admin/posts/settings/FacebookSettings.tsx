@@ -99,34 +99,7 @@ const ToggleSwitch = ({
     <p className="text-sm text-gray-500">{description}</p>
   </div>
 );
-
-// Reusable Input with Validation
-const InputField = ({
-  label,
-  value,
-  onChange,
-  placeholder,
-  error,
-}: {
-  label: string;
-  value: string;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  placeholder: string;
-  error: string;
-}) => (
-  <div className="mt-4">
-    <label className="block text-sm font-medium text-gray-700">{label}</label>
-    <input
-      type="text"
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-      className="border p-2 rounded mt-1 w-full"
-    />
-    {error && <p className="text-red-500 mt-2">{error}</p>}
-  </div>
-);
-
+ 
 // Reusable Button
 const Button = ({
   label,
