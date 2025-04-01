@@ -27,9 +27,9 @@ const SettingsSection = ({
   title: string;
   children: React.ReactNode;
 }) => (
-  <div className="border-t border-gray-200 pt-8">
-    <h2 className="text-xl font-semibold text-gray-800 mb-4">{title}</h2>
-    {children}
+  <div className="mb-8">
+    <h2 className="text-2xl font-semibold text-gray-800 mb-6">{title}</h2>
+    <div className="space-y-6">{children}</div>
   </div>
 );
 
@@ -41,27 +41,27 @@ const ToggleSwitch = ({
   onToggle,
 }: {
   label: string;
-  description: string;
+  description?: string;
   enabled: boolean | undefined;
   onToggle: () => void;
 }) => (
-  <div>
-    <div className="flex items-center justify-between">
+  <div className="flex items-center justify-between">
+    <div>
       <span className="text-sm font-medium text-gray-900">{label}</span>
-      <button
-        onClick={onToggle}
-        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
-          enabled ? "bg-blue-600" : "bg-gray-400"
-        }`}
-      >
-        <span
-          className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform ${
-            enabled ? "translate-x-5" : "translate-x-1"
-          }`}
-        />
-      </button>
+      {description && <p className="text-sm text-gray-500">{description}</p>}
     </div>
-    <p className="text-sm text-gray-500">{description}</p>
+    <button
+      onClick={onToggle}
+      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+        enabled ? "bg-blue-600" : "bg-gray-400"
+      }`}
+    >
+      <span
+        className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform ${
+          enabled ? "translate-x-5" : "translate-x-1"
+        }`}
+      />
+    </button>
   </div>
 );
 
@@ -95,7 +95,7 @@ const Select = ({
   multiple?: boolean;
 }) => (
   <div>
-    <label className="block text-sm font-medium text-gray-700">{label}</label>
+    <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
     <select
       multiple={multiple}
       value={value}
@@ -122,10 +122,8 @@ const GoogleBusinessProfileSettings: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Example of fetching users (replace with your actual API call)
   useEffect(() => {
     setLoading(true);
-    // Simulate API call
     setTimeout(() => {
       setSettings((prev) => ({
         ...prev,
@@ -157,7 +155,7 @@ const GoogleBusinessProfileSettings: NextPage = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-6">
       <SettingsSection title="General Settings">
         <ToggleSwitch
           label="Enable Autoposting"
@@ -189,17 +187,13 @@ const GoogleBusinessProfileSettings: NextPage = () => {
             </p>
           </div>
         </div>
-        <button className="bg-white border border-blue-600 text-blue-600 px-4 py-2 rounded mb-4 block">
-          + Add GBP Account
-        </button>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded block">
-          Save
-        </button>
+        <Button label="+ Add GBP Account" className="bg-white border border-blue-600 text-blue-600 mb-4 block" onClick={()=>{}}/>
+        <Button label="Save" className="bg-blue-600 text-white block" onClick={()=>{}}/>
       </SettingsSection>
 
       <SettingsSection title="Autopost Settings">
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Autopost Posts to Google Business Profile of this user(s)
           </label>
           <div className="mt-1">
@@ -220,42 +214,15 @@ const GoogleBusinessProfileSettings: NextPage = () => {
               Google Business Profile when a new post is published.
             </p>
             <div className="mt-2 flex space-x-2">
-              <button className="bg-blue-600 text-white px-3 py-1 rounded">
-                Select All
-              </button>
-              <button className="bg-gray-200 text-gray-700 px-3 py-1 rounded">
-                Select None
-              </button>
+              <Button label="Select All" className="bg-blue-600 text-white" onClick={()=>{}}/>
+              <Button label="Select None" className="bg-gray-200 text-gray-700" onClick={()=>{}}/>
             </div>
           </div>
         </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Select GBP Button Type
-          </label>
-          <select className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-            <option>Learn more</option>
-          </select>
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Google Business Profile Post Image
-          </label>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded">
-            + Browse ...
-          </button>
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            URL Shortener
-          </label>
-          <select className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-            <option>Select Shortener Type</option>
-          </select>
-        </div>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded">
-          Save
-        </button>
+        <Select label="Select GBP Button Type" value="" onChange={()=>{}} options={[{value:"Learn More", label: "Learn More"}]}/>
+        <Button label="+ Browse ..." className="bg-blue-600 text-white" onClick={()=>{}}/>
+        <Select label="URL Shortener" value="" onChange={()=>{}} options={[{value: "Select Shortener Type", label: "Select Shortener Type"}]}/>
+        <Button label="Save" className="bg-blue-600 text-white" onClick={()=>{}}/>
       </SettingsSection>
     </div>
   );
