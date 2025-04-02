@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import SelectDropdown from "./SelectDropdown"
+import { SingleSelectDropdown } from "./_common/SelectDropdown";
 
 const GeneralSettings: React.FC = () => {
   const [enableAnalytics, setEnableAnalytics] = useState(false);
@@ -20,7 +20,7 @@ const GeneralSettings: React.FC = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <SelectDropdown
+      <SingleSelectDropdown
         label="Timezone"
         selectedValue={selectedTimezone}
         setSelectedValue={setSelectedTimezone}
