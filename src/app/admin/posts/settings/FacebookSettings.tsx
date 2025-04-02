@@ -8,7 +8,7 @@ import React, { useState, ChangeEvent } from "react";
 import type { NextPage } from "next";
 import AlertBanner from "./_common/AlertBanner";
 import FacebookAppSettings from "./_common/FacebookAppSettings";
-import FacebookGraphApiSettings from "./FacebookGraphApiSettings";
+import FacebookGraphApiSettings from "./_common/FacebookGraphApiSettings";
 
 interface User {
   userId: string;
