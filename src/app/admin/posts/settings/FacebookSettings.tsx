@@ -168,12 +168,19 @@ const FacebookSettings: NextPage = () => {
             </label>
           </div>
         </div>
-
+        <AlertBanner
+          type="alert"
+          message="Please review the changes before saving."
+        />
         {settings.authType === "app" ? (
           <FacebookAppSettings />
         ) : (
           <FacebookGraphApiSettings />
         )}
+
+        <button className="bg-blue-600 text-white py-2 px-4 rounded mt-4">
+          Save
+        </button>
       </SettingsSection>
       <SettingsSection title="Autopost Settings">
         <MultiSelectDropdown
@@ -201,5 +208,3 @@ const FacebookSettings: NextPage = () => {
 };
 
 export default FacebookSettings;
-
-

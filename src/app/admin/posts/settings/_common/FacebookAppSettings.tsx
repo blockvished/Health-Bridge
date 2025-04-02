@@ -1,12 +1,6 @@
-import AlertBanner from "./AlertBanner";
-
 const FacebookAppSettings = () => {
   return (
     <>
-      <AlertBanner
-        type="alert"
-        message="Please review the changes before saving."
-      />
       <table className="w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-100">
@@ -23,9 +17,6 @@ const FacebookAppSettings = () => {
           </tr>
         </tbody>
       </table>
-      <button className="bg-blue-600 text-white py-2 px-4 rounded mt-4">
-        Save
-      </button>
     </>
   );
 };
