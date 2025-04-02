@@ -58,21 +58,6 @@ const ToggleSwitch = ({
   </div>
 );
 
-// Reusable Button
-const Button = ({
-  label,
-  onClick,
-  className,
-}: {
-  label: string;
-  onClick: () => void;
-  className: string;
-}) => (
-  <button onClick={onClick} className={`px-4 py-2 rounded ${className}`}>
-    {label}
-  </button>
-);
-
 const FacebookSettings: NextPage = () => {
   const [settings, setSettings] = useState<Settings>({
     authType: "app",

@@ -5,7 +5,7 @@ interface ApiKeyPair {
   appSecret: string;
 }
 
-const FacebookGraphApiSettings: React.FC = () => {
+const LinkedinApi2: React.FC = () => {
   const [apiKeys, setApiKeys] = useState<ApiKeyPair[]>([
     { appId: '', appSecret: '' },
     { appId: '', appSecret: '' },
@@ -34,40 +34,12 @@ const FacebookGraphApiSettings: React.FC = () => {
 
   return (
     <div className="w-full">
-      <div className="flex flex-col md:flex-row mb-4">
-        <div className="w-full md:w-1/4 mb-2 md:mb-0">
-          <h3 className="text-base font-medium text-gray-700">Facebook Application</h3>
-        </div>
-        <div className="w-full md:w-3/4">
-          <p className="text-sm text-gray-600">
-            Before you start publishing your content to Facebook you need to create a Facebook Application. You can get a step by step
-            tutorial for creating a Facebook Application on our{' '}
-            <a href="#" className="text-blue-600 hover:underline">
-              Documentation
-            </a>
-            .
-          </p>
-        </div>
-      </div>
-
-      <div className="flex flex-col md:flex-row mb-4">
-        <div className="w-full md:w-1/4 mb-2 md:mb-0">
-          <h3 className="text-base font-medium text-gray-700">Allowing permissions</h3>
-        </div>
-        <div className="w-full md:w-3/4">
-          <p className="text-sm text-gray-600">
-            Posting content to your chosen Facebook Page or Group requires you to grant extended permissions. If you want to use this feature you
-            should grant the extended permissions now.
-          </p>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
         <div className="col-span-1">
-          <h3 className="text-base font-medium text-gray-700">Facebook App ID/API Key</h3>
+          <h3 className="text-base font-medium text-gray-700">Linkedin App ID/API Key</h3>
         </div>
         <div className="col-span-1">
-          <h3 className="text-base font-medium text-gray-700">Facebook App Secret</h3>
+          <h3 className="text-base font-medium text-gray-700">Linkedin App Secret</h3>
         </div>
         <div className="col-span-1">
           <h3 className="text-base font-medium text-gray-700">Valid OAuth redirect URIs</h3>
@@ -138,4 +110,4 @@ const FacebookGraphApiSettings: React.FC = () => {
   );
 };
 
-export default FacebookGraphApiSettings;
+export default LinkedinApi2

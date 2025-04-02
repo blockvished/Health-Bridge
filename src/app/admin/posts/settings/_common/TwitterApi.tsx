@@ -47,40 +47,36 @@ const TwitterApi: React.FC = () => {
 
   return (
     <div className="w-full">
-      <div className="flex mb-4">
-        <div className="w-1/4">
-          <h3 className="text-base font-medium text-gray-700">Twitter Application</h3>
-        </div>
-        <div className="w-3/4">
-          <p className="text-sm text-gray-600">
-            Before you start publishing your content to Twitter you need to create a Twitter Application. You can get a step by step
-            tutorial on how to create a Twitter Application on our{' '}
-            <a href="#" className="text-blue-600 hover:underline">
-              Documentation
-            </a>
-            .
-          </p>
-        </div>
+      <div className="mb-4">
+        <h3 className="text-base font-medium text-gray-700">Twitter Application</h3>
+        <p className="text-sm text-gray-600">
+          Before you start publishing your content to Twitter you need to create a Twitter Application. You can get a step by step
+          tutorial on how to create a Twitter Application on our{' '}
+          <a href="#" className="text-blue-600 hover:underline">
+            Documentation
+          </a>
+          .
+        </p>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 mb-2">
-        <div className="col-span-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
+        <div>
           <h3 className="text-base font-medium text-gray-700">API Key</h3>
         </div>
-        <div className="col-span-1">
+        <div>
           <h3 className="text-base font-medium text-gray-700">API Secret</h3>
         </div>
-        <div className="col-span-1">
+        <div>
           <h3 className="text-base font-medium text-gray-700">Access Token</h3>
         </div>
-        <div className="col-span-1">
+        <div>
           <h3 className="text-base font-medium text-gray-700">Access Token Secret</h3>
         </div>
       </div>
 
       {apiKeys.map((keyPair, index) => (
-        <div key={index} className="grid grid-cols-4 gap-4 mb-2 items-center">
-          <div className="col-span-1">
+        <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2 items-center sm:border sm:rounded-md sm:border-gray-200"> {/* Conditional border here */}
+          <div>
             <input
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -89,7 +85,7 @@ const TwitterApi: React.FC = () => {
               onChange={(e) => handleApiKeyChange(index, e.target.value)}
             />
           </div>
-          <div className="col-span-1">
+          <div>
             <input
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -98,7 +94,7 @@ const TwitterApi: React.FC = () => {
               onChange={(e) => handleApiSecretChange(index, e.target.value)}
             />
           </div>
-          <div className="col-span-1">
+          <div>
             <input
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -107,7 +103,7 @@ const TwitterApi: React.FC = () => {
               onChange={(e) => handleAccessTokenChange(index, e.target.value)}
             />
           </div>
-          <div className="col-span-1 flex justify-end items-center">
+          <div className="flex items-center">
             <input
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"

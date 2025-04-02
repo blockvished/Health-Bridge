@@ -7,7 +7,6 @@ import SettingsSection from "./_common/SettingsSection";
 import React, { useState, ChangeEvent } from "react";
 import type { NextPage } from "next";
 import AlertBanner from "./_common/AlertBanner";
-import FacebookAppSettings from "./_common/FacebookAppSettings";
 import TwitterApi from "./_common/TwitterApi";
 
 interface User {
@@ -89,13 +88,11 @@ const TwitterSettings: NextPage = () => {
   const handleToggle = (key: keyof Settings) => {
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
-
-  const handleLinkPostingChange = (value: string) => {
-    setSettings((prev) => ({
-      ...prev,
-      linkPosting: value as "link" | "image",
-    }));
+  
+  const handleAuthTypeChange = (type: "app" | "graph") => {
+    setSettings((prev) => ({ ...prev, authType: type }));
   };
+
 
   return (
     <div className="p-6 space-y-6">
@@ -143,17 +140,15 @@ const TwitterSettings: NextPage = () => {
           <input
             type="file"
             id="image-upload"
-            className="hidden" // Hide the default file input
+            className="hidden" 
             onChange={(e) => {
-              // Handle file upload here
               const file = e.target.files?.[0];
               if (file) {
                 console.log("File uploaded:", file);
-                // You can perform further actions with the uploaded file here
+              
               }
             }}
           />
-
           <button
             onClick={() => document.getElementById("image-upload")?.click()}
             className="hover:bg-transparent hover:text-blue-700 font-semibold py-2 px-4 border border-blue-500 rounded bg-blue-500 text-white cursor-pointer"
