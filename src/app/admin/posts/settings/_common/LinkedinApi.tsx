@@ -44,17 +44,20 @@ const LinkedinApi: React.FC = () => {
 
   return (
     <div className="w-full">
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold mb-2">Linkedin Application</h3>
-        <p className="text-sm text-gray-600">
-          Before you start publishing your content to LinkedIn you need to
-          create a LinkedIn Application. You can get a step by step tutorial on
-          how to create a LinkedIn Application on our{" "}
-          <a href="#" className="text-blue-600 hover:underline">
-            Documentation
-          </a>
-          .
-        </p>
+      <div className="mb-4 flex items-center">
+        <div className="w-full">
+          <p className="text-sm text-gray-600">
+            Before you start publishing your content to LinkedIn you need to
+            create a LinkedIn Application. You can get a step by step tutorial
+            on how to create a LinkedIn Application on ourBefore you start
+            publishing your content to LinkedIn you need to create a LinkedIn
+            Application. You can get a step by step tutorial on how to create a
+            LinkedIn Application on our{" "}
+            <a href="#" className="text-blue-600 hover:underline">
+              Documentation
+            </a>
+          </p>
+        </div>
       </div>
 
       <div className="mb-4 flex items-center">
@@ -143,7 +146,7 @@ const LinkedinApi: React.FC = () => {
             message="As LinkedIn made some changes recently, graph API have some limitation. Graph API working with old App and this option just for backwards compatibility."
           />
 
-          <LinkedinApi2/>
+          <LinkedinApi2 />
         </>
       )}
     </div>
