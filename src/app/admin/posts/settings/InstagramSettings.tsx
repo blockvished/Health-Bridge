@@ -8,7 +8,6 @@ import React, { useState, ChangeEvent } from "react";
 import type { NextPage } from "next";
 import AlertBanner from "./_common/AlertBanner";
 import FacebookAppSettings from "./_common/FacebookAppSettings";
-import FacebookGraphApiSettings from "./FacebookGraphApiSettings";
 
 interface User {
   userId: string;
@@ -58,21 +57,6 @@ const ToggleSwitch = ({
   </div>
 );
 
-// Reusable Button
-const Button = ({
-  label,
-  onClick,
-  className,
-}: {
-  label: string;
-  onClick: () => void;
-  className: string;
-}) => (
-  <button onClick={onClick} className={`px-4 py-2 rounded ${className}`}>
-    {label}
-  </button>
-);
-
 const InstagramSettings: NextPage = () => {
   const [settings, setSettings] = useState<Settings>({
     authType: "app",
@@ -86,10 +70,6 @@ const InstagramSettings: NextPage = () => {
     linkPosting: "link",
     urlShortener: "default",
   });
-
-  const handleAuthTypeChange = (type: "app" | "graph") => {
-    setSettings((prev) => ({ ...prev, authType: type }));
-  };
 
   const handleSelectChange = (values: string[]) => {
     setSettings((prev) => ({
@@ -109,12 +89,6 @@ const InstagramSettings: NextPage = () => {
     }));
   };
 
-  const handleUrlShortenerChange = (value: string) => {
-    setSettings((prev) => ({
-      ...prev,
-      urlShortener: value as "default" | "bitly",
-    }));
-  };
 
   return (
     <div className="p-6 space-y-6">
