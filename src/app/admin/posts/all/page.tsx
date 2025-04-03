@@ -1,13 +1,13 @@
 // report/page.tsx
 
 import React from 'react';
-import Report from '../report/Report';
+import AllPosts from '../all/AllPosts';
 import Layout from '../layout';
 
 export default function ReportsPage() {
   return (
-    <Layout title="Reports"> {/* Pass title to Layout */}
-      <Report /> {/* No extra div here */}
+    <Layout title="Multi Posting"> {/* Pass title to Layout */}
+      <AllPosts /> {/* No extra div here */}
     </Layout>
   );
 }
