@@ -6,7 +6,7 @@ function AddPostForm() {
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [link, setLink] = useState("");
-  const [activeTab, setActiveTab] = useState("facebook"); // Set Facebook as default active tab
+  const [activeTab, setActiveTab] = useState("facebook");
   const [customLink, setCustomLink] = useState("");
   const [customMessage, setCustomMessage] = useState("");
   const [scheduleTime, setScheduleTime] = useState("");
@@ -48,7 +48,6 @@ function AddPostForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here (e.g., send data to an API)
     console.log({
       tab: activeTab,
       content,
@@ -59,7 +58,6 @@ function AddPostForm() {
       scheduleTime,
       scheduleValue,
     });
-    // Reset form fields
     setContent("");
     setImage(null);
     setLink("");
@@ -70,51 +68,55 @@ function AddPostForm() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen flex justify-center">
-      <div className="w-full max-w-5xl bg-white p-8 rounded shadow-sm my-4">
-        <h2 className="text-2xl font-semibold mb-6">Add Content*</h2>
-        <form onSubmit={handleSubmit}>
-          {/* Content textarea */}
-          <div className="mb-6">
+    <div className="min-h-screen flex justify-center p-4">
+      <div className="w-full  bg-white p-6 rounded-lg shadow-md my-4">
+        <h2 className="text-2xl font-semibold mb-4">Add Content*</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
             <textarea
               value={content}
               onChange={handleContentChange}
               className="w-full p-3 border border-gray-300 rounded-md resize-none"
-              rows={5}
+              rows={4}
               placeholder="Enter content here..."
               required
             />
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 mt-1">
               {content.length} Characters
             </p>
           </div>
 
-          {/* Content Image */}
-          <div className="mb-6">
-            <label className="block text-base text-gray-700 mb-2">
-              Content Image
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-              id="image-upload"
-            />
+          <div>
             <label
               htmlFor="image-upload"
-              className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded cursor-pointer"
+              className="block text-sm font-medium text-gray-700 mb-2"
             >
-              + Browse...
+              Content Image
             </label>
-            {image && (
-              <span className="ml-3 text-sm text-gray-600">{image.name}</span>
-            )}
+            <div className="flex items-center space-x-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+                id="image-upload"
+              />
+              <label
+                htmlFor="image-upload"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md cursor-pointer"
+              >
+                + Browse...
+              </label>
+              {image && (
+                <span className="text-sm text-gray-600">{image.name}</span>
+              )}
+            </div>
           </div>
 
-          {/* Link */}
-          <div className="mb-6">
-            <label className="block text-base text-gray-700 mb-2">Link</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Link
+            </label>
             <input
               type="url"
               value={link}
@@ -124,12 +126,11 @@ function AddPostForm() {
             />
           </div>
 
-          {/* Tabs */}
-          <div className="mb-6">
+          <div>
             <div className="flex border-b border-gray-200">
               <button
                 type="button"
-                className={`flex-1 py-3 px-4 font-medium text-base ${
+                className={`flex-1 py-2 px-3 font-medium text-sm ${
                   activeTab === "facebook"
                     ? "border-b-2 border-blue-500 text-blue-600"
                     : "text-gray-500"
@@ -140,7 +141,7 @@ function AddPostForm() {
               </button>
               <button
                 type="button"
-                className={`flex-1 py-3 px-4 font-medium text-base ${
+                className={`flex-1 py-2 px-3 font-medium text-sm ${
                   activeTab === "instagram"
                     ? "border-b-2 border-blue-500 text-blue-600"
                     : "text-gray-500"
@@ -152,126 +153,111 @@ function AddPostForm() {
             </div>
 
             {activeTab === "facebook" && (
-              <div className="mt-6 space-y-4">
-                {/* Facebook specific fields - Matched to image */}
-                <div className="flex items-center">
-                  <label className="text-blue-600 text-sm font-medium mr-2">
+              <div className="mt-4 space-y-3">
+                <div className="flex flex-col">
+                  <label className="text-blue-600 text-sm font-medium mb-1">
                     Status
                   </label>
-                  <div className="flex-1">
-                    <select className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-700">
-                      <option>Unpublished</option>
-                    </select>
-                  </div>
+                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700">
+                    <option>Unpublished</option>
+                  </select>
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-blue-600 text-sm font-medium mr-2">
+                <div className="flex flex-col">
+                  <label className="text-blue-600 text-sm font-medium mb-1">
                     Post To This Facebook Account(s)
                   </label>
-                  <div className="flex-1">
-                    <select className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-700">
-                      <option>Select account</option>
-                    </select>
-                  </div>
+                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700">
+                    <option>Select account</option>
+                  </select>
                 </div>
 
-                <div className="flex gap-4 mt-2">
+                <div className="flex space-x-2">
                   <button
                     type="button"
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded"
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md text-sm"
                   >
                     Select All
                   </button>
                   <button
                     type="button"
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded"
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md text-sm"
                   >
                     Select None
                   </button>
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-blue-600 text-sm font-medium mr-2">
+                <div className="flex flex-col">
+                  <label className="text-blue-600 text-sm font-medium mb-1">
                     Share posting type
                   </label>
-                  <div className="flex-1">
-                    <select className="w-full p-3 border border-gray-300 rounded-md bg-white text-gray-700">
-                      <option>Link posting</option>
-                    </select>
-                  </div>
+                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700">
+                    <option>Link posting</option>
+                  </select>
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-blue-600 text-sm font-medium mr-2">
+                <div className="flex flex-col">
+                  <label className="text-blue-600 text-sm font-medium mb-1">
                     Custom Link
                   </label>
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      value={customLink}
-                      onChange={handleCustomLinkChange}
-                      placeholder="Custom Link"
-                      className="w-full p-3 border border-gray-300 rounded-md"
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    value={customLink}
+                    onChange={handleCustomLinkChange}
+                    placeholder="Custom Link"
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-blue-600 text-sm font-medium mr-2">
+                <div className="flex flex-col">
+                  <label className="text-blue-600 text-sm font-medium mb-1">
                     Custom Message
                   </label>
-                  <div className="flex-1">
-                    <textarea
-                      value={customMessage}
-                      onChange={handleCustomMessageChange}
-                      placeholder="Custom message"
-                      className="w-full p-3 border border-gray-300 rounded-md"
-                      rows={4}
-                    />
-                  </div>
+                  <textarea
+                    value={customMessage}
+                    onChange={handleCustomMessageChange}
+                    placeholder="Custom message"
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    rows={3}
+                  />
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-blue-600 text-sm font-medium mr-2">
+                <div className="flex flex-col">
+                  <label className="text-blue-600 text-sm font-medium mb-1">
                     Schedule Individually
                   </label>
-                  <div className="flex-1">
-                    <input
-                      type="datetime-local"
-                      value={scheduleTime}
-                      onChange={handleScheduleTimeChange}
-                      className="w-full p-3 border border-gray-300 rounded-md"
-                      placeholder="YYYY-MM-DD hh:mm"
-                    />
-                  </div>
+                  <input
+                    type="datetime-local"
+                    value={scheduleTime}
+                    onChange={handleScheduleTimeChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="YYYY-MM-DD hh:mm"
+                  />
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-blue-600 text-sm font-medium mr-2">
+                <div className="flex flex-col">
+                  <label className="text-blue-600 text-sm font-medium mb-1">
                     Schedule Global
                   </label>
-                  <div className="flex-1">
-                    <div className="flex border border-gray-300 rounded-md bg-white">
-                      <div className="py-3 px-3">
-                        <svg
-                          className="w-5 h-5 text-gray-400"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                      </div>
-                      <input
-                        type="number"
-                        value={scheduleValue}
-                        onChange={handleScheduleValueChange}
-                        className="w-full p-3 border-0 focus:ring-0"
-                      />
+                  <div className="flex border border-gray-300 rounded-md bg-white">
+                    <div className="py-2 px-2">
+                      <svg
+                        className="w-5 h-5 text-gray-400"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
                     </div>
+                    <input
+                      type="number"
+                      value={scheduleValue}
+                      onChange={handleScheduleValueChange}
+                      className="w-full p-2 border-0 focus:ring-0"
+                    />
                   </div>
                 </div>
 
@@ -288,61 +274,54 @@ function AddPostForm() {
             )}
 
             {activeTab === "instagram" && (
-              <div className="mt-6 space-y-4">
-                {/* Instagram specific fields based on the image */}
-                <div className="flex items-center">
-                  <label className="text-sm font-medium text-blue-600 mr-2">
+              <div className="mt-4 space-y-3">
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-blue-600 mb-1">
                     Status
                   </label>
-                  <div className="relative flex-1">
-                    <select className="w-full p-3 border border-gray-300 rounded-md bg-white">
-                      <option>Unpublished</option>
-                    </select>
-                  </div>
+                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white">
+                    <option>Unpublished</option>
+                  </select>
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-sm font-medium text-blue-600 mr-2">
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-blue-600 mb-1">
                     Post To This Instagram
                   </label>
-                  <div className="relative flex-1">
-                    <select className="w-full p-3 border border-gray-300 rounded-md bg-white">
-                      <option>Select Instagram Account</option>
-                    </select>
-                  </div>
+                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white">
+                    <option>Select Instagram Account</option>
+                  </select>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex space-x-2">
                   <button
                     type="button"
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded"
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md text-sm"
                   >
                     Select All
                   </button>
                   <button
                     type="button"
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded"
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md text-sm"
                   >
                     Select None
                   </button>
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-sm font-medium text-blue-600 mr-2">
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-blue-600 mb-1">
                     Share posting type
                   </label>
-                  <div className="relative flex-1">
-                    <select className="w-full p-3 border border-gray-300 rounded-md bg-white">
-                      <option>Image posting</option>
-                    </select>
-                  </div>
+                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white">
+                    <option>Image posting</option>
+                  </select>
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-sm font-medium text-blue-600 mr-2">
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-blue-600 mb-1">
                     Post Image
                   </label>
-                  <div className="flex-1">
+                  <div className="flex items-center space-x-2">
                     <input
                       type="file"
                       accept="image/*"
@@ -352,55 +331,49 @@ function AddPostForm() {
                     />
                     <label
                       htmlFor="instagram-image-upload"
-                      className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded cursor-pointer"
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md cursor-pointer"
                     >
                       + Browse...
                     </label>
                   </div>
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-sm font-medium text-blue-600 mr-2">
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-blue-600 mb-1">
                     Custom Message
                   </label>
-                  <div className="flex-1">
-                    <textarea
-                      value={customMessage}
-                      onChange={handleCustomMessageChange}
-                      placeholder="Enter custom message"
-                      className="w-full p-3 border border-gray-300 rounded-md"
-                      rows={4}
-                    />
-                  </div>
+                  <textarea
+                    value={customMessage}
+                    onChange={handleCustomMessageChange}
+                    placeholder="Enter custom message"
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    rows={3}
+                  />
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-sm font-medium text-blue-600 mr-2">
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-blue-600 mb-1">
                     Schedule Individually
                   </label>
-                  <div className="flex-1">
-                    <input
-                      type="datetime-local"
-                      value={scheduleTime}
-                      onChange={handleScheduleTimeChange}
-                      className="w-full p-3 border border-gray-300 rounded-md"
-                      placeholder="YYYY-MM-DD hh:mm"
-                    />
-                  </div>
+                  <input
+                    type="datetime-local"
+                    value={scheduleTime}
+                    onChange={handleScheduleTimeChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="YYYY-MM-DD hh:mm"
+                  />
                 </div>
 
-                <div className="flex items-center">
-                  <label className="text-sm font-medium text-blue-600 mr-2">
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-blue-600 mb-1">
                     Schedule Global
                   </label>
-                  <div className="flex-1">
-                    <input
-                      type="number"
-                      value={scheduleValue}
-                      onChange={handleScheduleValueChange}
-                      className="w-full p-3 border border-gray-300 rounded-md"
-                    />
-                  </div>
+                  <input
+                    type="number"
+                    value={scheduleValue}
+                    onChange={handleScheduleValueChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
                 </div>
 
                 <div className="bg-gray-100 p-3 rounded-md flex items-center">
@@ -415,7 +388,7 @@ function AddPostForm() {
 
                 <button
                   type="submit"
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-8 rounded"
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-md"
                 >
                   Add
                 </button>
@@ -426,7 +399,7 @@ function AddPostForm() {
           {!activeTab.includes("instagram") && (
             <button
               type="submit"
-              className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-8 rounded"
+              className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-6 rounded-md"
             >
               Add
             </button>
