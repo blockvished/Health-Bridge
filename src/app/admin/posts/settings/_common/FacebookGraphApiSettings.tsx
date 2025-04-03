@@ -33,7 +33,7 @@ const FacebookGraphApiSettings: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-6 space-y-6"> {/* Added padding and space-y for overall spacing */}
+    <div className="w-full space-y-6"> {/* Added padding and space-y for overall spacing */}
       <div className="flex flex-col md:flex-row mb-6"> {/* Increased margin bottom */}
         <div className="w-full md:w-1/4 mb-3 md:mb-0"> {/* Increased margin bottom on mobile */}
           <h3 className="text-base font-medium text-gray-700">Facebook Application</h3>
