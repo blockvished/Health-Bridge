@@ -122,51 +122,57 @@ const FacebookSettings: NextPage = () => {
       </SettingsSection>
 
       <SettingsSection title="API Settings">
-        <AlertBanner
-          type="note"
-          message="You've reached the maximum of 1 account"
+  <AlertBanner
+    type="note"
+    message="You've reached the maximum of 1 account"
+  />
+  <div className="mt-6 mb-6">
+    <label className=" text-sm font-medium text-gray-700 mb-6">
+      Select Authentication Type
+    </label>
+    <div className="mt-2 flex items-center space-x-4">
+      <label className="flex items-center">
+        <input
+          type="radio"
+          value="app"
+          checked={settings.authType === "app"}
+          onChange={() => handleAuthTypeChange("app")}
+          className="mr-2"
         />
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Select Authentication Type
-          </label>
-          <div className="mt-2 flex items-center space-x-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="app"
-                checked={settings.authType === "app"}
-                onChange={() => handleAuthTypeChange("app")}
-                className="mr-2"
-              />
-              Facebook App Method
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="graph"
-                checked={settings.authType === "graph"}
-                onChange={() => handleAuthTypeChange("graph")}
-                className="mr-2"
-              />
-              Facebook Graph API
-            </label>
-          </div>
-        </div>
-        <AlertBanner
-          type="alert"
-          message="Please review the changes before saving."
+        Facebook App Method
+      </label>
+      <label className="flex items-center">
+        <input
+          type="radio"
+          value="graph"
+          checked={settings.authType === "graph"}
+          onChange={() => handleAuthTypeChange("graph")}
+          className="mr-2"
         />
-        {settings.authType === "app" ? (
-          <FacebookAppSettings />
-        ) : (
-          <FacebookGraphApiSettings />
-        )}
+        Facebook Graph API
+      </label>
+    </div>
+  </div>
+  <AlertBanner
+    type="alert"
+    message="Please review the changes before saving."
+  />
+  {settings.authType === "app" ? (
+    <div className="py-2"> {/* Add py-4 for top and bottom spacing */}
+      <FacebookAppSettings />
+    </div>
+  ) : (
+    <div className="py-2"> {/* Add py-4 for top and bottom spacing */}
+      <FacebookGraphApiSettings />
+    </div>
+  )}
 
-        <button className="bg-blue-600 text-white py-2 px-4 rounded mt-4">
-          Save
-        </button>
-      </SettingsSection>
+  <div className="mt-4 py-4"> {/* Add py-4 for top and bottom spacing */}
+    <button className="bg-blue-600 text-white py-2 px-4 rounded">
+      Save
+    </button>
+  </div>
+</SettingsSection>
       <SettingsSection title="Autopost Settings">
         <MultiSelectDropdown
           label="Autopost Posts to Facebook of this user(s)"

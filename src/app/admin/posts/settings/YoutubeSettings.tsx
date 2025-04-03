@@ -193,12 +193,16 @@ const YoutubeSettings: NextPage = () => {
 
         {/* Place the Disable Image posting toggle OUTSIDE MultiSelectDropdown */}
         <div className="mb-4 flex flex-col md:flex-row items-start">
-          <div className="w-full md:w-1/4">
-            <label className="text-sm font-medium text-gray-700">
+          <div className="w-full">
+            <label
+              htmlFor="multi-select-dropdown"
+              className="block text-sm font-medium text-gray-700 mb-2 md:mb-0 md:w-3/10 flex items-center"
+              style={{ lineHeight: "2.5rem" }} // Match input height
+            >
               Disable Image posting
             </label>
           </div>
-          <div className="w-full md:w-3/4">
+          <div className="">
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
@@ -210,7 +214,6 @@ const YoutubeSettings: NextPage = () => {
             </label>
           </div>
         </div>
-
         {/* ... (rest of the component) ... */}
         <div className="mb-4 flex flex-col md:flex-row items-start">
           <label

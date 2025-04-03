@@ -42,8 +42,8 @@ const TumblrApi: React.FC = () => {
   };
 
   return (
-    <div className="w-full">
-      <div className="mb-4">
+    <div className="w-full py-2"> {/* Added small vertical padding */}
+      <div className="mb-3"> {/* Slightly reduced margin bottom */}
         <label className="text-sm font-medium text-gray-700">
           Select Authentication Type
         </label>
@@ -75,13 +75,15 @@ const TumblrApi: React.FC = () => {
         </div>
       </div>
 
-      <AlertBanner
-        type="note"
-        message="You've reached the maximum of 1 account"
-      />
+      <div className="py-1"> {/* Slightly reduced padding for alert banner */}
+        <AlertBanner
+          type="note"
+          message="You've reached the maximum of 1 account"
+        />
+      </div>
 
       {authType === "appMethod" ? (
-        <div className="mt-8">
+        <div className="mt-4"> {/* Reduced margin top */}
           <button className="flex items-center px-4 py-2 bg-white text-blue-600 rounded-md hover:bg-blue-600 hover:text-white focus:outline-none border border-blue-600">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -99,22 +101,19 @@ const TumblrApi: React.FC = () => {
           </button>
         </div>
       ) : (
-        <>
-          {" "}
-          <div className="mb-4 flex items-center">
-            <div className="w-full">
-              <p className="text-sm text-gray-600">
-                Before you start publishing your content to Tumblr you need to
-                create a Tumblr Application. You can get a step by step tutorial
-                on how to create a Tumblr Application on our
-                <a href="#" className="text-blue-600 hover:underline">
-                  Documentation
-                </a>
-              </p>
-            </div>
+        <div className="mt-4"> {/* Reduced margin top for TumblrApi2 section */}
+          <div className="mb-3"> {/* Slightly reduced margin bottom for description */}
+            <p className="text-sm text-gray-600">
+              Before you start publishing your content to Tumblr you need to
+              create a Tumblr Application. You can get a step by step tutorial
+              on how to create a Tumblr Application on our
+              <a href="#" className="text-blue-600 hover:underline">
+                Documentation
+              </a>
+            </p>
           </div>
           <TumblrApi2 />
-        </>
+        </div>
       )}
     </div>
   );

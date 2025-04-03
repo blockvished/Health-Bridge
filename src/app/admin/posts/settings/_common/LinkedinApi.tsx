@@ -43,31 +43,29 @@ const LinkedinApi: React.FC = () => {
   };
 
   return (
-    <div className="w-full">
-      <div className="mb-4 flex items-center">
-        <div className="w-full">
-          <p className="text-sm text-gray-600">
-            Before you start publishing your content to LinkedIn you need to
-            create a LinkedIn Application. You can get a step by step tutorial
-            on how to create a LinkedIn Application on ourBefore you start
-            publishing your content to LinkedIn you need to create a LinkedIn
-            Application. You can get a step by step tutorial on how to create a
-            LinkedIn Application on our{" "}
-            <a href="#" className="text-blue-600 hover:underline">
-              Documentation
-            </a>
-          </p>
-        </div>
+    <div className="w-full space-y-6"> {/* Added padding and space-y for overall spacing */}
+      <div className="mb-8"> {/* Increased margin bottom */}
+        <p className="text-sm text-gray-600 leading-relaxed"> {/* Added leading-relaxed */}
+          Before you start publishing your content to LinkedIn you need to
+          create a LinkedIn Application. You can get a step by step tutorial
+          on how to create a LinkedIn Application on ourBefore you start
+          publishing your content to LinkedIn you need to create a LinkedIn
+          Application. You can get a step by step tutorial on how to create a
+          LinkedIn Application on our{" "}
+          <a href="#" className="text-blue-600 hover:underline">
+            Documentation
+          </a>
+        </p>
       </div>
 
-      <div className="mb-4 flex items-center">
+      <div className="mb-8 flex items-center"> {/* Increased margin bottom */}
         <div className="w-1/4">
           <label className="text-sm font-medium text-gray-700">
             Allowing permissions
           </label>
         </div>
         <div className="w-3/4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 leading-relaxed"> {/* Added leading-relaxed */}
             Posting content to your chosen LinkedIn personal account requires
             you to grant extended permissions. If you want to use this feature
             you should grant the extended permissions now.
@@ -75,7 +73,7 @@ const LinkedinApi: React.FC = () => {
         </div>
       </div>
 
-      <div className="mb-4 flex items-center">
+      <div className="mb-8 flex items-center"> {/* Increased margin bottom */}
         <div className="w-1/4">
           <label className="text-sm font-medium text-gray-700">
             Enable Company Pages
@@ -89,7 +87,7 @@ const LinkedinApi: React.FC = () => {
         </div>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-8"> {/* Increased margin bottom */}
         <label className="text-sm font-medium text-gray-700">
           Select Authentication Type
         </label>
@@ -140,14 +138,14 @@ const LinkedinApi: React.FC = () => {
           </button>
         </div>
       ) : (
-        <>
+        <div className="mt-8 space-y-4"> {/* Added space-y for internal spacing */}
           <AlertBanner
             type="alert"
             message="As LinkedIn made some changes recently, graph API have some limitation. Graph API working with old App and this option just for backwards compatibility."
           />
 
           <LinkedinApi2 />
-        </>
+        </div>
       )}
     </div>
   );

@@ -54,7 +54,7 @@ const PinterestAppSettings: React.FC = () => {
         message="You need to define redirect uri as mentioned below when you create Pinterest Application. Otherwise pinterest won't redirect you to the correct page after authorization. Replace {app_id} with your pinterest application key/id. https://post.livedoctors.in/settings/"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+      <div className="grid grid-cols-1 mt-6 md:grid-cols-3 gap-4 mb-2">
         <div className="col-span-1">
           <h3 className="text-base font-medium text-gray-700">Enter App ID/API Key</h3>
         </div>

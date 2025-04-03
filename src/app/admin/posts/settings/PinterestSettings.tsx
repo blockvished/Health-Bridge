@@ -131,47 +131,51 @@ const PinterestSettings: NextPage = () => {
       </SettingsSection>
 
       <SettingsSection title="Pinterest API Settings">
-        <AlertBanner
-          type="note"
-          message="You've reached the maximum of 1 account"
+  <AlertBanner
+    type="note"
+    message="You've reached the maximum of 1 account"
+  />
+  <div className="mt-6 mb-6"> {/* Increased margin bottom */}
+    <label className="block text-sm font-medium text-gray-700">
+      Select Authentication Type
+    </label>
+    <div className="mt-3 flex items-center space-x-4"> {/* Increased margin top */}
+      <label className="flex items-center">
+        <input
+          type="radio"
+          value="app"
+          checked={settings.authType === "app"}
+          onChange={() => handleAuthTypeChange("app")}
+          className="mr-2"
         />
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Select Authentication Type
-          </label>
-          <div className="mt-2 flex items-center space-x-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="app"
-                checked={settings.authType === "app"}
-                onChange={() => handleAuthTypeChange("app")}
-                className="mr-2"
-              />
-              Pinterest App Method
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="cookie"
-                checked={settings.authType === "cookie"}
-                onChange={() => handleAuthTypeChange("cookie")}
-                className="mr-2"
-              />
-              Pinterest Cookie Method
-            </label>
-          </div>
-        </div>
-        {settings.authType === "app" ? (
-          <PinterestAppSettings />
-        ) : (
-          <PinterestCookieSettings />
-        )}
+        Pinterest App Method
+      </label>
+      <label className="flex items-center">
+        <input
+          type="radio"
+          value="cookie"
+          checked={settings.authType === "cookie"}
+          onChange={() => handleAuthTypeChange("cookie")}
+          className="mr-2"
+        />
+        Pinterest Cookie Method
+      </label>
+    </div>
+  </div>
+  <div className="mb-4"> {/* Added margin bottom for spacing */}
+    {settings.authType === "app" ? (
+      <PinterestAppSettings />
+    ) : (
+      <PinterestCookieSettings />
+    )}
+  </div>
 
-        <button className="bg-blue-600 text-white py-2 px-4 rounded mt-4">
-          Save
-        </button>
-      </SettingsSection>
+  <div className="mt-6"> {/* Increased margin top */}
+    <button className="bg-blue-600 text-white py-2 px-4 rounded">
+      Save
+    </button>
+  </div>
+</SettingsSection>
       <SettingsSection title="Autopost Settings">
         <MultiSelectDropdown
           label="Autopost Pins to Pinterest of this user(s)"

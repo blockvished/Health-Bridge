@@ -46,10 +46,10 @@ const TwitterApi: React.FC = () => {
   };
 
   return (
-    <div className="w-full">
-      <div className="mb-4">
-        <h3 className="text-base font-medium text-gray-700">Twitter Application</h3>
-        <p className="text-sm text-gray-600">
+    <div className="w-full space-y-6"> {/* Added padding and space-y for overall spacing */}
+      <div className="mb-8"> {/* Increased margin bottom */}
+        <h3 className="mt-6 text-base font-medium text-gray-700">Twitter Application</h3>
+        <p className="text-sm text-gray-600 leading-relaxed"> {/* Added leading-relaxed for line spacing */}
           Before you start publishing your content to Twitter you need to create a Twitter Application. You can get a step by step
           tutorial on how to create a Twitter Application on our{' '}
           <a href="#" className="text-blue-600 hover:underline">
@@ -59,7 +59,7 @@ const TwitterApi: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4"> {/* Increased gap and margin bottom */}
         <div>
           <h3 className="text-base font-medium text-gray-700">API Key</h3>
         </div>
@@ -75,11 +75,11 @@ const TwitterApi: React.FC = () => {
       </div>
 
       {apiKeys.map((keyPair, index) => (
-        <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2 items-center sm:border sm:rounded-md sm:border-gray-200"> {/* Conditional border here */}
+        <div key={index} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4 items-center sm:border sm:rounded-md sm:border-gray-200 p-4"> {/* Added padding and increased gap, margin bottom */}
           <div>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" 
               placeholder="Enter Twitter API Key"
               value={keyPair.apiKey}
               onChange={(e) => handleApiKeyChange(index, e.target.value)}
@@ -88,7 +88,7 @@ const TwitterApi: React.FC = () => {
           <div>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" 
               placeholder="Enter Twitter API Secret"
               value={keyPair.apiSecret}
               onChange={(e) => handleApiSecretChange(index, e.target.value)}
@@ -97,7 +97,7 @@ const TwitterApi: React.FC = () => {
           <div>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Enter Twitter Access Token"
               value={keyPair.accessToken}
               onChange={(e) => handleAccessTokenChange(index, e.target.value)}
@@ -106,15 +106,12 @@ const TwitterApi: React.FC = () => {
           <div className="flex items-center">
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter Twitter Access Token Secret"
-              value={keyPair.accessTokenSecret}
-              onChange={(e) => handleAccessTokenSecretChange(index, e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" 
             />
             {index > 0 && (
               <button
                 onClick={() => removeApiKey(index)}
-                className="p-1 bg-red-100 rounded-full text-red-500 hover:bg-red-200 focus:outline-none ml-2"
+                className="p-2 bg-red-100 rounded-full text-red-500 hover:bg-red-200 focus:outline-none ml-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path
@@ -129,10 +126,10 @@ const TwitterApi: React.FC = () => {
         </div>
       ))}
 
-      <div className="mt-4 flex justify-end">
+      <div className="mt-8 flex justify-end"> {/* Increased margin top */}
         <button
           onClick={addMore}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+          className="flex items-center px-5 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none" 
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
             <path

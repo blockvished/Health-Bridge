@@ -34,8 +34,8 @@ const TumblrApi2: React.FC = () => {
   };
 
   return (
-    <div className="w-full">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+    <div className="w-full py-6"> {/* Added py-6 for top and bottom padding */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4"> {/* Increased margin bottom */}
         <div className="col-span-1">
           <h3 className="text-base font-medium text-gray-700">
             Enter Consumer Key
@@ -56,7 +56,7 @@ const TumblrApi2: React.FC = () => {
       {apiKeys.map((keyPair, index) => (
         <div
           key={index}
-          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 items-center"
+          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 items-center"
         >
           <div className="col-span-1">
             <input
@@ -102,12 +102,14 @@ const TumblrApi2: React.FC = () => {
           </div>
         </div>
       ))}
-      <AlertBanner
-        type="alert"
-        message="You've reached the maximum of 1 account"
-      />
+      <div className="py-4"> {/* Added py-4 to add padding top and bottom to alert banner*/}
+        <AlertBanner
+          type="alert"
+          message="You've reached the maximum of 1 account"
+        />
+      </div>
 
-      <div className="mt-4 flex justify-end">
+      <div className="mt-8 flex justify-end"> {/* Increased margin top */}
         <button
           onClick={addMore}
           className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
