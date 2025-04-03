@@ -33,13 +33,13 @@ const FacebookGraphApiSettings: React.FC = () => {
   };
 
   return (
-    <div className="w-full">
-      <div className="flex flex-col md:flex-row mb-4">
-        <div className="w-full md:w-1/4 mb-2 md:mb-0">
+    <div className="w-full p-6 space-y-6"> {/* Added padding and space-y for overall spacing */}
+      <div className="flex flex-col md:flex-row mb-6"> {/* Increased margin bottom */}
+        <div className="w-full md:w-1/4 mb-3 md:mb-0"> {/* Increased margin bottom on mobile */}
           <h3 className="text-base font-medium text-gray-700">Facebook Application</h3>
         </div>
         <div className="w-full md:w-3/4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 leading-relaxed"> {/* Added leading-relaxed for line spacing */}
             Before you start publishing your content to Facebook you need to create a Facebook Application. You can get a step by step
             tutorial for creating a Facebook Application on our{' '}
             <a href="#" className="text-blue-600 hover:underline">
@@ -50,19 +50,19 @@ const FacebookGraphApiSettings: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row mb-4">
-        <div className="w-full md:w-1/4 mb-2 md:mb-0">
+      <div className="flex flex-col md:flex-row mb-6"> {/* Increased margin bottom */}
+        <div className="w-full md:w-1/4 mb-3 md:mb-0"> {/* Increased margin bottom on mobile */}
           <h3 className="text-base font-medium text-gray-700">Allowing permissions</h3>
         </div>
         <div className="w-full md:w-3/4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 leading-relaxed"> {/* Added leading-relaxed for line spacing */}
             Posting content to your chosen Facebook Page or Group requires you to grant extended permissions. If you want to use this feature you
             should grant the extended permissions now.
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-4"> {/* Increased gap and margin bottom */}
         <div className="col-span-1">
           <h3 className="text-base font-medium text-gray-700">Facebook App ID/API Key</h3>
         </div>
@@ -78,11 +78,11 @@ const FacebookGraphApiSettings: React.FC = () => {
       </div>
 
       {apiKeys.map((keyPair, index) => (
-        <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2 items-center">
+        <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-4 items-center"> 
           <div className="col-span-1">
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Enter Facebook App ID / API Key"
               value={keyPair.appId}
               onChange={(e) => handleAppIdChange(index, e.target.value)}
@@ -91,7 +91,7 @@ const FacebookGraphApiSettings: React.FC = () => {
           <div className="col-span-1">
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Enter Facebook App Secret"
               value={keyPair.appSecret}
               onChange={(e) => handleAppSecretChange(index, e.target.value)}
@@ -104,7 +104,7 @@ const FacebookGraphApiSettings: React.FC = () => {
             {index > 0 && (
               <button
                 onClick={() => removeApiKey(index)}
-                className="p-1 bg-red-100 rounded-full text-red-500 hover:bg-red-200 focus:outline-none"
+                className="p-2 bg-red-100 rounded-full text-red-500 hover:bg-red-200 focus:outline-none" 
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path
@@ -119,10 +119,10 @@ const FacebookGraphApiSettings: React.FC = () => {
         </div>
       ))}
 
-      <div className="mt-4 flex justify-end">
+      <div className="mt-8 flex justify-end"> {/* Increased margin top */}
         <button
           onClick={addMore}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+          className="flex items-center px-5 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none" 
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
             <path

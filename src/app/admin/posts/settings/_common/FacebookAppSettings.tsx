@@ -2,8 +2,8 @@ import React from 'react';
 
 const FacebookAppSettings = () => {
   return (
-    <div className="overflow-x-auto"> 
-      <table className="min-w-full border-collapse border border-gray-300"> 
+    <div className="overflow-x-auto py-4"> {/* Added py-4 for top and bottom padding */}
+      <table className="min-w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-100">
             <th className="p-2 border-b text-left">User ID</th>
@@ -13,7 +13,7 @@ const FacebookAppSettings = () => {
         </thead>
         <tbody>
           <tr>
-            <td className="p-2 border-b break-all">3919603828358215</td> 
+            <td className="p-2 border-b break-all">3919603828358215</td>
             <td className="p-2 border-b">Ravi Gupta</td>
             <td className="p-2 border-b text-red-500">Delete Account</td>
           </tr>

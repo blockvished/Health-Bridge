@@ -1,10 +1,10 @@
 import React from 'react';
-import { AlertTriangle, Info } from 'lucide-react'; // Import both icons
+import { AlertTriangle, Info } from 'lucide-react';
 
 interface AlertBannerProps {
-  type: 'alert' | 'note'; // Define the type of banner
+  type: 'alert' | 'note';
   message: string;
-  error?: string; // Optional error message for alert type
+  error?: string;
 }
 
 const AlertBanner: React.FC<AlertBannerProps> = ({ type, message, error }) => {
@@ -16,14 +16,14 @@ const AlertBanner: React.FC<AlertBannerProps> = ({ type, message, error }) => {
         isAlert
           ? 'bg-red-100 border border-red-400 text-red-700'
           : 'bg-gray-100 border border-gray-300 text-gray-700'
-      } px-4 py-3 rounded relative mb-4`}
+      } px-3 py-2 rounded relative mb-2 text-sm`}
       role="alert"
     >
-      <strong className="font-bold flex items-center">
+      <strong className="font-semibold flex items-center">
         {isAlert ? (
-          <AlertTriangle className="h-5 w-5 mr-2" />
+          <AlertTriangle className="h-4 w-4 mr-1" /> 
         ) : (
-          <Info className="h-5 w-5 mr-2 text-blue-600" />
+          <Info className="h-4 w-4 mr-1 text-blue-600" />
         )}
         {isAlert ? 'Alert: ' : 'Note: '}
         {message}
