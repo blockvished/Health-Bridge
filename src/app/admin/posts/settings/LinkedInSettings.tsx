@@ -121,13 +121,13 @@ const LinkedInSettings: NextPage = () => {
           enabled={settings.autoPosting}
           onToggle={() => handleToggle("autoPosting")}
         />
-        <div className="mb-4 flex flex-col md:flex-row items-start">
+        <div className="mb-4 flex flex-col md:flex-row mt-6 items-start">
           <label
             htmlFor="single-select-dropdown"
             className="block text-sm font-medium text-gray-700 mb-2 md:mb-0 md:w-3/10 flex items-center"
             style={{ lineHeight: "2.5rem" }} // Match input height
           >
-            Twitter Post Image
+            Linkedin Post Image
           </label>
           <input
             type="file"
