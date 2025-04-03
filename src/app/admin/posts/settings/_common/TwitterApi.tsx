@@ -46,9 +46,9 @@ const TwitterApi: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-6 space-y-6"> {/* Added padding and space-y for overall spacing */}
+    <div className="w-full space-y-6"> {/* Added padding and space-y for overall spacing */}
       <div className="mb-8"> {/* Increased margin bottom */}
-        <h3 className="text-base font-medium text-gray-700">Twitter Application</h3>
+        <h3 className="mt-6 text-base font-medium text-gray-700">Twitter Application</h3>
         <p className="text-sm text-gray-600 leading-relaxed"> {/* Added leading-relaxed for line spacing */}
           Before you start publishing your content to Twitter you need to create a Twitter Application. You can get a step by step
           tutorial on how to create a Twitter Application on our{' '}
