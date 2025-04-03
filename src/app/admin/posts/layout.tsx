@@ -1,21 +1,23 @@
 // layout.tsx
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, ReactElement } from 'react';
 
 interface LayoutProps {
   children: ReactNode;
-  title?: string; // Make title optional
+  title?: string;
+  button?: ReactElement;
 }
 
-export default function Layout({ children, title }: LayoutProps) {
+export default function Layout({ children, title, button }: LayoutProps) {
   return (
     <div className="flex flex-col min-h-screen">
-      {title && ( // Check if title has a value
-        <header className="bg-blue-500 text-white p-4">
+      {title && (
+        <header className="bg-white-500 text-blue p-4 mt-0 flex items-center justify-between"> 
           <h1 className="text-xl font-semibold">{title}</h1>
+          {button && button} 
         </header>
       )}
-      <main className="flex-grow p-4">
+      <main className="flex-grow">
         {children}
       </main>
     </div>
