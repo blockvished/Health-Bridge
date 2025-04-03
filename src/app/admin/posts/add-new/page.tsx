@@ -1,13 +1,22 @@
-// Hello.tsx
+import React from "react";
+import Link from "next/link";
+import AddNew from "../add-new/AddNew";
+import Layout from "../layout";
 
-import React from 'react';
-
-function Hello() {
+export default function AddNewPage() {
   return (
-    <div>
-      <h1>Hello, World!</h1>
-    </div>
+    <Layout
+      title="Multi Posting"
+      button={
+        <Link
+          href="/admin/posts/all"
+          className="bg-blue-500 text-white p-2 rounded"
+        >
+          Back
+        </Link>
+      }
+    >
+      <AddNew />
+    </Layout>
   );
 }
-
-export default Hello;
