@@ -9,26 +9,28 @@ const data = [
 
 const PlansByUserChart: React.FC = () => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md w-full">
+    <div className="bg-white p-6 rounded-lg shadow-md" style={{ height: 'fit-content' }}>
       <h3 className="text-lg font-semibold mb-2">Plans by user</h3>
-      <ResponsiveContainer width="100%" height={250}>
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            labelLine={true}
-            outerRadius={80}
-            dataKey="value"
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
+      <div style={{ width: '100%', height: 'auto', maxWidth: '300px', margin: '0 auto' }}> 
+        <ResponsiveContainer width="100%" height={250}>
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              labelLine={true}
+              outerRadius={80}
+              dataKey="value"
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
