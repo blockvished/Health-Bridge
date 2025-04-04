@@ -31,7 +31,7 @@ const tabs = [
 ];
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("website");
+  const [activeTab, setActiveTab] = useState("trial");
 
   return (
     <div className="bg-white rounded-lg shadow-md bg-gray-50 p-4 m-4">
