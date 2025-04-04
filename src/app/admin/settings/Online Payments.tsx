@@ -1,11 +1,8 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
-import PayPalComponent from './PayPalComponent'
-import RazorpayComponent from './RazorpayComponent'
-import MercadoComponent from './MercadoComponent'
-import StripeComponent from './StripeComponent'
-import PaystackComponent from './PaystackComponent'
-import CurrencySelection from './CurrencySelection'
+import PayPalComponent from './_payment/PayPalComponent'
+import UpiComponent from './_payment/UpiComponent'
+import CurrencySelection from './_payment/CurrencySelection'
 
 const OnlinePaymentConfiguration = () => {
   const handleSaveConfiguration = () => {
@@ -24,10 +21,7 @@ const OnlinePaymentConfiguration = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
         <PayPalComponent />
-        <RazorpayComponent />
-        <MercadoComponent />
-        <StripeComponent />
-        <PaystackComponent />
+        <UpiComponent />
       </div>
 
       <div className="flex justify-start">
