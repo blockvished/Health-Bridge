@@ -111,7 +111,6 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                   "Staff",
                   "Patients",
                   "Appointment",
-                  "Drugs",
                 ].map((item, index) => (
                   <li key={index}>
                     <Link

@@ -26,7 +26,6 @@ import {
   MdAttachMoney,
 } from "react-icons/md";
 import { JSX } from "react";
-import { GiPill } from "react-icons/gi";
 
 export interface MenuItem {
   name: string;
@@ -87,14 +86,6 @@ export const menuItemsDoctor: MenuItem[] = [
     dropdown: [
       { name: "Create New", link: "/admin/appointment" },
       { name: "List by Date", link: "/admin/appointment/all_list" },
-    ],
-  },
-  {
-    name: "Drugs",
-    svg: <FaPills />,
-    dropdown: [
-      { name: "Drugs", link: "/admin/drugs" },
-      { name: "Bulk Import Drugs", link: "/admin/drugs/import" },
     ],
   },
   {
