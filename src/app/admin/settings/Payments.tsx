@@ -4,7 +4,7 @@ import PayPalComponent from './_payment/PayPalComponent'
 import UpiComponent from './_payment/UpiComponent'
 import CurrencySelection from './_payment/CurrencySelection'
 
-const OnlinePaymentConfiguration = () => {
+const PaymentConfiguration = () => {
   const handleSaveConfiguration = () => {
     // Implement save logic for all payment gateway configurations
     console.log("Saving online payment configurations")
@@ -35,4 +35,4 @@ const OnlinePaymentConfiguration = () => {
   )
 }
 
-export default OnlinePaymentConfiguration
+export default PaymentConfiguration

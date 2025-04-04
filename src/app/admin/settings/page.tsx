@@ -9,6 +9,7 @@ import {
   List,
 } from "lucide-react";
 
+import Payments from "./Payments";
 import TrialSettings from "./TrialSettings";
 import PreferencesSettings from "./PreferencesSettings";
 import ZoomSettings from "./ZoomSettings";
@@ -21,6 +22,7 @@ import PwaSettings from "./PwaSettings";
 
 const tabs = [
   { id: "trial", label: "Trial Settings", icon: Settings },
+  { id: "payments", label: "Payment Settings", icon: Globe },
   { id: "preferences", label: "Preferences", icon: Paintbrush },
   { id: "zoom", label: "Zoom Settings", icon: Globe },
   { id: "email", label: "Email Settings", icon: MessageCircle },
@@ -59,6 +61,7 @@ export default function SettingsPage() {
         </aside>
         <main className="md:w-3/4 bg-white p-6 rounded-md shadow-sm">
           {activeTab === "trial" && <TrialSettings />}
+          {activeTab === "payments" && <Payments />}
           {activeTab === "preferences" && <PreferencesSettings />}
           {activeTab === "zoom" && <ZoomSettings />}
           {activeTab === "email" && <Email />}
