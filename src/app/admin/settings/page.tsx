@@ -8,19 +8,19 @@ import {
   Globe,
   List,
 } from "lucide-react";
-import WebsiteSettings from "./WebsiteSettings";
+
+import TrialSettings from "./TrialSettings";
 import PreferencesSettings from "./PreferencesSettings";
 import ZoomSettings from "./ZoomSettings";
 import Email from "./EmailSettings";
 import ReCaptchaV2Settings from "./RecaptchaV2";
 import SocialSettings from "./SocialSettingsForm";
 import DoctorVerificationForm from "./DoctorVerificationForm";
-import WhatsappSettings from "./WhatsappSettings";
 import TwilioSmsSettings from "./TwilioSmsSettings";
 import PwaSettings from "./PwaSettings";
 
 const tabs = [
-  { id: "website", label: "Website Settings", icon: Settings },
+  { id: "trial", label: "Trial Settings", icon: Settings },
   { id: "preferences", label: "Preferences", icon: Paintbrush },
   { id: "zoom", label: "Zoom Settings", icon: Globe },
   { id: "email", label: "Email Settings", icon: MessageCircle },
@@ -60,14 +60,13 @@ export default function SettingsPage() {
           </nav>
         </aside>
         <main className="md:w-3/4 bg-white p-6 rounded-md shadow-sm">
-          {activeTab === "website" && <WebsiteSettings />}
+          {activeTab === "trial" && <TrialSettings />}
           {activeTab === "preferences" && <PreferencesSettings />}
           {activeTab === "zoom" && <ZoomSettings />}
           {activeTab === "email" && <Email />}
           {activeTab === "recaptcha" && <ReCaptchaV2Settings />}
           {activeTab === "social" && <SocialSettings />}
           {activeTab === "doctors" && <DoctorVerificationForm />}
-          {activeTab === "whatsapp" && <WhatsappSettings />}
           {activeTab === "twilio" && <TwilioSmsSettings />}
           {activeTab === "pwa" && <PwaSettings />}
         </main>

@@ -4,7 +4,7 @@ import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { live_doctors_icon } from "../_common/global_variables";
 
-export default function WebsiteSettings() {
+export default function TrialSettings() {
   const [trialDays, setTrialDays] = useState(30);
   const [emailBeforePlanEnds, setEmailBeforePlanEnds] = useState(7);
   const [currency, setCurrency] = useState("USD");
