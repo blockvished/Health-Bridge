@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export default function PreferencesSettings() {
-  const [multilingual, setMultilingual] = useState(true);
   const [registration, setRegistration] = useState(true);
   const [payments, setPayments] = useState(false);
   const [recaptcha, setRecaptcha] = useState(true);
@@ -16,7 +15,6 @@ export default function PreferencesSettings() {
 
   const handleSubmit = () => {
     // Handle form submission here
-    console.log("Multilingual:", multilingual);
     console.log("Registration:", registration);
     // ... (Log other states)
   };
@@ -25,11 +23,7 @@ export default function PreferencesSettings() {
     <div>
       <h2 className="text-lg font-semibold mb-4">Preferences</h2>
       <div className="space-y-4">
-        <ToggleSwitch
-          label="Multilingual System"
-          checked={multilingual}
-          onChange={setMultilingual}
-        />
+
         <ToggleSwitch
           label="Registration System"
           checked={registration}
@@ -59,14 +53,6 @@ export default function PreferencesSettings() {
           Note: If you want to enable sms verification please make sure you have
           disabled the email verification...
         </p>
-        <ToggleSwitch label="Users" checked={users} onChange={setUsers} />
-        <ToggleSwitch label="Blogs" checked={blogs} onChange={setBlogs} />
-        <ToggleSwitch label="FAQs" checked={faqs} onChange={setFaqs} />
-        <ToggleSwitch
-          label="Workflow"
-          checked={workflow}
-          onChange={setWorkflow}
-        />
       </div>
       <Button onClick={handleSubmit} className="mt-4">
         Save Changes

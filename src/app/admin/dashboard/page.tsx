@@ -61,7 +61,7 @@ const DashboardSummaryCards: React.FC = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
       <SummaryCard 
-        title="Users" 
+        title="Doctors" 
         count={35} 
         icon={
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -73,7 +73,7 @@ const DashboardSummaryCards: React.FC = () => {
         route="/admin/users"
       />
       <SummaryCard 
-        title="Verified" 
+        title="Verified Doctors" 
         count={2} 
         icon={
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -85,7 +85,7 @@ const DashboardSummaryCards: React.FC = () => {
         route="#"
       />
       <SummaryCard 
-        title="Pending" 
+        title="Pending Verification" 
         count={2} 
         icon={
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -97,7 +97,7 @@ const DashboardSummaryCards: React.FC = () => {
         route="#"
       />
       <SummaryCard 
-        title="Expired" 
+        title="Expired Accounts" 
         count={2} 
         icon={
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -118,10 +118,10 @@ const Dashboard: React.FC = () => {
     <div className="container mx-auto p-4 max-w-screen-xl">
       <DashboardSummaryCards />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <IncomeChart />
-        <PlansByUserChart />
+        {/* <IncomeChart /> */}
         <RecentUsers />
-        <NetIncomeTable />
+        <PlansByUserChart />
+        {/* <NetIncomeTable /> */}
       </div>
     </div>
   );
