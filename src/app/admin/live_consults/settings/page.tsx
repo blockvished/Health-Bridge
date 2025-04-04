@@ -18,12 +18,12 @@ const LiveConsultationSettings = () => {
         <h1 className="text-lg font-medium text-gray-800">
           Consultation Settings
         </h1>
-        <button
+        {/* <button
           onClick={() => router.push("/admin/live_consults")}
           className="flex items-center bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-sm"
         >
           <FaCalendarAlt className="mr-1" size={14} /> Consultations
-        </button>
+        </button> */}
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">

@@ -59,7 +59,7 @@ export const menuItemsDoctor: MenuItem[] = [
       { name: "QR Code", link: "/admin/profile/qr_code", svg: <FaQrcode /> },
     ],
   },
-  { name: "Transactions", link: "/admin/payment/lists", svg: <MdPayment /> },
+  { name: "Patient Transactions", link: "/admin/payment/lists", svg: <MdPayment /> },
   { name: "Custom Domain", link: "/admin/domain", svg: <MdDomain /> },
   {
     name: "Payouts",
@@ -69,7 +69,6 @@ export const menuItemsDoctor: MenuItem[] = [
       { name: "Payouts", link: "/admin/payouts/user" },
     ],
   },
-  { name: "Consultations", link: "/admin/live_consults", svg: <MdLiveTv /> },
   { name: "Staff", link: "/admin/staff", svg: <FaUsers /> },
   { name: "Patients", link: "/admin/patients", svg: <FaUserInjured /> },
   {
