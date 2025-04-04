@@ -71,14 +71,6 @@ export const menuItemsDoctor: MenuItem[] = [
   },
   { name: "Consultations", link: "/admin/live_consults", svg: <MdLiveTv /> },
   { name: "Staff", link: "/admin/staff", svg: <FaUsers /> },
-  {
-    name: "Prescription Settings",
-    svg: <FaPrescription />,
-    dropdown: [
-      { name: "Additional Advices", link: "/admin/additional_advises" },
-      { name: "Diagnosis Tests", link: "/admin/advise_investigation" },
-    ],
-  },
   { name: "Patients", link: "/admin/patients", svg: <FaUserInjured /> },
   {
     name: "Appointments",
