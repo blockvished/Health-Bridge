@@ -1,23 +1,47 @@
-"use client";
-
 import React from "react";
-import { FaEye } from "react-icons/fa";
+import { FaFileInvoiceDollar } from "react-icons/fa";
 
-const payments = [
+const patientTransactions = [
   {
     id: 1,
-    plan: "BASIC",
-    billingCycle: "yearly",
-    price: "₹3990.00",
-    date: "20 Jul 2024",
+    transactionId: "TRN-20240720-001",
+    amount: "1000.00",
+    paymentDate: "20 Jul 2024",
+    paymentMethod: "UPI",
+    status: "Completed",
+  },
+  // Add more transaction data here
+  {
+    id: 2,
+    transactionId: "TRN-20240815-002",
+    amount: "1000.00",
+    paymentDate: "15 Aug 2024",
+    paymentMethod: "UPI",
+    status: "Completed",
+  },
+  {
+    id: 3,
+    transactionId: "TRN-20240901-003",
+    amount: "1000.00",
+    paymentDate: "01 Sep 2024",
+    paymentMethod: "Bank Transfer",
+    status: "Pending",
   },
 ];
 
-const PaymentsPage = () => {
+const PatientTransactionsPage = () => {
   return (
-    <div className="bg-white shadow-md rounded-xl overflow-hidden max-w-4xl mx-auto w-full p-6">
+    <div className="bg-white shadow-md rounded-xl overflow-hidden max-w-5xl mx-auto w-full p-6">
       {/* Header */}
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4">Payments</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold text-gray-800">
+          Patient Transactions
+        </h1>
+        <div className="flex items-center space-x-2">
+          <FaFileInvoiceDollar className="text-gray-500" />
+          <span className="text-gray-600 text-sm">All Transactions</span>
+        </div>
+      </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
@@ -25,40 +49,55 @@ const PaymentsPage = () => {
           <thead>
             <tr className="bg-gray-50 text-gray-600">
               <th className="text-left p-3 font-medium">#</th>
-              <th className="text-left p-3 font-medium">Plan</th>
-              <th className="text-left p-3 font-medium">Billing Cycle</th>
-              <th className="text-left p-3 font-medium">Price</th>
-              <th className="text-left p-3 font-medium">Date</th>
-              <th className="text-left p-3 font-medium">Action</th>
+              <th className="text-left p-3 font-medium">Transaction ID</th>
+              <th className="text-left p-3 font-medium">Amount</th>
+              <th className="text-left p-3 font-medium">Payment Date</th>
+              <th className="text-left p-3 font-medium">Payment Method</th>
+              <th className="text-left p-3 font-medium">Status</th>
             </tr>
           </thead>
           <tbody>
-            {payments.map((payment, index) => (
+            {patientTransactions.map((transaction, index) => (
               <tr
-                key={payment.id}
+                key={transaction.id}
                 className="hover:bg-gray-50 transition border-b border-gray-200"
               >
                 <td className="p-3 text-gray-700">{index + 1}</td>
                 <td className="p-3 font-semibold text-gray-900">
-                  {payment.plan}
+                  {transaction.transactionId}
                 </td>
-                <td className="p-3 text-gray-700">{payment.billingCycle}</td>
                 <td className="p-3 font-medium text-gray-900">
-                  {payment.price}
+                  ₹ {transaction.amount}
                 </td>
-                <td className="p-3 text-gray-700">{payment.date}</td>
+                <td className="p-3 text-gray-700">{transaction.paymentDate}</td>
+                <td className="p-3 text-gray-700">
+                  {transaction.paymentMethod}
+                </td>
                 <td className="p-3">
-                  <button className="p-2 bg-gray-200 rounded-md hover:bg-gray-300 transition flex items-center justify-center gap-2">
-                    <FaEye /> View
-                  </button>
+                  <span
+                    className={`inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-medium ${
+                      transaction.status === "Completed"
+                        ? "bg-green-100 text-green-800"
+                        : transaction.status === "Pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {transaction.status}
+                  </span>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      {patientTransactions.length === 0 && (
+        <div className="py-6 text-center text-gray-500">
+          No transactions found for this patient.
+        </div>
+      )}
     </div>
   );
 };
 
-export default PaymentsPage;
+export default PatientTransactionsPage;
