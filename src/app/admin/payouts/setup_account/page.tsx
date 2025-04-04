@@ -26,11 +26,6 @@ const PayoutForm = () => {
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-800">Address *</label>
-          <input type="text" className="w-full p-2 border border-gray-300 rounded bg-gray-50 text-gray-900" defaultValue="vsdfs fsf af sfdsfd s" />
-        </div>
-
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-800">Account Holder Name *</label>
@@ -39,19 +34,6 @@ const PayoutForm = () => {
           <div>
             <label className="block text-sm font-medium text-gray-800">Bank Name *</label>
             <input type="text" className="w-full p-2 border border-gray-300 rounded bg-gray-50 text-gray-900" defaultValue="SBI" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-800">Country *</label>
-            <select className="w-full p-2 border border-gray-300 rounded bg-gray-50 text-gray-900">
-              <option>India</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-800">City *</label>
-            <input type="text" className="w-full p-2 border border-gray-300 rounded bg-gray-50 text-gray-900" defaultValue="fgfgfg" />
           </div>
         </div>
 
@@ -66,6 +48,12 @@ const PayoutForm = () => {
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-800">UPI id *</label>
+            <input type="text" className="w-full p-2 border border-gray-300 rounded bg-gray-50 text-gray-900" defaultValue="fgfgfg" />
+          </div>
+        </div>
         <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm shadow">
           Save Changes
         </button>
