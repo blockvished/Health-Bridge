@@ -146,16 +146,6 @@ export const menuItemsAdmin: MenuItem[] = [
   { name: "Dashboard", link: "/admin/dashboard", svg: <MdDashboard /> },
   { name: "Settings", link: "/admin/settings", svg: <AiFillSetting /> },
   {
-    name: "Payment Settings",
-    svg: <FaDollarSign />,
-    dropdown: [
-      {
-        name: "Online Payments",
-        link: "/admin/payment/settings/online",
-      },
-    ],
-  },
-  {
     name: "Payouts",
     svg: <FaWallet />,
     dropdown: [
