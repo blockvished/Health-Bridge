@@ -27,6 +27,7 @@ const PaymentConfiguration = () => {
       <div className="flex justify-start">
         <Button 
           className="px-6 py-3"
+          onClick={handleSaveConfiguration}
         >
           Save Changes
         </Button>

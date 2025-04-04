@@ -9,8 +9,8 @@ import {
   List,
 } from "lucide-react";
 
-import Payments from "./Payments";
 import TrialSettings from "./TrialSettings";
+import Payments from "./Payments";
 import PreferencesSettings from "./PreferencesSettings";
 import ZoomSettings from "./ZoomSettings";
 import Email from "./EmailSettings";
@@ -18,7 +18,6 @@ import ReCaptchaV2Settings from "./RecaptchaV2";
 import SocialSettings from "./SocialSettingsForm";
 import DoctorVerificationForm from "./DoctorVerificationForm";
 import TwilioSmsSettings from "./TwilioSmsSettings";
-import PwaSettings from "./PwaSettings";
 
 const tabs = [
   { id: "trial", label: "Trial Settings", icon: Settings },
@@ -69,7 +68,6 @@ export default function SettingsPage() {
           {activeTab === "social" && <SocialSettings />}
           {activeTab === "doctors" && <DoctorVerificationForm />}
           {activeTab === "twilio" && <TwilioSmsSettings />}
-          {activeTab === "pwa" && <PwaSettings />}
         </main>
       </div>
     </div>

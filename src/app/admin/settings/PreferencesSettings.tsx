@@ -8,10 +8,6 @@ export default function PreferencesSettings() {
   const [recaptcha, setRecaptcha] = useState(true);
   const [emailVerification, setEmailVerification] = useState(true);
   const [smsVerification, setSmsVerification] = useState(false);
-  const [users, setUsers] = useState(true);
-  const [blogs, setBlogs] = useState(false);
-  const [faqs, setFaqs] = useState(true);
-  const [workflow, setWorkflow] = useState(false);
 
   const handleSubmit = () => {
     // Handle form submission here
