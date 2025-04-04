@@ -5,7 +5,6 @@ import { FaUserEdit, FaGlobe, FaSearch, FaCode, FaCheck } from "react-icons/fa";
 import UpdateInfoTab from "./UpdateInfoTab";
 import SocialSettingsTab from "./SocialSettingsTab";
 import SEOSettingsTab from "./SEOSettingsTab";
-import CustomJSTab from "./CustomJSTab";
 import ProfileCard from "./ProfileCard";
 
 interface Doctor {
@@ -45,7 +44,6 @@ const Profile: React.FC = () => {
     { name: "Update Info", icon: <FaUserEdit /> },
     { name: "Social Settings", icon: <FaGlobe /> },
     { name: "SEO Settings", icon: <FaSearch /> },
-    { name: "Custom JS", icon: <FaCode /> },
   ];
 
   const metaTags = ["cardiology", "cardiologist", "heart"];
@@ -59,8 +57,6 @@ const Profile: React.FC = () => {
         return <SocialSettingsTab />;
       case "SEO Settings":
         return <SEOSettingsTab doctor={{ metaTags, seoDescription }} />;
-      case "Custom JS":
-        return <CustomJSTab />;
       default:
         return <div>No content available</div>;
     }
