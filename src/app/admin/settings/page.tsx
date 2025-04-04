@@ -26,10 +26,8 @@ const tabs = [
   { id: "email", label: "Email Settings", icon: MessageCircle },
   { id: "recaptcha", label: "reCAPTCHA V2 Settings", icon: Shield },
   { id: "social", label: "Social Settings", icon: List },
-  { id: "doctors", label: "Doctors Verification", icon: Shield },
-  { id: "whatsapp", label: "Whatsapp Settings", icon: MessageCircle },
+  { id: "doctors", label: "Doctors Verification", icon: Shield }, 
   { id: "twilio", label: "Twilio Sms Settings", icon: Globe },
-  { id: "pwa", label: "PWA Settings", icon: List },
 ];
 
 export default function SettingsPage() {
