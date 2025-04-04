@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import TrialSettings from "./TrialSettings";
+import Payments from "./Payments";
 import PreferencesSettings from "./PreferencesSettings";
 import ZoomSettings from "./ZoomSettings";
 import Email from "./EmailSettings";
@@ -17,10 +18,10 @@ import ReCaptchaV2Settings from "./RecaptchaV2";
 import SocialSettings from "./SocialSettingsForm";
 import DoctorVerificationForm from "./DoctorVerificationForm";
 import TwilioSmsSettings from "./TwilioSmsSettings";
-import PwaSettings from "./PwaSettings";
 
 const tabs = [
   { id: "trial", label: "Trial Settings", icon: Settings },
+  { id: "payments", label: "Payment Settings", icon: Globe },
   { id: "preferences", label: "Preferences", icon: Paintbrush },
   { id: "zoom", label: "Zoom Settings", icon: Globe },
   { id: "email", label: "Email Settings", icon: MessageCircle },
@@ -59,6 +60,7 @@ export default function SettingsPage() {
         </aside>
         <main className="md:w-3/4 bg-white p-6 rounded-md shadow-sm">
           {activeTab === "trial" && <TrialSettings />}
+          {activeTab === "payments" && <Payments />}
           {activeTab === "preferences" && <PreferencesSettings />}
           {activeTab === "zoom" && <ZoomSettings />}
           {activeTab === "email" && <Email />}
@@ -66,7 +68,6 @@ export default function SettingsPage() {
           {activeTab === "social" && <SocialSettings />}
           {activeTab === "doctors" && <DoctorVerificationForm />}
           {activeTab === "twilio" && <TwilioSmsSettings />}
-          {activeTab === "pwa" && <PwaSettings />}
         </main>
       </div>
     </div>

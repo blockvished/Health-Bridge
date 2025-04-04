@@ -11,8 +11,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import IncomeChart from "./_common/Chart";
-import NetIncomeTable from "./_common/NetIncomeTable";
+// import IncomeChart from "./_common/Chart";
+// import NetIncomeTable from "./_common/NetIncomeTable";
 import PlansByUserChart from "./_common/PlansByUserChart"
 import RecentUsers from "./_common/RecentUsers";
 
