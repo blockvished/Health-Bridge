@@ -40,63 +40,8 @@ export default function TrialSettings() {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-4">Website Settings</h2>
-      <div className="flex flex-col sm:flex-row items-start justify-between gap-12 p-6">
-        {/* Favicon */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center justify-center">
-            <img src={live_doctors_icon} alt="Favicon" className="w-16 h-16" />
-          </div>
-          <div className="w-[160px]">
-            <UploadButton label="Upload Favicon" />
-          </div>
-        </div>
-
-        {/* Logo */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center justify-center">
-            <img src="/logo_live_doctors.png" alt="Logo" className="h-16" />
-          </div>
-          <div className="w-[160px]">
-            <UploadButton label="Upload Logo" />
-          </div>
-        </div>
-
-        {/* Doctor Image */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center justify-center">
-            <img
-              src="/hero.webp"
-              alt="Doctor"
-              className="w-16 h-16 rounded-full object-cover"
-            />
-          </div>
-          <div className="w-[160px]">
-            <UploadButton label="Upload Home Image" />
-          </div>
-        </div>
-      </div>
-
+      <h2 className="text-lg font-semibold mb-4">Trial Settings</h2>
       <div className="mt-6 space-y-4">
-        <InputField label="Application Name" defaultValue="Live Doctors" />
-        <InputField
-          label="Application Title"
-          defaultValue="Comprehensive tools to manage health care practice."
-        />
-        <MetaTagsInput keywords={keywords} setKeywords={setKeywords} />
-        <TextareaField
-          label="Description"
-          defaultValue="Our all-in-one healthcare practice management system is designed to simplify and optimize your clinical operations."
-        />
-        <TextareaField
-          label="Footer About"
-          defaultValue="Live Doctors is an all-in-one encompassing healthcare practice management system designed to streamline clinical operations and enhance marketing efforts for all the doctors and medical practitioners."
-        />
-        <InputField label="Admin Email" defaultValue="imvpathak@gmail.com" />
-        <InputField
-          label="Copyright"
-          defaultValue="Copyright: © 2024. Live Doctors. All Rights Reserved. An Initiative of Prgenix"
-        />
         <InputField
           label="Set trial days"
           type="number"
