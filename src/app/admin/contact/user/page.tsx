@@ -11,6 +11,7 @@ const contacts = [
   },
 ];
 
+
 const ContactTable = () => {
   return (
     <div className="bg-white shadow-md rounded-xl overflow-hidden max-w-4xl mx-auto w-full p-4 md:p-6">
