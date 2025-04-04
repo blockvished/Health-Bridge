@@ -86,9 +86,6 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
         <Link href="/admin/chamber" className="flex items-center text-blue-600 hover:bg-blue-50 transition p-2 rounded-md">
           <FaClinicMedical className="mr-2 w-5 h-5" /> <span className="text-base">Manage Clinics</span>
         </Link>
-        <Link href="/admin/profile" className="flex items-center text-gray-700 hover:bg-gray-100 transition p-2 rounded-md">
-          <FaUser className="mr-2 w-5 h-5" /> <span className="text-base">Manage Profile</span>
-        </Link>
         <button
           className="flex items-center text-red-600 hover:bg-red-50 transition p-2 rounded-md w-full cursor-pointer"
           onClick={handleClose}

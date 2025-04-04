@@ -26,7 +26,6 @@ import {
   MdAttachMoney,
 } from "react-icons/md";
 import { JSX } from "react";
-import { GiPill } from "react-icons/gi";
 
 export interface MenuItem {
   name: string;
@@ -72,14 +71,6 @@ export const menuItemsDoctor: MenuItem[] = [
   },
   { name: "Consultations", link: "/admin/live_consults", svg: <MdLiveTv /> },
   { name: "Staff", link: "/admin/staff", svg: <FaUsers /> },
-  {
-    name: "Prescription Settings",
-    svg: <FaPrescription />,
-    dropdown: [
-      { name: "Additional Advices", link: "/admin/additional_advises" },
-      { name: "Diagnosis Tests", link: "/admin/advise_investigation" },
-    ],
-  },
   { name: "Patients", link: "/admin/patients", svg: <FaUserInjured /> },
   {
     name: "Appointments",
@@ -87,14 +78,6 @@ export const menuItemsDoctor: MenuItem[] = [
     dropdown: [
       { name: "Create New", link: "/admin/appointment" },
       { name: "List by Date", link: "/admin/appointment/all_list" },
-    ],
-  },
-  {
-    name: "Drugs",
-    svg: <FaPills />,
-    dropdown: [
-      { name: "Drugs", link: "/admin/drugs" },
-      { name: "Bulk Import Drugs", link: "/admin/drugs/import" },
     ],
   },
   {

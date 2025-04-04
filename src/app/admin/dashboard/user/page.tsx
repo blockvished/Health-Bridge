@@ -72,7 +72,7 @@ const DashboardSummaryCards: React.FC = () => {
         route="/admin/appointment/today"
       />
       <SummaryCard 
-        title="Appointments" 
+        title="Total Appointments" 
         count={2} 
         icon={
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -116,10 +116,12 @@ const Dashboard: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       <DashboardSummaryCards />
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <IncomeChart />
+      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6"> */}
+      <div>
+
+        {/* <IncomeChart /> */}
         <AppointmentsTable />
-        <NetIncomeTable />
+        {/* <NetIncomeTable /> */}
       </div>
     </div>
   );
