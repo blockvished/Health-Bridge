@@ -11,7 +11,7 @@ const patients = [
     name: "Patient",
     age: "0",
     phone: "924062456",
-    address: "",
+    abha_id: "",
   },
   {
     id: 2,
@@ -19,7 +19,7 @@ const patients = [
     name: "Raj Kumar",
     age: "35",
     phone: "9650561756",
-    address: "",
+    abha_id: "",
   },
 ];
 
@@ -30,10 +30,10 @@ const PatientForm = ({ onBack }: { onBack: () => void }) => {
         <Input label="Name *" type="text" required />
         <Input label="Email *" type="email" required />
         <Input label="Phone *" type="text" required />
+        <Input label="Abha Id" type="text" required />
         <Input label="Age" type="number" />
         <Input label="Weight" type="text" />
-        <Textarea label="Present Address" />
-        <Textarea label="Permanent Address" />
+        <Textarea label="Address" />
         <GenderInput />
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow flex items-center justify-center gap-2">
           <FiSave size={18} /> Save
@@ -101,7 +101,7 @@ const PatientsTable = () => (
           <th className="p-3 font-medium text-left">Name</th>
           <th className="p-3 font-medium text-left">Age</th>
           <th className="p-3 font-medium text-left">Phone</th>
-          <th className="p-3 font-medium text-left">Address</th>
+          <th className="p-3 font-medium text-left">Abha Id</th>
           <th className="p-3 font-medium text-left">Prescriptions</th>
           <th className="p-3 font-medium text-left">Action</th>
         </tr>
@@ -117,7 +117,7 @@ const PatientsTable = () => (
             <td className="p-3 text-gray-700">{patient.name}</td>
             <td className="p-3 text-gray-700">{patient.age}</td>
             <td className="p-3 text-gray-700">{patient.phone}</td>
-            <td className="p-3 text-gray-700">{patient.address || "-"}</td>
+            <td className="p-3 text-gray-700">{patient.abha_id || "-"}</td>
             <td className="p-3">
               <button className="bg-blue-100 text-blue-600 px-3 py-1 rounded-md text-sm flex items-center gap-1">
                 <FiEye /> View

@@ -2,10 +2,55 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { FaPlus, FaTrash } from "react-icons/fa";
+import { FaPlus, FaTrash, FaDownload } from "react-icons/fa";
+
+// Sample data for prescriptions
+const initialPrescriptions = [
+  {
+    id: 1,
+    mrNo: "12345",
+    patientName: "John Doe",
+    phone: "(123) 456-7890",
+    email: "john.doe@example.com",
+    created: "2024-03-17 12:00 PM",
+  },
+  {
+    id: 2,
+    mrNo: "67890",
+    patientName: "Jane Smith",
+    phone: "(987) 654-3210",
+    email: "jane.smith@example.com",
+    created: "2024-03-18 02:30 PM",
+  },
+  {
+    id: 3,
+    mrNo: "13579",
+    patientName: "Alice Johnson",
+    phone: "(111) 222-3333",
+    email: "alice.johnson@example.com",
+    created: "2024-03-19 09:45 AM",
+  },
+  // Add more prescriptions as needed
+];
 
 export default function Prescriptions() {
   const router = useRouter();
+  const [prescriptions, setPrescriptions] = React.useState(initialPrescriptions);
+
+  const handleDelete = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this prescription?")) {
+      setPrescriptions((prevPrescriptions) =>
+        prevPrescriptions.filter((prescription) => prescription.id !== id)
+      );
+      alert(`Prescription with ID ${id} deleted.`);
+    }
+  };
+
+  const handleDownload = (id: number) => {
+    console.log(`Downloading prescription with ID: ${id}`);
+    alert(`Downloading prescription with ID: ${id}`);
+    // ... your download logic here
+  };
 
   return (
     <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-5xl mx-auto">
@@ -38,19 +83,37 @@ export default function Prescriptions() {
             </tr>
           </thead>
           <tbody>
-            <tr className="hover:bg-gray-50 transition-all">
-              <td className="py-3 px-4 text-gray-700">1</td>
-              <td className="py-3 px-4 text-gray-700">12345</td>
-              <td className="py-3 px-4 text-gray-700">John Doe</td>
-              <td className="py-3 px-4 text-gray-700">(123) 456-7890</td>
-              <td className="py-3 px-4 text-gray-700">john.doe@example.com</td>
-              <td className="py-3 px-4 text-gray-700">2024-03-17 12:00 PM</td>
-              <td className="py-3 px-4 text-gray-700">
-                <button className="text-red-600 hover:text-red-800 focus:outline-none">
-                  <FaTrash />
-                </button>
-              </td>
-            </tr>
+            {prescriptions.map((prescription) => (
+              <tr
+                key={prescription.id}
+                className="hover:bg-gray-50 transition-all"
+              >
+                <td className="py-3 px-4 text-gray-700">{prescription.id}</td>
+                <td className="py-3 px-4 text-gray-700">{prescription.mrNo}</td>
+                <td className="py-3 px-4 text-gray-700">
+                  {prescription.patientName}
+                </td>
+                <td className="py-3 px-4 text-gray-700">{prescription.phone}</td>
+                <td className="py-3 px-4 text-gray-700">{prescription.email}</td>
+                <td className="py-3 px-4 text-gray-700">
+                  {prescription.created}
+                </td>
+                <td className="py-3 px-4 text-gray-700 flex space-x-2">
+                  <button
+                    className="text-blue-600 hover:text-blue-800 focus:outline-none"
+                    onClick={() => handleDownload(prescription.id)}
+                  >
+                    <FaDownload />
+                  </button>
+                  <button
+                    className="text-red-600 hover:text-red-800 focus:outline-none"
+                    onClick={() => handleDelete(prescription.id)}
+                  >
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
