@@ -24,12 +24,12 @@ const CustomDomainRequest: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white rounded-lg p-4 shadow-md overflow-x-auto"> {/* Added overflow-x-auto */}
+    <div className="bg-white rounded-lg p-4 shadow-md overflow-x-auto">
       <h2 className="text-lg font-semibold mb-4">Domain Request</h2>
-      <table className="w-full text-left min-w-[600px]"> {/* Added min-w to prevent content collapse on small screens */}
+      <table className="w-full text-left min-w-[600px]">
         <thead>
           <tr className="text-gray-500">
-            <th className="py-2 px-2 sm:px-4 whitespace-nowrap">#</th> {/* Added px and whitespace-nowrap */}
+            <th className="py-2 px-2 sm:px-4 whitespace-nowrap">#</th> 
             <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Current Domain</th>
             <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Custom Domain</th>
             <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Date</th>
