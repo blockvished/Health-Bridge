@@ -189,28 +189,10 @@ const ClinicForm = ({ onClose }: ClinicFormProps) => {
             ) : (
               <div className="flex flex-col items-center text-gray-500">
                 <FiUploadCloud size={24} />
-                <span className="text-sm">Upload Logo</span>
+                <span className="text-sm">Upload Clinic Picture</span>
               </div>
             )}
           </div>
-        </div>
-
-        {/* Department Selection */}
-        <div>
-          <label className="block text-gray-700">Department</label>
-          <select
-            name="department"
-            value={formData.department}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-200 rounded-lg mt-1"
-            required
-          >
-            <option value="">Select</option>
-            <option value="General">General</option>
-            <option value="Pediatrics">Pediatrics</option>
-            <option value="Orthopedics">Orthopedics</option>
-            <option value="Cardiology">Cardiology</option>
-          </select>
         </div>
 
         {/* Clinic Name */}
@@ -228,7 +210,7 @@ const ClinicForm = ({ onClose }: ClinicFormProps) => {
 
         {/* Title */}
         <div>
-          <label className="block text-gray-700">Title *</label>
+          <label className="block text-gray-700">Clinic Details *</label>
           <input
             type="text"
             name="title"
