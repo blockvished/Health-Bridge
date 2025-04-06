@@ -11,6 +11,20 @@ import {
 import { relations } from "drizzle-orm";
 
 // Enums for better type safety
+export const userRoleEnum = pgEnum('user_role', ['superadmin', 'admin', 'doctor', 'staff', 'user']);
+
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  mobile: varchar('mobile', { length: 20 }),
+  password_hash: text('password').notNull(), // Store the hashed password
+  salt: text('salt').notNull(),         // Add a salt column
+  role: userRoleEnum('role').default('user').notNull(), // Default role is 'user'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const modeEnum = pgEnum("appointment_mode", ["online", "offline"]);
 export const patientTypeEnum = pgEnum("patient_type", ["new", "old"]);
 export const genderEnum = pgEnum("gender", ["male", "female", "other"]);
@@ -19,11 +33,13 @@ export const subscriptionTypeEnum = pgEnum("subscription_type", [
   "premium",
   "enterprise",
 ]);
+
 export const billingCycleEnum = pgEnum("billing_cycle", [
   "monthly",
   "quarterly",
   "yearly",
 ]);
+
 export const consultationModeEnum = pgEnum("consultation_mode", ["zoom", "google_meet", "ms_teams"]);
 
 // Staff Table
