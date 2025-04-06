@@ -1,7 +1,39 @@
-import React from "react";
+"use client";
+import React, { useState, FormEvent, ChangeEvent } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
 
 const Signup = () => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const handleSignup = (e: FormEvent) => {
+    e.preventDefault();
+    // Add your signup logic here, e.g., API calls, validation
+    console.log({ name, email, phone, password, confirmPassword, agreeTerms });
+    // Reset form fields after submission if needed
+    // setName("");
+    // setEmail("");
+    // setPhone("");
+    // setPassword("");
+    // setConfirmPassword("");
+    // setAgreeTerms(false);
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-100 to-cyan-200 justify-center items-center p-3">
       <div className="bg-white shadow-lg rounded-2xl w-full max-w-4xl flex overflow-hidden">
@@ -39,7 +71,10 @@ const Signup = () => {
             </h2>
             <p className="text-gray-500 mt-1">Sign up to get started</p>
           </div>
-          <div className="w-full max-w-md p-4 flex flex-col justify-center">
+          <form
+            onSubmit={handleSignup}
+            className="w-full max-w-md p-4 flex flex-col justify-center"
+          >
             <div className="mt-2 space-y-1">
               <div>
                 <label className="block text-gray-600 text-sm font-medium">
@@ -49,6 +84,8 @@ const Signup = () => {
                   type="text"
                   placeholder="Your full name"
                   className="w-full px-4 py-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
               <div>
@@ -59,6 +96,8 @@ const Signup = () => {
                   type="email"
                   placeholder="Your email"
                   className="w-full px-4 py-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div>
@@ -69,31 +108,69 @@ const Signup = () => {
                   type="text"
                   placeholder="Your phone number"
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                 />
               </div>
-              <div>
-                <label className="block text-gray-600 text-sm font-medium">
-                  Password
-                </label>
+
+              <label className="block text-gray-600 text-sm font-medium">
+                Password
+              </label>
+              <div className="relative flex items-center">
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Create a password"
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                  value={password}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setPassword(e.target.value)
+                  }
                 />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? (
+                    <FaEyeSlash className="h-5 w-5" />
+                  ) : (
+                    <FaEye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
-              <div>
-                <label className="block text-gray-600 text-sm font-medium">
-                  Confirm Password
-                </label>
+              <label className="block text-gray-600 text-sm font-medium">
+                Confirm Password
+              </label>
+              <div className="relative flex items-center">
                 <input
-                  type="password"
-                  placeholder="Create a password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm your password"
                   className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                  value={confirmPassword}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setConfirmPassword(e.target.value)
+                  }
                 />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer"
+                  onClick={toggleConfirmPasswordVisibility}
+                >
+                  {showConfirmPassword ? (
+                    <FaEyeSlash className="h-5 w-5" />
+                  ) : (
+                    <FaEye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
             </div>
             <div className="mt-2 flex items-center text-sm">
-              <input type="checkbox" className="mr-2" />
+              <input
+                type="checkbox"
+                className="mr-2"
+                checked={agreeTerms}
+                onChange={(e) => setAgreeTerms(e.target.checked)}
+              />
               <span className="text-gray-600">
                 I agree to the{" "}
                 <Link href="#" className="text-blue-500">
@@ -106,7 +183,10 @@ const Signup = () => {
                 .
               </span>
             </div>
-            <button className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg text-sm font-semibold hover:bg-blue-600 transition">
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg text-sm font-semibold hover:bg-blue-600 transition"
+            >
               Register
             </button>
             <p className="mt-2 text-center text-sm text-gray-600">
@@ -115,7 +195,7 @@ const Signup = () => {
                 Sign In
               </Link>
             </p>
-          </div>
+          </form>
         </div>
       </div>
     </div>
