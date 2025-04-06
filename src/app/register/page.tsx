@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const Signup = () => {
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-blue-100 to-cyan-200 justify-center items-center p-4">
+    <div className="flex min-h-screen bg-gradient-to-br from-blue-100 to-cyan-200 justify-center items-center p-3">
       <div className="bg-white shadow-lg rounded-2xl w-full max-w-4xl flex overflow-hidden">
         <div className="w-1/3 hidden md:flex items-center justify-center bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-400">
           <div className="md:flex flex-col items-center justify-center text-white p-6 text-center">
@@ -32,7 +32,7 @@ const Signup = () => {
             <img
               src="/logo_live_doctors.png"
               alt="Live Doctors Logo"
-              className="h-12 mx-auto mb-4"
+              className="h-12 mx-auto mb-2"
             />
             <h2 className="text-2xl font-bold text-gray-800">
               Create Your Account
@@ -40,7 +40,7 @@ const Signup = () => {
             <p className="text-gray-500 mt-1">Sign up to get started</p>
           </div>
           <div className="w-full max-w-md p-4 flex flex-col justify-center">
-            <div className="mt-3 space-y-2">
+            <div className="mt-2 space-y-1">
               <div>
                 <label className="block text-gray-600 text-sm font-medium">
                   Name
@@ -48,7 +48,7 @@ const Signup = () => {
                 <input
                   type="text"
                   placeholder="Your full name"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                  className="w-full px-4 py-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
                 />
               </div>
               <div>
@@ -58,7 +58,7 @@ const Signup = () => {
                 <input
                   type="email"
                   placeholder="Your email"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                  className="w-full px-4 py-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
                 />
               </div>
               <div>
@@ -74,6 +74,16 @@ const Signup = () => {
               <div>
                 <label className="block text-gray-600 text-sm font-medium">
                   Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Create a password"
+                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-600 text-sm font-medium">
+                  Confirm Password
                 </label>
                 <input
                   type="password"
