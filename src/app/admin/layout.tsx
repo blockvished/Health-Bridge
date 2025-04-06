@@ -72,9 +72,9 @@ export default function AdminLayout({
             isCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-64"
           } ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
         >
-          <TopbarDoctor onToggleSidebar={toggleSidebar} />
+          {/* <TopbarDoctor onToggleSidebar={toggleSidebar} /> */}
           {/* <TopbarAdmin onToggleSidebar={toggleSidebar} />  */}
-          {/* <TopbarPatient onToggleSidebar={toggleSidebar} /> */}
+          <TopbarPatient onToggleSidebar={toggleSidebar} />
 
           <main
             className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
