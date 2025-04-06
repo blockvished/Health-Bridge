@@ -1,10 +1,11 @@
 import { AiFillSetting } from "react-icons/ai";
 import { RiFileListFill } from "react-icons/ri";
+import { FaListUl, FaCog } from 'react-icons/fa';
+import { FiBarChart2 } from 'react-icons/fi';
+
 import {
   FaUserMd,
   FaUsers,
-  FaPills,
-  FaPrescription,
   FaStar,
   FaEnvelope,
   FaFileAlt,
@@ -15,14 +16,12 @@ import {
   FaSlidersH,
   FaCalendarCheck,
   FaBuilding,
-  FaDollarSign,
 } from "react-icons/fa";
 import {
   MdDashboard,
   MdSubscriptions,
   MdPayment,
   MdDomain,
-  MdLiveTv,
   MdAttachMoney,
 } from "react-icons/md";
 import { JSX } from "react";
@@ -67,6 +66,23 @@ export const menuItemsDoctor: MenuItem[] = [
     dropdown: [
       { name: "Set Payout Account", link: "/admin/payouts/setup_account" },
       { name: "Payouts", link: "/admin/payouts/user" },
+    ],
+  },
+  {
+    name: "Social Channels",
+    svg: <FaListUl />,
+    dropdown: [
+      { name: "Post Settings", link: "/admin/posts/settings", svg: <FaCog /> },
+      {
+        name: "Post Report",
+        link: "/admin/posts/report",
+        svg: <FaSlidersH />,
+      },
+      {
+        name: "All Posts",
+        link: "/admin/posts/all",
+        svg: <FiBarChart2  />,
+      },
     ],
   },
   { name: "Staff", link: "/admin/staff", svg: <FaUsers /> },
