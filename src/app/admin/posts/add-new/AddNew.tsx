@@ -21,11 +21,7 @@ function AddPostForm() {
       setImage(e.target.files[0]);
     }
   };
-
-  const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLink(e.target.value);
-  };
-
+  
   const handleCustomLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCustomLink(e.target.value);
   };
@@ -111,19 +107,6 @@ function AddPostForm() {
                 <span className="text-sm text-gray-600">{image.name}</span>
               )}
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Link
-            </label>
-            <input
-              type="url"
-              value={link}
-              onChange={handleLinkChange}
-              className="w-full p-3 border border-gray-300 rounded-md"
-              placeholder="Content share link"
-            />
           </div>
 
           <div>
