@@ -69,18 +69,18 @@ export const menuItemsDoctor: MenuItem[] = [
     ],
   },
   {
-    name: "Blogs",
+    name: "Social Channels",
     svg: <FaListUl />,
     dropdown: [
+      { name: "Post Settings", link: "/admin/posts/settings", svg: <FaCog /> },
       {
-        name: "All blogs",
-        link: "/admin/posts/all",
+        name: "Post Report",
+        link: "/admin/posts/report",
         svg: <FaSlidersH />,
       },
-      { name: "Blog Settings", link: "/admin/posts/settings", svg: <FaCog /> },
       {
-        name: "Blog Report",
-        link: "/admin/posts/report",
+        name: "All Posts",
+        link: "/admin/posts/all",
         svg: <FiBarChart2  />,
       },
     ],
