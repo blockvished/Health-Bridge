@@ -1,14 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, ChangeEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,7 +41,10 @@ const Login = () => {
       // Redirect based on user role
       if (data.user.role === "doctor") {
         router.push("/dashboard/doctor");
-      } else if (data.user.role === "admin" || data.user.role === "superadmin") {
+      } else if (
+        data.user.role === "admin" ||
+        data.user.role === "superadmin"
+      ) {
         router.push("/dashboard/admin");
       } else {
         router.push("/dashboard");
@@ -48,6 +54,10 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -114,14 +124,29 @@ const Login = () => {
                 <label className="block text-gray-600 font-medium">
                   Password
                 </label>
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                />
+
+                <div className="relative flex items-center">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Create a password"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                    value={password}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setPassword(e.target.value)
+                    }
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {showPassword ? (
+                      <FaEyeSlash className="h-5 w-5" />
+                    ) : (
+                      <FaEye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -131,7 +156,7 @@ const Login = () => {
               </Link>
             </div>
 
-            <button 
+            <button
               type="submit"
               disabled={loading}
               className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg text-lg font-semibold hover:bg-blue-600 transition mx-4 disabled:bg-blue-300"
