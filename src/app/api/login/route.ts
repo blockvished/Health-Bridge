@@ -1,24 +1,22 @@
-// pages/api/login.ts
-import { verify } from 'argon2';
+import { NextResponse } from "next/server";
+import { verify } from "argon2";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { users } from "../../../db/schema";
 import { eq } from "drizzle-orm";
-import { NextApiRequest, NextApiResponse } from 'next';
-import { sign } from 'jsonwebtoken';
+import { sign } from "jsonwebtoken";
+import { serialize } from "cookie"; // Needed for manual cookie setting
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Only allow POST method
-  if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Method not allowed' });
-  }
-
+export async function POST(request: Request) {
   try {
-    const { email, password } = req.body;
+    const { email, password } = await request.json();
 
     // Validate inputs
     if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Email and password are required' });
+      return NextResponse.json(
+        { success: false, message: "Email and password are required" },
+        { status: 400 }
+      );
     }
 
     // Connect to database
@@ -30,21 +28,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const db = drizzle(sql);
 
     // Find user by email
-    const userResult = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    
+    const userResult = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
     if (userResult.length === 0) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      return NextResponse.json(
+        { success: false, message: "Invalid email or password" },
+        { status: 401 }
+      );
     }
 
     const user = userResult[0];
-    const SERVER_PEPPER = process.env.SERVER_PEPPER || 'default_pepper';
+    const SERVER_PEPPER = process.env.SERVER_PEPPER;
     const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
-    
+
     // Verify password
     const passwordValid = await verify(user.password_hash, saltedPassword);
 
     if (!passwordValid) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      return NextResponse.json(
+        { success: false, message: "Invalid email or password" },
+        { status: 401 }
+      );
     }
 
     // Generate JWT token
@@ -54,30 +62,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const token = sign(
-      { 
-        userId: user.id, 
+      {
+        userId: user.id,
         email: user.email,
-        role: user.role 
-      }, 
-      JWT_SECRET, 
-      { expiresIn: '8h' }
+        role: user.role,
+      },
+      JWT_SECRET,
+      { expiresIn: "1h" }
     );
 
-    // Return success with token and user information (excluding sensitive data)
-    return res.status(200).json({
+    // Set cookie using "serialize" (works in /api routes)
+    const response = NextResponse.json({
       success: true,
-      message: 'Login successful',
-      token,
+      message: "Login successful",
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
 
+    response.headers.set(
+      "Set-Cookie",
+      serialize("authToken", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60, // 1 hour
+      })
+    );
+
+    return response;
   } catch (error) {
-    console.error('Login error:', error);
-    return res.status(500).json({ success: false, message: 'Internal server error' });
+    console.error("Login error:", error);
+    return NextResponse.json(
+      { success: false, message: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

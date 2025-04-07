@@ -155,7 +155,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <div>
                     <button
                       onClick={() => toggleDropdown(item.name)}
-                      className={`flex items-center w-full py-1.5 px-3 hover:bg-gray-700 transition-colors ${
+                      className={`flex items-center w-full py-1.5 px-3 hover:bg-gray-700 transition-colors cursor-pointer ${
                         !isCollapsed || (isMobile && sidebarOpen)
                           ? ""
                           : "justify-center"

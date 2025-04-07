@@ -78,24 +78,26 @@ const Signup = () => {
     }
 
     try {
+      const role = "doctor"; // Default role for new users
       const response = await fetch("/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, phone, password }),
+        body: JSON.stringify({ name, email, phone, role, password }),
       });
 
       const data = await response.json();
+      console.log("Response data:", response);
 
-      if (response.ok && data.success) {
+      if (response.status === 201 && response.ok) {
         setSuccessMessage(
           data.message || "Registration successful! Redirecting..."
         );
         // Optionally redirect the user after a short delay
         setTimeout(() => {
           window.location.href = "/login"; // Replace with your login page URL
-        }, 1500);
+        }, 1000);
       } else {
         setError(data.message || "Registration failed. Please try again.");
       }

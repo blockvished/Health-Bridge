@@ -39,8 +39,24 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   }, []);
 
   // Handle logout
-  const handleLogout = () => {
-    alert("Logging out..."); // Replace with actual logout logic
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/logout", {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        // Optional: Clear client-side state
+        setDoctorData(null);
+
+        // Redirect to login or landing page
+        window.location.href = "/login";
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   // Close dropdowns when clicking outside

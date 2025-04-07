@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1742446852867,
-      "tag": "0000_flimsy_purifiers",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1742455338233,
-      "tag": "0001_powerful_lester",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1742460250825,
-      "tag": "0002_military_inertia",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1742469642190,
-      "tag": "0003_quiet_purifiers",
+      "when": 1744011093900,
+      "tag": "0000_soft_blackheart",
       "breakpoints": true
     }
   ]

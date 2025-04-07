@@ -34,16 +34,12 @@ const Login = () => {
         throw new Error(data.message || "Login failed");
       }
 
-      // Store token in localStorage
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
       // Redirect based on user role
       if (data.user.role === "doctor") {
-        router.push("/dashboard/doctor");
+        router.push("/admin/dashboard/user");
       } else if (
         data.user.role === "admin" ||
-        data.user.role === "superadmin"
+        data.user.role === "/admin/dashboard/"
       ) {
         router.push("/dashboard/admin");
       } else {
@@ -159,7 +155,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg text-lg font-semibold hover:bg-blue-600 transition mx-4 disabled:bg-blue-300"
+              className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg text-lg font-semibold hover:bg-blue-600 transition mx-4 disabled:bg-blue-300 cursor-pointer"
             >
               {loading ? "Signing In..." : "Sign In"}
             </button>
