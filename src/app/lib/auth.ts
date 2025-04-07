@@ -2,17 +2,18 @@ import { hash } from "argon2";
 import crypto from "crypto";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { users, userRoleEnum } from "../../db/schema";
+import { users, UserRole } from "../../db/schema"; // Import the enum
+import { InferInsertModel } from "drizzle-orm";
 
-// Define the type for role based on the enum values
-type UserRole = "superadmin" | "admin" | "doctor" | "staff" | "user";
+// Define the expected type for the insert values
+type NewUser = InferInsertModel<typeof users>;
 
 async function registerUser(
   name: string,
   email: string,
   password: string,
-  mobile?: string,
-  role: UserRole = "doctor"
+  phone: string,
+  role: UserRole
 ) {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
@@ -21,20 +22,22 @@ async function registerUser(
   const sql = postgres(connectionString, { max: 1 });
   const db = drizzle(sql);
 
-  const SERVER_PEPPER = process.env.SERVER_PEPPER || "default_pepper"; // Use a secure pepper
+  const SERVER_PEPPER = process.env.SERVER_PEPPER || "default_pepper";
   try {
     const salt = crypto.randomBytes(16).toString("hex");
-    const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER; // Apply pepper
+    const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
     const passwordHash = await hash(saltedPassword);
 
-    await db.insert(users).values({
+    const newUser: NewUser = {
       name,
       email,
-      mobile,
+      phone,
       password_hash: passwordHash,
       salt,
-      role: role as any, // Type assertion to handle enum compatibility
-    });
+      role: role, // 'role' is now correctly typed
+    };
+
+    await db.insert(users).values(newUser);
 
     return { success: true, message: "User registered successfully" };
   } catch (error) {
