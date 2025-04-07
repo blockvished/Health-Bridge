@@ -1,44 +1,19 @@
-import { hash } from 'argon2';
-import crypto from 'crypto';
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
-import { users, userRoleEnum } from "../../../db/schema"
+import { NextResponse } from 'next/server';
+import { registerUser } from '../../lib/auth'; // Adjust the import path
 
-// Define the type for role based on the enum values
-type UserRole = "superadmin" | "admin" | "doctor" | "staff" | "user";
-
-async function registerUser(
-  name: string, 
-  email: string, 
-  password: string, 
-  mobile?: string, 
-  role: UserRole = 'doctor'
-) {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error("DATABASE_URL is not set in environment variables.");
-  }
-  const sql = postgres(connectionString, { max: 1 });
-  const db = drizzle(sql);
-  
-  const SERVER_PEPPER = process.env.SERVER_PEPPER || 'default_pepper'; // Use a secure pepper
+export async function POST(request: Request) {
   try {
-    const salt = crypto.randomBytes(16).toString('hex');
-    const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER; // Apply pepper
-    const passwordHash = await hash(saltedPassword);
-    
-    await db.insert(users).values({
-      name,
-      email,
-      mobile,
-      password_hash: passwordHash,
-      salt,
-      role: role as any, // Type assertion to handle enum compatibility
-    });
-    
-    return { success: true, message: 'User registered successfully' };
-  } catch (error) {
-    console.error('Error registering user:', error);
-    return { success: false, message: 'Failed to register user' };
+    const { name, email, password, phone, role } = await request.json();
+
+    const registrationResult = await registerUser(name, email, password, phone, role);
+
+    if (registrationResult.success) {
+      return NextResponse.json({ message: registrationResult.message }, { status: 201 });
+    } else {
+      return NextResponse.json({ error: registrationResult.message }, { status: 400 });
+    }
+  } catch (error: any) {
+    console.error('Registration API error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
