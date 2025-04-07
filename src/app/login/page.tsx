@@ -1,7 +1,55 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      // Store token in localStorage
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Redirect based on user role
+      if (data.user.role === "doctor") {
+        router.push("/dashboard/doctor");
+      } else if (data.user.role === "admin" || data.user.role === "superadmin") {
+        router.push("/dashboard/admin");
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (err: any) {
+      setError(err.message || "An error occurred during login");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-100 to-cyan-200 justify-center items-center p-4">
       <div className="bg-white shadow-lg rounded-2xl w-full max-w-4xl flex overflow-hidden">
@@ -43,36 +91,54 @@ const Login = () => {
             <p className="text-gray-500 mt-2">Access your account below</p>
           </div>
 
-          <div className="mt-6 space-y-3 mx-4">
-            <div>
-              <label className="block text-gray-600 font-medium">Email</label>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              />
+          {error && (
+            <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded mx-4">
+              {error}
             </div>
-            <div>
-              <label className="block text-gray-600 font-medium">
-                Password
-              </label>
-              <input
-                type="password"
-                placeholder="Enter your password"
-                className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              />
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <div className="mt-6 space-y-3 mx-4">
+              <div>
+                <label className="block text-gray-600 font-medium">Email</label>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-600 font-medium">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                />
+              </div>
             </div>
-          </div>
 
-          <div className="text-right mt-2 mx-4">
-            <Link href="#" className="text-blue-500 text-sm">
-              Forgot password?
-            </Link>
-          </div>
+            <div className="text-right mt-2 mx-4">
+              <Link href="#" className="text-blue-500 text-sm">
+                Forgot password?
+              </Link>
+            </div>
 
-          <button className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg text-lg font-semibold hover:bg-blue-600 transition mx-4">
-            Sign In
-          </button>
+            <button 
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg text-lg font-semibold hover:bg-blue-600 transition mx-4 disabled:bg-blue-300"
+            >
+              {loading ? "Signing In..." : "Sign In"}
+            </button>
+          </form>
 
           <p className="mt-4 text-center text-gray-600 text-sm mx-4">
             Don't have an account?{" "}
