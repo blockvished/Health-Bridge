@@ -13,17 +13,98 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const handleSignup = (e: FormEvent) => {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const validatePassword = (password: string): string | null => {
+    if (password.length < 8) {
+      return "Password must be at least 8 characters long.";
+    }
+    if (!/[0-9]/.test(password)) {
+      return "Password must contain at least one number.";
+    }
+    if (!/[^a-zA-Z0-9\s]/.test(password)) {
+      return "Password must contain at least one special character.";
+    }
+    if (!/[A-Z]/.test(password)) {
+      return "Password must contain at least one uppercase letter.";
+    }
+    return null;
+  };
+
+  const handleSignup = async (e: FormEvent) => {
     e.preventDefault();
-    // Add your signup logic here, e.g., API calls, validation
-    console.log({ name, email, phone, password, confirmPassword, agreeTerms });
-    // Reset form fields after submission if needed
-    // setName("");
-    // setEmail("");
-    // setPhone("");
-    // setPassword("");
-    // setConfirmPassword("");
-    // setAgreeTerms(false);
+    setError(null);
+    setSuccessMessage(null);
+    setLoading(true);
+
+    if (!name) {
+      setError("Please enter your name.");
+      setLoading(false);
+      return;
+    }
+
+    if (!email) {
+      setError("Please enter your email.");
+      setLoading(false);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      setLoading(false);
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      setLoading(false);
+      return;
+    }
+
+    if (!agreeTerms) {
+      setError("Please agree to terms and conditions to proceed.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, phone, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSuccessMessage(
+          data.message || "Registration successful! Redirecting..."
+        );
+        // Optionally redirect the user after a short delay
+        setTimeout(() => {
+          window.location.href = "/login"; // Replace with your login page URL
+        }, 1500);
+      } else {
+        setError(data.message || "Registration failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      setError("An unexpected error occurred. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -71,6 +152,16 @@ const Signup = () => {
             </h2>
             <p className="text-gray-500 mt-1">Sign up to get started</p>
           </div>
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mt-4">
+              {error}
+            </div>
+          )}
+          {successMessage && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mt-4">
+              {successMessage}
+            </div>
+          )}
           <form
             onSubmit={handleSignup}
             className="w-full max-w-md p-4 flex flex-col justify-center"
@@ -104,13 +195,25 @@ const Signup = () => {
                 <label className="block text-gray-600 text-sm font-medium">
                   Phone
                 </label>
-                <input
-                  type="text"
-                  placeholder="Your phone number"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
+                <div>
+                  <style jsx>{`
+                    input[type="number"]::-webkit-outer-spin-button,
+                    input[type="number"]::-webkit-inner-spin-button {
+                      -webkit-appearance: none;
+                      margin: 0;
+                    }
+                  `}</style>
+                  <input
+                    type="number"
+                    placeholder="Your phone number"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    style={{
+                      MozAppearance: "textfield",
+                    }}
+                  />
+                </div>
               </div>
 
               <label className="block text-gray-600 text-sm font-medium">
@@ -167,7 +270,7 @@ const Signup = () => {
             <div className="mt-2 flex items-center text-sm">
               <input
                 type="checkbox"
-                className="mr-2"
+                className="mr-2 cursor-pointer"
                 checked={agreeTerms}
                 onChange={(e) => setAgreeTerms(e.target.checked)}
               />
@@ -185,9 +288,9 @@ const Signup = () => {
             </div>
             <button
               type="submit"
-              className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg text-sm font-semibold hover:bg-blue-600 transition"
+              className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg text-sm font-semibold hover:bg-blue-600 transition cursor-pointer"
             >
-              Register
+              {loading ? "Registering..." : "Register"}
             </button>
             <p className="mt-2 text-center text-sm text-gray-600">
               Already have an account?{" "}
