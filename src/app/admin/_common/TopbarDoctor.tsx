@@ -48,8 +48,24 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   }, []);
 
   // Handle logout
-  const handleLogout = () => {
-    alert("Logging out..."); // Replace with actual logout logic
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/logout", {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        // Optional: Clear client-side state
+        setDoctorData(null);
+
+        // Redirect to login or landing page
+        window.location.href = "/login";
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   // Close dropdowns when clicking outside
@@ -106,22 +122,19 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               }`}
             >
               <ul className="py-2">
-                {[
-                  "Prescription",
-                  "Staff",
-                  "Patients",
-                  "Appointment",
-                ].map((item, index) => (
-                  <li key={index}>
-                    <Link
-                      href={`/admin/${item.toLowerCase()}`}
-                      className="block px-4 py-3 text-gray-800 hover:bg-blue-50 transition"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      {item}
-                    </Link>
-                  </li>
-                ))}
+                {["Prescription", "Staff", "Patients", "Appointment"].map(
+                  (item, index) => (
+                    <li key={index}>
+                      <Link
+                        href={`/admin/${item.toLowerCase()}`}
+                        className="block px-4 py-3 text-gray-800 hover:bg-blue-50 transition"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        {item}
+                      </Link>
+                    </li>
+                  )
+                )}
               </ul>
             </div>
           </div>
