@@ -72,6 +72,15 @@ export async function middleware(req: NextRequest) {
     const { payload } = await jwtVerify(token, getKey());
     const { role } = payload as JWTPayloadWithRole;
 
+    const res = NextResponse.next();
+    // Set role in cookies so the client can access it
+    res.cookies.set("userRole", role, {
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60, // 1 hour
+    });
+
     const isAdminRoute = ADMIN_ROUTES.includes(pathname);
     const isDoctorRoute = DOCTOR_ONLY_ROUTES.includes(pathname);
     const isPatientRoute = PATIENT_ONLY_ROUTES.includes(pathname);
@@ -91,7 +100,7 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 
-    return NextResponse.next();
+    return res
   } catch (err) {
     console.error("JWT verification failed:", err);
     return NextResponse.redirect(new URL("/login", req.url));
@@ -99,9 +108,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/admin/:path*",
-    "/login",
-    "/register",
-  ],
+  matcher: ["/admin/:path*", "/login", "/register"],
 };
