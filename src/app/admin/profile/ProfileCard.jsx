@@ -4,22 +4,24 @@ import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 export default function ProfileCard() {
   const [doctorData, setDoctorData] = useState(null);
 
-  useEffect(() => {
-    const fetchDoctor = async () => {
-      try {
-        const response = await fetch("/api/doctor");
-        const data = await response.json();
-        if (data.length > 0) {
-          setDoctorData(data[0]);
-          console.log(data);
-        }
-      } catch (error) {
-        console.error("Error fetching doctor data:", error);
-      }
-    };
+  
 
-    fetchDoctor();
-  }, []);
+  // useEffect(() => {
+  //   const fetchDoctor = async () => {
+  //     try {
+  //       const response = await fetch("/api/doctor");
+  //       const data = await response.json();
+  //       if (data.length > 0) {
+  //         setDoctorData(data[0]);
+  //         console.log(data);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching doctor data:", error);
+  //     }
+  //   };
+
+  //   fetchDoctor();
+  // }, []);
 
   return (
     <div className="w-full max-w-xs bg-white text-gray-900 rounded-2xl shadow-lg p-6 flex flex-col items-center text-center max-h-[380px]">
