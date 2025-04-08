@@ -11,8 +11,6 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { eq } from "drizzle-orm";
 
 import { doctor } from "../../../../../../../db/schema";
-// "../../../../../../../../private_uploads/signatures/"
-// "../../../../../../../../private_uploads/pictures/"
 
 export const config = {
   api: {
