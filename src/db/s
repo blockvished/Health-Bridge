@@ -57,34 +57,6 @@ export const patient = pgTable("patient", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// auth 
-
-// id 1 doctor 
-// name
-// email 
-// phone 
-// password  hash 
-// role -> doctor, patient, admin, superadmin, staff 
-
-export const doctor = pgTable("doctor", {
-  // authid 
-  // image link
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
-  phone: varchar("phone", { length: 20 }),
-  country: text("country"),
-  city: text("city"),
-  specialization: text("specialization"),
-  degree: text("degree"),
-  experience: integer("experience"),
-  aboutSelf: text("about_self"),
-  aboutClinic: text("about_clinic"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-
 // Doctor Education Table (One-to-One with Doctor)
 export const doctorEducation = pgTable("doctor_education", {
   id: serial("id").primaryKey(),
