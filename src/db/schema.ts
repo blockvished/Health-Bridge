@@ -41,6 +41,7 @@ export const doctor = pgTable("doctor", {
     .references(() => users.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 20 }),
   city: text("city"),
   specialization: text("specialization"),
   degree: text("degree"),

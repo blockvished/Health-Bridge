@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1744106717601,
+      "tag": "0000_swift_the_order",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744110507532,
+      "tag": "0001_dapper_vapor",
+      "breakpoints": true
+    }
+  ]
+}
