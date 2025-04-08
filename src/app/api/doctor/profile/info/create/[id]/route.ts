@@ -5,7 +5,11 @@ import { cookies } from "next/headers";
 import { IncomingForm } from "formidable";
 import { Readable } from "stream";
 import jwt from "jsonwebtoken";
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { eq } from "drizzle-orm";
 
+import { doctor } from "../../../../../../../db/schema";
 export const config = {
   api: {
     bodyParser: false,
@@ -32,7 +36,7 @@ function createNodeRequest(req: NextRequest): Promise<any> {
 }
 
 export async function POST(req: NextRequest) {
-  const doctorIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
+  const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
   const cookieStore = await cookies();
   const token = cookieStore.get("authToken")?.value;
 
@@ -50,7 +54,7 @@ export async function POST(req: NextRequest) {
   };
   console.log("Decoded JWT:", decoded);
 
-  if (String(decoded.userId) !== doctorIdFromUrl) {
+  if (String(decoded.userId) !== userIdFromUrl) {
     // Optional: match doctor ID
     return NextResponse.json(
       { error: "Forbidden: Token-user mismatch" },
@@ -60,7 +64,6 @@ export async function POST(req: NextRequest) {
 
   console.log("paste, the data like name email and phone number below");
   const nodeReq = await createNodeRequest(req);
-
 
   return new Promise((resolve, reject) => {
     const form = new IncomingForm({ multiples: false });
@@ -77,7 +80,20 @@ export async function POST(req: NextRequest) {
       console.log("Email:", fields.email);
       console.log("Files:", files);
 
-      // resolve(NextResponse.json({ success: true, fields, files }));
+      const connectionString = process.env.DATABASE_URL;
+      if (!connectionString) {
+        throw new Error("DATABASE_URL is not set in environment variables.");
+      }
+      console.log(typeof(doctor.userId, decoded.userId))
+
+      const sql = postgres(connectionString, { max: 1 });
+      const db = drizzle(sql);
+      const ExistingDoctor = await db
+        .select()
+        .from(doctor)
+        .where(eq(doctor.userId, Number(decoded.userId)))
+
+      resolve(NextResponse.json({ success: true, fields, files }));
     });
   });
 }
