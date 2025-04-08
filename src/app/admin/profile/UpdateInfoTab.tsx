@@ -1,5 +1,7 @@
+import Cookies from "js-cookie";
 import { Upload } from "lucide-react";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { FaCheck } from "react-icons/fa";
 interface Doctor {
   name: string;
   email: string;
@@ -27,6 +29,8 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
     aboutSelf: doctor?.aboutSelf || "",
     aboutClinic: doctor?.aboutClinic || "",
   });
+  const [profileFile, setProfileFile] = useState<File | null>(null);
+  const [signatureFile, setSignatureFile] = useState<File | null>(null);
 
   const profileInputRef = useRef<HTMLInputElement>(null);
   const signatureInputRef = useRef<HTMLInputElement>(null);
@@ -34,12 +38,24 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
 
+  const [role, setRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const roleFromCookie = Cookies.get("userRole");
+    const idFromCookie = Cookies.get("userId");
+
+    setRole(roleFromCookie || null);
+    setUserId(idFromCookie || null);
+  }, []);
+
   const handleProfileClick = () => profileInputRef.current?.click();
   const handleSignatureClick = () => signatureInputRef.current?.click();
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setProfileFile(file);
       const reader = new FileReader();
       reader.onloadend = () => setProfilePreview(reader.result as string);
       reader.readAsDataURL(file);
@@ -49,6 +65,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
   const handleSignatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSignatureFile(file);
       const reader = new FileReader();
       reader.onloadend = () => setSignaturePreview(reader.result as string);
       reader.readAsDataURL(file);
@@ -64,6 +81,48 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
       element.style.height = `${element.scrollHeight}px`;
     });
   }, []);
+
+  const handleSaveChanges = async () => {
+    try {
+      const formData = new FormData();
+
+      // Append doctor text fields
+      Object.entries(doctorData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+
+      // Append files
+      if (profileFile) {
+        formData.append("profileImage", profileFile);
+      }
+      if (signatureFile) {
+        formData.append("signatureImage", signatureFile);
+      }
+      // for (const key of formData.keys()) {
+      //   console.log(`${key}:`, formData.getAll(key));
+      // }
+      // console.log(formData.get("profileImage"));
+      // console.log(formData.get("signatureImage"));
+
+      const response = await fetch(
+        `/api/doctor/profile/info/create/${userId}`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to update doctor info");
+
+      const data = await response.json();
+      alert("Doctor information updated successfully!");
+      console.log(data);
+    } catch (error) {
+      console.error("Error updating doctor info:", error);
+      alert("Something went wrong.");
+    }
+  };
 
   return (
     <div className="space-y-3">
@@ -255,6 +314,13 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
           }
         />
       </div>
+      <button
+        className="w-full md:w-auto bg-blue-500 text-white px-4 py-2 rounded-md flex items-center justify-center text-sm shadow-md hover:bg-blue-600 transition"
+        onClick={handleSaveChanges}
+      >
+        <FaCheck className="mr-2" />
+        Save Changes
+      </button>
     </div>
   );
 };
