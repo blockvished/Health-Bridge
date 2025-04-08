@@ -16,8 +16,18 @@ interface UpdateInfoTabProps {
 }
 
 const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
-  const [metaTags, setMetaTags] = React.useState<string[]>([]);
-  const [seoDescription, setSeoDescription] = React.useState<string>("");
+  const [doctorData, setDoctorData] = useState({
+    name: doctor?.name || "",
+    email: doctor?.email || "",
+    phone: doctor?.phone || "",
+    city: doctor?.city || "",
+    specialization: doctor?.specialization || "",
+    degree: doctor?.degree || "",
+    experience: doctor?.experience || "",
+    aboutSelf: doctor?.aboutSelf || "",
+    aboutClinic: doctor?.aboutClinic || "",
+  });
+
   const profileInputRef = useRef<HTMLInputElement>(null);
   const signatureInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,12 +53,6 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
       reader.onloadend = () => setSignaturePreview(reader.result as string);
       reader.readAsDataURL(file);
     }
-  };
-
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const textarea = e.target;
-    textarea.style.height = "auto";
-    textarea.style.height = `${textarea.scrollHeight}px`;
   };
 
   // Initialize textarea heights on component mount
@@ -134,7 +138,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor?.name}
+          value={doctorData.name}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, name: e.target.value })
+          }
         />
       </div>
       <div>
@@ -144,17 +151,33 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="email"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor?.email}
+          value={doctorData.email}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, email: e.target.value })
+          }
         />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Phone
         </label>
-        <input
-          type="text"
-          className="w-full border border-gray-300 rounded p-2"
-        />
+        <div>
+          <style jsx>{`
+            input[type="number"]::-webkit-outer-spin-button,
+            input[type="number"]::-webkit-inner-spin-button {
+              -webkit-appearance: none;
+              margin: 0;
+            }
+          `}</style>
+          <input
+            type="number"
+            className="w-full border border-gray-300 rounded p-2"
+            value={doctorData.phone}
+            onChange={(e) =>
+              setDoctorData({ ...doctorData, phone: e.target.value })
+            }
+          />
+        </div>
       </div>
       <div></div>
       <div>
@@ -164,7 +187,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor?.city}
+          value={doctorData.city}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, city: e.target.value })
+          }
         />
       </div>
       <div>
@@ -174,7 +200,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor?.specialization}
+          value={doctorData.specialization}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, specialization: e.target.value })
+          }
         />
       </div>
       <div>
@@ -183,8 +212,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          defaultValue={doctor?.degree}
-          onChange={handleTextareaChange}
+          value={doctorData.degree}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, degree: e.target.value })
+          }
         />
       </div>
       <div>
@@ -194,7 +225,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="number"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor?.experience}
+          value={doctorData.experience}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, experience: e.target.value })
+          }
         />
       </div>
       <div>
@@ -203,8 +237,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          defaultValue={doctor?.aboutSelf}
-          onChange={handleTextareaChange}
+          value={doctorData.aboutSelf}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, aboutSelf: e.target.value })
+          }
         />
       </div>
       <div>
@@ -213,8 +249,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          defaultValue={doctor?.aboutClinic || ""}
-          onChange={handleTextareaChange}
+          value={doctorData.aboutClinic}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, aboutClinic: e.target.value })
+          }
         />
       </div>
     </div>
