@@ -28,6 +28,7 @@
     "cookie": "^1.0.2",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.0",
+    "formidable": "^3.5.2",
     "jose": "^6.0.10",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
@@ -48,6 +49,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/formidable": "^3.4.5",
     "@types/js-cookie": "^3.0.6",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20",
