@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaUserEdit, FaGlobe, FaSearch, FaCode, FaCheck } from "react-icons/fa";
 import UpdateInfoTab from "./UpdateInfoTab";
 import SocialSettingsTab from "./SocialSettingsTab";
@@ -8,10 +8,10 @@ import SEOSettingsTab from "./SEOSettingsTab";
 import ProfileCard from "./ProfileCard";
 
 interface Doctor {
+  imagelink: string;
   name: string;
   email: string;
   phone: string;
-  country: string;
   city: string;
   specialization: string;
   degree: string;
@@ -23,22 +23,22 @@ interface Doctor {
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("Update Info");
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
+  
+  // useEffect(() => {
+  //   const fetchDoctor = async () => {
+  //     try {
+  //       const response = await fetch("/api/doctor");
+  //       const data = await response.json();
+  //       if (data.length > 0) {
+  //         setDoctorData(data[0]);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching doctor data:", error);
+  //     }
+  //   };
 
-  useEffect(() => {
-    const fetchDoctor = async () => {
-      try {
-        const response = await fetch("/api/doctor");
-        const data = await response.json();
-        if (data.length > 0) {
-          setDoctorData(data[0]);
-        }
-      } catch (error) {
-        console.error("Error fetching doctor data:", error);
-      }
-    };
-
-    fetchDoctor();
-  }, []);
+  //   fetchDoctor();
+  // }, []);
 
   const tabs = [
     { name: "Update Info", icon: <FaUserEdit /> },
@@ -52,7 +52,11 @@ const Profile: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Update Info":
-        return <UpdateInfoTab doctor={doctorData} />;
+        return (
+          <UpdateInfoTab
+            doctor={doctorData}
+          />
+        );
       case "Social Settings":
         return <SocialSettingsTab />;
       case "SEO Settings":
@@ -104,12 +108,6 @@ const Profile: React.FC = () => {
           {renderTabContent()}
         </div>
 
-        <div className="px-4 md:px-6 pb-4 md:pb-6 border-l border-r border-b border-gray-200 rounded-b-lg">
-          <button className="w-full md:w-auto bg-blue-500 text-white px-4 py-2 rounded-md flex items-center justify-center text-sm shadow-md hover:bg-blue-600 transition">
-            <FaCheck className="mr-2" />
-            Save Changes
-          </button>
-        </div>
       </div>
     </div>
   );

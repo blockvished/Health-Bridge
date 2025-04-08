@@ -1,10 +1,11 @@
-import React from "react";
-
+import Cookies from "js-cookie";
+import { Upload } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { FaCheck } from "react-icons/fa";
 interface Doctor {
   name: string;
   email: string;
   phone: string;
-  country: string;
   city: string;
   specialization: string;
   degree: string;
@@ -12,85 +13,177 @@ interface Doctor {
   aboutSelf: string;
   aboutClinic?: string;
 }
-
 interface UpdateInfoTabProps {
   doctor: Doctor | null;
 }
 
 const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
-  const [metaTags, setMetaTags] = React.useState<string[]>([]);
-  const [seoDescription, setSeoDescription] = React.useState<string>("");
+  const [doctorData, setDoctorData] = useState({
+    name: doctor?.name || "",
+    email: doctor?.email || "",
+    phone: doctor?.phone || "",
+    city: doctor?.city || "",
+    specialization: doctor?.specialization || "",
+    degree: doctor?.degree || "",
+    experience: doctor?.experience || "",
+    aboutSelf: doctor?.aboutSelf || "",
+    aboutClinic: doctor?.aboutClinic || "",
+  });
+  const [profileFile, setProfileFile] = useState<File | null>(null);
+  const [signatureFile, setSignatureFile] = useState<File | null>(null);
 
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const textarea = e.target;
-    textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight}px`;
+  const profileInputRef = useRef<HTMLInputElement>(null);
+  const signatureInputRef = useRef<HTMLInputElement>(null);
+
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
+
+  const [role, setRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const roleFromCookie = Cookies.get("userRole");
+    const idFromCookie = Cookies.get("userId");
+
+    setRole(roleFromCookie || null);
+    setUserId(idFromCookie || null);
+  }, []);
+
+  const handleProfileClick = () => profileInputRef.current?.click();
+  const handleSignatureClick = () => signatureInputRef.current?.click();
+
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setProfilePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSignatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSignatureFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setSignaturePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
   };
 
   // Initialize textarea heights on component mount
   React.useEffect(() => {
-    const textareas = document.querySelectorAll('textarea.auto-resize');
-    textareas.forEach(textarea => {
+    const textareas = document.querySelectorAll("textarea.auto-resize");
+    textareas.forEach((textarea) => {
       const element = textarea as HTMLTextAreaElement;
-      element.style.height = 'auto';
+      element.style.height = "auto";
       element.style.height = `${element.scrollHeight}px`;
     });
   }, []);
+
+  const handleSaveChanges = async () => {
+    try {
+      const formData = new FormData();
+
+      // Append doctor text fields
+      Object.entries(doctorData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+
+      // Append files
+      if (profileFile) {
+        formData.append("profileImage", profileFile);
+      }
+      if (signatureFile) {
+        formData.append("signatureImage", signatureFile);
+      }
+      // for (const key of formData.keys()) {
+      //   console.log(`${key}:`, formData.getAll(key));
+      // }
+      // console.log(formData.get("profileImage"));
+      // console.log(formData.get("signatureImage"));
+
+      const response = await fetch(
+        `/api/doctor/profile/info/create/${userId}`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to update doctor info");
+
+      const data = await response.json();
+      alert("Doctor information updated successfully!");
+      console.log(data);
+    } catch (error) {
+      console.error("Error updating doctor info:", error);
+      alert("Something went wrong.");
+    }
+  };
 
   return (
     <div className="space-y-3">
       {/* Profile Image and Signature Upload Section */}
       <div className="flex flex-wrap gap-8 mb-6">
+        {/* Profile Image */}
         <div className="flex flex-col items-center">
           <div className="w-32 h-32 bg-gray-100 rounded-md flex items-center justify-center mb-2 overflow-hidden">
-            {/* <img 
-              src="/api/placeholder/128/128" 
-              alt="Doctor profile" 
-              className="w-full h-full object-cover"
-            /> */}
-          </div>
-          <button className="mt-2 bg-gray-100 text-gray-600 px-3 py-2 rounded flex items-center space-x-2 text-sm">
-            <svg
-              className="h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"
+            {profilePreview ? (
+              <img
+                src={profilePreview}
+                alt="Profile Preview"
+                className="w-full h-full object-cover"
               />
-            </svg>
+            ) : (
+              <span className="text-sm text-gray-400">No image</span>
+            )}
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            ref={profileInputRef}
+            onChange={handleProfileChange}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={handleProfileClick}
+            className="mt-2 bg-gray-100 text-gray-600 px-3 py-2 rounded flex items-center space-x-2 text-sm"
+          >
+            <Upload className="w-4 h-4" />
             <span>Upload Image</span>
           </button>
         </div>
-        
+
+        {/* Signature */}
         <div className="flex flex-col items-center">
           <div className="w-48 h-32 bg-gray-100 rounded-md flex items-center justify-center mb-2">
-            {/* <img 
-              src="/api/placeholder/192/128" 
-              alt="Doctor signature" 
-              className="w-3/4 h-auto object-contain"
-            /> */}
-          </div>
-          <button className="mt-2 bg-gray-100 text-gray-600 px-3 py-2 rounded flex items-center space-x-2 text-sm">
-            <svg
-              className="h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"
+            {signaturePreview ? (
+              <img
+                src={signaturePreview}
+                alt="Signature Preview"
+                className="w-3/4 h-auto object-contain"
               />
-            </svg>
+            ) : (
+              <span className="text-sm text-gray-400">No signature</span>
+            )}
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            ref={signatureInputRef}
+            onChange={handleSignatureChange}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={handleSignatureClick}
+            className="mt-2 bg-gray-100 text-gray-600 px-3 py-2 rounded flex items-center space-x-2 text-sm"
+          >
+            <Upload className="w-4 h-4" />
             <span>Upload Signature</span>
           </button>
         </div>
@@ -104,7 +197,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor?.name}
+          value={doctorData.name}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, name: e.target.value })
+          }
         />
       </div>
       <div>
@@ -114,42 +210,35 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="email"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor?.email}
+          value={doctorData.email}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, email: e.target.value })
+          }
         />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Phone
         </label>
-        <input
-          type="text"
-          className="w-full border border-gray-300 rounded p-2"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Country
-        </label>
-        <div className="relative">
-          <select className="w-full border border-gray-300 rounded p-2 appearance-none">
-            <option>India</option>
-          </select>
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg
-              className="h-4 w-4 text-gray-400"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
+        <div>
+          <style jsx>{`
+            input[type="number"]::-webkit-outer-spin-button,
+            input[type="number"]::-webkit-inner-spin-button {
+              -webkit-appearance: none;
+              margin: 0;
+            }
+          `}</style>
+          <input
+            type="number"
+            className="w-full border border-gray-300 rounded p-2"
+            value={doctorData.phone}
+            onChange={(e) =>
+              setDoctorData({ ...doctorData, phone: e.target.value })
+            }
+          />
         </div>
       </div>
+      <div></div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
           City
@@ -157,7 +246,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor?.city}
+          value={doctorData.city}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, city: e.target.value })
+          }
         />
       </div>
       <div>
@@ -167,7 +259,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor?.specialization}
+          value={doctorData.specialization}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, specialization: e.target.value })
+          }
         />
       </div>
       <div>
@@ -176,8 +271,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          defaultValue={doctor?.degree}
-          onChange={handleTextareaChange}
+          value={doctorData.degree}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, degree: e.target.value })
+          }
         />
       </div>
       <div>
@@ -187,7 +284,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="number"
           className="w-full border border-gray-300 rounded p-2"
-          defaultValue={doctor?.experience}
+          value={doctorData.experience}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, experience: e.target.value })
+          }
         />
       </div>
       <div>
@@ -196,8 +296,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          defaultValue={doctor?.aboutSelf}
-          onChange={handleTextareaChange}
+          value={doctorData.aboutSelf}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, aboutSelf: e.target.value })
+          }
         />
       </div>
       <div>
@@ -206,10 +308,19 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          defaultValue={doctor?.aboutClinic || ""}
-          onChange={handleTextareaChange}
+          value={doctorData.aboutClinic}
+          onChange={(e) =>
+            setDoctorData({ ...doctorData, aboutClinic: e.target.value })
+          }
         />
       </div>
+      <button
+        className="w-full md:w-auto bg-blue-500 text-white px-4 py-2 rounded-md flex items-center justify-center text-sm shadow-md hover:bg-blue-600 transition"
+        onClick={handleSaveChanges}
+      >
+        <FaCheck className="mr-2" />
+        Save Changes
+      </button>
     </div>
   );
 };

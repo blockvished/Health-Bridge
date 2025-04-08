@@ -70,7 +70,7 @@ export async function middleware(req: NextRequest) {
 
   try {
     const { payload } = await jwtVerify(token, getKey());
-    const { role } = payload as JWTPayloadWithRole;
+    const { userId, role } = payload as JWTPayloadWithRole;
 
     const res = NextResponse.next();
     // Set role in cookies so the client can access it
@@ -79,6 +79,13 @@ export async function middleware(req: NextRequest) {
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60, // 1 hour
+    });
+
+    res.cookies.set("userId", userId.toString(), { // Ensure userId is a string
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60, // 1 hour (you can adjust this as needed)
     });
 
     const isAdminRoute = ADMIN_ROUTES.includes(pathname);

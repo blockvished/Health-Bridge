@@ -31,21 +31,31 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
 
   useEffect(() => {
-    const fetchDoctor = async () => {
-      try {
-        const response = await fetch("/api/doctor");
-        const data = await response.json();
-        if (data.length > 0) {
-          setDoctorData(data[0]);
-          console.log(data);
-        }
-      } catch (error) {
-        console.error("Error fetching doctor data:", error);
-      }
+    // Dummy doctor data
+    const dummyDoctor: Doctor = {
+      name: 'Dr. John Doe',
+      email: 'john.doe@example.com',
     };
+    setDoctorData(dummyDoctor);
+  }
+  , []);
 
-    fetchDoctor();
-  }, []);
+  // useEffect(() => {
+  //   const fetchDoctor = async () => {
+  //     try {
+  //       const response = await fetch("/api/doctor");
+  //       const data = await response.json();
+  //       if (data.length > 0) {
+  //         setDoctorData(data[0]);
+  //         console.log(data);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching doctor data:", error);
+  //     }
+  //   };
+
+  //   fetchDoctor();
+  // }, []);
 
   // Handle logout
   const handleLogout = async () => {

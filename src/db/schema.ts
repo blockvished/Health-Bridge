@@ -34,6 +34,39 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const doctor = pgTable("doctor", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+  .notNull()
+  .references(() => users.id, { onDelete: "cascade" }),
+  image: text("image"), // URL or path to image
+  signature: text("signature"), // URL or path to signature
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  city: text("city"),
+  specialization: text("specialization"),
+  degree: text("degree"),
+  experience: integer("experience"), // in years maybe
+  aboutSelf: text("about_self"),
+  aboutClinic: text("about_clinic"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Relations
+export const doctorRelations = relations(doctor, ({ one }) => ({
+  user: one(users, {
+    fields: [doctor.userId],
+    references: [users.id],
+  }),
+}));
+
+export const userRelations = relations(users, ({ one }) => ({
+  doctor: one(doctor, {
+    fields: [users.id],
+    references: [doctor.userId],
+  }),
+}));
 
 // email_verification_token: text('email_verification_token'),
 // email_verification_token_expires: timestamp('email_verification_token_expires'),
