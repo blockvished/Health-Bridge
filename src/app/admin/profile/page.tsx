@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaUserEdit, FaGlobe, FaSearch, FaCode, FaCheck } from "react-icons/fa";
 import UpdateInfoTab from "./UpdateInfoTab";
 import SocialSettingsTab from "./SocialSettingsTab";
@@ -8,10 +8,10 @@ import SEOSettingsTab from "./SEOSettingsTab";
 import ProfileCard from "./ProfileCard";
 
 interface Doctor {
+  imagelink: string;
   name: string;
   email: string;
   phone: string;
-  country: string;
   city: string;
   specialization: string;
   degree: string;
@@ -23,6 +23,8 @@ interface Doctor {
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("Update Info");
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
+
+
 
   useEffect(() => {
     const fetchDoctor = async () => {
@@ -52,7 +54,11 @@ const Profile: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Update Info":
-        return <UpdateInfoTab doctor={doctorData} />;
+        return (
+          <UpdateInfoTab
+            doctor={doctorData}
+          />
+        );
       case "Social Settings":
         return <SocialSettingsTab />;
       case "SEO Settings":
