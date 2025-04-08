@@ -1,6 +1,6 @@
 {
-  "id": "c3d964b7-ed1a-45f7-92f3-e8c091f75d7b",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "f587729b-54f1-4128-b6dc-f2f8cbb1b1f1",
+  "prevId": "c3d964b7-ed1a-45f7-92f3-e8c091f75d7b",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -29,6 +29,12 @@
         "email": {
           "name": "email",
           "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": false
         },

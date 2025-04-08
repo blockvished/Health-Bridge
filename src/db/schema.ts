@@ -37,20 +37,21 @@ export const users = pgTable("users", {
 export const doctor = pgTable("doctor", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
-  .notNull()
-  .references(() => users.id, { onDelete: "cascade" }),
-  image: text("image"), // URL or path to image
-  signature: text("signature"), // URL or path to signature
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull(),
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 20 }),
   city: text("city"),
   specialization: text("specialization"),
   degree: text("degree"),
-  experience: integer("experience"), // in years maybe
+  experience: integer("experience"),
   aboutSelf: text("about_self"),
   aboutClinic: text("about_clinic"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+  image_link: text("image_link"),
+  signature_link: text("signature_link"),
 });
 
 // Relations
