@@ -23,24 +23,22 @@ interface Doctor {
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("Update Info");
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
+  
+  // useEffect(() => {
+  //   const fetchDoctor = async () => {
+  //     try {
+  //       const response = await fetch("/api/doctor");
+  //       const data = await response.json();
+  //       if (data.length > 0) {
+  //         setDoctorData(data[0]);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching doctor data:", error);
+  //     }
+  //   };
 
-
-
-  useEffect(() => {
-    const fetchDoctor = async () => {
-      try {
-        const response = await fetch("/api/doctor");
-        const data = await response.json();
-        if (data.length > 0) {
-          setDoctorData(data[0]);
-        }
-      } catch (error) {
-        console.error("Error fetching doctor data:", error);
-      }
-    };
-
-    fetchDoctor();
-  }, []);
+  //   fetchDoctor();
+  // }, []);
 
   const tabs = [
     { name: "Update Info", icon: <FaUserEdit /> },
@@ -110,12 +108,6 @@ const Profile: React.FC = () => {
           {renderTabContent()}
         </div>
 
-        <div className="px-4 md:px-6 pb-4 md:pb-6 border-l border-r border-b border-gray-200 rounded-b-lg">
-          <button className="w-full md:w-auto bg-blue-500 text-white px-4 py-2 rounded-md flex items-center justify-center text-sm shadow-md hover:bg-blue-600 transition">
-            <FaCheck className="mr-2" />
-            Save Changes
-          </button>
-        </div>
       </div>
     </div>
   );
