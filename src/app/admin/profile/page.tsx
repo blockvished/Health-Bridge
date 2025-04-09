@@ -20,6 +20,10 @@ interface Doctor {
   aboutClinic?: string;
   profileImage?: string;
   signatureImage?: string;
+  facebook?: string;
+  linkedin?: string;
+  twitter?: string;
+  instagram?: string;
 }
 
 const Profile: React.FC = () => {
@@ -86,11 +90,7 @@ const Profile: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Update Info":
-        return (
-          <UpdateInfoTab
-            doctor={doctorData}
-          />
-        );
+        return <UpdateInfoTab doctor={doctorData} />;
       case "Social Settings":
         return <SocialSettingsTab />;
       case "SEO Settings":
@@ -104,7 +104,16 @@ const Profile: React.FC = () => {
     <div className="flex flex-col md:flex-row min-h-screen p-4 md:p-6 gap-4 md:gap-6">
       {/* Left Column - Profile Card */}
       <div className="w-full md:w-1/4">
-        <ProfileCard />
+        <ProfileCard
+          name={doctorData?.name}
+          specialization={doctorData?.specialization}
+          degree={doctorData?.degree}
+          image={doctorData?.profileImage}
+          facebook={doctorData?.facebook}
+          twitter={doctorData?.twitter}
+          instagram={doctorData?.instagram}
+          linkedin={doctorData?.linkedin}
+        />
       </div>
 
       {/* Right Column */}
@@ -141,7 +150,6 @@ const Profile: React.FC = () => {
         <div className="p-4 md:p-6 border-l border-r border-b border-gray-200 rounded-b-lg">
           {renderTabContent()}
         </div>
-
       </div>
     </div>
   );
