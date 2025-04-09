@@ -11,6 +11,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { eq } from "drizzle-orm";
 
 import { doctor } from "../../../../../../../db/schema";
+import { LuLinkedin } from "react-icons/lu";
 
 export const config = {
   api: {
@@ -103,6 +104,11 @@ export async function POST(req: NextRequest) {
         experience,
         aboutSelf,
         aboutClinic,
+        facebook,
+        twitter,
+        instagram,
+        linkedin,
+        // seo_description
       } = fields;
 
       const baseUploadPath = path.join(process.cwd(), "private_uploads");
@@ -161,6 +167,12 @@ export async function POST(req: NextRequest) {
       if (aboutClinic) updateValues.aboutClinic = aboutClinic;
       if (pictureLink) updateValues.image_link = pictureLink;
       if (signatureLink) updateValues.signature_link = signatureLink;
+      
+      if (linkedin) updateValues.linkedin_link = linkedin;
+      if (facebook) updateValues.facebook_link = facebook;
+      if (instagram) updateValues.instagram_link= instagram;
+      if (twitter) updateValues.twitter_link = twitter;
+      // if (true) updateValues.seo_description = true
 
       if (ExistingDoctor.length === 0) {
         await db.insert(doctor).values({
