@@ -17,23 +17,23 @@ const SocialSettingsTab = ({ doctorId = 1 }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   
-  useEffect(() => {
-    const fetchSocialLinks = async () => {
-      try {
-        const response = await fetch(`/api/doctor/social/${doctorId}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch social links");
-        }
-        const data: DoctorSocial[] = await response.json();
-        setSocialLinks(data[0]); // Assuming the API returns an array with one object
-      } catch (err) {
-        setError("Error loading data");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSocialLinks();
-  }, [doctorId]);
+  // useEffect(() => {
+  //   const fetchSocialLinks = async () => {
+  //     try {
+  //       const response = await fetch(`/api/doctor/social/${doctorId}`);
+  //       if (!response.ok) {
+  //         throw new Error("Failed to fetch social links");
+  //       }
+  //       const data: DoctorSocial[] = await response.json();
+  //       setSocialLinks(data[0]); // Assuming the API returns an array with one object
+  //     } catch (err) {
+  //       setError("Error loading data");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchSocialLinks();
+  // }, [doctorId]);
 
   const handleInputChange = (field: keyof DoctorSocial, value: string) => {
     if (socialLinks) {
