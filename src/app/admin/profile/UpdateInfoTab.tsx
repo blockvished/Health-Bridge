@@ -13,6 +13,8 @@ interface Doctor {
   experience: string;
   aboutSelf: string;
   aboutClinic?: string;
+  profileImage?: string;
+  signatureImage?: string;
 }
 
 interface UpdateInfoTabProps {
@@ -21,6 +23,8 @@ interface UpdateInfoTabProps {
 
 const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
   const [doctorData, setDoctorData] = useState({
+    profilePreview: doctor?.profileImage || "",
+    signaturePreview: doctor?.signatureImage || "",
     name: doctor?.name || "",
     email: doctor?.email || "",
     phone: doctor?.phone || "",
@@ -31,23 +35,21 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
     aboutSelf: doctor?.aboutSelf || "",
     aboutClinic: doctor?.aboutClinic || "",
   });
-  
+
   const [errors, setErrors] = useState({
     email: "",
-    experience: ""
+    experience: "",
   });
-  
+
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [signatureFile, setSignatureFile] = useState<File | null>(null);
 
   const profileInputRef = useRef<HTMLInputElement>(null);
   const signatureInputRef = useRef<HTMLInputElement>(null);
 
-  const [profilePreview, setProfilePreview] = useState<string | null>(null);
-  const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
-
   const [role, setRole] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const roleFromCookie = Cookies.get("userRole");
@@ -57,6 +59,50 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
     setUserId(idFromCookie || null);
   }, []);
 
+  // Fetch doctor data whenever userId changes and is not null
+  useEffect(() => {
+    const fetchDoctorData = async () => {
+      if (!userId) return;
+
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/doctor/profile/info/get/${userId}`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.doctor) {
+            console.log(data.doctor)
+            console.log("profile image printed",data.doctor.image_link);
+            setDoctorData({
+              profilePreview: data.doctor.image_link || "",
+              signaturePreview: data.doctor.signature_link || "",
+              name: data.doctor.name || "",
+              email: data.doctor.email || "",
+              phone: data.doctor.phone || "",
+              city: data.doctor.city || "",
+              specialization: data.doctor.specialization || "",
+              degree: data.doctor.degree || "",
+              experience: data.doctor.experience || "",
+              aboutSelf: data.doctor.aboutSelf || "",
+              aboutClinic: data.doctor.aboutClinic || "",
+            });
+          }
+        } else {
+          console.error("Failed to fetch doctor data");
+        }
+      } catch (error) {
+        console.error("Error fetching doctor data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDoctorData();
+  }, [userId]);
+
   const handleProfileClick = () => profileInputRef.current?.click();
   const handleSignatureClick = () => signatureInputRef.current?.click();
 
@@ -65,7 +111,12 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
     if (file) {
       setProfileFile(file);
       const reader = new FileReader();
-      reader.onloadend = () => setProfilePreview(reader.result as string);
+      reader.onloadend = () => {
+        setDoctorData((prev) => ({
+          ...prev,
+          profilePreview: reader.result as string,
+        }));
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -75,7 +126,12 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
     if (file) {
       setSignatureFile(file);
       const reader = new FileReader();
-      reader.onloadend = () => setSignaturePreview(reader.result as string);
+      reader.onloadend = () => {
+        setDoctorData((prev) => ({
+          ...prev,
+          signaturePreview: reader.result as string,
+        }));
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -90,29 +146,35 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value;
     setDoctorData({ ...doctorData, email: newEmail });
-    
+
     if (newEmail && !validateEmail(newEmail)) {
-      setErrors(prev => ({ ...prev, email: "Please enter a valid email address" }));
+      setErrors((prev) => ({
+        ...prev,
+        email: "Please enter a valid email address",
+      }));
     } else {
-      setErrors(prev => ({ ...prev, email: "" }));
+      setErrors((prev) => ({ ...prev, email: "" }));
     }
   };
 
   // Handle experience change with validation
   const handleExperienceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    
+
     // Don't allow negative numbers by checking the input value
     if (value === "" || parseInt(value, 10) >= 0) {
       setDoctorData({ ...doctorData, experience: value });
-      setErrors(prev => ({ ...prev, experience: "" }));
+      setErrors((prev) => ({ ...prev, experience: "" }));
     } else {
-      setErrors(prev => ({ ...prev, experience: "Experience cannot be negative" }));
+      setErrors((prev) => ({
+        ...prev,
+        experience: "Experience cannot be negative",
+      }));
     }
   };
 
   // Initialize textarea heights on component mount
-  React.useEffect(() => {
+  useEffect(() => {
     const textareas = document.querySelectorAll("textarea.auto-resize");
     textareas.forEach((textarea) => {
       const element = textarea as HTMLTextAreaElement;
@@ -124,22 +186,25 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
   const handleSaveChanges = async () => {
     // Validate before saving
     const newErrors = {
-      email: doctorData.email && !validateEmail(doctorData.email) 
-        ? "Please enter a valid email address" 
-        : "",
-      experience: doctorData.experience && parseInt(doctorData.experience, 10) < 0 
-        ? "Experience cannot be negative" 
-        : ""
+      email:
+        doctorData.email && !validateEmail(doctorData.email)
+          ? "Please enter a valid email address"
+          : "",
+      experience:
+        doctorData.experience && parseInt(doctorData.experience, 10) < 0
+          ? "Experience cannot be negative"
+          : "",
     };
-    
+
     setErrors(newErrors);
-    
+
     // If there are validation errors, don't proceed
     if (newErrors.email || newErrors.experience) {
       return;
     }
-    
+
     try {
+      setIsLoading(true);
       const formData = new FormData();
 
       // Append doctor text fields
@@ -172,8 +237,18 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
     } catch (error) {
       console.error("Error updating doctor info:", error);
       alert("Something went wrong.");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-60">
+        Loading doctor information...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
@@ -182,9 +257,9 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         {/* Profile Image */}
         <div className="flex flex-col items-center">
           <div className="w-32 h-32 bg-gray-100 rounded-md flex items-center justify-center mb-2 overflow-hidden cursor-pointer">
-            {profilePreview ? (
+            {doctorData.profilePreview ? (
               <img
-                src={profilePreview}
+                src={doctorData.profilePreview}
                 alt="Profile Preview"
                 className="w-full h-full object-cover"
               />
@@ -212,9 +287,9 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         {/* Signature */}
         <div className="flex flex-col items-center">
           <div className="w-48 h-32 bg-gray-100 rounded-md flex items-center justify-center mb-2 cursor-pointer overflow-hidden">
-            {signaturePreview ? (
+            {doctorData.signaturePreview ? (
               <img
-                src={signaturePreview}
+                src={doctorData.signaturePreview}
                 alt="Signature Preview"
                 className="w-3/4 h-auto object-contain"
               />
@@ -260,7 +335,9 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <input
           type="email"
-          className={`w-full border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded p-2`}
+          className={`w-full border ${
+            errors.email ? "border-red-500" : "border-gray-300"
+          } rounded p-2`}
           value={doctorData.email}
           onChange={handleEmailChange}
         />
@@ -336,7 +413,9 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="number"
           min="0"
-          className={`w-full border ${errors.experience ? 'border-red-500' : 'border-gray-300'} rounded p-2`}
+          className={`w-full border ${
+            errors.experience ? "border-red-500" : "border-gray-300"
+          } rounded p-2`}
           value={doctorData.experience}
           onChange={handleExperienceChange}
         />
@@ -371,9 +450,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
       <button
         className="w-full md:w-auto bg-blue-500 text-white px-4 py-2 rounded-md flex items-center justify-center text-sm shadow-md hover:bg-blue-600 transition cursor-pointer"
         onClick={handleSaveChanges}
+        disabled={isLoading}
       >
         <FaCheck className="mr-2" />
-        Save Changes
+        {isLoading ? "Saving..." : "Save Changes"}
       </button>
     </div>
   );
