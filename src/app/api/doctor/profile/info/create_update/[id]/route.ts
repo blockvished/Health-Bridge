@@ -109,6 +109,7 @@ export async function POST(req: NextRequest) {
         instagram,
         linkedin,
         // seo_description
+        // meta tags
       } = fields;
 
       const baseUploadPath = path.join(process.cwd(), "private_uploads");

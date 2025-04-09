@@ -37,7 +37,7 @@ const MetaTagsInput: React.FC<{
       {metaTags.map((tag, index) => (
         <div
           key={index}
-          className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center space-x-1"
+          className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center space-x-1 cursor-pointer"
         >
           <span>{tag}</span>
           <button

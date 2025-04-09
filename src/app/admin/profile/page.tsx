@@ -93,7 +93,8 @@ const Profile: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Update Info":
-        return <UpdateInfoTab doctor={doctorData} />;
+        return <UpdateInfoTab doctor={doctorData} setDoctorData={setDoctorData} />;
+
       case "Social Settings":
         return (
           <SocialSettingsTab
