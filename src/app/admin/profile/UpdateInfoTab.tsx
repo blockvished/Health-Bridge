@@ -59,49 +59,23 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
     setUserId(idFromCookie || null);
   }, []);
 
-  // Fetch doctor data whenever userId changes and is not null
   useEffect(() => {
-    const fetchDoctorData = async () => {
-      if (!userId) return;
-
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/doctor/profile/info/get/${userId}`, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.doctor) {
-            console.log(data.doctor)
-            console.log("profile image printed",data.doctor.image_link);
-            setDoctorData({
-              profilePreview: data.doctor.image_link || "",
-              signaturePreview: data.doctor.signature_link || "",
-              name: data.doctor.name || "",
-              email: data.doctor.email || "",
-              phone: data.doctor.phone || "",
-              city: data.doctor.city || "",
-              specialization: data.doctor.specialization || "",
-              degree: data.doctor.degree || "",
-              experience: data.doctor.experience || "",
-              aboutSelf: data.doctor.aboutSelf || "",
-              aboutClinic: data.doctor.aboutClinic || "",
-            });
-          }
-        } else {
-          console.error("Failed to fetch doctor data");
-        }
-      } catch (error) {
-        console.error("Error fetching doctor data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDoctorData();
-  }, [userId]);
+    if (doctor) {
+      setDoctorData({
+        profilePreview: doctor.profileImage || "",
+        signaturePreview: doctor.signatureImage || "",
+        name: doctor.name || "",
+        email: doctor.email || "",
+        phone: doctor.phone || "",
+        city: doctor.city || "",
+        specialization: doctor.specialization || "",
+        degree: doctor.degree || "",
+        experience: doctor.experience || "",
+        aboutSelf: doctor.aboutSelf || "",
+        aboutClinic: doctor.aboutClinic || "",
+      });
+    }
+  }, [doctor]);
 
   const handleProfileClick = () => profileInputRef.current?.click();
   const handleSignatureClick = () => signatureInputRef.current?.click();

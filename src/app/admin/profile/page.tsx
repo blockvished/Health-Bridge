@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { FaUserEdit, FaGlobe, FaSearch, FaCode, FaCheck } from "react-icons/fa";
+import { FaUserEdit, FaGlobe, FaSearch } from "react-icons/fa";
 import UpdateInfoTab from "./UpdateInfoTab";
 import SocialSettingsTab from "./SocialSettingsTab";
 import SEOSettingsTab from "./SEOSettingsTab";
 import ProfileCard from "./ProfileCard";
+import Cookies from "js-cookie";
 
 interface Doctor {
-  imagelink: string;
   name: string;
   email: string;
   phone: string;
@@ -18,33 +18,67 @@ interface Doctor {
   experience: string;
   aboutSelf: string;
   aboutClinic?: string;
+  profileImage?: string;
+  signatureImage?: string;
 }
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("Update Info");
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
-  
-  // useEffect(() => {
-  //   const fetchDoctor = async () => {
-  //     try {
-  //       const response = await fetch("/api/doctor");
-  //       const data = await response.json();
-  //       if (data.length > 0) {
-  //         setDoctorData(data[0]);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching doctor data:", error);
-  //     }
-  //   };
-
-  //   fetchDoctor();
-  // }, []);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const tabs = [
     { name: "Update Info", icon: <FaUserEdit /> },
     { name: "Social Settings", icon: <FaGlobe /> },
     { name: "SEO Settings", icon: <FaSearch /> },
   ];
+
+  useEffect(() => {
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
+
+  useEffect(() => {
+    const fetchDoctorData = async () => {
+      if (!userId) return;
+
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/doctor/profile/info/get/${userId}`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.doctor) {
+            setDoctorData({
+              name: data.doctor.name || "",
+              email: data.doctor.email || "",
+              phone: data.doctor.phone || "",
+              city: data.doctor.city || "",
+              specialization: data.doctor.specialization || "",
+              degree: data.doctor.degree || "",
+              experience: data.doctor.experience || "",
+              aboutSelf: data.doctor.aboutSelf || "",
+              aboutClinic: data.doctor.aboutClinic || "",
+              profileImage: data.doctor.image_link || "",
+              signatureImage: data.doctor.signature_link || "",
+            });
+          }
+        } else {
+          console.error("Failed to fetch doctor data");
+        }
+      } catch (error) {
+        console.error("Error fetching doctor data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDoctorData();
+  }, [userId]);
 
   const metaTags = ["cardiology", "cardiologist", "heart"];
   const seoDescription = "Best Cardiologist in Chandigarh, Punjab";
