@@ -221,9 +221,8 @@ export async function POST(req: NextRequest) {
           (tag) => !metaTagsArray.includes(tag)
         );
 
-        console.log("tags to add", tagsToAdd)
-        console.log("tags to delete", tagsToDelete)
-
+        console.log("tags to add", tagsToAdd);
+        console.log("tags to delete", tagsToDelete);
 
         // Step 3: Insert new tags
         if (tagsToAdd.length > 0) {
