@@ -30,7 +30,9 @@ interface Doctor {
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("Update Info");
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
+  const [metaTags, setMetaTags] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const seoDescription = "Best Cardiologist in Chandigarh, Punjab";
 
   const tabs = [
     { name: "Update Info", icon: <FaUserEdit /> },
@@ -74,6 +76,14 @@ const Profile: React.FC = () => {
               linkedin_link: data.doctor.linkedin_link || "",
               seo_description: data.doctor.seo_description || "",
             });
+            if (data.metaTags) {
+              if (Array.isArray(data.metaTags)) {
+                const tags = data.metaTags.map(
+                  (tagObj: { tag: string }) => tagObj.tag
+                );
+                setMetaTags(tags);
+              }
+            }
           }
         } else {
           console.error("Failed to fetch doctor data");
@@ -87,13 +97,12 @@ const Profile: React.FC = () => {
     fetchDoctorData();
   }, [userId]);
 
-  const metaTags = ["cardiology", "cardiologist", "heart"];
-  const seoDescription = "Best Cardiologist in Chandigarh, Punjab";
-
   const renderTabContent = () => {
     switch (activeTab) {
       case "Update Info":
-        return <UpdateInfoTab doctor={doctorData} setDoctorData={setDoctorData} />;
+        return (
+          <UpdateInfoTab doctor={doctorData} setDoctorData={setDoctorData} />
+        );
 
       case "Social Settings":
         return (
@@ -107,7 +116,15 @@ const Profile: React.FC = () => {
         );
 
       case "SEO Settings":
-        return <SEOSettingsTab doctor={{ metaTags, seoDescription }} />;
+        return (
+          <SEOSettingsTab
+            doctor={{
+              userId: userId,
+              metaTags,
+              seoDescription: doctorData?.seo_description || "",
+            }}
+          />
+        );
       default:
         return <div>No content available</div>;
     }
