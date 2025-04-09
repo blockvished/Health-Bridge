@@ -10,7 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { uniqueIndex } from "drizzle-orm/pg-core";
-import type { InferSelectModel } from "drizzle-orm";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -81,19 +81,19 @@ export const doctorMetaTags = pgTable(
 );
 
 // Relations
-export const doctorRelations = relations(doctor, ({ one, many }) => ({
-  user: one(users, {
-    fields: [doctor.userId],
-    references: [users.id],
-  }),
-  metaTags: many(doctorMetaTags), // 👈 add this
-}));
-
 export const doctorMetaTagRelations = relations(doctorMetaTags, ({ one }) => ({
   doctor: one(doctor, {
     fields: [doctorMetaTags.doctorId],
     references: [doctor.id],
   }),
+}));
+
+export const doctorRelations = relations(doctor, ({ one, many }) => ({
+  user: one(users, {
+    fields: [doctor.userId],
+    references: [users.id],
+  }),
+  metaTags: many(doctorMetaTags), 
 }));
 
 export const userRelations = relations(users, ({ one }) => ({
@@ -106,3 +106,4 @@ export const userRelations = relations(users, ({ one }) => ({
 
 export type Doctor = InferSelectModel<typeof doctor>;
 export type DoctorMetaTag = InferSelectModel<typeof doctorMetaTags>;
+export type NewDoctorMetaTag = InferInsertModel<typeof doctorMetaTags>;  
