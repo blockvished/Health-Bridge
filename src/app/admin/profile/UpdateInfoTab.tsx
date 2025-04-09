@@ -19,10 +19,14 @@ interface Doctor {
 
 interface UpdateInfoTabProps {
   doctor: Doctor | null;
+  setDoctorData: React.Dispatch<React.SetStateAction<Doctor | null>>;
 }
 
-const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
-  const [doctorData, setDoctorData] = useState({
+const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
+  doctor,
+  setDoctorData,
+}) => {
+  const [doctorrData, setDoctorrData] = useState({
     profilePreview: doctor?.profileImage || "",
     signaturePreview: doctor?.signatureImage || "",
     name: doctor?.name || "",
@@ -59,49 +63,23 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
     setUserId(idFromCookie || null);
   }, []);
 
-  // Fetch doctor data whenever userId changes and is not null
   useEffect(() => {
-    const fetchDoctorData = async () => {
-      if (!userId) return;
-
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/doctor/profile/info/get/${userId}`, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.doctor) {
-            console.log(data.doctor)
-            console.log("profile image printed",data.doctor.image_link);
-            setDoctorData({
-              profilePreview: data.doctor.image_link || "",
-              signaturePreview: data.doctor.signature_link || "",
-              name: data.doctor.name || "",
-              email: data.doctor.email || "",
-              phone: data.doctor.phone || "",
-              city: data.doctor.city || "",
-              specialization: data.doctor.specialization || "",
-              degree: data.doctor.degree || "",
-              experience: data.doctor.experience || "",
-              aboutSelf: data.doctor.aboutSelf || "",
-              aboutClinic: data.doctor.aboutClinic || "",
-            });
-          }
-        } else {
-          console.error("Failed to fetch doctor data");
-        }
-      } catch (error) {
-        console.error("Error fetching doctor data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDoctorData();
-  }, [userId]);
+    if (doctor) {
+      setDoctorrData({
+        profilePreview: doctor.profileImage || "",
+        signaturePreview: doctor.signatureImage || "",
+        name: doctor.name || "",
+        email: doctor.email || "",
+        phone: doctor.phone || "",
+        city: doctor.city || "",
+        specialization: doctor.specialization || "",
+        degree: doctor.degree || "",
+        experience: doctor.experience || "",
+        aboutSelf: doctor.aboutSelf || "",
+        aboutClinic: doctor.aboutClinic || "",
+      });
+    }
+  }, [doctor]);
 
   const handleProfileClick = () => profileInputRef.current?.click();
   const handleSignatureClick = () => signatureInputRef.current?.click();
@@ -112,9 +90,13 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
       setProfileFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setDoctorData((prev) => ({
+        setDoctorrData((prev) => ({
           ...prev,
           profilePreview: reader.result as string,
+        }));
+        setDoctorData((prev) => ({
+          ...prev!,
+          profileImage: reader.result as string,
         }));
       };
       reader.readAsDataURL(file);
@@ -127,7 +109,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
       setSignatureFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setDoctorData((prev) => ({
+        setDoctorrData((prev) => ({
           ...prev,
           signaturePreview: reader.result as string,
         }));
@@ -145,7 +127,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
   // Handle email change with validation
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value;
-    setDoctorData({ ...doctorData, email: newEmail });
+    setDoctorrData({ ...doctorrData, email: newEmail });
 
     if (newEmail && !validateEmail(newEmail)) {
       setErrors((prev) => ({
@@ -163,7 +145,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
 
     // Don't allow negative numbers by checking the input value
     if (value === "" || parseInt(value, 10) >= 0) {
-      setDoctorData({ ...doctorData, experience: value });
+      setDoctorrData({ ...doctorrData, experience: value });
       setErrors((prev) => ({ ...prev, experience: "" }));
     } else {
       setErrors((prev) => ({
@@ -187,11 +169,11 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
     // Validate before saving
     const newErrors = {
       email:
-        doctorData.email && !validateEmail(doctorData.email)
+        doctorrData.email && !validateEmail(doctorrData.email)
           ? "Please enter a valid email address"
           : "",
       experience:
-        doctorData.experience && parseInt(doctorData.experience, 10) < 0
+        doctorrData.experience && parseInt(doctorrData.experience, 10) < 0
           ? "Experience cannot be negative"
           : "",
     };
@@ -208,7 +190,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
       const formData = new FormData();
 
       // Append doctor text fields
-      Object.entries(doctorData).forEach(([key, value]) => {
+      Object.entries(doctorrData).forEach(([key, value]) => {
         formData.append(key, value);
       });
 
@@ -232,23 +214,12 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
       if (!response.ok) throw new Error("Failed to update doctor info");
 
       const data = await response.json();
-      alert("Doctor information updated successfully!");
-      console.log(data);
     } catch (error) {
       console.error("Error updating doctor info:", error);
-      alert("Something went wrong.");
     } finally {
       setIsLoading(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-60">
-        Loading doctor information...
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-3">
@@ -257,9 +228,9 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         {/* Profile Image */}
         <div className="flex flex-col items-center">
           <div className="w-32 h-32 bg-gray-100 rounded-md flex items-center justify-center mb-2 overflow-hidden cursor-pointer">
-            {doctorData.profilePreview ? (
+            {doctorrData.profilePreview ? (
               <img
-                src={doctorData.profilePreview}
+                src={doctorrData.profilePreview}
                 alt="Profile Preview"
                 className="w-full h-full object-cover"
               />
@@ -287,9 +258,9 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         {/* Signature */}
         <div className="flex flex-col items-center">
           <div className="w-48 h-32 bg-gray-100 rounded-md flex items-center justify-center mb-2 cursor-pointer overflow-hidden">
-            {doctorData.signaturePreview ? (
+            {doctorrData.signaturePreview ? (
               <img
-                src={doctorData.signaturePreview}
+                src={doctorrData.signaturePreview}
                 alt="Signature Preview"
                 className="w-3/4 h-auto object-contain"
               />
@@ -323,10 +294,12 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          value={doctorData.name}
-          onChange={(e) =>
-            setDoctorData({ ...doctorData, name: e.target.value })
-          }
+          value={doctorrData.name}
+          onChange={(e) => {
+            const updatedName = e.target.value;
+            setDoctorrData((prev) => ({ ...prev, name: updatedName }));
+            setDoctorData((prev) => ({ ...prev!, name: updatedName }));
+          }}
         />
       </div>
       <div>
@@ -338,7 +311,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
           className={`w-full border ${
             errors.email ? "border-red-500" : "border-gray-300"
           } rounded p-2`}
-          value={doctorData.email}
+          value={doctorrData.email}
           onChange={handleEmailChange}
         />
         {errors.email && (
@@ -360,9 +333,9 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
           <input
             type="number"
             className="w-full border border-gray-300 rounded p-2"
-            value={doctorData.phone}
+            value={doctorrData.phone}
             onChange={(e) =>
-              setDoctorData({ ...doctorData, phone: e.target.value })
+              setDoctorrData({ ...doctorrData, phone: e.target.value })
             }
           />
         </div>
@@ -375,9 +348,9 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          value={doctorData.city}
+          value={doctorrData.city}
           onChange={(e) =>
-            setDoctorData({ ...doctorData, city: e.target.value })
+            setDoctorrData({ ...doctorrData, city: e.target.value })
           }
         />
       </div>
@@ -388,10 +361,12 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          value={doctorData.specialization}
-          onChange={(e) =>
-            setDoctorData({ ...doctorData, specialization: e.target.value })
-          }
+          value={doctorrData.specialization}
+          onChange={(e) => {
+            const updatedName = e.target.value;
+            setDoctorrData((prev) => ({ ...prev, specialization: updatedName }));
+            setDoctorData((prev) => ({ ...prev!, specialization: updatedName }));
+          }}
         />
       </div>
       <div>
@@ -400,9 +375,11 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          value={doctorData.degree}
-          onChange={(e) =>
-            setDoctorData({ ...doctorData, degree: e.target.value })
+          value={doctorrData.degree}
+          onChange={(e) =>{
+            setDoctorrData({ ...doctorrData, degree: e.target.value })
+            setDoctorData({ ...doctorrData!, degree: e.target.value })
+          }
           }
         />
       </div>
@@ -416,7 +393,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
           className={`w-full border ${
             errors.experience ? "border-red-500" : "border-gray-300"
           } rounded p-2`}
-          value={doctorData.experience}
+          value={doctorrData.experience}
           onChange={handleExperienceChange}
         />
         {errors.experience && (
@@ -429,9 +406,9 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          value={doctorData.aboutSelf}
+          value={doctorrData.aboutSelf}
           onChange={(e) =>
-            setDoctorData({ ...doctorData, aboutSelf: e.target.value })
+            setDoctorrData({ ...doctorrData, aboutSelf: e.target.value })
           }
         />
       </div>
@@ -441,9 +418,9 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
         </label>
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
-          value={doctorData.aboutClinic}
+          value={doctorrData.aboutClinic}
           onChange={(e) =>
-            setDoctorData({ ...doctorData, aboutClinic: e.target.value })
+            setDoctorrData({ ...doctorrData, aboutClinic: e.target.value })
           }
         />
       </div>

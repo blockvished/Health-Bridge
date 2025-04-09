@@ -8,9 +8,12 @@ import { Readable } from "stream";
 import jwt from "jsonwebtoken";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { eq } from "drizzle-orm";
+import { eq, and, notInArray, inArray } from "drizzle-orm";
 
-import { doctor } from "../../../../../../../db/schema";
+import {
+  doctor,
+  doctorMetaTags as dbMetaTags,
+} from "../../../../../../../db/schema";
 
 export const config = {
   api: {
@@ -78,8 +81,6 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      console.log("Name:", fields.name);
-
       const connectionString = process.env.DATABASE_URL;
       if (!connectionString) {
         throw new Error("DATABASE_URL is not set in environment variables.");
@@ -91,7 +92,6 @@ export async function POST(req: NextRequest) {
         .select()
         .from(doctor)
         .where(eq(doctor.userId, Number(decoded.userId)));
-      // console.log("ExistingDoctor:", ExistingDoctor);
 
       const {
         name,
@@ -103,7 +103,17 @@ export async function POST(req: NextRequest) {
         experience,
         aboutSelf,
         aboutClinic,
+        facebook,
+        twitter,
+        instagram,
+        linkedin,
+        seoDescription,
+        doctorMetaTags,
       } = fields;
+
+      const metaTagsString = Array.isArray(doctorMetaTags)
+        ? doctorMetaTags[0]
+        : doctorMetaTags;
 
       const baseUploadPath = path.join(process.cwd(), "private_uploads");
       const pictureFile = Array.isArray(files.profileImage)
@@ -138,7 +148,6 @@ export async function POST(req: NextRequest) {
         await fs.promises.mkdir(path.dirname(sigPath), { recursive: true });
         await fs.promises.rename(signatureFile.filepath, sigPath);
         signatureLink = `/api/doctor/profile/info/images/${decoded.userId}/${decoded.userId}_signature${sigExt}`;
-        console.log(signatureLink);
       }
       const experienceValue = Array.isArray(experience)
         ? experience[0]
@@ -162,6 +171,12 @@ export async function POST(req: NextRequest) {
       if (pictureLink) updateValues.image_link = pictureLink;
       if (signatureLink) updateValues.signature_link = signatureLink;
 
+      if (linkedin) updateValues.linkedin_link = linkedin;
+      if (facebook) updateValues.facebook_link = facebook;
+      if (instagram) updateValues.instagram_link = instagram;
+      if (twitter) updateValues.twitter_link = twitter;
+      if (seoDescription) updateValues.seo_description = seoDescription;
+
       if (ExistingDoctor.length === 0) {
         await db.insert(doctor).values({
           userId,
@@ -173,14 +188,65 @@ export async function POST(req: NextRequest) {
           .set(updateValues)
           .where(eq(doctor.userId, userId));
       }
+
+      if (metaTagsString && seoDescription) {
+        const metaTagsArray = metaTagsString
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0);
+        console.log(metaTagsArray);
+
+        const doctorData = await db
+          .select()
+          .from(doctor)
+          .where(eq(doctor.userId, userId));
+
+        const doctorId = doctorData[0].id;
+
+        // Step 1: Fetch existing tags from the DB
+        const existingTags = await db
+          .select({
+            tag: dbMetaTags.tag,
+          })
+          .from(dbMetaTags)
+          .where(eq(dbMetaTags.doctorId, doctorId));
+
+        const existingTagValues = existingTags.map((entry) => entry.tag);
+
+        // Step 2: Determine tags to add and delete
+        const tagsToAdd = metaTagsArray.filter(
+          (tag) => !existingTagValues.includes(tag)
+        );
+        const tagsToDelete = existingTagValues.filter(
+          (tag) => !metaTagsArray.includes(tag)
+        );
+
+        console.log("tags to add", tagsToAdd);
+        console.log("tags to delete", tagsToDelete);
+
+        // Step 3: Insert new tags
+        if (tagsToAdd.length > 0) {
+          await db.insert(dbMetaTags).values(
+            tagsToAdd.map((tag) => ({
+              doctorId,
+              tag,
+            }))
+          );
+        }
+
+        // Step 4: Delete removed tags
+        if (tagsToDelete.length > 0) {
+          await db
+            .delete(dbMetaTags)
+            .where(
+              and(
+                eq(dbMetaTags.doctorId, doctorId),
+                inArray(dbMetaTags.tag, tagsToDelete)
+              )
+            );
+        }
+      }
       resolve(NextResponse.json({ success: true, fields, files }));
     });
   });
 }
-
-// uploadDirPicture: = "/private_uploads/profiles/<userid>_picture.<extension>"
-// uploadDirSignature = "/private_uploads/signatures/<userid>_signature.<extension>"
-// const pictureLink =
-// "/api/doctor/profile/info/images/<userid>/<userid>_picture.<extension>";
-// const signatureLink =
-// "/api/doctor/profile/info/images/<userid>/<userid>_signature.<extension>";

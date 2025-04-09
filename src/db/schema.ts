@@ -9,6 +9,8 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { uniqueIndex } from "drizzle-orm/pg-core";
+import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -52,14 +54,46 @@ export const doctor = pgTable("doctor", {
   updatedAt: timestamp("updated_at").defaultNow(),
   image_link: text("image_link"),
   signature_link: text("signature_link"),
+
+  facebook_link: text("facebook_link"),
+  instagram_link: text("instagram_link"),
+  twitter_link: text("twitter_link"),
+  linkedin_link: text("linkedin_link"),
+  seo_description: text("seo_description"),
 });
 
+
+export const doctorMetaTags = pgTable(
+  "doctor_meta_tags",
+  {
+    id: serial("id").primaryKey(),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctor.id, { onDelete: "cascade" }),
+    tag: text("tag").notNull(),
+  },
+  (table) => ({
+    uniqueDoctorTag: uniqueIndex("unique_doctor_tag").on(
+      table.doctorId,
+      table.tag
+    ),
+  })
+);
+
 // Relations
-export const doctorRelations = relations(doctor, ({ one }) => ({
+export const doctorMetaTagRelations = relations(doctorMetaTags, ({ one }) => ({
+  doctor: one(doctor, {
+    fields: [doctorMetaTags.doctorId],
+    references: [doctor.id],
+  }),
+}));
+
+export const doctorRelations = relations(doctor, ({ one, many }) => ({
   user: one(users, {
     fields: [doctor.userId],
     references: [users.id],
   }),
+  metaTags: many(doctorMetaTags), 
 }));
 
 export const userRelations = relations(users, ({ one }) => ({
@@ -69,7 +103,7 @@ export const userRelations = relations(users, ({ one }) => ({
   }),
 }));
 
-// email_verification_token: text('email_verification_token'),
-// email_verification_token_expires: timestamp('email_verification_token_expires'),
-// phone_verification_token: text('phone_verification_token'),
-// phone_verification_token_expires: timestamp('phone_verification_token_expires'),
+
+export type Doctor = InferSelectModel<typeof doctor>;
+export type DoctorMetaTag = InferSelectModel<typeof doctorMetaTags>;
+export type NewDoctorMetaTag = InferInsertModel<typeof doctorMetaTags>;  

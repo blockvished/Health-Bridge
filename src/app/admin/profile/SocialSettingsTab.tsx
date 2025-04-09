@@ -1,73 +1,79 @@
 import { useEffect, useState } from "react";
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
+import {
+  FaFacebook,
+  FaTwitter,
+  FaInstagram,
+  FaLinkedin,
+  FaCheck,
+} from "react-icons/fa";
 
 interface DoctorSocial {
-  id: number;
-  doctorId: number;
-  facebook: string;
-  twitter: string;
-  instagram: string;
-  linkedin: string;
+  userId?: string | null;
+  facebook?: string;
+  twitter?: string;
+  instagram?: string;
+  linkedin?: string;
 }
 
-const SocialSettingsTab = ({ doctorId = 1 }) => {
+const SocialSettingsTab = ({
+  userId,
+  facebook,
+  twitter,
+  instagram,
+  linkedin,
+}: DoctorSocial) => {
   const [socialLinks, setSocialLinks] = useState<DoctorSocial | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  
-  // useEffect(() => {
-  //   const fetchSocialLinks = async () => {
-  //     try {
-  //       const response = await fetch(`/api/doctor/social/${doctorId}`);
-  //       if (!response.ok) {
-  //         throw new Error("Failed to fetch social links");
-  //       }
-  //       const data: DoctorSocial[] = await response.json();
-  //       setSocialLinks(data[0]); // Assuming the API returns an array with one object
-  //     } catch (err) {
-  //       setError("Error loading data");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchSocialLinks();
-  // }, [doctorId]);
 
-  const handleInputChange = (field: keyof DoctorSocial, value: string) => {
+  useEffect(() => {
+    setSocialLinks({ userId, facebook, twitter, instagram, linkedin });
+  }, [userId, facebook, twitter, instagram, linkedin]);
+
+  const handleInputChange = (
+    field: keyof Omit<DoctorSocial, "userId">,
+    value: string
+  ) => {
     if (socialLinks) {
       setSocialLinks({
         ...socialLinks,
-        [field]: value
+        [field]: value,
       });
     }
   };
 
-  const handleSave = async () => {
+  const handleSaveChanges = async () => {
     if (!socialLinks) return;
-    
-    setIsSaving(true);
-    setSaveSuccess(false);
-    
+
     try {
-      const response = await fetch(`/api/doctor/social/${doctorId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(socialLinks),
+      setIsSaving(true);
+      const formData = new FormData();
+
+      // Append doctor text fields
+      Object.entries(socialLinks).forEach(([key, value]) => {
+        if (key !== "userId") {
+          formData.append(key, value);
+        }
       });
-      
+
+      const response = await fetch(
+        `/api/doctor/profile/info/create_update/${userId}`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        }
+      );
+
       if (!response.ok) {
-        throw new Error("Failed to update social links");
+        const errorData = await response.json();
+        throw new Error(errorData?.message || "Failed to update doctor info");
       }
-      
-      setSaveSuccess(true);
-      // Clear success message after 3 seconds
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (err) {
-      setError("Error saving data");
+
+      const data = await response.json();
+    } catch (err: any) {
+      console.error("Error updating doctor info:", err);
+      setError(err.message || "Something went wrong.");
     } finally {
       setIsSaving(false);
     }
@@ -75,21 +81,20 @@ const SocialSettingsTab = ({ doctorId = 1 }) => {
 
   return (
     <div className="space-y-4">
-      {loading ? (
-        <p>Loading...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : (
+      {error && <div className="text-red-500">{error}</div>}
+      {socialLinks && (
         <>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Facebook</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Facebook
+            </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                 <FaFacebook className="text-blue-600 text-xl" />
               </span>
               <input
                 type="text"
-                value={socialLinks?.facebook || ""}
+                value={socialLinks.facebook || ""}
                 onChange={(e) => handleInputChange("facebook", e.target.value)}
                 className="w-full border border-gray-300 rounded p-2 pl-10"
                 placeholder="Enter Facebook URL"
@@ -97,14 +102,16 @@ const SocialSettingsTab = ({ doctorId = 1 }) => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Twitter</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Twitter
+            </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                 <FaTwitter className="text-blue-400 text-xl" />
               </span>
               <input
                 type="text"
-                value={socialLinks?.twitter || ""}
+                value={socialLinks.twitter || ""}
                 onChange={(e) => handleInputChange("twitter", e.target.value)}
                 className="w-full border border-gray-300 rounded p-2 pl-10"
                 placeholder="Enter Twitter URL"
@@ -112,14 +119,16 @@ const SocialSettingsTab = ({ doctorId = 1 }) => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              LinkedIn
+            </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                 <FaLinkedin className="text-blue-700 text-xl" />
               </span>
               <input
                 type="text"
-                value={socialLinks?.linkedin || ""}
+                value={socialLinks.linkedin || ""}
                 onChange={(e) => handleInputChange("linkedin", e.target.value)}
                 className="w-full border border-gray-300 rounded p-2 pl-10"
                 placeholder="Enter LinkedIn URL"
@@ -127,20 +136,30 @@ const SocialSettingsTab = ({ doctorId = 1 }) => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Instagram
+            </label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                 <FaInstagram className="text-pink-500 text-xl" />
               </span>
               <input
                 type="text"
-                value={socialLinks?.instagram || ""}
+                value={socialLinks.instagram || ""}
                 onChange={(e) => handleInputChange("instagram", e.target.value)}
                 className="w-full border border-gray-300 rounded p-2 pl-10"
                 placeholder="Enter Instagram URL"
               />
             </div>
           </div>
+          <button
+            className="w-full md:w-auto bg-blue-500 text-white px-4 py-2 rounded-md flex items-center justify-center text-sm shadow-md hover:bg-blue-600 transition cursor-pointer"
+            onClick={handleSaveChanges}
+            disabled={isSaving}
+          >
+            <FaCheck className="mr-2" />
+            {isSaving ? "Saving..." : "Save Changes"}
+          </button>
         </>
       )}
     </div>
