@@ -15,6 +15,13 @@
       "when": 1744110507532,
       "tag": "0001_dapper_vapor",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1744179200077,
+      "tag": "0002_lazy_joystick",
+      "breakpoints": true
     }
   ]
 }

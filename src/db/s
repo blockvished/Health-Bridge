@@ -1,16 +1,8 @@
-import {
-  pgTable,
-  serial,
-  text,
-  varchar,
-  integer,
-  boolean,
-  timestamp,
-  pgEnum,
-} from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
-import { Phone } from "lucide-react";
-import { hash } from "crypto";
+
+// email_verification_token: text('email_verification_token'),
+// email_verification_token_expires: timestamp('email_verification_token_expires'),
+// phone_verification_token: text('phone_verification_token'),
+// phone_verification_token_expires: timestamp('phone_verification_token_expires'),
 
 // Enums for better type safety
 export const modeEnum = pgEnum("appointment_mode", ["online", "offline"]);
@@ -79,35 +71,7 @@ export const doctorExperience = pgTable("doctor_experience", {
   sortOrder: integer("sort_order"),
 });
 
-// Doctor Social Media Table (One-to-One with Doctor)
-export const doctorSocial = pgTable("doctor_social", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id").notNull().unique().references(() => doctor.id),
-  facebook: text("facebook"),
-  twitter: text("twitter"),
-  instagram: text("instagram"),
-  linkedin: text("linkedin"),
-});
 
-export const doctorSeo = pgTable("doctor_seo", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id").notNull().unique().references(() => doctor.id),
-  description: text("description"), // Single description per doctor
-});
-
-export const doctorMetaTags = pgTable("doctor_meta_tags", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id").notNull().references(() => doctor.id),
-  tag: text("tag").notNull(), // Each row stores one tag
-});
-
-
-// Doctor Custom JS Table (One-to-One with Doctor)
-export const doctorCustomJs = pgTable("doctor_custom_js", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id").notNull().unique().references(() => doctor.id),
-  customJs: text("custom_js"),
-});
 
 // Doctor Consultation Settings Table (One-to-One with Doctor)
 export const doctorConsultation = pgTable("doctor_consultation", {
