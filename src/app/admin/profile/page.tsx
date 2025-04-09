@@ -20,16 +20,16 @@ interface Doctor {
   aboutClinic?: string;
   profileImage?: string;
   signatureImage?: string;
-  facebook?: string;
-  linkedin?: string;
-  twitter?: string;
-  instagram?: string;
+  facebook_link?: string;
+  linkedin_link?: string;
+  twitter_link?: string;
+  instagram_link?: string;
+  seo_description?: string;
 }
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("Update Info");
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | null>(null);
 
   const tabs = [
@@ -47,7 +47,6 @@ const Profile: React.FC = () => {
     const fetchDoctorData = async () => {
       if (!userId) return;
 
-      setIsLoading(true);
       try {
         const response = await fetch(`/api/doctor/profile/info/get/${userId}`, {
           method: "GET",
@@ -69,6 +68,11 @@ const Profile: React.FC = () => {
               aboutClinic: data.doctor.aboutClinic || "",
               profileImage: data.doctor.image_link || "",
               signatureImage: data.doctor.signature_link || "",
+              facebook_link: data.doctor.facebook_link || "",
+              instagram_link: data.doctor.instagram_link || "",
+              twitter_link: data.doctor.twitter_link || "",
+              linkedin_link: data.doctor.linkedin_link || "",
+              seo_description: data.doctor.seo_description || "",
             });
           }
         } else {
@@ -77,7 +81,6 @@ const Profile: React.FC = () => {
       } catch (error) {
         console.error("Error fetching doctor data:", error);
       } finally {
-        setIsLoading(false);
       }
     };
 
@@ -92,7 +95,16 @@ const Profile: React.FC = () => {
       case "Update Info":
         return <UpdateInfoTab doctor={doctorData} />;
       case "Social Settings":
-        return <SocialSettingsTab />;
+        return (
+          <SocialSettingsTab
+            userId={userId}
+            facebook={doctorData?.facebook_link}
+            twitter={doctorData?.twitter_link}
+            instagram={doctorData?.instagram_link}
+            linkedin={doctorData?.linkedin_link}
+          />
+        );
+
       case "SEO Settings":
         return <SEOSettingsTab doctor={{ metaTags, seoDescription }} />;
       default:
@@ -101,7 +113,7 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen p-4 md:p-6 gap-4 md:gap-6">
+    <div className="flex flex-col md:flex-row p-4 md:p-6 gap-4 md:gap-6">
       {/* Left Column - Profile Card */}
       <div className="w-full md:w-1/4">
         <ProfileCard
@@ -109,21 +121,21 @@ const Profile: React.FC = () => {
           specialization={doctorData?.specialization}
           degree={doctorData?.degree}
           image={doctorData?.profileImage}
-          facebook={doctorData?.facebook}
-          twitter={doctorData?.twitter}
-          instagram={doctorData?.instagram}
-          linkedin={doctorData?.linkedin}
+          facebook={doctorData?.facebook_link}
+          twitter={doctorData?.twitter_link}
+          instagram={doctorData?.instagram_link}
+          linkedin={doctorData?.linkedin_link}
         />
       </div>
 
       {/* Right Column */}
       <div className="w-full md:w-3/4 bg-white rounded-lg shadow-lg md:ml-6">
         {/* Tabs Container */}
-        <div className="flex flex-col md:flex-row border border-gray-200 rounded-t-lg">
+        <div className="flex flex-col md:flex-row border border-gray-200 rounded-t-lg ">
           {tabs.map((tab) => (
             <button
               key={tab.name}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all 
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all cursor-pointer
                 ${
                   activeTab === tab.name
                     ? "text-blue-600 md:border-b-2 border-blue-600 bg-blue-50"
@@ -147,9 +159,7 @@ const Profile: React.FC = () => {
         </div>
 
         {/* Tab Content */}
-        <div className="p-4 md:p-6 border-l border-r border-b border-gray-200 rounded-b-lg">
-          {renderTabContent()}
-        </div>
+        <div className="p-4 md:p-6 border-l border-r">{renderTabContent()}</div>
       </div>
     </div>
   );

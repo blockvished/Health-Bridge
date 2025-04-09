@@ -206,11 +206,8 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({ doctor }) => {
       if (!response.ok) throw new Error("Failed to update doctor info");
 
       const data = await response.json();
-      alert("Doctor information updated successfully!");
-      console.log(data);
     } catch (error) {
       console.error("Error updating doctor info:", error);
-      alert("Something went wrong.");
     } finally {
       setIsLoading(false);
     }
