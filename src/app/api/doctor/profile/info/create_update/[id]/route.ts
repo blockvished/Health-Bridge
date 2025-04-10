@@ -2,12 +2,11 @@ import fs from "fs";
 import path from "path";
 import { extname } from "path";
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { IncomingForm } from "formidable";
 import { Readable } from "stream";
-import jwt from "jsonwebtoken";
 import { eq, and, inArray } from "drizzle-orm";
 import db from "../../../../../../../db/db";
+import { verifyAuthToken } from "../../../../../../lib/verify";
 
 import {
   doctor,
@@ -41,22 +40,15 @@ function createNodeRequest(req: NextRequest): Promise<any> {
 
 export async function POST(req: NextRequest) {
   const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
-  const cookieStore = await cookies();
-  const token = cookieStore.get("authToken")?.value;
+  // Verify JWT token using the modularized function
+  const decodedOrResponse = await verifyAuthToken();
 
-  if (!token) {
-    return NextResponse.json(
-      { error: "Unauthorized: No token" },
-      { status: 401 }
-    );
+  // Handle potential error response from token verification
+  if (decodedOrResponse instanceof NextResponse) {
+    return decodedOrResponse;
   }
 
-  // Verify JWT
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-    userId: string;
-    role: string;
-  };
-
+  const decoded = decodedOrResponse;
   const userId = Number(decoded.userId);
 
   if (String(userId) != userIdFromUrl) {
@@ -186,7 +178,7 @@ export async function POST(req: NextRequest) {
           .split(",")
           .map((tag) => tag.trim())
           .filter((tag) => tag.length > 0);
-        console.log(metaTagsArray);
+        // console.log(metaTagsArray);
 
         const doctorData = await db
           .select()
@@ -213,8 +205,8 @@ export async function POST(req: NextRequest) {
           (tag) => !metaTagsArray.includes(tag)
         );
 
-        console.log("tags to add", tagsToAdd);
-        console.log("tags to delete", tagsToDelete);
+        // console.log("tags to add", tagsToAdd);
+        // console.log("tags to delete", tagsToDelete);
 
         // Step 3: Insert new tags
         if (tagsToAdd.length > 0) {

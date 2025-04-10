@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import postgres from "postgres";
 import { eq } from "drizzle-orm";
@@ -7,6 +6,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { doctor } from "../../../../../../../../db/schema";
 import db from "../../../../../../../../db/db";
+import { verifyAuthToken } from "../../../../../../../lib/verify";
 
 export async function GET(req: NextRequest) {
   let sql: postgres.Sql<{}> | undefined; // 
@@ -16,25 +16,15 @@ export async function GET(req: NextRequest) {
     const file_name = pathSegments[pathSegments.length - 1] || "unknown";
     const userIdFromUrl = pathSegments[pathSegments.length - 2] || "unknown";
 
-    console.log(userIdFromUrl);
+    // Verify JWT token using the modularized function
+    const decodedOrResponse = await verifyAuthToken();
 
-    // Get authentication token from cookies - using await
-    const cookieStore = await cookies();
-    const token = cookieStore.get("authToken")?.value;
-
-    if (!token) {
-      return NextResponse.json(
-        { error: "Unauthorized: No token provided" },
-        { status: 401 }
-      );
+    // Handle potential error response from token verification
+    if (decodedOrResponse instanceof NextResponse) {
+      return decodedOrResponse;
     }
 
-    // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
-      role: string;
-    };
-
+    const decoded = decodedOrResponse;
     const userId = Number(decoded.userId);
 
     // Check if the requested doctor ID matches the authenticated user's ID
