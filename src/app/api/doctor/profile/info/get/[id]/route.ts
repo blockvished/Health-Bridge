@@ -1,55 +1,37 @@
+// app/api/doctors/[doctorId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
 import { eq } from "drizzle-orm";
-
+import db from "../../../../../../../db/db";
 import {
   doctor,
   doctorMetaTags as dbMetaTags,
 } from "../../../../../../../db/schema";
+import { verifyAuthToken } from "../../../../../../lib/verify";
 
 export async function GET(req: NextRequest) {
   try {
-    // Get doctor ID from URL
+    // Get ID from URL
     const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
 
-    // Get authentication token from cookies - using await
-    const cookieStore = await cookies();
-    const token = cookieStore.get("authToken")?.value;
+    // Verify JWT token using the modularized function
+    const decodedOrResponse = await verifyAuthToken();
 
-    if (!token) {
-      return NextResponse.json(
-        { error: "Unauthorized: No token provided" },
-        { status: 401 }
-      );
+    // Handle potential error response from token verification
+    if (decodedOrResponse instanceof NextResponse) {
+      return decodedOrResponse;
     }
 
-    // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
-      role: string;
-    };
-
+    const decoded = decodedOrResponse;
     const userId = Number(decoded.userId);
 
-    // Check if the requested doctor ID matches the authenticated user's ID
+    // Check if the requested ID matches the authenticated user's ID
     if (String(userId) !== userIdFromUrl) {
       return NextResponse.json(
         { error: "Forbidden: You don't have access to this profile" },
         { status: 403 }
       );
     }
-
-    // Connect to database
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) {
-      throw new Error("DATABASE_URL is not set in environment variables.");
-    }
-
-    const sql = postgres(connectionString, { max: 1 });
-    const db = drizzle(sql);
 
     // Query for doctor information
     const doctorData = await db
