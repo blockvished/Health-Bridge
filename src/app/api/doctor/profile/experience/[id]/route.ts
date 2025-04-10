@@ -79,7 +79,17 @@ export async function POST(req: NextRequest) {
     const userId = Number(decoded.userId);
 
     const reqBody = await req.json();
-    const { id, title, organization, yearFrom, yearTo, details, sortOrder } = reqBody;
+    const { id, title, organization, yearFrom, yearTo, details, sortOrder } =
+      reqBody;
+    if (String(userId) !== userIdFromUrl) {
+      return NextResponse.json(
+        {
+          error:
+            "Forbidden: You don't have access to this profile's education data.",
+        },
+        { status: 403 }
+      );
+    }
 
     // Query for doctor information based on the authenticated user ID
     const doctorData = await db
@@ -103,12 +113,18 @@ export async function POST(req: NextRequest) {
       });
 
       if (!existingExperience) {
-        return NextResponse.json({ error: "Experience entry not found." }, { status: 404 });
+        return NextResponse.json(
+          { error: "Experience entry not found." },
+          { status: 404 }
+        );
       }
 
       if (existingExperience.doctorId !== requiredDoctorId) {
         return NextResponse.json(
-          { error: "Forbidden: You don't have permission to update this experience." },
+          {
+            error:
+              "Forbidden: You don't have permission to update this experience.",
+          },
           { status: 403 }
         );
       }
@@ -145,7 +161,10 @@ export async function POST(req: NextRequest) {
         .returning();
 
       // console.log("Created -Experience:", newExperience);
-      return NextResponse.json({ experience: newExperience[0] }, { status: 201 });
+      return NextResponse.json(
+        { experience: newExperience[0] },
+        { status: 201 }
+      );
     }
   } catch (error) {
     console.error("Error creating/updating doctor -Experience:", error);
@@ -163,7 +182,10 @@ export async function DELETE(req: NextRequest) {
   const experienceIdToDelete = searchParams.get("id");
 
   if (!experienceIdToDelete) {
-    return NextResponse.json({ error: "Missing experience ID to delete." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing experience ID to delete." },
+      { status: 400 }
+    );
   }
 
   try {
@@ -180,7 +202,10 @@ export async function DELETE(req: NextRequest) {
 
     if (String(userId) !== userIdFromUrl) {
       return NextResponse.json(
-        { error: "Forbidden: You don't have access to this profile's experience data." },
+        {
+          error:
+            "Forbidden: You don't have access to this profile's experience data.",
+        },
         { status: 403 }
       );
     }
@@ -210,7 +235,10 @@ export async function DELETE(req: NextRequest) {
 
     if (!existingExperience) {
       return NextResponse.json(
-        { error: "Experience entry not found or does not belong to this profile." },
+        {
+          error:
+            "Experience entry not found or does not belong to this profile.",
+        },
         { status: 404 }
       );
     }
@@ -223,7 +251,10 @@ export async function DELETE(req: NextRequest) {
     if (deletedExperience.length > 0) {
       return NextResponse.json({ message: "Experience deleted successfully." });
     } else {
-      return NextResponse.json({ error: "Failed to delete experience." }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to delete experience." },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.error("Error deleting doctor -Experience:", error);

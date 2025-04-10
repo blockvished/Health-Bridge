@@ -22,13 +22,6 @@ export async function GET(req: NextRequest) {
   const decoded = decodedOrResponse;
   const userId = Number(decoded.userId);
 
-  if (String(userId) !== userIdFromUrl) {
-    return NextResponse.json(
-      { error: "Forbidden: You don't have access to this profile" },
-      { status: 403 }
-    );
-  }
-
   // Check if the requested ID matches the authenticated user's ID
   if (String(userId) !== userIdFromUrl) {
     return NextResponse.json(
@@ -42,6 +35,13 @@ export async function GET(req: NextRequest) {
     .select()
     .from(doctor)
     .where(eq(doctor.userId, userId));
+
+    if (!doctorData.length) {
+      return NextResponse.json(
+        { error: "Doctor profile not found for this user." },
+        { status: 404 }
+      );
+    }
 
   const requiredDoctorId = doctorData[0].id;
 
@@ -76,9 +76,18 @@ export async function POST(req: NextRequest) {
 
     const decoded = decodedOrResponse;
     const userId = Number(decoded.userId);
+    
+    // Check if the requested ID matches the authenticated user's ID
+    if (String(userId) !== userIdFromUrl) {
+      return NextResponse.json(
+        { error: "Forbidden: You don't have access to this profile" },
+        { status: 403 }
+      );
+    }
 
     const reqBody = await req.json();
-    const { id, title, institution, yearFrom, yearTo, details, sortOrder } = reqBody;
+    const { id, title, institution, yearFrom, yearTo, details, sortOrder } =
+      reqBody;
 
     // Query for doctor information based on the authenticated user ID
     const doctorData = await db
@@ -86,13 +95,12 @@ export async function POST(req: NextRequest) {
       .from(doctor)
       .where(eq(doctor.userId, userId));
 
-      
-      if (!doctorData.length) {
-        return NextResponse.json(
-          { error: "Doctor profile not found for this user." },
-          { status: 404 }
-        );
-      }
+    if (!doctorData.length) {
+      return NextResponse.json(
+        { error: "Doctor profile not found for this user." },
+        { status: 404 }
+      );
+    }
 
     const requiredDoctorId = doctorData[0].id;
 
@@ -103,12 +111,18 @@ export async function POST(req: NextRequest) {
       });
 
       if (!existingEducation) {
-        return NextResponse.json({ error: "Education entry not found." }, { status: 404 });
+        return NextResponse.json(
+          { error: "Education entry not found." },
+          { status: 404 }
+        );
       }
 
       if (existingEducation.doctorId !== requiredDoctorId) {
         return NextResponse.json(
-          { error: "Forbidden: You don't have permission to update this education." },
+          {
+            error:
+              "Forbidden: You don't have permission to update this education.",
+          },
           { status: 403 }
         );
       }
@@ -163,7 +177,10 @@ export async function DELETE(req: NextRequest) {
   const educationIdToDelete = searchParams.get("id");
 
   if (!educationIdToDelete) {
-    return NextResponse.json({ error: "Missing education ID to delete." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing education ID to delete." },
+      { status: 400 }
+    );
   }
 
   try {
@@ -180,7 +197,10 @@ export async function DELETE(req: NextRequest) {
 
     if (String(userId) !== userIdFromUrl) {
       return NextResponse.json(
-        { error: "Forbidden: You don't have access to this profile's education data." },
+        {
+          error:
+            "Forbidden: You don't have access to this profile's education data.",
+        },
         { status: 403 }
       );
     }
@@ -210,7 +230,10 @@ export async function DELETE(req: NextRequest) {
 
     if (!existingEducation) {
       return NextResponse.json(
-        { error: "Education entry not found or does not belong to this profile." },
+        {
+          error:
+            "Education entry not found or does not belong to this profile.",
+        },
         { status: 404 }
       );
     }
@@ -223,7 +246,10 @@ export async function DELETE(req: NextRequest) {
     if (deletedEducation.length > 0) {
       return NextResponse.json({ message: "Education deleted successfully." });
     } else {
-      return NextResponse.json({ error: "Failed to delete education." }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to delete education." },
+        { status: 500 }
+      );
     }
   } catch (error) {
     console.error("Error deleting doctor -Education:", error);
