@@ -6,9 +6,8 @@ import { cookies } from "next/headers";
 import { IncomingForm } from "formidable";
 import { Readable } from "stream";
 import jwt from "jsonwebtoken";
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
-import { eq, and, notInArray, inArray } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
+import db from "../../../../../../../db/db";
 
 import {
   doctor,
@@ -81,13 +80,6 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const connectionString = process.env.DATABASE_URL;
-      if (!connectionString) {
-        throw new Error("DATABASE_URL is not set in environment variables.");
-      }
-
-      const sql = postgres(connectionString, { max: 1 });
-      const db = drizzle(sql);
       const ExistingDoctor = await db
         .select()
         .from(doctor)

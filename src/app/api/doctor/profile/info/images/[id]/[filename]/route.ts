@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
 import { eq } from "drizzle-orm";
 import { promises as fs } from "fs";
 import path from "path";
-
 import { doctor } from "../../../../../../../../db/schema";
+import db from "../../../../../../../../db/db";
 
 export async function GET(req: NextRequest) {
   let sql: postgres.Sql<{}> | undefined; // 
@@ -45,15 +44,6 @@ export async function GET(req: NextRequest) {
         { status: 403 }
       );
     }
-
-    // Connect to database
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) {
-      throw new Error("DATABASE_URL is not set in environment variables.");
-    }
-
-    sql = postgres(connectionString, { max: 1 });
-    const db = drizzle(sql);
 
     // Query for doctor information
     const doctorData = await db
