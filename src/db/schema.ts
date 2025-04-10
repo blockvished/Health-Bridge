@@ -165,3 +165,107 @@ export type NewDoctor = InferInsertModel<typeof doctor>;
 export type NewDoctorEducation = InferInsertModel<typeof doctorEducation>;
 export type NewDoctorMetaTag = InferInsertModel<typeof doctorMetaTags>;
 export type NewDoctorExperience = InferInsertModel<typeof doctorExperience>;
+
+
+// export const modeEnum = pgEnum("appointment_mode", ["online", "offline"]);
+// export const patientTypeEnum = pgEnum("patient_type", ["new", "old"]);
+// export const genderEnum = pgEnum("gender", ["male", "female", "other"]);
+// export const subscriptionTypeEnum = pgEnum("subscription_type", ["basic",  "premium",  "enterprise",]);
+// export const billingCycleEnum = pgEnum("billing_cycle", ["monthly",  "quarterly",  "yearly",]);
+// export const consultationModeEnum = pgEnum("consultation_mode", ["zoom", "google_meet", "ms_teams"]);
+
+// export const staff = pgTable("staff", {
+//   id: serial("id").primaryKey(),
+//   name: text("name").notNull(),
+//   email: varchar("email", { length: 255 }).notNull().unique(),
+//   password: text("password").notNull(),
+//   designation: text("designation"),
+//   roles: text("roles").array(), // Multiple roles
+//   chambers: text("chambers"),
+//   createdAt: timestamp("created_at").defaultNow(),
+//   updatedAt: timestamp("updated_at").defaultNow(),
+// });
+
+// export const patient = pgTable("patient", {
+//   id: serial("id").primaryKey(),
+//   name: text("name").notNull(),
+//   email: varchar("email", { length: 255 }).notNull().unique(),
+//   phone: varchar("phone", { length: 20 }).notNull(),
+//   age: integer("age"),
+//   weight: integer("weight"),
+//   presentAddress: text("present_address"),
+//   permanentAddress: text("permanent_address"),
+//   gender: genderEnum("gender"),
+//   doctorId: integer("doctor_id").notNull().references(() => doctor.id), // Foreign key to the doctor table
+//   createdAt: timestamp("created_at").defaultNow(),
+//   updatedAt: timestamp("updated_at").defaultNow(),
+// });
+
+// export const doctorConsultation = pgTable("doctor_consultation", {
+//   id: serial("id").primaryKey(),
+//   doctorId: integer("doctor_id").notNull().unique().references(() => doctor.id),
+//   consultationFees: integer("consultation_fees"),
+//   mode: consultationModeEnum("mode"), // Enforced ENUM type
+//   consultationLink: text("consultation_link"),
+// });
+
+// export const appointment = pgTable("appointment", {
+//   id: serial("id").primaryKey(),
+//   patientId: integer("patient_id")
+//     .references(() => patient.id)
+//     .notNull(),
+//   doctorId: integer("doctor_id")
+//     .references(() => doctor.id)
+//     .notNull(),
+//   date: timestamp("date").notNull(),
+//   timeSlot: text("time_slot").notNull(),
+//   mode: modeEnum("mode").notNull(), // Using enum
+//   patientType: patientTypeEnum("patient_type").notNull(), // Using enum
+//   paymentStatus: boolean("payment_status").default(false),
+//   visitStatus: boolean("visit_status").default(false),
+//   createdAt: timestamp("created_at").defaultNow(),
+//   updatedAt: timestamp("updated_at").defaultNow(),
+// });
+
+// export const prescription = pgTable("prescription", {
+//   id: serial("id").primaryKey(),
+//   patientId: integer("patient_id")
+//     .references(() => patient.id)
+//     .notNull(),
+//   doctorId: integer("doctor_id")
+//     .references(() => doctor.id)
+//     .notNull(), // Added doctorId
+//   appointmentId: integer("appointment_id").references(() => appointment.id), // Added appointment reference
+//   clinicalDiagnosis: text("clinical_diagnosis"),
+//   additionalAdvice: text("additional_advice"),
+//   drugs: text("drugs").array().notNull(),
+//   nextFollowUp: timestamp("next_follow_up"),
+//   notes: text("notes"),
+//   createdAt: timestamp("created_at").defaultNow(),
+//   updatedAt: timestamp("updated_at").defaultNow(),
+// });
+
+// export const drug = pgTable("drug", {
+//   id: serial("id").primaryKey(),
+//   name: text("name").notNull(),
+//   genericName: text("generic_name"),
+//   brandName: text("brand_name"),
+//   details: text("details"),
+//   createdAt: timestamp("created_at").defaultNow(),
+//   updatedAt: timestamp("updated_at").defaultNow(),
+// });
+
+// export const platformSubscription = pgTable("platform_subscription", {
+//   id: serial("id").primaryKey(),
+//   doctorId: integer("doctor_id")
+//     .references(() => doctor.id)
+//     .notNull(),
+//   subscriptionType: subscriptionTypeEnum("subscription_type").notNull(),
+//   price: integer("price"),
+//   billingCycle: billingCycleEnum("billing_cycle"),
+//   lastBilling: timestamp("last_billing"),
+//   expireDate: timestamp("expire_date"),
+//   verified: boolean("verified").default(false),
+//   createdAt: timestamp("created_at").defaultNow(),
+//   updatedAt: timestamp("updated_at").defaultNow(),
+// });
