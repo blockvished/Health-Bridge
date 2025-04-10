@@ -8,7 +8,7 @@ import SEOSettingsTab from "./SEOSettingsTab";
 import ProfileCard from "./ProfileCard";
 import Cookies from "js-cookie";
 
-interface Doctor {
+export interface Doctor {
   name: string;
   email: string;
   phone: string;
@@ -20,19 +20,18 @@ interface Doctor {
   aboutClinic?: string;
   profileImage?: string;
   signatureImage?: string;
-  facebook_link?: string;
-  linkedin_link?: string;
-  twitter_link?: string;
-  instagram_link?: string;
+  facebook?: string;
+  linkedin?: string;
+  twitter?: string;
+  instagram?: string;
   seo_description?: string;
+  metaTagss?: string[];
 }
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("Update Info");
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
-  const [metaTags, setMetaTags] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  const seoDescription = "Best Cardiologist in Chandigarh, Punjab";
 
   const tabs = [
     { name: "Update Info", icon: <FaUserEdit /> },
@@ -57,6 +56,15 @@ const Profile: React.FC = () => {
 
         if (response.ok) {
           const data = await response.json();
+          let metemeta;
+          if (data.metaTags) {
+            if (Array.isArray(data.metaTags)) {
+              const tags = data.metaTags.map(
+                (tagObj: { tag: string }) => tagObj.tag
+              );
+              metemeta = tags;
+            }
+          }
           if (data.doctor) {
             setDoctorData({
               name: data.doctor.name || "",
@@ -70,20 +78,13 @@ const Profile: React.FC = () => {
               aboutClinic: data.doctor.aboutClinic || "",
               profileImage: data.doctor.image_link || "",
               signatureImage: data.doctor.signature_link || "",
-              facebook_link: data.doctor.facebook_link || "",
-              instagram_link: data.doctor.instagram_link || "",
-              twitter_link: data.doctor.twitter_link || "",
-              linkedin_link: data.doctor.linkedin_link || "",
+              facebook: data.doctor.facebook_link || "",
+              instagram: data.doctor.instagram_link || "",
+              twitter: data.doctor.twitter_link || "",
+              linkedin: data.doctor.linkedin_link || "",
               seo_description: data.doctor.seo_description || "",
+              metaTagss: metemeta || [],
             });
-            if (data.metaTags) {
-              if (Array.isArray(data.metaTags)) {
-                const tags = data.metaTags.map(
-                  (tagObj: { tag: string }) => tagObj.tag
-                );
-                setMetaTags(tags);
-              }
-            }
           }
         } else {
           console.error("Failed to fetch doctor data");
@@ -107,23 +108,14 @@ const Profile: React.FC = () => {
       case "Social Settings":
         return (
           <SocialSettingsTab
-            userId={userId}
-            facebook={doctorData?.facebook_link}
-            twitter={doctorData?.twitter_link}
-            instagram={doctorData?.instagram_link}
-            linkedin={doctorData?.linkedin_link}
+            doctor={doctorData}
+            setDoctorData={setDoctorData}
           />
         );
 
       case "SEO Settings":
         return (
-          <SEOSettingsTab
-            doctor={{
-              userId: userId,
-              metaTags,
-              seoDescription: doctorData?.seo_description || "",
-            }}
-          />
+          <SEOSettingsTab doctor={doctorData} setDoctorData={setDoctorData} />
         );
       default:
         return <div>No content available</div>;
@@ -139,10 +131,10 @@ const Profile: React.FC = () => {
           specialization={doctorData?.specialization}
           degree={doctorData?.degree}
           image={doctorData?.profileImage}
-          facebook={doctorData?.facebook_link}
-          twitter={doctorData?.twitter_link}
-          instagram={doctorData?.instagram_link}
-          linkedin={doctorData?.linkedin_link}
+          facebook={doctorData?.facebook}
+          twitter={doctorData?.twitter}
+          instagram={doctorData?.instagram}
+          linkedin={doctorData?.linkedin}
         />
       </div>
 

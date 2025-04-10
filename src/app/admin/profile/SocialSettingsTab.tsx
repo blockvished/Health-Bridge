@@ -6,54 +6,53 @@ import {
   FaLinkedin,
   FaCheck,
 } from "react-icons/fa";
+import { Doctor } from "./page";
+import Cookies from "js-cookie";
 
-interface DoctorSocial {
-  userId?: string | null;
-  facebook?: string;
-  twitter?: string;
-  instagram?: string;
-  linkedin?: string;
+interface SocialSettingsTabProps {
+  doctor: Doctor | null;
+  setDoctorData: React.Dispatch<React.SetStateAction<Doctor | null>>;
 }
 
 const SocialSettingsTab = ({
-  userId,
-  facebook,
-  twitter,
-  instagram,
-  linkedin,
-}: DoctorSocial) => {
-  const [socialLinks, setSocialLinks] = useState<DoctorSocial | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  doctor,
+  setDoctorData,
+}: SocialSettingsTabProps) => {
+  const [doctorrData, setDoctorrData] = useState({
+    facebook: doctor?.facebook || "",
+    instagram: doctor?.instagram || "",
+    twitter: doctor?.twitter || "",
+    linkedin: doctor?.linkedin || "",
+  });
   const [isSaving, setIsSaving] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    setSocialLinks({ userId, facebook, twitter, instagram, linkedin });
-  }, [userId, facebook, twitter, instagram, linkedin]);
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
 
-  const handleInputChange = (
-    field: keyof Omit<DoctorSocial, "userId">,
-    value: string
-  ) => {
-    if (socialLinks) {
-      setSocialLinks({
-        ...socialLinks,
-        [field]: value,
+  useEffect(() => {
+    if (doctor) {
+      setDoctorrData({
+        facebook: doctor?.facebook || "",
+        instagram: doctor?.instagram || "",
+        twitter: doctor?.twitter || "",
+        linkedin: doctor?.linkedin || "",
       });
     }
-  };
+  }, [doctor]);
 
   const handleSaveChanges = async () => {
-    if (!socialLinks) return;
+    if (!doctorrData) return;
 
     try {
       setIsSaving(true);
       const formData = new FormData();
 
       // Append doctor text fields
-      Object.entries(socialLinks).forEach(([key, value]) => {
-        if (key !== "userId") {
-          formData.append(key, value);
-        }
+      Object.entries(doctorrData).forEach(([key, value]) => {
+        formData.append(key, value);
       });
 
       const response = await fetch(
@@ -73,7 +72,6 @@ const SocialSettingsTab = ({
       const data = await response.json();
     } catch (err: any) {
       console.error("Error updating doctor info:", err);
-      setError(err.message || "Something went wrong.");
     } finally {
       setIsSaving(false);
     }
@@ -81,8 +79,7 @@ const SocialSettingsTab = ({
 
   return (
     <div className="space-y-4">
-      {error && <div className="text-red-500">{error}</div>}
-      {socialLinks && (
+      {doctorrData && (
         <>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -94,8 +91,12 @@ const SocialSettingsTab = ({
               </span>
               <input
                 type="text"
-                value={socialLinks.facebook || ""}
-                onChange={(e) => handleInputChange("facebook", e.target.value)}
+                value={doctorrData.facebook || ""}
+                onChange={(e) => {
+                  const fflink = e.target.value;
+                  setDoctorrData((prev) => ({ ...prev, facebook: fflink }));
+                  setDoctorData((prev) => ({ ...prev!, facebook: fflink }));
+                }}
                 className="w-full border border-gray-300 rounded p-2 pl-10"
                 placeholder="Enter Facebook URL"
               />
@@ -111,8 +112,12 @@ const SocialSettingsTab = ({
               </span>
               <input
                 type="text"
-                value={socialLinks.twitter || ""}
-                onChange={(e) => handleInputChange("twitter", e.target.value)}
+                value={doctorrData.twitter || ""}
+                onChange={(e) => {
+                  const twlink = e.target.value;
+                  setDoctorrData((prev) => ({ ...prev, twitter: twlink }));
+                  setDoctorData((prev) => ({ ...prev!, twitter: twlink }));
+                }}
                 className="w-full border border-gray-300 rounded p-2 pl-10"
                 placeholder="Enter Twitter URL"
               />
@@ -128,8 +133,12 @@ const SocialSettingsTab = ({
               </span>
               <input
                 type="text"
-                value={socialLinks.linkedin || ""}
-                onChange={(e) => handleInputChange("linkedin", e.target.value)}
+                value={doctorrData.linkedin || ""}
+                onChange={(e) => {
+                  const lllink = e.target.value;
+                  setDoctorrData((prev) => ({ ...prev, linkedin: lllink }));
+                  setDoctorData((prev) => ({ ...prev!, linkedin: lllink }));
+                }}
                 className="w-full border border-gray-300 rounded p-2 pl-10"
                 placeholder="Enter LinkedIn URL"
               />
@@ -145,8 +154,12 @@ const SocialSettingsTab = ({
               </span>
               <input
                 type="text"
-                value={socialLinks.instagram || ""}
-                onChange={(e) => handleInputChange("instagram", e.target.value)}
+                value={doctorrData.instagram || ""}
+                onChange={(e) => {
+                  const iilink = e.target.value;
+                  setDoctorrData((prev) => ({ ...prev, instagram: iilink }));
+                  setDoctorData((prev) => ({ ...prev!, instagram: iilink }));
+                }}
                 className="w-full border border-gray-300 rounded p-2 pl-10"
                 placeholder="Enter Instagram URL"
               />
