@@ -49,30 +49,6 @@ export const patient = pgTable("patient", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Doctor Education Table (One-to-One with Doctor)
-export const doctorEducation = pgTable("doctor_education", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id").references(() => doctor.id).notNull(),
-  title: text("title").notNull(),
-  yearFrom: integer("year_from"),
-  yearTo: integer("year_to"),
-  details: text("details"),
-  sortOrder: integer("sort_order"),
-});
-
-// Doctor Experience Table (One-to-One with Doctor)
-export const doctorExperience = pgTable("doctor_experience", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id").references(() => doctor.id).notNull(),
-  title: text("title").notNull(),
-  yearFrom: integer("year_from"),
-  yearTo: integer("year_to"), // could be null for current positions
-  details: text("details"),
-  sortOrder: integer("sort_order"),
-});
-
-
-
 // Doctor Consultation Settings Table (One-to-One with Doctor)
 export const doctorConsultation = pgTable("doctor_consultation", {
   id: serial("id").primaryKey(),

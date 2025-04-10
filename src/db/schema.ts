@@ -62,6 +62,35 @@ export const doctor = pgTable("doctor", {
   seo_description: text("seo_description"),
 });
 
+export const doctorEducation = pgTable("doctor_education", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
+    .references(() => doctor.id, { onDelete: "cascade" })
+    .notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  institution: varchar("institution", { length: 255 }), // optional
+  yearFrom: integer("year_from"),
+  yearTo: integer("year_to"),
+  details: text("details"),
+  sortOrder: integer("sort_order"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const doctorExperience = pgTable("doctor_experience", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
+    .references(() => doctor.id, { onDelete: "cascade" })
+    .notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  organization: varchar("organization", { length: 255 }), // optional
+  yearFrom: integer("year_from"),
+  yearTo: integer("year_to"), // nullable for current roles
+  details: text("details"),
+  sortOrder: integer("sort_order"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
 
 export const doctorMetaTags = pgTable(
   "doctor_meta_tags",
@@ -81,19 +110,21 @@ export const doctorMetaTags = pgTable(
 );
 
 // Relations
-export const doctorMetaTagRelations = relations(doctorMetaTags, ({ one }) => ({
-  doctor: one(doctor, {
-    fields: [doctorMetaTags.doctorId],
-    references: [doctor.id],
-  }),
-}));
-
 export const doctorRelations = relations(doctor, ({ one, many }) => ({
   user: one(users, {
     fields: [doctor.userId],
     references: [users.id],
   }),
-  metaTags: many(doctorMetaTags), 
+  metaTags: many(doctorMetaTags),
+  educations: many(doctorEducation),
+  experiences: many(doctorExperience),
+}));
+
+export const doctorMetaTagRelations = relations(doctorMetaTags, ({ one }) => ({
+  doctor: one(doctor, {
+    fields: [doctorMetaTags.doctorId],
+    references: [doctor.id],
+  }),
 }));
 
 export const userRelations = relations(users, ({ one }) => ({
@@ -103,7 +134,34 @@ export const userRelations = relations(users, ({ one }) => ({
   }),
 }));
 
+export const doctorEducationRelations = relations(
+  doctorEducation,
+  ({ one }) => ({
+    doctor: one(doctor, {
+      fields: [doctorEducation.doctorId],
+      references: [doctor.id],
+    }),
+  })
+);
 
+export const doctorExperienceRelations = relations(
+  doctorExperience,
+  ({ one }) => ({
+    doctor: one(doctor, {
+      fields: [doctorExperience.doctorId],
+      references: [doctor.id],
+    }),
+  })
+);
+
+export type User = InferSelectModel<typeof users>;
 export type Doctor = InferSelectModel<typeof doctor>;
 export type DoctorMetaTag = InferSelectModel<typeof doctorMetaTags>;
-export type NewDoctorMetaTag = InferInsertModel<typeof doctorMetaTags>;  
+export type DoctorEducation = InferSelectModel<typeof doctorEducation>;
+export type DoctorExperience = InferSelectModel<typeof doctorExperience>;
+
+export type NewUser = InferInsertModel<typeof users>;
+export type NewDoctor = InferInsertModel<typeof doctor>;
+export type NewDoctorEducation = InferInsertModel<typeof doctorEducation>;
+export type NewDoctorMetaTag = InferInsertModel<typeof doctorMetaTags>;
+export type NewDoctorExperience = InferInsertModel<typeof doctorExperience>;
