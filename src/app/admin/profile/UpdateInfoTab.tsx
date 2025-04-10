@@ -2,20 +2,7 @@ import Cookies from "js-cookie";
 import { Upload } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaCheck } from "react-icons/fa";
-
-interface Doctor {
-  name: string;
-  email: string;
-  phone: string;
-  city: string;
-  specialization: string;
-  degree: string;
-  experience: string;
-  aboutSelf: string;
-  aboutClinic?: string;
-  profileImage?: string;
-  signatureImage?: string;
-}
+import { Doctor } from "./page"; 
 
 interface UpdateInfoTabProps {
   doctor: Doctor | null;
@@ -109,6 +96,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
       setSignatureFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
+        setDoctorData((prev) => ({
+          ...prev!,
+          signatureImage: reader.result as string,
+        }));
         setDoctorrData((prev) => ({
           ...prev,
           signaturePreview: reader.result as string,
@@ -128,6 +119,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value;
     setDoctorrData({ ...doctorrData, email: newEmail });
+    setDoctorData({ ...doctorrData!, email: newEmail });
 
     if (newEmail && !validateEmail(newEmail)) {
       setErrors((prev) => ({
@@ -145,6 +137,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
 
     // Don't allow negative numbers by checking the input value
     if (value === "" || parseInt(value, 10) >= 0) {
+      setDoctorData({ ...doctorrData, experience: value });
       setDoctorrData({ ...doctorrData, experience: value });
       setErrors((prev) => ({ ...prev, experience: "" }));
     } else {
@@ -334,9 +327,11 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
             type="number"
             className="w-full border border-gray-300 rounded p-2"
             value={doctorrData.phone}
-            onChange={(e) =>
-              setDoctorrData({ ...doctorrData, phone: e.target.value })
-            }
+            onChange={(e) => {
+              const phone = e.target.value;
+              setDoctorrData((prev) => ({ ...prev, phone: phone }));
+              setDoctorData((prev) => ({ ...prev!, phone: phone }));
+            }}
           />
         </div>
       </div>
@@ -349,9 +344,11 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
           type="text"
           className="w-full border border-gray-300 rounded p-2"
           value={doctorrData.city}
-          onChange={(e) =>
-            setDoctorrData({ ...doctorrData, city: e.target.value })
-          }
+          onChange={(e) => {
+            const city = e.target.value;
+            setDoctorrData((prev) => ({ ...prev, city: city }));
+            setDoctorData((prev) => ({ ...prev!, city: city }));
+          }}
         />
       </div>
       <div>
@@ -364,8 +361,14 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
           value={doctorrData.specialization}
           onChange={(e) => {
             const updatedName = e.target.value;
-            setDoctorrData((prev) => ({ ...prev, specialization: updatedName }));
-            setDoctorData((prev) => ({ ...prev!, specialization: updatedName }));
+            setDoctorrData((prev) => ({
+              ...prev,
+              specialization: updatedName,
+            }));
+            setDoctorData((prev) => ({
+              ...prev!,
+              specialization: updatedName,
+            }));
           }}
         />
       </div>
@@ -376,11 +379,10 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
           value={doctorrData.degree}
-          onChange={(e) =>{
-            setDoctorrData({ ...doctorrData, degree: e.target.value })
-            setDoctorData({ ...doctorrData!, degree: e.target.value })
-          }
-          }
+          onChange={(e) => {
+            setDoctorrData({ ...doctorrData, degree: e.target.value });
+            setDoctorData({ ...doctorrData!, degree: e.target.value });
+          }}
         />
       </div>
       <div>
@@ -407,9 +409,11 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
           value={doctorrData.aboutSelf}
-          onChange={(e) =>
-            setDoctorrData({ ...doctorrData, aboutSelf: e.target.value })
-          }
+          onChange={(e) => {
+            const aboutSelf = e.target.value;
+            setDoctorrData((prev) => ({ ...prev, aboutSelf: aboutSelf }));
+            setDoctorData((prev) => ({ ...prev!, aboutSelf: aboutSelf }));
+          }}
         />
       </div>
       <div>
@@ -419,9 +423,11 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
         <textarea
           className="w-full border border-gray-300 rounded p-2 min-h-24 auto-resize overflow-hidden resize-none"
           value={doctorrData.aboutClinic}
-          onChange={(e) =>
-            setDoctorrData({ ...doctorrData, aboutClinic: e.target.value })
-          }
+          onChange={(e) => {
+            const aboutClinic = e.target.value;
+            setDoctorrData((prev) => ({ ...prev, aboutClinic: aboutClinic }));
+            setDoctorData((prev) => ({ ...prev!, aboutClinic: aboutClinic }));
+          }}
         />
       </div>
       <button

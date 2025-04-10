@@ -1,43 +1,59 @@
-import React, { useState } from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { FaCheck } from "react-icons/fa";
+import { Doctor } from "./page";
+import Cookies from "js-cookie";
 
-// Define or import the Doctor type
-interface Doctor {
-  userId?: string | null;
-  metaTags: string[];
-  seoDescription: string;
+interface SeoSettingsTabProps {
+  doctor: Doctor | null;
+  setDoctorData: React.Dispatch<React.SetStateAction<Doctor | null>>;
 }
 
-interface SEOSettingsTabProps {
-  doctor: Doctor;
-}
-
-const SEOSettingsTab: React.FC<SEOSettingsTabProps> = ({ doctor }) => {
-  const [metaTags, setMetaTags] = useState<string[]>(doctor.metaTags);
-  const [seoDescription, setSeoDescription] = useState<string>(doctor.seoDescription);
+const SEOSettingsTab: React.FC<SeoSettingsTabProps> = ({ doctor, setDoctorData }) => {
+  const [doctorData, setDoctorState] = useState({
+    metaTags: doctor?.metaTagss || [],
+    seo_description: doctor?.seo_description || "",
+  });
   const [isSaving, setIsSaving] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
 
   const handleSaveChanges = async () => {
     try {
       setIsSaving(true);
       const formData = new FormData();
-  
-      formData.append("seoDescription", seoDescription);
 
-      formData.append("doctorMetaTags", metaTags.join(","));
+      formData.append("seoDescription", doctorData.seo_description || "");
+      formData.append("doctorMetaTags", doctorData.metaTags.join(","));
 
-      const response = await fetch(`/api/doctor/profile/info/create_update/${doctor.userId}`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-  
+      const response = await fetch(
+        `/api/doctor/profile/info/create_update/${userId}`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        }
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData?.message || "Failed to update doctor info");
       }
-  
+
       const data = await response.json();
+      // Update the parent component state as well
+      if (doctor) {
+        setDoctorData({
+          ...doctor,
+          seo_description: doctorData.seo_description,
+          metaTagss: doctorData.metaTags
+        });
+      }
       // Optionally toast here
     } catch (err: any) {
       console.error("Error updating doctor info:", err);
@@ -46,8 +62,15 @@ const SEOSettingsTab: React.FC<SEOSettingsTabProps> = ({ doctor }) => {
     }
   };
 
-  const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSeoDescription(event.target.value);
+  const handleDescriptionChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const seo = event.target.value;
+    setDoctorState({ ...doctorData, seo_description: seo });
+  };
+
+  const updateMetaTags = (tags: string[]) => {
+    setDoctorState({ ...doctorData, metaTags: tags });
   };
 
   return (
@@ -56,7 +79,10 @@ const SEOSettingsTab: React.FC<SEOSettingsTabProps> = ({ doctor }) => {
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Meta tags
         </label>
-        <MetaTagsInput metaTags={metaTags} setMetaTags={setMetaTags} />
+        <MetaTagsInput 
+          metaTags={doctorData.metaTags} 
+          setMetaTags={updateMetaTags} 
+        />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -65,7 +91,7 @@ const SEOSettingsTab: React.FC<SEOSettingsTabProps> = ({ doctor }) => {
         <input
           type="text"
           className="w-full border border-gray-300 rounded p-2"
-          value={seoDescription}
+          value={doctorData.seo_description}
           onChange={handleDescriptionChange}
         />
       </div>
