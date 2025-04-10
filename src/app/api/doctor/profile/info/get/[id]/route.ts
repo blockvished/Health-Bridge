@@ -11,7 +11,7 @@ import { verifyAuthToken } from "../../../../../../lib/verify";
 
 export async function GET(req: NextRequest) {
   try {
-    // Get doctor ID from URL
+    // Get ID from URL
     const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
 
     // Verify JWT token using the modularized function
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     const decoded = decodedOrResponse;
     const userId = Number(decoded.userId);
 
-    // Check if the requested doctor ID matches the authenticated user's ID
+    // Check if the requested ID matches the authenticated user's ID
     if (String(userId) !== userIdFromUrl) {
       return NextResponse.json(
         { error: "Forbidden: You don't have access to this profile" },
