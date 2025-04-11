@@ -21,7 +21,9 @@ export const userRoleEnum = pgEnum("user_role", [
   "staff",
   "patient",
 ]);
+
 export const genderEnum = pgEnum("gender", ["male", "female", "other"]);
+
 export const dayEnum = pgEnum("day_of_week", [
   "Sunday",
   "Monday",
@@ -31,7 +33,9 @@ export const dayEnum = pgEnum("day_of_week", [
   "Friday",
   "Saturday",
 ]);
+
 export type UserRole = (typeof userRoleEnum.enumValues)[number];
+
 export type Gender = (typeof genderEnum.enumValues)[number];
 
 export const users = pgTable("users", {
