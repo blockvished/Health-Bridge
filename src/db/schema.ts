@@ -11,6 +11,7 @@ import {
 import { relations } from "drizzle-orm";
 import { uniqueIndex } from "drizzle-orm/pg-core";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import { time } from "drizzle-orm/pg-core";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -20,7 +21,18 @@ export const userRoleEnum = pgEnum("user_role", [
   "staff",
   "patient",
 ]);
+export const genderEnum = pgEnum("gender", ["male", "female", "other"]);
+export const dayEnum = pgEnum("day_of_week", [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+]);
 export type UserRole = (typeof userRoleEnum.enumValues)[number];
+export type Gender = (typeof genderEnum.enumValues)[number];
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -60,6 +72,54 @@ export const doctor = pgTable("doctor", {
   twitter_link: text("twitter_link"),
   linkedin_link: text("linkedin_link"),
   seo_description: text("seo_description"),
+});
+
+export const appointmentSettings = pgTable("appointment_settings", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
+  intervalMinutes: integer("interval_minutes").notNull(), // e.g., 10, 15, etc.
+});
+
+export const appointmentDays = pgTable("appointment_days", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
+  dayOfWeek: dayEnum("day_of_week").notNull(),
+
+  isActive: boolean("is_active").default(false),
+});
+
+export const appointmentTimeRanges = pgTable("appointment_time_ranges", {
+  id: serial("id").primaryKey(),
+  dayId: integer("day_id")
+    .notNull()
+    .references(() => appointmentDays.id, { onDelete: "cascade" }),
+  startTime: time("start_time").notNull(),
+  endTime: time("end_time").notNull(),
+});
+
+export const patient = pgTable("patient", {
+  id: serial("id").primaryKey(),
+
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
+
+  abhaId: text("abha_id"),
+  age: integer("age"),
+  weight: integer("weight"),
+  height: integer("height"),
+  address: text("address"),
+  gender: genderEnum("gender"), // assuming genderEnum is already defined
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const doctorEducation = pgTable("doctor_education", {
@@ -166,7 +226,6 @@ export type NewDoctorEducation = InferInsertModel<typeof doctorEducation>;
 export type NewDoctorMetaTag = InferInsertModel<typeof doctorMetaTags>;
 export type NewDoctorExperience = InferInsertModel<typeof doctorExperience>;
 
-
 // export const modeEnum = pgEnum("appointment_mode", ["online", "offline"]);
 // export const patientTypeEnum = pgEnum("patient_type", ["new", "old"]);
 // export const genderEnum = pgEnum("gender", ["male", "female", "other"]);
@@ -182,21 +241,6 @@ export type NewDoctorExperience = InferInsertModel<typeof doctorExperience>;
 //   designation: text("designation"),
 //   roles: text("roles").array(), // Multiple roles
 //   chambers: text("chambers"),
-//   createdAt: timestamp("created_at").defaultNow(),
-//   updatedAt: timestamp("updated_at").defaultNow(),
-// });
-
-// export const patient = pgTable("patient", {
-//   id: serial("id").primaryKey(),
-//   name: text("name").notNull(),
-//   email: varchar("email", { length: 255 }).notNull().unique(),
-//   phone: varchar("phone", { length: 20 }).notNull(),
-//   age: integer("age"),
-//   weight: integer("weight"),
-//   presentAddress: text("present_address"),
-//   permanentAddress: text("permanent_address"),
-//   gender: genderEnum("gender"),
-//   doctorId: integer("doctor_id").notNull().references(() => doctor.id), // Foreign key to the doctor table
 //   createdAt: timestamp("created_at").defaultNow(),
 //   updatedAt: timestamp("updated_at").defaultNow(),
 // });
