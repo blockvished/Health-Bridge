@@ -25,6 +25,7 @@ async function registerUser(
   const SERVER_PEPPER = process.env.SERVER_PEPPER || "default_pepper";
   try {
     const salt = crypto.randomBytes(16).toString("hex");
+    // applied salt = salt + password
     const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
     const passwordHash = await hash(saltedPassword);
 
