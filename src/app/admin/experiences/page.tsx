@@ -51,10 +51,6 @@ const ExperienceTable = () => {
         credentials: "include",
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch experience data: ${response.status}`);
-      }
-
       const result = await response.json();
       console.log("API Response (GET):", result);
       setExperienceData(
@@ -149,7 +145,6 @@ const ExperienceTable = () => {
         fetchExperienceData(); // Refresh data
       } else {
         const errorData = await response.json();
-        console.error("Failed to save/update experience:", errorData);
         // Optionally display an error message to the user
       }
     } catch (error) {

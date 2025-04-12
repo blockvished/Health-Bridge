@@ -43,6 +43,13 @@
       "when": 1744352157051,
       "tag": "0005_nebulous_whirlwind",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1744431310491,
+      "tag": "0006_careful_the_fallen",
+      "breakpoints": true
     }
   ]
 }
