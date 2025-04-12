@@ -56,7 +56,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ Educations });
   } catch (error) {
     console.error("Error fetching doctor -Education:", error);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({
+      success: true,
+    });
   }
 }
 // /api/doctor/profile/education/[userId]
