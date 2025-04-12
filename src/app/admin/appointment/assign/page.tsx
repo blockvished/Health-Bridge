@@ -37,16 +37,6 @@ interface TimeDropdownProps {
   onSelect: (value: string) => void;
 }
 
-const daysOfWeek = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
 const generateTimeOptions = (interval: number = 10): string[] => {
   const options: string[] = [];
   for (let hour = 0; hour < 24; hour++) {
@@ -100,25 +90,128 @@ const TimeDropdown: React.FC<TimeDropdownProps> = ({
 );
 
 const AppointmentsSchedule: React.FC = () => {
-  const [interval, setInterval] = useState<number | null>(null);
-  const [timeOptions, setTimeOptions] = useState<string[]>([]); // ✅ safer initial value
-  const [showError, setShowError] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [showError, setShowError] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [intervalInDb, setIntervalInDb] = useState<boolean>(false);
+  const [interval, setInterval] = useState<number>(0);
+  const [timeOptions, setTimeOptions] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState<string>(
+    interval ? String(interval) : ""
+  );
+  const [intervalID, setIntervalID] = useState<number | null>(null);
+  const [dayss, setDayss] = useState([
+    { id: 1, doctorId: 2, dayOfWeek: "Sunday", isActive: false },
+    { id: 2, doctorId: 2, dayOfWeek: "Monday", isActive: false },
+    { id: 3, doctorId: 2, dayOfWeek: "Tuesday", isActive: false },
+    { id: 4, doctorId: 2, dayOfWeek: "Wednesday", isActive: false },
+    { id: 5, doctorId: 2, dayOfWeek: "Thursday", isActive: false },
+    { id: 6, doctorId: 2, dayOfWeek: "Friday", isActive: false },
+    { id: 7, doctorId: 2, dayOfWeek: "Saturday", isActive: false },
+  ]);
+
+
+  const [schedule, setSchedule] = useState<ScheduleState>(
+    dayss.reduce((acc, day) => {
+      acc[day.dayOfWeek] = {
+        active: day.isActive,
+        times: [],
+      };
+      return acc;
+    }, {} as ScheduleState)
+  );
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
   }, []);
 
-  const [schedule, setSchedule] = useState<ScheduleState>(
-    daysOfWeek.reduce((acc, day) => {
-      acc[day] = {
-        active: day === "Sunday" || day === "Monday" || day === "Tuesday",
-        times: [{ from: "09:00 AM", to: "01:00 PM" }],
+  useEffect(() => {
+    // Only make the API call if userId exists
+    if (userId) {
+      setIsLoading(true);
+      const fetchData = async () => {
+        // Define an async function inside useEffect
+        try {
+          const response = await fetch(
+            `/api/doctor/appointments/interval/${userId}`,
+            {
+              method: "GET",
+              credentials: "include",
+            }
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.existingSetting.length > 0) {
+              const fetchedIntervalId = data.existingSetting[0].id;
+              const fetchedInterval = data.existingSetting[0].intervalMinutes;
+              const fetchedDays = data.days;
+              console.log("Fetched days:", fetchedDays);
+              setIntervalID(fetchedIntervalId);
+              setInterval(fetchedInterval);
+              setDayss(fetchedDays);
+              setIntervalInDb(true);
+              setInputValue(String(fetchedInterval));
+            } else {
+              setInterval(0);
+              setIntervalInDb(false); 
+              setInputValue(""); // Reset input value
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching interval:", error);
+          // Handle network errors or other exceptions
+        } finally {
+          setIsLoading(false); // Ensure loading state is updated regardless of success or failure
+        }
       };
-      return acc;
-    }, {} as ScheduleState)
-  );
+
+      fetchData(); // Call the async function
+    }
+  }, [userId, setIsLoading]);
+
+  const handleSetUpdateInterval = async () => {
+    if (!userId) {
+      console.error("User ID not found.");
+      setShowError(true); // Optionally show an error message
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `/api/doctor/appointments/interval/${userId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ intervalMinutes: interval }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log("Interval updated successfully:", data);
+        setIntervalInDb(true); // Update the state to reflect that the interval is in the database
+        // Optionally show a success message or update UI
+      } else {
+        console.error(
+          "Failed to update interval:",
+          data.error || response.status
+        );
+        setShowError(true); // Show an error message
+      }
+    } catch (error) {
+      console.error("Error updating interval:", error);
+      setShowError(true); // Show an error message for network errors
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const [openDropdown, setOpenDropdown] = useState<OpenDropdownState | null>(
     null
@@ -213,15 +306,32 @@ const AppointmentsSchedule: React.FC = () => {
           <input
             type="number"
             onChange={(e) => {
-              const val = Number(e.target.value);
-              if (val === 0) {
-                setShowError(true);
-              } else {
+              const val = e.target.value;
+              setInputValue(val); // Always update the input value
+
+              // Only update the actual interval if the value is valid
+              const numVal = Number(val);
+              if (numVal > 0) {
+                setInterval(numVal);
                 setShowError(false);
-                setInterval(val);
+              } else if (val === "") {
+                // Don't show error while typing - just don't update the interval
+                setShowError(false);
+              } else {
+                // Show error for explicit zero or negative values
+                setShowError(true);
               }
             }}
-            value={interval || 0}
+            onBlur={() => {
+              // On blur, validate the input and show error if needed
+              const numVal = Number(inputValue);
+              if (numVal <= 0) {
+                setShowError(true);
+                // Reset to previous valid value or empty string
+                setInputValue(interval > 0 ? String(interval) : "");
+              }
+            }}
+            value={inputValue}
             className="border border-gray-200 p-2 rounded-t-md sm:rounded-l-md sm:rounded-tr-none w-full focus:outline-none"
             min="1"
             max="60"
@@ -238,13 +348,13 @@ const AppointmentsSchedule: React.FC = () => {
         )}
         <button
           onClick={() => {
-
+            handleSetUpdateInterval();
           }}
-          className="mt-4 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors w-full sm:w-auto"
+          className="mt-4 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors w-full sm:w-auto cursor-pointer"
         >
-          Update
+          {intervalInDb ? "Update" : "Set Interval"}
         </button>
-        {interval == null && (
+        {!intervalInDb == true && (
           <>
             <p className="text-black-500 text-sm mt-1">NOTE:</p>
             <p className="text-black-500 text-sm mt-1">
@@ -255,35 +365,35 @@ const AppointmentsSchedule: React.FC = () => {
       </div>
 
       {/* Right Panel - Responsive Adjustments */}
-      {interval != null && (
+      {intervalInDb == true && (
         <div className="w-full md:w-2/3 bg-white p-4 sm:p-6 rounded-lg shadow-sm">
           <h2 className="text-lg sm:text-xl font-medium text-gray-800 mb-6">
             Set Appointments Schedule
           </h2>
 
-          {daysOfWeek.map((day) => (
+          {dayss.map(({ dayOfWeek }) => (
             <div
-              key={day}
+              key={dayOfWeek}
               className="py-4 border-b border-gray-100 last:border-b-0"
             >
               <div className="flex items-center mb-4">
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={schedule[day].active}
-                    onChange={() => toggleDay(day)}
+                    checked={schedule[dayOfWeek].active}
+                    onChange={() => toggleDay(dayOfWeek)}
                     className="sr-only peer"
                   />
                   <div className="w-9 h-5 sm:w-11 sm:h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all"></div>
                 </label>
                 <span className="ml-2 sm:ml-3 text-sm sm:text-base text-gray-700 font-medium">
-                  {day}
+                  {dayOfWeek}
                 </span>
               </div>
 
-              {schedule[day].active && (
+              {schedule[dayOfWeek].active && (
                 <div className="space-y-4">
-                  {schedule[day].times.map((time, index) => (
+                  {schedule[dayOfWeek].times.map((time, index) => (
                     <div
                       key={index}
                       className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full"
@@ -291,16 +401,16 @@ const AppointmentsSchedule: React.FC = () => {
                       <div className="time-select relative w-full sm:flex-1">
                         <TimeInput
                           value={time.from}
-                          onClick={() => toggleDropdown(day, index, "from")}
+                          onClick={() => toggleDropdown(dayOfWeek, index, "from")}
                         />
-                        {openDropdown?.day === day &&
+                        {openDropdown?.day === dayOfWeek &&
                           openDropdown?.index === index &&
                           openDropdown?.field === "from" && (
                             <TimeDropdown
                               timeOptions={timeOptions}
                               selectedTime={time.from}
                               onSelect={(val) =>
-                                updateTime(day, index, "from", val)
+                                updateTime(dayOfWeek, index, "from", val)
                               }
                             />
                           )}
@@ -311,22 +421,22 @@ const AppointmentsSchedule: React.FC = () => {
                       <div className="time-select relative w-full sm:flex-1">
                         <TimeInput
                           value={time.to}
-                          onClick={() => toggleDropdown(day, index, "to")}
+                          onClick={() => toggleDropdown(dayOfWeek, index, "to")}
                         />
-                        {openDropdown?.day === day &&
+                        {openDropdown?.day === dayOfWeek &&
                           openDropdown?.index === index &&
                           openDropdown?.field === "to" && (
                             <TimeDropdown
                               timeOptions={timeOptions}
                               selectedTime={time.to}
                               onSelect={(val) =>
-                                updateTime(day, index, "to", val)
+                                updateTime(dayOfWeek, index, "to", val)
                               }
                             />
                           )}
                       </div>
                       <button
-                        onClick={() => removeTime(day, index)}
+                        onClick={() => removeTime(dayOfWeek, index)}
                         className="text-red-500 bg-red-50 p-2 rounded-full hover:bg-red-100 transition-colors self-end sm:self-auto"
                       >
                         <FaTrash size={14} />
@@ -334,7 +444,7 @@ const AppointmentsSchedule: React.FC = () => {
                     </div>
                   ))}
                   <button
-                    onClick={() => addNewTime(day)}
+                    onClick={() => addNewTime(dayOfWeek)}
                     className="text-gray-600 flex items-center gap-2 hover:text-blue-600 transition-colors text-sm sm:text-base"
                   >
                     <FaPlus size={12} className="text-gray-400" />
@@ -344,6 +454,9 @@ const AppointmentsSchedule: React.FC = () => {
               )}
             </div>
           ))}
+          <button className="mt-4 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors w-full sm:w-auto cursor-pointer">
+            Update
+          </button>
         </div>
       )}
     </div>
