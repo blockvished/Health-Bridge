@@ -5,6 +5,7 @@ import {
   appointmentSettings,
   appointmentDays,
   dayEnum,
+  appointmentTimeRanges,
 } from "../../../../../../db/schema";
 import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
@@ -64,14 +65,38 @@ export async function GET(req: NextRequest) {
       .from(appointmentDays)
       .where(eq(appointmentDays.doctorId, requiredDoctorId));
 
-    // console.log("Fetched -Appointment:", existingSetting);
+    ///////////////
+    const result = await Promise.all(
+      days.map(async (day) => {
+        if (!day.isActive) {
+          return { ...day, times: [] };
+        }
+
+        const timeRanges = await db
+          .select({
+            from: appointmentTimeRanges.startTime,
+            to: appointmentTimeRanges.endTime,
+          })
+          .from(appointmentTimeRanges)
+          .where(eq(appointmentTimeRanges.dayId, day.id));
+
+        return {
+          ...day,
+          times: timeRanges.map(({ from, to }) => ({
+            from,
+            to,
+          })),
+        };
+      })
+    );
+
+    //////////////
 
     return NextResponse.json({
       success: true,
       existingSetting: existingSetting,
-      days: days,
+      days: result,
     });
-    
   } catch (error) {
     console.error("Error fetching appointment interval:", error);
     return NextResponse.json(
