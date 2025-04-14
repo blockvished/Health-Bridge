@@ -19,3 +19,14 @@ ngrok http 3000
 //auth fixing salting
 //education and experience fixing when doctorid is not created as userid is not created
 // from and to time validations
+
+
+select * from appointment_time_ranges;
+-- select * from appointment_days;
+-- select * from appointment_settings;
+-- select * from doctor;
+-- select * from patient;
+-- select * from users;
+-- select * from doctor_meta_tags;
+-- select * from doctor_experience;
+-- select * from doctor_education;

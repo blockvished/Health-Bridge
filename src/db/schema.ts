@@ -12,6 +12,7 @@ import { relations } from "drizzle-orm";
 import { uniqueIndex } from "drizzle-orm/pg-core";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { time } from "drizzle-orm/pg-core";
+import { date } from "drizzle-orm/pg-core";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -37,6 +38,11 @@ export const dayEnum = pgEnum("day_of_week", [
 export type UserRole = (typeof userRoleEnum.enumValues)[number];
 
 export type Gender = (typeof genderEnum.enumValues)[number];
+
+export const appointmentModeEnum = pgEnum("appointment_mode", [
+  "online",
+  "offline",
+]);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -78,33 +84,6 @@ export const doctor = pgTable("doctor", {
   seo_description: text("seo_description"),
 });
 
-export const appointmentSettings = pgTable("appointment_settings", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id")
-    .notNull()
-    .references(() => doctor.id, { onDelete: "cascade" }),
-  intervalMinutes: integer("interval_minutes").notNull(), // e.g., 10, 15, etc.
-});
-
-export const appointmentDays = pgTable("appointment_days", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id")
-    .notNull()
-    .references(() => doctor.id, { onDelete: "cascade" }),
-  dayOfWeek: dayEnum("day_of_week").notNull(),
-
-  isActive: boolean("is_active").default(false),
-});
-
-export const appointmentTimeRanges = pgTable("appointment_time_ranges", {
-  id: serial("id").primaryKey(),
-  dayId: integer("day_id")
-    .notNull()
-    .references(() => appointmentDays.id, { onDelete: "cascade" }),
-  startTime: time("start_time").notNull(),
-  endTime: time("end_time").notNull(),
-});
-
 export const patient = pgTable("patient", {
   id: serial("id").primaryKey(),
 
@@ -125,6 +104,36 @@ export const patient = pgTable("patient", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const appointments = pgTable("appointments", {
+  id: serial("id").primaryKey(),
+  date: date("date").notNull(),
+  timeFrom: time("time_from").notNull(),
+  timeTo: time("time_to").notNull(),
+  mode: appointmentModeEnum("mode").notNull(),
+  patientId: integer("patient_id")
+    .notNull()
+    .references(() => patient.id, { onDelete: "cascade" }),
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
+  paymentStatus: boolean("payment_status").default(false).notNull(),
+  visitStatus: boolean("visit_status").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const appointmentsRelations = relations(appointments, ({ one }) => ({
+  patient: one(patient, {
+    fields: [appointments.patientId],
+    references: [patient.id],
+  }),
+  doctor: one(doctor, {
+    fields: [appointments.doctorId],
+    references: [doctor.id],
+  }),
+}));
+
 
 export const doctorEducation = pgTable("doctor_education", {
   id: serial("id").primaryKey(),
@@ -172,6 +181,34 @@ export const doctorMetaTags = pgTable(
     ),
   })
 );
+
+
+export const appointmentSettings = pgTable("appointment_settings", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
+  intervalMinutes: integer("interval_minutes").notNull(), // e.g., 10, 15, etc.
+});
+
+export const appointmentDays = pgTable("appointment_days", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
+  dayOfWeek: dayEnum("day_of_week").notNull(),
+
+  isActive: boolean("is_active").default(false),
+});
+
+export const appointmentTimeRanges = pgTable("appointment_time_ranges", {
+  id: serial("id").primaryKey(),
+  dayId: integer("day_id")
+    .notNull()
+    .references(() => appointmentDays.id, { onDelete: "cascade" }),
+  startTime: time("start_time").notNull(),
+  endTime: time("end_time").notNull(),
+});
 
 // Relations
 export const doctorRelations = relations(doctor, ({ one, many }) => ({
@@ -223,7 +260,9 @@ export type Doctor = InferSelectModel<typeof doctor>;
 export type DoctorMetaTag = InferSelectModel<typeof doctorMetaTags>;
 export type DoctorEducation = InferSelectModel<typeof doctorEducation>;
 export type DoctorExperience = InferSelectModel<typeof doctorExperience>;
+export type Appointment = InferSelectModel<typeof appointments>;
 
+export type NewAppointment = InferInsertModel<typeof appointments>;
 export type NewUser = InferInsertModel<typeof users>;
 export type NewDoctor = InferInsertModel<typeof doctor>;
 export type NewDoctorEducation = InferInsertModel<typeof doctorEducation>;
@@ -231,8 +270,6 @@ export type NewDoctorMetaTag = InferInsertModel<typeof doctorMetaTags>;
 export type NewDoctorExperience = InferInsertModel<typeof doctorExperience>;
 
 // export const modeEnum = pgEnum("appointment_mode", ["online", "offline"]);
-// export const patientTypeEnum = pgEnum("patient_type", ["new", "old"]);
-// export const genderEnum = pgEnum("gender", ["male", "female", "other"]);
 // export const subscriptionTypeEnum = pgEnum("subscription_type", ["basic",  "premium",  "enterprise",]);
 // export const billingCycleEnum = pgEnum("billing_cycle", ["monthly",  "quarterly",  "yearly",]);
 // export const consultationModeEnum = pgEnum("consultation_mode", ["zoom", "google_meet", "ms_teams"]);
@@ -257,23 +294,6 @@ export type NewDoctorExperience = InferInsertModel<typeof doctorExperience>;
 //   consultationLink: text("consultation_link"),
 // });
 
-// export const appointment = pgTable("appointment", {
-//   id: serial("id").primaryKey(),
-//   patientId: integer("patient_id")
-//     .references(() => patient.id)
-//     .notNull(),
-//   doctorId: integer("doctor_id")
-//     .references(() => doctor.id)
-//     .notNull(),
-//   date: timestamp("date").notNull(),
-//   timeSlot: text("time_slot").notNull(),
-//   mode: modeEnum("mode").notNull(), // Using enum
-//   patientType: patientTypeEnum("patient_type").notNull(), // Using enum
-//   paymentStatus: boolean("payment_status").default(false),
-//   visitStatus: boolean("visit_status").default(false),
-//   createdAt: timestamp("created_at").defaultNow(),
-//   updatedAt: timestamp("updated_at").defaultNow(),
-// });
 
 // export const prescription = pgTable("prescription", {
 //   id: serial("id").primaryKey(),
