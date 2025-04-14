@@ -104,42 +104,50 @@ export async function POST(req: NextRequest) {
     const reqBody = await req.json();
     const { schedule } = reqBody;
 
-    console.log(schedule.length);
+    // console.log(JSON.stringify(schedule, null, 2));
+    // console.log(schedule[0]);
 
-    if (schedule.length) {
-      schedule.forEach((item: ScheduleItem) => {
-        console.log(`Day: ${item.dayOfWeek} (ID: ${item.id})`);
+    if (schedule && schedule.length) {
+      // Process each day in the schedule
+      await Promise.all(
+        schedule.map(async (item: ScheduleItem) => {
+          console.log(`Day: ${item.dayOfWeek} (ID: ${item.id})`);
 
-        // schema
-
-        // export const appointmentTimeRanges = pgTable("appointment_time_ranges", {
-        //   id: serial("id").primaryKey(),
-        //   dayId: integer("day_id")
-        //     .notNull()
-        //     .references(() => appointmentDays.id, { onDelete: "cascade" }),
-        //   startTime: time("start_time").notNull(),
-        //   endTime: time("end_time").notNull(),
-        // });
-
-        if (item.isActive) {
+          // If the day is active and has time ranges, create new ones
           // then use item.id to get the appointmentTimeRanges
           // delete all the appointmentTimeRanges with id -> ${item.id})
           // then create new appointmentTimeRanges -> based on item.times.length -> startTime: from, endTime: to
-        }
+          
+          // First, update the day's active status
+          await db
+            .update(appointmentDays)
+            .set({ isActive: item.isActive })
+            .where(eq(appointmentDays.id, item.id));
 
-        if (item.times.length) {
-          item.times.forEach((time, index) => {
-            console.log(`  Time ${index + 1}: ${time.from} - ${time.to}`);
-          });
-        } else {
-          console.log("  No times set.");
-        }
-      });
+          // Delete all existing time ranges for this day
+          await db
+            .delete(appointmentTimeRanges)
+            .where(eq(appointmentTimeRanges.dayId, item.id));
+
+          if (item.isActive && item.times && item.times.length) {
+            // Insert new time ranges
+            await Promise.all(
+              item.times.map(async (time) => {
+                await db.insert(appointmentTimeRanges).values({
+                  dayId: item.id,
+                  startTime: time.from,
+                  endTime: time.to,
+                });
+
+                console.log(`  Time added: ${time.from} - ${time.to}`);
+              })
+            );
+          } else {
+            console.log("  No times set or day is inactive.");
+          }
+        })
+      );
     }
-
-    // console.log(JSON.stringify(schedule, null, 2));
-    // console.log(schedule[0]);
-    //////////////
 
     return NextResponse.json({
       success: true,
