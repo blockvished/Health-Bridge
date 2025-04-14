@@ -30,3 +30,5 @@ select * from appointment_time_ranges;
 -- select * from doctor_meta_tags;
 -- select * from doctor_experience;
 -- select * from doctor_education;
+
+fetch appointments and display tomoro
