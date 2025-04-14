@@ -100,10 +100,10 @@ interface PatientFormProps {
   editingPatient?: Patient | null;
 }
 
-const PatientForm: React.FC<PatientFormProps> = ({ 
-  onBack, 
-  onPatientAdded, 
-  editingPatient = null 
+export const PatientForm: React.FC<PatientFormProps> = ({
+  onBack,
+  onPatientAdded,
+  editingPatient = null,
 }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -140,23 +140,23 @@ const PatientForm: React.FC<PatientFormProps> = ({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    
+
     // Validate age, weight, and height are not negative
     if (parseInt(age) < 0) {
       setError("Age cannot be negative");
       return;
     }
-    
+
     if (weight && parseFloat(weight) < 0) {
       setError("Weight cannot be negative");
       return;
     }
-    
+
     if (height && parseFloat(height) < 10) {
       setError("Height cannot be that low");
       return;
     }
-    
+
     if (!userId) {
       setError("User ID not found.");
       return;
@@ -176,14 +176,17 @@ const PatientForm: React.FC<PatientFormProps> = ({
         weight,
         height,
         address,
-        gender
+        gender,
       };
 
-      console.log(`${editingPatient ? "Updating" : "Submitting"} patient data:`, patientData);
+      console.log(
+        `${editingPatient ? "Updating" : "Submitting"} patient data:`,
+        patientData
+      );
 
       let url = `/api/doctor/patients/${userId}`;
       let method = "POST";
-      
+
       // If editing, use the edit endpoint and PUT method
       if (editingPatient) {
         url = `/api/doctor/patients/${userId}/edit/${editingPatient.id}`;
@@ -196,17 +199,25 @@ const PatientForm: React.FC<PatientFormProps> = ({
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify(patientData)
+        body: JSON.stringify(patientData),
       });
 
       if (response.ok) {
-        console.log(`Patient ${editingPatient ? "updated" : "created"} successfully`);
+        console.log(
+          `Patient ${editingPatient ? "updated" : "created"} successfully`
+        );
         onPatientAdded(); // Refresh the patient list
         onBack(); // Go back to the patient list after submission
       } else {
         const errorData = await response.json();
-        console.error(`Failed to ${editingPatient ? "update" : "create"} patient:`, errorData);
-        setError(errorData.message || `Failed to ${editingPatient ? "update" : "create"} patient`);
+        console.error(
+          `Failed to ${editingPatient ? "update" : "create"} patient:`,
+          errorData
+        );
+        setError(
+          errorData.message ||
+            `Failed to ${editingPatient ? "update" : "create"} patient`
+        );
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -217,10 +228,7 @@ const PatientForm: React.FC<PatientFormProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-md shadow-md">
-      <h2 className="text-lg font-semibold mb-4">
-        {editingPatient ? "Edit Patient" : "Add New Patient"}
-      </h2>
+    <div className="bg-white rounded-md shadow-md">
       {error && (
         <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">
           {error}
@@ -341,7 +349,10 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="absolute inset-0 bg-black opacity-30 cursor-pointer" onClick={onClose}></div>
+      <div
+        className="absolute inset-0 bg-black opacity-30 cursor-pointer"
+        onClick={onClose}
+      ></div>
       <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full z-10 border border-gray-200">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">{title}</h3>
@@ -375,18 +386,17 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   );
 };
 
-
-const PatientsTable: React.FC<{ 
+const PatientsTable: React.FC<{
   onRefresh: () => void;
   onEditPatient: (patient: Patient) => void;
 }> = ({ onRefresh, onEditPatient }) => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -435,13 +445,16 @@ const PatientsTable: React.FC<{
 
   const handleDeleteConfirm = async () => {
     if (!patientToDelete || !userId) return;
-    
+
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/doctor/patients/${userId}/delete/${patientToDelete.id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const response = await fetch(
+        `/api/doctor/patients/${userId}/delete/${patientToDelete.id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
       if (response.ok) {
         console.log("Patient deleted successfully");
@@ -513,14 +526,14 @@ const PatientsTable: React.FC<{
                 </button>
               </td>
               <td className="p-3 flex gap-2">
-                <button 
+                <button
                   className="p-2 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8 cursor-pointer"
                   aria-label="Edit patient"
                   onClick={() => onEditPatient(patient)}
                 >
                   <FiEdit />
                 </button>
-                <button 
+                <button
                   className="p-2 border rounded-md bg-red-100 hover:bg-red-200 transition flex items-center justify-center w-8 h-8 cursor-pointer text-red-600"
                   aria-label="Delete patient"
                   onClick={() => handleDeleteClick(patient)}
@@ -532,7 +545,7 @@ const PatientsTable: React.FC<{
           ))}
         </tbody>
       </table>
-      
+
       <ConfirmModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
@@ -550,7 +563,7 @@ const Patients: React.FC = () => {
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
 
   const handleRefresh = () => {
-    setRefreshCounter(prev => prev + 1);
+    setRefreshCounter((prev) => prev + 1);
   };
 
   const handleEditPatient = (patient: Patient) => {
@@ -567,10 +580,14 @@ const Patients: React.FC = () => {
     <div className="bg-white shadow-md rounded-xl overflow-hidden max-w-5xl mx-auto w-full p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-semibold text-gray-800">
-          {showForm ? (editingPatient ? "Edit Patient" : "Create New Patient") : "All Patients"}
+          {showForm
+            ? editingPatient
+              ? "Edit Patient"
+              : "Create New Patient"
+            : "All Patients"}
         </h1>
         <button
-          onClick={() => showForm ? handleBack() : setShowForm(true)}
+          onClick={() => (showForm ? handleBack() : setShowForm(true))}
           className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 text-sm rounded-lg shadow-sm flex items-center gap-2 cursor-pointer"
         >
           {showForm ? (
@@ -585,16 +602,16 @@ const Patients: React.FC = () => {
         </button>
       </div>
       {showForm ? (
-        <PatientForm 
-          onBack={handleBack} 
+        <PatientForm
+          onBack={handleBack}
           onPatientAdded={handleRefresh}
           editingPatient={editingPatient}
         />
       ) : (
-        <PatientsTable 
-          onRefresh={handleRefresh} 
+        <PatientsTable
+          onRefresh={handleRefresh}
           onEditPatient={handleEditPatient}
-          key={refreshCounter} 
+          key={refreshCounter}
         />
       )}
     </div>
