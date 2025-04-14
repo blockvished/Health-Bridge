@@ -57,6 +57,13 @@
       "when": 1744606198506,
       "tag": "0007_clammy_terrax",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1744628476131,
+      "tag": "0008_lethal_mordo",
+      "breakpoints": true
     }
   ]
 }
