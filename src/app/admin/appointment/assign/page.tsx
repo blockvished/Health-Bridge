@@ -311,43 +311,45 @@ const AppointmentsSchedule: React.FC = () => {
     }
   };
 
-  if (isLoading && !userId) {
-    return (
-      <div className="flex justify-center items-center h-60">
-        <FaSpinner className="animate-spin text-gray-500 text-4xl" />
-      </div>
-    );
-  }
-
+  
   const submitDayTimes = async () => {
     if (!userId) {
       console.error("User ID not found.");
       return;
     }
-
+    
+    // Check if all active days have time slots
+    const activeDays = days.filter(day => day.isActive);
+    const missingTimeSlots = activeDays.some(day => !day.times || day.times.length === 0);
+    
+    if (missingTimeSlots) {
+      // Show error message that active days must have time slots
+      alert("All active days must have at least one time slot.");
+      // You could set some state here to show an error message to the user
+      return;
+    }
+    
     setIsSaving(true);
-
+    
     const scheduleData = days.map(({ id, dayOfWeek, isActive, times }) => ({
       id,
       dayOfWeek,
       isActive,
       times: isActive ? times : [],
     }));
-
-    console.log("skjhhkshg",scheduleData)
-
+  
     try {
       const response = await fetch(
         `/api/doctor/appointments/times/${userId}`,
         {
           method: "POST",
           credentials: "include",
-          body: JSON.stringify({ schedule: scheduleData }), // Sending the 'scheduleData' which includes the 'days' information
+          body: JSON.stringify({ schedule: scheduleData }),
         }
       );
-
+      
       const data = await response.json();
-
+      
       if (response.ok && data.success) {
         console.log("Schedule updated successfully");
         // Optionally show a success message to the user
@@ -363,6 +365,14 @@ const AppointmentsSchedule: React.FC = () => {
     }
   };
 
+  if (isLoading && !userId) {
+    return (
+      <div className="flex justify-center items-center h-60">
+        <FaSpinner className="animate-spin text-gray-500 text-4xl" />
+      </div>
+    );
+  }
+  
   return (
     <div className="flex flex-col md:flex-row gap-4 p-4">
       {/* Left Panel - Interval Setting */}
