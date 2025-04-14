@@ -119,6 +119,7 @@ export const appointments = pgTable("appointments", {
     .references(() => doctor.id, { onDelete: "cascade" }),
   paymentStatus: boolean("payment_status").default(false).notNull(),
   visitStatus: boolean("visit_status").default(false).notNull(),
+  reason: text("reason"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
