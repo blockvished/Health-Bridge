@@ -780,7 +780,7 @@ const Appointments = () => {
       </div>
 
       {/* Right: Appointments Table */}
-      {/* <AppointmentTable /> */}
+      <AppointmentTable /> 
     </div>
   );
 };

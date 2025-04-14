@@ -133,8 +133,8 @@ export async function POST(req: NextRequest) {
     // Validate required fields
     if (
       !name ||
-      !email ||
       !phone ||
+      !email ||
       !abha_id ||
       !age ||
       !height ||
