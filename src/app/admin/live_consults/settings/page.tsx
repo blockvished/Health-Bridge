@@ -1,16 +1,116 @@
 "use client";
-import React, { useState } from "react";
-import { FaCheck } from "react-icons/fa";
-
-import { FaRupeeSign, FaCalendarAlt } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaCheck, FaSpinner } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 const LiveConsultationSettings = () => {
-  const [consultationFee, setConsultationFee] = useState("1000.00");
-  const [meetingOption, setMeetingOption] = useState("Google Meet");
-  const [meetingLink, setMeetingLink] = useState("https://googlemeet.com");
-  const [liveConsultation, setLiveConsultation] = useState(true);
+  const [consultationFee, setConsultationFee] = useState<string>("");
+  const [meetingOption, setMeetingOption] = useState<
+    "google" | "zoom" | "teams"
+  >("google");
+  const [meetingLink, setMeetingLink] = useState<string | undefined>("");
+  const [liveConsultation, setLiveConsultation] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [saving, setSaving] = useState<boolean>(false); // New state for saving status
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
+
+  useEffect(() => {
+    const fetchConsultationSettings = async () => {
+      if (userId) {
+        setLoading(true);
+        setError(null);
+        try {
+          const res = await fetch(
+            `/api/doctor/consultation/settings/${userId}`
+          );
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(
+              `Failed to fetch settings: ${res.status} - ${
+                errorData?.message || res.statusText
+              }`
+            );
+          }
+          const data = await res.json();
+          if (data?.consultationSettings?.length > 0) {
+            const settings = data.consultationSettings[0];
+            setConsultationFee(String(settings.consultationFees || ""));
+            setMeetingOption(settings.mode || "google");
+            setMeetingLink(settings.consultationLink || "");
+            setLiveConsultation(settings.isLiveConsultationEnabled || false);
+          } else {
+            setConsultationFee("");
+            setMeetingLink("");
+            setLiveConsultation(false);
+          }
+        } catch (err: any) {
+          setError(err.message);
+          console.error("Error fetching consultation settings:", err);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchConsultationSettings();
+  }, [userId]);
+
+  const handleSaveChanges = async () => {
+    if (!userId) {
+      setError("User ID not found.");
+      return;
+    }
+
+    setSaving(true); // Set saving to true when the process starts
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/doctor/consultation/settings/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          consultationFees: parseFloat(consultationFee || "0"),
+          mode: meetingOption,
+          consultationLink: meetingLink,
+          liveConsultation: liveConsultation,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(
+          `Failed to save settings: ${res.status} - ${
+            errorData?.message || res.statusText
+          }`
+        );
+      }
+
+      const data = await res.json();
+      console.log("Consultation settings saved:", data);
+      // Optionally show a success message to the user
+    } catch (err: any) {
+      setError(err.message);
+      console.error("Error saving consultation settings:", err);
+    } finally {
+      setSaving(false); // Set saving back to false after completion (success or error)
+    }
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-lg w-full p-4 text-red-500">Error: {error}</div>
+    );
+  }
 
   return (
     <div className="max-w-lg w-full p-4">
@@ -18,12 +118,6 @@ const LiveConsultationSettings = () => {
         <h1 className="text-lg font-medium text-gray-800">
           Consultation Settings
         </h1>
-        {/* <button
-          onClick={() => router.push("/admin/live_consults")}
-          className="flex items-center bg-gray-200 text-gray-700 px-3 py-1 rounded-md text-sm"
-        >
-          <FaCalendarAlt className="mr-1" size={14} /> Consultations
-        </button> */}
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-6">
@@ -56,11 +150,15 @@ const LiveConsultationSettings = () => {
               <select
                 className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none appearance-none"
                 value={meetingOption}
-                onChange={(e) => setMeetingOption(e.target.value)}
+                onChange={(e) =>
+                  setMeetingOption(
+                    e.target.value as "google" | "zoom" | "teams"
+                  )
+                }
               >
-                <option>Google Meet</option>
-                <option>Zoom</option>
-                <option>Microsoft Teams</option>
+                <option value="google">Google Meet</option>
+                <option value="zoom">Zoom</option>
+                <option value="teams">Microsoft Teams</option>
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                 <svg
@@ -88,8 +186,7 @@ const LiveConsultationSettings = () => {
           {/* Meeting Link */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">
-              Meeting Invitation link{" "}
-              <span className="text-red-500">*</span>
+              Meeting Invitation link <span className="text-red-500">*</span>
             </label>
             <textarea
               className="w-full border border-gray-300 rounded-md p-2 h-24 focus:outline-none"
@@ -100,13 +197,16 @@ const LiveConsultationSettings = () => {
 
           {/* Live Consultation Toggle */}
           <div className="flex items-center">
-            <div className="relative inline-block w-10 mr-2 align-middle">
+            <div
+              className="relative inline-block w-10 mr-2 align-middle cursor-pointer"
+              onClick={() => setLiveConsultation(!liveConsultation)}
+            >
               <input
                 type="checkbox"
                 id="toggle"
                 className="sr-only"
                 checked={liveConsultation}
-                onChange={() => setLiveConsultation(!liveConsultation)}
+                onChange={() => {}}
               />
               <div
                 className={`block w-10 h-6 rounded-full ${
@@ -133,9 +233,22 @@ const LiveConsultationSettings = () => {
           </div>
 
           {/* Save Changes Button */}
-
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition flex items-center gap-2 w-fit">
-            <FaCheck className="w-4 h-4" /> Save Changes
+          <button
+            onClick={handleSaveChanges}
+            disabled={saving || loading} // Disable when saving or loading
+            className={`bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition flex items-center gap-2 w-fit ${
+              saving || loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            }`}
+          >
+            {saving ? (
+              <>
+                <FaSpinner className="animate-spin w-4 h-4" /> Saving...
+              </>
+            ) : (
+              <>
+                <FaCheck className="w-4 h-4" /> Save Changes
+              </>
+            )}
           </button>
         </div>
       </div>
