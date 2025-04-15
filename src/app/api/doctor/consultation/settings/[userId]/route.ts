@@ -1,9 +1,9 @@
+// backend/app/api/doctor/consultation/settings/[userId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { eq, and, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
-import { doctor, doctorExperience } from "../../../../../../db/schema";
-import { features } from "process";
+import { doctor, doctorConsultation } from "../../../../../../db/schema";
 
 // /api/doctor/consultation/settings/[userId]
 // =======================
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 
   // Query for doctor information
   const doctorData = await db
-    .select()
+    .select({ id: doctor.id })
     .from(doctor)
     .where(eq(doctor.userId, userId));
 
@@ -47,19 +47,20 @@ export async function GET(req: NextRequest) {
   const requiredDoctorId = doctorData[0].id;
 
   try {
-    // consultation settings
-    // const Experiences = await db
-    //   .select()
-    //   .from(doctorExperience)
-    //   .where(eq(doctorExperience.doctorId, requiredDoctorId))
-    //   .orderBy(doctorExperience.sortOrder);
-    // // console.log("Fetched -Experiences:", Experiences);
-    // return NextResponse.json({ Experiences });
+    // Fetch consultation settings for the doctor
+    const consultationSettings = await db
+      .select()
+      .from(doctorConsultation)
+      .where(eq(doctorConsultation.doctorId, requiredDoctorId));
+
+    console.log("Fetched - Consultation Settings:", consultationSettings);
+    return NextResponse.json({ consultationSettings });
   } catch (error) {
-    console.error("Error fetching doctor -Experience:", error);
-    return NextResponse.json({
-      success: true,
-    });
+    console.error("Error fetching doctor consultation settings:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch consultation settings." },
+      { status: 500 }
+    );
   }
 }
 
@@ -81,13 +82,13 @@ export async function POST(req: NextRequest) {
     const userId = Number(decoded.userId);
 
     const reqBody = await req.json();
-    const { id, title, organization, yearFrom, yearTo, details, sortOrder } =
-      reqBody;
+    const { consultationFees, mode, consultationLink, liveConsultation } = reqBody; // Receive liveConsultation
+
     if (String(userId) !== userIdFromUrl) {
       return NextResponse.json(
         {
           error:
-            "Forbidden: You don't have access to this profile's education data.",
+            "Forbidden: You don't have access to this profile's consultation settings.",
         },
         { status: 403 }
       );
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
 
     // Query for doctor information based on the authenticated user ID
     const doctorData = await db
-      .select()
+      .select({ id: doctor.id })
       .from(doctor)
       .where(eq(doctor.userId, userId));
 
@@ -108,21 +109,58 @@ export async function POST(req: NextRequest) {
 
     const requiredDoctorId = doctorData[0].id;
 
-    if (id) {
-      // Update existing consultation setting
-      
-      // export const doctorConsultation = pgTable("doctor_consultation", {
-      // id: serial("id").primaryKey(),
-      // doctorId: integer("doctor_id").notNull().unique().references(() => doctor.id),
-      // consultationFees: integer("consultation_fees"),
-      // mode: consultationModeEnum("mode"), // Enforced ENUM type
-      // consultationLink: text("consultation_link"),
-      // });
+    // Check if a consultation setting already exists for this doctor
+    const existingSettings = await db
+      .select()
+      .from(doctorConsultation)
+      .where(eq(doctorConsultation.doctorId, requiredDoctorId));
+
+    if (existingSettings.length > 0) {
+      // Update the existing consultation setting
+      const updatedSettings = await db
+        .update(doctorConsultation)
+        .set({ consultationFees, mode, consultationLink, isLiveConsultationEnabled: liveConsultation }) // Include isLiveConsultationEnabled
+        .where(eq(doctorConsultation.doctorId, requiredDoctorId))
+        .returning();
+
+      if (updatedSettings.length > 0) {
+        return NextResponse.json({
+          message: "Consultation settings updated successfully.",
+          consultationSettings: updatedSettings[0],
+        });
+      } else {
+        return NextResponse.json(
+          { error: "Failed to update consultation settings." },
+          { status: 500 }
+        );
+      }
     } else {
-      // Create new consultation setting
+      // Create a new consultation setting
+      const newSettings = await db
+        .insert(doctorConsultation)
+        .values({
+          doctorId: requiredDoctorId,
+          consultationFees,
+          mode,
+          consultationLink,
+          isLiveConsultationEnabled: liveConsultation, // Include isLiveConsultationEnabled
+        })
+        .returning();
+
+      if (newSettings.length > 0) {
+        return NextResponse.json({
+          message: "Consultation settings created successfully.",
+          consultationSettings: newSettings[0],
+        });
+      } else {
+        return NextResponse.json(
+          { error: "Failed to create consultation settings." },
+          { status: 500 }
+        );
+      }
     }
   } catch (error) {
-    console.error("Error creating/updating doctor -Experience:", error);
+    console.error("Error creating/updating doctor consultation settings:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
