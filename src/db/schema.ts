@@ -287,13 +287,7 @@ export type NewDoctorExperience = InferInsertModel<typeof doctorExperience>;
 //   updatedAt: timestamp("updated_at").defaultNow(),
 // });
 
-// export const doctorConsultation = pgTable("doctor_consultation", {
-//   id: serial("id").primaryKey(),
-//   doctorId: integer("doctor_id").notNull().unique().references(() => doctor.id),
-//   consultationFees: integer("consultation_fees"),
-//   mode: consultationModeEnum("mode"), // Enforced ENUM type
-//   consultationLink: text("consultation_link"),
-// });
+
 
 
 // export const prescription = pgTable("prescription", {
