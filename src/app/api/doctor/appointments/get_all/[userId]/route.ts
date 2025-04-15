@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { or, eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import {
   doctor,
   appointments,
-  NewAppointment,
   users,
   patient,
-  genderEnum,
 } from "../../../../../../db/schema";
 import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
-import Appointments from "@/admin/appointment/page";
 
 // =======================
 // Get - All Appointments for a Doctor
@@ -62,20 +59,26 @@ export async function GET(req: NextRequest) {
         timeTo: appointments.timeTo,
         mode: appointments.mode,
         reason: appointments.reason,
-        
+
         visitStatus: appointments.visitStatus,
         paymentStatus: appointments.paymentStatus,
 
         patientId: patient.id,
         patientName: users.name,
         patientEmail: users.email,
-        patientPhone: users.phone
+        patientPhone: users.phone,
       })
       .from(appointments)
       .innerJoin(patient, eq(appointments.patientId, patient.id))
       .innerJoin(users, eq(patient.userId, users.id))
-      .where(eq(appointments.doctorId, requiredDoctorId));
-    return NextResponse.json({ appointments: appointmentsData });  
+      .where(
+        // and(
+          eq(appointments.doctorId, requiredDoctorId),
+          // eq(appointments.isCancelled, false) // Filter for isCancelled = false
+        // )
+      );
+
+    return NextResponse.json({ appointments: appointmentsData });
   } catch (error) {
     console.error("Error fetching appointment of doctor:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
