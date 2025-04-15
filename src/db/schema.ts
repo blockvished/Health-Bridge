@@ -44,8 +44,11 @@ export const appointmentModeEnum = pgEnum("appointment_mode", [
   "offline",
 ]);
 
-export const consultationPlatform = pgEnum("consultation_platform", ["google", "zoom", "teams"]);
-
+export const consultationPlatform = pgEnum("consultation_platform", [
+  "google",
+  "zoom",
+  "teams",
+]);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -85,6 +88,14 @@ export const doctor = pgTable("doctor", {
   twitter_link: text("twitter_link"),
   linkedin_link: text("linkedin_link"),
   seo_description: text("seo_description"),
+});
+
+export const doctorDepartment = pgTable("doctor_department", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
 });
 
 export const patient = pgTable("patient", {
@@ -127,7 +138,6 @@ export const appointments = pgTable("appointments", {
   cancelReason: text("cancel_reason"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-
 });
 
 export const appointmentsRelations = relations(appointments, ({ one }) => ({
@@ -140,7 +150,6 @@ export const appointmentsRelations = relations(appointments, ({ one }) => ({
     references: [doctor.id],
   }),
 }));
-
 
 export const doctorEducation = pgTable("doctor_education", {
   id: serial("id").primaryKey(),
@@ -198,7 +207,9 @@ export const doctorConsultation = pgTable("doctor_consultation", {
   consultationFees: integer("consultation_fees"),
   mode: consultationPlatform("mode").notNull(),
   consultationLink: text("consultation_link"),
-  isLiveConsultationEnabled: boolean("is_live_consultation_enabled").default(false), // Added boolean field with a default value
+  isLiveConsultationEnabled: boolean("is_live_consultation_enabled").default(
+    false
+  ), // Added boolean field with a default value
 });
 
 export const appointmentSettings = pgTable("appointment_settings", {
@@ -303,9 +314,6 @@ export type NewDoctorExperience = InferInsertModel<typeof doctorExperience>;
 //   createdAt: timestamp("created_at").defaultNow(),
 //   updatedAt: timestamp("updated_at").defaultNow(),
 // });
-
-
-
 
 // export const prescription = pgTable("prescription", {
 //   id: serial("id").primaryKey(),
