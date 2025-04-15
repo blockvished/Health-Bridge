@@ -60,7 +60,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, count, icon, bgColor, 
 // Dashboard Summary Cards Component
 const DashboardSummaryCards: React.FC = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 m-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 m-8 mb-6 mt-2">
       <SummaryCard 
         title="Today's Appointment" 
         count={0} 

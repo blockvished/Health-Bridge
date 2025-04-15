@@ -9,7 +9,6 @@ import {
   FaUser, // Import FaUser for the person icon
 } from "react-icons/fa"; // Using react-icons
 import { format } from "date-fns";
-import { X } from "lucide-react";
 
 interface Appointment {
   appointmentId: number;
@@ -108,17 +107,27 @@ export default function AppointmentsPage() {
     <div className="bg-white p-6 rounded-lg shadow-md bg-white p-6 m-8 rounded-lg shadow">
       {/* Header */}
       <div className="flex justify-between items-center gap-4 mb-6 flex-wrap">
-        <h3 className="font-semibold text-xl text-gray-700">
-        Appointments list by date
-        </h3>
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 text-sm bg-gray-100 px-3 py-1.5 rounded-md shadow hover:bg-gray-200 cursor-pointer"
-        >
-          <FaArrowLeft />
-          Back
-        </button>
+        {selectedDate ? (
+          <h4 className="font-semibold text-lg text-gray-800">
+            Appointments for {format(new Date(selectedDate), "dd MMMM")}
+          </h4>
+        ) : (
+          <h3 className="font-semibold text-xl text-gray-700">
+            Appointments list by date
+          </h3>
+        )}
+        {selectedDate && (
+          <button
+            onClick={closeAppointmentList}
+            className="flex items-center gap-2 text-gray-600 text-sm bg-gray-100 px-3 py-1.5 rounded-md shadow hover:bg-gray-200 cursor-pointer"
+          >
+            <FaArrowLeft />
+            Back
+          </button>
+        )}
       </div>
+
+      {loading && <>Loading...</>}
 
       {/* List of Dates with Count in a Table */}
       {!selectedDate && uniqueAppointmentDatesWithCount.length > 0 && (
@@ -140,7 +149,7 @@ export default function AppointmentsPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <FaCalendarAlt className="text-blue-500 text-sm" />
-                      {format(new Date(date), "dd MMM yyyy")}
+                      {format(new Date(date), "dd MMM")}
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -165,25 +174,10 @@ export default function AppointmentsPage() {
         </div>
       )}
 
-      {!selectedDate && uniqueAppointmentDatesWithCount.length === 0 && (
-        <p className="text-gray-500">No upcoming appointments.</p>
-      )}
-
       {/* Appointment List for Selected Date */}
       {selectedDate && (
         <div className="mt-6">
-          <div className="flex justify-between items-center mb-4">
-            <h4 className="font-semibold text-lg text-gray-800">
-              Appointments for {format(new Date(selectedDate), "dd MMMM yyyy")}
-            </h4>
-            <button
-              onClick={closeAppointmentList}
-              className="flex items-center gap-2 text-sm bg-red-500 text-white px-3 py-1.5 rounded-md shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 cursor-pointer"
-            >
-              <X className="h-4 w-4" />
-              Close
-            </button>
-          </div>
+          {/* The h4 for the selected date is now in the header */}
           {appointmentsForSelectedDate.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full border border-gray-200 rounded-lg overflow-hidden min-w-[800px]">
@@ -239,7 +233,7 @@ export default function AppointmentsPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2 text-blue-600 font-medium">
                           <FaCalendarAlt className="text-blue-500 text-sm" />
-                          {format(new Date(appointment.date), "dd MMM yyyy")}
+                          {format(new Date(appointment.date), "dd MMM")}
                         </div>
                         <div className="text-gray-700 text-sm">
                           {formatTime12Hour(appointment.timeFrom)} -{" "}
@@ -284,8 +278,10 @@ export default function AppointmentsPage() {
                 </tbody>
               </table>
             </div>
+          ) : loading ? (
+            <p className="text-gray-500">Loading appointments...</p>
           ) : (
-            <p className="text-gray-500">No appointments for this date.</p>
+            <p className="text-gray-500"></p>
           )}
         </div>
       )}
