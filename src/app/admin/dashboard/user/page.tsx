@@ -12,8 +12,10 @@ import {
   Legend,
 } from "chart.js";
 import IncomeChart from "../_common/Chart";
-import AppointmentsTable from "../_common/AppointmentsTable";
+// import AppointmentsTable from "../_common/AppointmentsTable";
 import NetIncomeTable from "../_common/NetIncomeTable";
+
+import AppointmentsPage from "../../appointment/all_list/page";
 
 // Register Chart.js components
 ChartJS.register(
@@ -58,7 +60,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, count, icon, bgColor, 
 // Dashboard Summary Cards Component
 const DashboardSummaryCards: React.FC = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 m-8">
       <SummaryCard 
         title="Today's Appointment" 
         count={0} 
@@ -69,7 +71,7 @@ const DashboardSummaryCards: React.FC = () => {
         }
         bgColor="bg-blue-100"
         iconColor="text-blue-500"
-        route="/admin/appointment/today"
+        route="/admin/dashboard/user"
       />
       <SummaryCard 
         title="Total Appointments" 
@@ -120,7 +122,7 @@ const Dashboard: React.FC = () => {
       <div>
 
         {/* <IncomeChart /> */}
-        <AppointmentsTable />
+        <AppointmentsPage />
         {/* <NetIncomeTable /> */}
       </div>
     </div>

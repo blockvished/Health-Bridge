@@ -20,6 +20,8 @@ interface Appointment {
   timeFrom: string;
   timeTo: string;
   visitStatus: boolean;
+  isCancelled?: boolean;
+  cancelReason?: string;
 }
 
 interface AppointmentResponse {
@@ -298,7 +300,6 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({ userId }) => {
                       <button
                         className="p-2 border rounded-md text-blue-500 hover:text-blue-700 cursor-pointer transition"
                         onClick={(e) => {
-
                           // should edit also have cancel appointment reason
                           // and iscancelled
 
