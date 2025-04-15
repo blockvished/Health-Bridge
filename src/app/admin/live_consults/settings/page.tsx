@@ -88,7 +88,7 @@ const LiveConsultationSettings = () => {
           {/* Meeting Link */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">
-              Google Meet Invitation link{" "}
+              Meeting Invitation link{" "}
               <span className="text-red-500">*</span>
             </label>
             <textarea
