@@ -4,7 +4,7 @@ import { doctor, appointments } from "../../../../../../db/schema";
 import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
 
-export async function DELETE(req: NextRequest) {
+export async function PUT(req: NextRequest) {
   try {
     // Get ID from URL (user ID)
     const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
