@@ -123,8 +123,11 @@ export const appointments = pgTable("appointments", {
   paymentStatus: boolean("payment_status").default(false).notNull(),
   visitStatus: boolean("visit_status").default(false).notNull(),
   reason: text("reason"),
+  isCancelled: boolean("is_cancelled").default(false).notNull(),
+  cancelReason: text("cancel_reason"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+
 });
 
 export const appointmentsRelations = relations(appointments, ({ one }) => ({
