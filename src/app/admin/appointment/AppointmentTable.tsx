@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useCallback } from "react";
+import { FaEdit } from "react-icons/fa";
 import { FiTrash, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { MdOutlineDateRange, MdOutlineAccessTime } from "react-icons/md";
 
@@ -51,7 +52,7 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({ userId }) => {
   // Move fetchAppointments outside useEffect so it can be called after deletion
   const fetchAppointments = useCallback(async () => {
     if (!userId) return;
-    
+
     setLoading(true);
     try {
       const res = await fetch(`/api/doctor/appointments/get_all/${userId}`);
@@ -78,20 +79,23 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({ userId }) => {
   // Function to handle appointment deletion
   const deleteAppointment = async (appointmentId: number) => {
     if (!userId) return;
-    
+
     try {
-      const response = await fetch(`/api/doctor/appointments/delete/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ appointmentId }),
-      });
-      
+      const response = await fetch(
+        `/api/doctor/appointments/delete/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ appointmentId }),
+        }
+      );
+
       if (!response.ok) {
-        throw new Error('Failed to delete appointment');
+        throw new Error("Failed to delete appointment");
       }
-      
+
       // Refresh the appointments list after successful deletion
       fetchAppointments();
     } catch (error) {
@@ -155,7 +159,7 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({ userId }) => {
         <h2 className="text-lg font-semibold text-gray-800">Appointments</h2>
         <button
           onClick={() => router.push("/admin/appointment/all_list")}
-          className="text-gray-600 text-sm border px-3 py-1 rounded-md flex items-center gap-1 hover:bg-gray-100 w-auto justify-center"
+          className="text-gray-600 text-sm border px-3 py-1 rounded-md flex items-center gap-1 hover:bg-gray-100 w-auto justify-center cursor-pointer"
         >
           <MdOutlineDateRange /> List by date
         </button>
@@ -228,8 +232,8 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({ userId }) => {
                 <React.Fragment key={apt.appointmentId}>
                   <tr
                     className={`border-b ${
-                      expandedRow === apt.appointmentId 
-                        ? "border-blue-200 bg-blue-50" 
+                      expandedRow === apt.appointmentId
+                        ? "border-blue-200 bg-blue-50"
                         : "border-gray-200 hover:bg-gray-50"
                     } transition cursor-pointer`}
                     onClick={() => toggleRowExpansion(apt.appointmentId)}
@@ -272,7 +276,8 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({ userId }) => {
                         <div className="flex items-center text-blue-500 text-sm">
                           <MdOutlineAccessTime className="mr-1" size={14} />
                           <span className="text-xs">
-                            {formatTime(apt.timeFrom.substring(0, 5))} - {formatTime(apt.timeTo.substring(0, 5))}
+                            {formatTime(apt.timeFrom.substring(0, 5))} -{" "}
+                            {formatTime(apt.timeTo.substring(0, 5))}
                           </span>
                         </div>
                       </div>
@@ -290,25 +295,38 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({ userId }) => {
                       </div>
                     </td>
                     <td className="p-3" onClick={(e) => e.stopPropagation()}>
-                      <button 
-                        className="p-2 border rounded-md bg-red-500 text-white hover:bg-red-600 transition"
+                      <button
+                        className="p-2 border rounded-md text-blue-500 hover:text-blue-700 cursor-pointer transition"
                         onClick={(e) => {
-                          e.stopPropagation();
-                          if (window.confirm("Are you sure you want to delete this appointment?")) {
-                            deleteAppointment(Number(apt.appointmentId));
-                          }
+
+                          // should edit also have cancel appointment reason
+                          // and iscancelled
+
+                          // e.stopPropagation();
+                          // if (
+                          //   window.confirm(
+                          //     "Are you sure you want to delete this appointment?"
+                          //   )
+                          // ) {
+                          //   deleteAppointment(Number(apt.appointmentId));
+                          // }
                         }}
                       >
-                        <FiTrash />
+                        <FaEdit className="h-4 w-4" />
                       </button>
                     </td>
                   </tr>
                   {/* Expandable reason section */}
                   {expandedRow === apt.appointmentId && (
                     <tr>
-                      <td colSpan={6} className="bg-blue-50 p-4 border-b border-blue-200">
+                      <td
+                        colSpan={6}
+                        className="bg-blue-50 p-4 border-b border-blue-200"
+                      >
                         <div className="p-3 bg-white rounded-md shadow-sm border border-blue-100">
-                          <h4 className="font-medium text-gray-700 mb-2">Appointment Reason:</h4>
+                          <h4 className="font-medium text-gray-700 mb-2">
+                            Appointment Reason:
+                          </h4>
                           <p className="text-gray-600">
                             {apt.reason || "No reason provided"}
                           </p>

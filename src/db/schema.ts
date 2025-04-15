@@ -44,6 +44,9 @@ export const appointmentModeEnum = pgEnum("appointment_mode", [
   "offline",
 ]);
 
+export const consultationPlatform = pgEnum("consultation_platform", ["google", "zoom", "teams"]);
+
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -183,6 +186,17 @@ export const doctorMetaTags = pgTable(
   })
 );
 
+export const doctorConsultation = pgTable("doctor_consultation", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" })
+    .unique(),
+  consultationFees: integer("consultation_fees"),
+  mode: consultationPlatform("mode").notNull(),
+  consultationLink: text("consultation_link"),
+  isLiveConsultationEnabled: boolean("is_live_consultation_enabled").default(false), // Added boolean field with a default value
+});
 
 export const appointmentSettings = pgTable("appointment_settings", {
   id: serial("id").primaryKey(),
@@ -287,13 +301,7 @@ export type NewDoctorExperience = InferInsertModel<typeof doctorExperience>;
 //   updatedAt: timestamp("updated_at").defaultNow(),
 // });
 
-// export const doctorConsultation = pgTable("doctor_consultation", {
-//   id: serial("id").primaryKey(),
-//   doctorId: integer("doctor_id").notNull().unique().references(() => doctor.id),
-//   consultationFees: integer("consultation_fees"),
-//   mode: consultationModeEnum("mode"), // Enforced ENUM type
-//   consultationLink: text("consultation_link"),
-// });
+
 
 
 // export const prescription = pgTable("prescription", {
