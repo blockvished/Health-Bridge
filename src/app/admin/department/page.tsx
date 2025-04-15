@@ -35,7 +35,8 @@ const DepartmentForm: React.FC<{
       <div className="flex justify-between mb-4">
         <button
           onClick={onCancel}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition"
+          className="flex items-center gap-2 ml-3 text-gray-600 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md transition cursor-pointer"
+          
         >
           <IoArrowBack /> Back
         </button>
@@ -60,13 +61,13 @@ const DepartmentForm: React.FC<{
       <div className="mt-4 flex justify-start">
         <button
           onClick={() => onSave(name, initialId)}
-          className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-md shadow hover:bg-blue-700 transition"
+          className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2 rounded-md shadow hover:bg-blue-700 transition cursor-pointer"
         >
           <FaCheck /> Save
         </button>
         <button
           onClick={onCancel}
-          className="ml-3 text-gray-600 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md transition"
+          className="ml-3 text-gray-600 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md transition cursor-pointer"
         >
           Cancel
         </button>
@@ -212,7 +213,7 @@ const DepartmentPage: React.FC = () => {
             setShowForm(!showForm);
             setEditDepartment(null);
           }}
-          className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 mt-2 sm:mt-0 rounded-lg shadow-sm hover:bg-gray-200 transition"
+          className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 mt-2 sm:mt-0 rounded-lg shadow-sm hover:bg-gray-200 transition cursor-pointer"
         >
           {showForm ? (
             <IoArrowBack className="text-gray-500" />
@@ -270,14 +271,14 @@ const DepartmentPage: React.FC = () => {
                     <td className="p-3 text-gray-900">{dept.name}</td>
                     <td className="p-3 flex gap-2">
                       <button
-                        className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                        className="p-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition cursor-pointer"
                         onClick={() => handleEdit(dept)}
                       >
                         <FaPen className="text-gray-600" />
                       </button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <button className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition">
+                          <button className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition cursor-pointer">
                             <FaTrash />
                           </button>
                         </AlertDialogTrigger>
@@ -290,8 +291,8 @@ const DepartmentPage: React.FC = () => {
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
+                          <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+                            <AlertDialogAction className="cursor-pointer"
                               onClick={() => handleDeleteDepartment(dept.id)}
                             >
                               Delete
