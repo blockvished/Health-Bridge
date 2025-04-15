@@ -74,7 +74,6 @@ const Appointments = () => {
       if (response.ok) {
         const data = await response.json();
 
-        console.log("Fetched -Appointmentsfgwedrgtertg:", data.days);
         if (data.existingSetting?.length > 0) {
           const fetchedDaysFromApi = data.days || [];
           setDays(fetchedDaysFromApi);
@@ -780,7 +779,7 @@ const Appointments = () => {
       </div>
 
       {/* Right: Appointments Table */}
-      <AppointmentTable /> 
+      <AppointmentTable userId={userId} />
     </div>
   );
 };

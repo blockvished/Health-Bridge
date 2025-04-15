@@ -9,7 +9,7 @@ import { hash } from "argon2";
 import { randomBytes } from "crypto";
 
 // =======================
-// GET - Fetch -Educations
+// GET - Fetch Patients for a Doctor
 // =======================
 export async function GET(req: NextRequest) {
   // Get ID from URL
