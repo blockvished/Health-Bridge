@@ -155,7 +155,7 @@ export default function AppointmentsPage() {
               </button>
             )}
           </div>
-
+          
           {loading && <>Loading...</>}
 
           {/* List of Dates with Count in a Table */}

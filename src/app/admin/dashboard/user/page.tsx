@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React, { ReactNode, use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Chart as ChartJS,
@@ -16,6 +16,7 @@ import IncomeChart from "../_common/Chart";
 import NetIncomeTable from "../_common/NetIncomeTable";
 
 import AppointmentsPage from "../../appointment/all_list/page";
+import Cookies from "js-cookie";
 
 // Register Chart.js components
 ChartJS.register(
@@ -24,13 +25,13 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend,
+  Legend
 );
 
 // Define interface for SummaryCard props
 interface SummaryCardProps {
   title: string;
-  count: number;
+  count: number | undefined; 
   icon: ReactNode;
   bgColor: string;
   iconColor: string;
@@ -38,11 +39,18 @@ interface SummaryCardProps {
 }
 
 // Summary Card Component
-const SummaryCard: React.FC<SummaryCardProps> = ({ title, count, icon, bgColor, iconColor, route }) => {
+const SummaryCard: React.FC<SummaryCardProps> = ({
+  title,
+  count,
+  icon,
+  bgColor,
+  iconColor,
+  route,
+}) => {
   const router = useRouter();
 
   return (
-    <div 
+    <div
       className="bg-white p-5 rounded-lg shadow-sm flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow"
       onClick={() => router.push(route)}
     >
@@ -57,52 +65,138 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, count, icon, bgColor, 
   );
 };
 
+interface DashboardData {
+  patientsCount: number;
+  todaysAppointmentsCount: number;
+  allAppointmentsCount: number;
+  staffCount: number;
+}
 // Dashboard Summary Cards Component
 const DashboardSummaryCards: React.FC = () => {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      const fetchDashboardData = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const res = await fetch(`/api/doctor/dashboard/${userId}`);
+          if (res.ok) {
+            const data: DashboardData = await res.json();
+            setDashboardData(data);
+          } else {
+            const errorData = await res.json();
+            setError(errorData?.error || `Failed to fetch dashboard data (status: ${res.status})`);
+          }
+        } catch (err: any) {
+          console.error("Fetch Catch Error:", err);
+          setError("An unexpected error occurred while fetching dashboard data.");
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchDashboardData();
+    }
+  }, [userId]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 m-8 mb-6 mt-2">
-      <SummaryCard 
-        title="Today's Appointment" 
-        count={0} 
+      <SummaryCard
+        title="Today's Appointment"
+        count={dashboardData?.todaysAppointmentsCount}
         icon={
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
           </svg>
         }
         bgColor="bg-blue-100"
         iconColor="text-blue-500"
         route="/admin/dashboard/user"
       />
-      <SummaryCard 
-        title="Total Appointments" 
-        count={2} 
+      <SummaryCard
+        title="Total Appointments"
+        count={dashboardData?.allAppointmentsCount}
         icon={
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            />
           </svg>
         }
         bgColor="bg-green-100"
         iconColor="text-green-500"
         route="/admin/appointment/all_list"
       />
-      <SummaryCard 
-        title="Staffs" 
-        count={2} 
+      <SummaryCard
+        title="Staffs"
+        count={dashboardData?.staffCount}
         icon={
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+            />
           </svg>
         }
         bgColor="bg-red-100"
         iconColor="text-red-500"
         route="/admin/staff"
       />
-      <SummaryCard 
-        title="Patients" 
-        count={2} 
+      <SummaryCard
+        title="Patients"
+        count={dashboardData?.patientsCount}
         icon={
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+            />
           </svg>
         }
         bgColor="bg-yellow-100"
@@ -120,7 +214,6 @@ const Dashboard: React.FC = () => {
       <DashboardSummaryCards />
       {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6"> */}
       <div>
-
         {/* <IncomeChart /> */}
         <AppointmentsPage />
         {/* <NetIncomeTable /> */}
