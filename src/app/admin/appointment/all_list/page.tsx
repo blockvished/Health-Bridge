@@ -124,13 +124,15 @@ export default function AppointmentsPage() {
   return (
     <>
       {editingAppointment ? (
-        <div className="bg-white p-6 rounded-lg shadow-md m-auto w-fit">
-          <AppointmentEditForm
-            appointment={editingAppointment}
-            userId={userId}
-            onClose={handleCloseEditForm}
-            onSuccess={handleAppointmentUpdated}
-          />
+        <div className="mx-auto flex flex-col p-6 gap-6 w-full md:w-2/3 max-w-xl border-gray-300 rounded-xl shadow-md bg-white">
+          <div className="mx-auto flex flex-col gap-6 w-full">
+            <AppointmentEditForm
+              appointment={editingAppointment}
+              userId={userId}
+              onClose={handleCloseEditForm}
+              onSuccess={handleAppointmentUpdated}
+            />
+          </div>
         </div>
       ) : (
         <div className="bg-white p-6 rounded-lg shadow-md bg-white p-6 m-8 rounded-lg shadow">
@@ -155,7 +157,7 @@ export default function AppointmentsPage() {
               </button>
             )}
           </div>
-          
+
           {loading && <>Loading...</>}
 
           {/* List of Dates with Count in a Table */}

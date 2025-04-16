@@ -43,6 +43,16 @@ interface AppointmentEditProps {
   onSuccess: () => void;
 }
 
+const dayNames = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
 const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
   appointment,
   userId,
@@ -136,15 +146,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
   // Check if a date is selectable
   const isDateSelectable = (date: Date, daysConfig: DayConfig[]) => {
     const dayNumber = date.getDay();
-    const dayNames = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
+   
     const dayName = dayNames[dayNumber];
 
     const dayConfig = daysConfig.find((day) => day.dayOfWeek === dayName);
@@ -175,15 +177,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
   // Update available times when date changes
   const updateAvailableTimes = (date: Date, daysConfig: DayConfig[] = days) => {
     const dayNumber = date.getDay();
-    const dayNames = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
+    
     const dayName = dayNames[dayNumber];
 
     // Find the day configuration to get available times
@@ -323,7 +317,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="text-gray-500 hover:text-gray-700 mr-3"
+          className="text-gray-500 hover:text-gray-700 mr-3 cursor-pointer"
         >
           <FiArrowLeft size={24} />
         </button>
@@ -398,7 +392,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
                     key={timeSlot.id}
                     type="button"
                     onClick={() => setSelectedTime(timeSlot)}
-                    className={`px-3 py-2 rounded-md text-sm flex items-center gap-1 ${
+                    className={`px-3 py-2 rounded-md text-sm flex items-center gap-1 cursor-pointer ${
                       selectedTime?.id === timeSlot.id
                         ? "bg-blue-500 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -438,23 +432,23 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
               Status
             </label>
             <div className="space-y-2">
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   name="paymentStatus"
                   checked={formData.paymentStatus}
                   onChange={handleChange}
-                  className="form-checkbox h-4 w-4 text-blue-600"
+                  className="form-checkbox h-4 w-4 text-blue-600 cursor-pointer"
                 />
                 <span className="text-sm text-gray-700">Payment Completed</span>
               </label>
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   name="visitStatus"
                   checked={formData.visitStatus}
                   onChange={handleChange}
-                  className="form-checkbox h-4 w-4 text-blue-600"
+                  className="form-checkbox h-4 w-4 text-blue-600 cursor-pointer"
                 />
                 <span className="text-sm text-gray-700">Visit Completed</span>
               </label>
@@ -467,13 +461,13 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
               Cancellation
             </label>
             <div className="space-y-2">
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   name="isCancelled"
                   checked={formData.isCancelled}
                   onChange={handleChange}
-                  className="form-checkbox h-4 w-4 text-red-600"
+                  className="form-checkbox h-4 w-4 text-red-600 cursor-pointer"
                 />
                 <span className="text-sm text-gray-700">
                   Cancel Appointment
@@ -512,14 +506,14 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-gray 300 rounded-md text-gray-700 hover:bg-gray-50"
+            className="px-4 py-2 border border-gray 300 rounded-md text-gray-700 hover:bg-gray-50 cursor-pointer"
             disabled={isSubmitting}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2"
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2 cursor-pointer"
             disabled={isSubmitting || !selectedDate || !selectedTime}
           >
             {isSubmitting ? (

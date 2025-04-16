@@ -294,7 +294,7 @@ const PayoutForm = () => {
         </div>
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded text-sm shadow"
+          className="bg-blue-600 text-white px-4 py-2 rounded text-sm shadow cursor-pointer"
           disabled={loading}
         >
           {loading ? "Saving Changes..." : "Save Changes"}
