@@ -31,13 +31,11 @@ select * from appointment_time_ranges;
 -- select * from doctor_experience;
 -- select * from doctor_education;
 
-
-/api/doctor/appointments/delete/${userId}` edit checked and its checked reason for edit and also edit and cancel appointments
-show
 /payouts account in db
 /dashboard count for today patients and total appointments
 /prescription
 
+/subscription etc will be handled from admin side
 
 on to patient page and admin page
 

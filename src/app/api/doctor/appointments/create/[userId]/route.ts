@@ -89,6 +89,7 @@ export async function POST(req: NextRequest) {
           status: 400,
         });
       }
+      
       const existingUsers = await db
         .select()
         .from(users)
@@ -125,6 +126,7 @@ export async function POST(req: NextRequest) {
         })
         .returning({ id: users.id });
 
+        console.log("user created")
       const [newPatient] = await db
         .insert(patient)
         .values({
@@ -141,7 +143,7 @@ export async function POST(req: NextRequest) {
         })
         .returning({ id: patient.id });
 
-      console.log("New Patient ID:", newPatient);
+      console.log("patient created");
       newPatientId = newPatient.id;
 
       // create the appointment
@@ -158,6 +160,8 @@ export async function POST(req: NextRequest) {
       };
 
       await db.insert(appointments).values(appointmentData);
+      console.log("appointment created");
+
       return NextResponse.json({
         success: true,
         message: "Appointment created successfully for new patient.",
