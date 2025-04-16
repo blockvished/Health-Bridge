@@ -125,13 +125,13 @@ export default function AppointmentsPage() {
     <>
       {editingAppointment ? (
         <div className="bg-white p-6 rounded-lg shadow-md m-auto w-fit">
-  <AppointmentEditForm
-    appointment={editingAppointment}
-    userId={userId}
-    onClose={handleCloseEditForm}
-    onSuccess={handleAppointmentUpdated}
-  />
-</div>
+          <AppointmentEditForm
+            appointment={editingAppointment}
+            userId={userId}
+            onClose={handleCloseEditForm}
+            onSuccess={handleAppointmentUpdated}
+          />
+        </div>
       ) : (
         <div className="bg-white p-6 rounded-lg shadow-md bg-white p-6 m-8 rounded-lg shadow">
           {/* Header */}
@@ -155,7 +155,7 @@ export default function AppointmentsPage() {
               </button>
             )}
           </div>
-
+          
           {loading && <>Loading...</>}
 
           {/* List of Dates with Count in a Table */}
