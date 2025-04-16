@@ -7,7 +7,7 @@ const PayoutForm = () => {
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-800">Full Name *</label>
+          <label className="block text-sm font-medium text-gray-800">Full Name (as per bank account) *</label>
           <input type="text" className="w-full p-2 border border-gray-300 rounded bg-gray-50 text-gray-900" defaultValue="TEST" />
         </div>
 
