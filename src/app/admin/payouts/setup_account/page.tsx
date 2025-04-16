@@ -28,7 +28,7 @@ const PayoutForm = () => {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-800">Account Holder Name *</label>
+            <label className="block text-sm font-medium text-gray-800">Account Holder Name (as per bank account) *</label>
             <input type="text" className="w-full p-2 border border-gray-300 rounded bg-gray-50 text-gray-900" defaultValue="Ac Holder" />
           </div>
           <div>

@@ -90,6 +90,23 @@ export const doctor = pgTable("doctor", {
   seo_description: text("seo_description"),
 });
 
+export const doctorBankDetail = pgTable("doctor_bank_detail", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id")
+    .notNull()
+    .unique() // Ensures 1-1 relationship
+    .references(() => doctor.id, { onDelete: "cascade" }),
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  state: varchar("state", { length: 255 }).notNull(),
+  city: varchar("city", { length: 255 }).notNull(),
+  pincode: varchar("pincode", { length: 10 }).notNull(),
+  accountHolderName: varchar("account_holder_name", { length: 255 }).notNull(),
+  bankName: varchar("bank_name", { length: 255 }).notNull(),
+  accountNumber: varchar("account_number", { length: 50 }).notNull(),
+  ifscCode: varchar("ifsc_code", { length: 20 }).notNull(),
+  upiId: varchar("upi_id", { length: 100 }),
+});
+
 export const doctorDepartment = pgTable("doctor_department", {
   id: serial("id").primaryKey(),
   doctorId: integer("doctor_id")
