@@ -33,8 +33,8 @@ interface DayConfig {
 
 const Appointments = () => {
   const [patientType, setPatientType] = useState<"Old" | "New">("Old");
-  const [appointmentType, setAppointmentType] = useState<"online" | "Offline">(
-    "Offline"
+  const [appointmentType, setAppointmentType] = useState<"online" | "offline">(
+    "offline"
   );
   const [patients, setPatients] = useState<Patient[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
@@ -50,6 +50,8 @@ const Appointments = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
+  const [refreshAppointments, setRefreshAppointments] = useState(false);
+
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -316,7 +318,7 @@ const Appointments = () => {
     }
 
     // Format the date to YYYY-MM-DD string
-    const formattedDate = selectedDate.toISOString().split("T")[0];
+    const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
 
     // Prepare the data object based on patient type
     const appointmentData = {
@@ -375,6 +377,7 @@ const Appointments = () => {
           gender: "Male",
         });
         setSubmitSuccess(true);
+        setRefreshAppointments((prev) => !prev);
         // Optionally refresh appointment table if implemented
         // refreshAppointmentTable();
       } else {
@@ -474,7 +477,7 @@ const Appointments = () => {
                 checked={appointmentType === "online"}
                 onChange={() => setAppointmentType("online")}
               />
-              Online
+              online
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -482,10 +485,10 @@ const Appointments = () => {
                 name="appointmentType"
                 value="offline"
                 className="accent-blue-500"
-                checked={appointmentType === "Offline"}
-                onChange={() => setAppointmentType("Offline")}
+                checked={appointmentType === "offline"}
+                onChange={() => setAppointmentType("offline")}
               />
-              Offline
+              offline
             </label>
           </div>
 
@@ -779,7 +782,7 @@ const Appointments = () => {
       </div>
 
       {/* Right: Appointments Table */}
-      <AppointmentTable userId={userId} />
+      <AppointmentTable userId={userId} refresh={refreshAppointments}  />
     </div>
   );
 };
