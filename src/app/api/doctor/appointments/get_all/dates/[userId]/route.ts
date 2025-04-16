@@ -69,15 +69,18 @@ export async function GET(req: NextRequest) {
         patientName: users.name,
         patientEmail: users.email,
         patientPhone: users.phone,
+
+        isCancelled: appointments.isCancelled,
+        cancelReason: appointments.cancelReason,
       })
       .from(appointments)
       .innerJoin(patient, eq(appointments.patientId, patient.id))
       .innerJoin(users, eq(patient.userId, users.id))
       .where(
-        and(
+        // and(
           eq(appointments.doctorId, requiredDoctorId),
-          eq(appointments.isCancelled, false) // Filter for isCancelled = false
-        )
+          // eq(appointments.isCancelled, false) // Filter for isCancelled = false
+        // )
       );
 
     // Group appointments by date
