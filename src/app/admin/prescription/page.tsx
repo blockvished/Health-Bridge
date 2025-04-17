@@ -3,6 +3,7 @@
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { FaHospital, FaPlus, FaPrint, FaTimes } from "react-icons/fa";
+import { FiSearch } from "react-icons/fi";
 import DrugEntry from "./DrugEntry";
 import { Drug } from "./DrugEntry";
 
@@ -28,7 +29,6 @@ interface Patient {
   gender?: string | null;
 }
 
-
 type PrescriptionState = {
   patient: string;
   clinicalDiagnosis: string;
@@ -45,8 +45,9 @@ export default function CreatePrescription() {
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isPatientDropdownOpen, setIsPatientDropdownOpen] = useState(false);
   const [prescription, setPrescription] = useState<PrescriptionState>({
     patient: "",
     clinicalDiagnosis: "",
@@ -107,7 +108,6 @@ export default function CreatePrescription() {
       }
     } catch (err) {
       console.error("Error fetching patients data:", err);
-    } finally {
     }
   };
 
@@ -146,7 +146,6 @@ export default function CreatePrescription() {
         }
       } catch (error) {
         console.error("Error fetching doctor data:", error);
-      } finally {
       }
     };
 
@@ -199,22 +198,21 @@ export default function CreatePrescription() {
       [field]: value,
     }));
   };
-  const handlePatientSelect = (patientId: number) => {
-    const selectedPatient = patients.find((p) => p.id === patientId);
-    if (selectedPatient) {
-      handleInputChange("patient", selectedPatient.id.toString());
-      setSearchTerm(selectedPatient.name);
-      setIsDropdownOpen(false);
-    }
+
+  const selectPatient = (patient: Patient) => {
+    setSelectedPatient(patient);
+    handleInputChange("patient", patient.id.toString());
+    setSearchQuery(patient.name);
+    setIsPatientDropdownOpen(false);
+  };
+
+  const handlePatientSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   const filteredPatients = patients.filter((patient) =>
-    patient.name.toLowerCase().includes(searchTerm.toLowerCase())
+    patient.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    setIsDropdownOpen(true);
-  };
 
   return (
     <div className="p-4 min-h-screen md:p-6">
@@ -344,53 +342,39 @@ export default function CreatePrescription() {
                 Patient Name
               </label>
               <div className="flex flex-col md:flex-row gap-2 relative">
-                <div className="w-full md:w-1/2">
-                  <input
-                    type="text"
-                    placeholder="Search Patient"
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    onFocus={() => setIsDropdownOpen(true)}
-                    onBlur={() =>
-                      setTimeout(() => setIsDropdownOpen(false), 200)
-                    } // Small delay for click
-                  />
-                  {isDropdownOpen && searchTerm && (
-                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-sm">
-                      {filteredPatients.length > 0 ? (
-                        filteredPatients.map((patient) => (
-                          <div
-                            key={patient.id}
-                            className="p-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handlePatientSelect(patient.id)}
-                          >
-                            {patient.name}
+                <div className="w-full md:w-1/2 relative">
+                  <div className="relative">
+                  <FiSearch className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search patients..."
+                      value={searchQuery}
+                      onChange={handlePatientSearch}
+                      className="w-full p-2 pl-9 border border-gray-300 rounded-md"
+                      autoFocus
+                    />
+                  </div>
+
+                  {isPatientDropdownOpen && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                      <div className="max-h-60 overflow-y-auto">
+                        {filteredPatients.length > 0 ? (
+                          filteredPatients.map((patient) => (
+                            <div
+                              key={patient.id}
+                              className="p-2 hover:bg-blue-50 cursor-pointer"
+                              onClick={() => selectPatient(patient)}
+                            >
+                              {patient.name} - {patient.id}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-2 text-gray-500">
+                            No patients found
                           </div>
-                        ))
-                      ) : (
-                        <div className="p-2 text-gray-500">
-                          No patients found
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  )}
-                  {!searchTerm && (
-                    <select
-                      className="absolute opacity-0 top-0 left-0 w-full h-full cursor-default"
-                      value={prescription.patient}
-                      onChange={(e) =>
-                        handleInputChange("patient", e.target.value)
-                      }
-                      onFocus={() => setIsDropdownOpen(true)}
-                    >
-                      <option value="">Select Patient</option>
-                      {patients.map((patient) => (
-                        <option key={patient.id} value={patient.id}>
-                          {patient.name}
-                        </option>
-                      ))}
-                    </select>
                   )}
                 </div>
 
