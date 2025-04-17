@@ -35,29 +35,3 @@ select * from appointment_time_ranges;
 /subscription etc will be handled from admin side
 on to patient page and admin page
 / review / contact of doctor is remaining and etc
-
-prescription linked to 
-patientid
-doctorid
-
-clinical diagnosis
-additional advice
-advice
-diagnosis tests
-next follow up (number)
-next follow up type to show on frontend (days, month, week)
-notes
-
-
-
-medication linked to prescription id
-drug_name
-morning 
-afternoon
-evening 
-night
-when to take (aftermeal, before meal, after/before meal)
-note
-howmanydays (number)
-howmanydays type to show on frontend (days, month, week)
-
