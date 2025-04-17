@@ -228,13 +228,20 @@ export const PatientForm: React.FC<PatientFormProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-md shadow-md">
+    <div className="bg-white rounded-md">
       {error && (
         <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">
           {error}
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-4">
+      <Input
+          label="Abha Id"
+          type="text"
+          name="abha_id"
+          value={abhaId}
+          onChange={(e) => setAbhaId(e.target.value)}
+        />
         <Input
           label="Name *"
           type="text"
@@ -258,13 +265,6 @@ export const PatientForm: React.FC<PatientFormProps> = ({
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           required
-        />
-        <Input
-          label="Abha Id"
-          type="text"
-          name="abha_id"
-          value={abhaId}
-          onChange={(e) => setAbhaId(e.target.value)}
         />
         <Input
           label="Age"

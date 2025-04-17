@@ -52,7 +52,6 @@ const Appointments = () => {
   const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const [refreshAppointments, setRefreshAppointments] = useState(false);
 
-
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
@@ -318,14 +317,16 @@ const Appointments = () => {
     }
 
     // Format the date to YYYY-MM-DD string
-    const formattedDate = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+    const formattedDate = `${selectedDate.getFullYear()}-${String(
+      selectedDate.getMonth() + 1
+    ).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
 
     // Prepare the data object based on patient type
     const appointmentData = {
       date: formattedDate,
       time: {
         from: selectedTime?.from || selectedTime?.startTime, // Using optional chaining for safety
-        to: selectedTime?.to || selectedTime?.endTime,     // Using optional chaining for safety
+        to: selectedTime?.to || selectedTime?.endTime, // Using optional chaining for safety
       },
       appointmentType,
       patientType,
@@ -336,8 +337,12 @@ const Appointments = () => {
         : {
             patient: {
               ...formData,
-              age: formData.age !== undefined ? parseInt(formData.age) : undefined,
-              weight: formData.weight !== undefined ? parseInt(formData.weight) : undefined,
+              age:
+                formData.age !== undefined ? parseInt(formData.age) : undefined,
+              weight:
+                formData.weight !== undefined
+                  ? parseInt(formData.weight)
+                  : undefined,
             },
           }),
     };
@@ -586,6 +591,22 @@ const Appointments = () => {
             <div className="pb-4">
               <div className="mb-3">
                 <label
+                  htmlFor="abhaId"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  ABHA ID
+                </label>
+                <input
+                  id="abhaId"
+                  name="abhaId"
+                  type="text"
+                  value={formData.abhaId}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+              <div className="mb-3">
+                <label
                   htmlFor="name"
                   className="block text-sm font-medium text-gray-700"
                 >
@@ -670,24 +691,6 @@ const Appointments = () => {
                   className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
-
-              <div className="mb-3">
-                <label
-                  htmlFor="abhaId"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  ABHA ID
-                </label>
-                <input
-                  id="abhaId"
-                  name="abhaId"
-                  type="text"
-                  value={formData.abhaId}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-
               <div className="mb-3">
                 <label className="block text-sm font-medium text-gray-700">
                   Gender
@@ -782,7 +785,7 @@ const Appointments = () => {
       </div>
 
       {/* Right: Appointments Table */}
-      <AppointmentTable userId={userId} refresh={refreshAppointments}  />
+      <AppointmentTable userId={userId} refresh={refreshAppointments} />
     </div>
   );
 };

@@ -1,26 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
 import { FaHospital, FaPlus, FaPrint, FaTimes } from "react-icons/fa";
+import { FiSearch } from "react-icons/fi";
+import DrugEntry from "./DrugEntry";
+import { Drug } from "./DrugEntry";
 
-// Define types for our state
-type Dosage = {
-  id: number;
-  morning: string;
-  afternoon: string;
-  evening: string;
-  night: string;
-  durationValue: string;
-  durationUnit: string;
-  mealTime: string;
-  note: string;
-};
-
-type Drug = {
-  id: number;
+export interface Doctor {
   name: string;
-  dosages: Dosage[];
-};
+  email: string;
+  phone: string;
+  specialization: string;
+  degree: string;
+}
+
+interface Patient {
+  id: number;
+  userId: string;
+  name: string;
+  age: string;
+  phone: string;
+  abha_id: string | null;
+  email?: string;
+  height?: string;
+  weight?: string;
+  address?: string;
+  gender?: string | null;
+}
 
 type PrescriptionState = {
   patient: string;
@@ -34,182 +41,13 @@ type PrescriptionState = {
   drugs: Drug[];
 };
 
-function DrugEntry({
-  drug,
-  onRemove,
-  isRemovable,
-  bgColor,
-  onDrugChange,
-}: {
-  drug: Drug;
-  onRemove: () => void;
-  isRemovable: boolean;
-  bgColor: string;
-  onDrugChange: (updatedDrug: Drug) => void;
-}) {
-  const addDosage = () => {
-    const newDosage: Dosage = {
-      id: Date.now(),
-      morning: "0",
-      afternoon: "0",
-      evening: "0",
-      night: "0",
-      durationValue: "1",
-      durationUnit: "Days",
-      mealTime: "Before/After Meal",
-      note: "",
-    };
-    onDrugChange({
-      ...drug,
-      dosages: [...drug.dosages, newDosage],
-    });
-  };
-
-  const removeDosage = (id: number) => {
-    onDrugChange({
-      ...drug,
-      dosages: drug.dosages.filter((d) => d.id !== id),
-    });
-  };
-
-  const updateDosage = (id: number, field: keyof Dosage, value: string) => {
-    onDrugChange({
-      ...drug,
-      dosages: drug.dosages.map((dosage) =>
-        dosage.id === id ? { ...dosage, [field]: value } : dosage
-      ),
-    });
-  };
-
-  return (
-    <div className={`p-2 flex flex-col gap-3 relative ${bgColor}`}>
-      {isRemovable && (
-        <button
-          onClick={onRemove}
-          className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-        >
-          <FaTimes />
-        </button>
-      )}
-      <div className="flex flex-wrap gap-2 items-center">
-        <select
-          className="border border-gray-300 p-2 w-1/3 min-w-[200px]"
-          value={drug.name}
-          onChange={(e) => onDrugChange({ ...drug, name: e.target.value })}
-        >
-          <option value="">Select Drug</option>
-          <option value="Avil">Avil</option>
-          {/* Add more drug options here */}
-        </select>
-      </div>
-
-      {drug.dosages.map((dosage, index) => (
-        <div key={dosage.id} className="flex flex-col gap-2 rounded">
-          <div className="flex flex-nowrap gap-2">
-            {["morning", "afternoon", "evening", "night"].map((time) => (
-              <select
-                key={time}
-                className="border border-gray-300 p-2 rounded-md w-1/4"
-                value={dosage[time as keyof Dosage]}
-                onChange={(e) =>
-                  updateDosage(dosage.id, time as keyof Dosage, e.target.value)
-                }
-              >
-                {[
-                  "0",
-                  "½",
-                  "1",
-                  "2",
-                  "3",
-                  "4",
-                  "0.5 ml",
-                  "1 ml",
-                  "2 ml",
-                  "3 ml",
-                  "4 ml",
-                  "5 ml",
-                ].map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap md:flex-nowrap gap-2">
-            <div className="flex w-full md:w-auto gap-2">
-              <select
-                className="border border-gray-300 p-2 rounded-md flex-1"
-                value={dosage.durationValue}
-                onChange={(e) =>
-                  updateDosage(dosage.id, "durationValue", e.target.value)
-                }
-              >
-                {[...Array(31).keys()].map((num) => (
-                  <option key={num} value={num + 1}>
-                    {num + 1}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                className="border border-gray-300 p-2 rounded-md flex-1"
-                value={dosage.durationUnit}
-                onChange={(e) =>
-                  updateDosage(dosage.id, "durationUnit", e.target.value)
-                }
-              >
-                <option value="Days">Days</option>
-                <option value="Months">Months</option>
-                <option value="Years">Years</option>
-              </select>
-            </div>
-
-            <select
-              className="border border-gray-300 p-2 rounded-md flex-1 w-full md:w-auto"
-              value={dosage.mealTime}
-              onChange={(e) =>
-                updateDosage(dosage.id, "mealTime", e.target.value)
-              }
-            >
-              <option value="Before/After Meal">Before/After Meal</option>
-              <option value="Before Meal">Before Meal</option>
-              <option value="After Meal">After Meal</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              placeholder="Enter Note"
-              className="border border-gray-300 p-2 rounded-md flex-1"
-              value={dosage.note}
-              onChange={(e) => updateDosage(dosage.id, "note", e.target.value)}
-            />
-
-            {index !== 0 && (
-              <button
-                onClick={() => removeDosage(dosage.id)}
-                className="w-8 h-8 flex items-center justify-center rounded-md bg-red-100 text-red-700 hover:bg-red-200"
-              >
-                <FaTimes className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-        </div>
-      ))}
-      <button
-        onClick={addDosage}
-        className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
-      >
-        <FaPlus /> Add Dosage
-      </button>
-    </div>
-  );
-}
-
 export default function CreatePrescription() {
+  const [doctorData, setDoctorData] = useState<Doctor | null>(null);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isPatientDropdownOpen, setIsPatientDropdownOpen] = useState(false);
   const [prescription, setPrescription] = useState<PrescriptionState>({
     patient: "",
     clinicalDiagnosis: "",
@@ -239,6 +77,80 @@ export default function CreatePrescription() {
       },
     ],
   });
+
+  useEffect(() => {
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
+
+  useEffect(() => {
+    fetchPatients();
+  }, [userId]);
+
+  const fetchPatients = async () => {
+    if (!userId) return;
+
+    try {
+      const response = await fetch(`/api/doctor/patients/${userId}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.Patients) {
+          setPatients(data.Patients);
+        } else {
+          setPatients([]);
+        }
+      } else {
+        console.error("Failed to fetch patients data");
+      }
+    } catch (err) {
+      console.error("Error fetching patients data:", err);
+    }
+  };
+
+  useEffect(() => {
+    const fetchDoctorData = async () => {
+      if (!userId) return;
+
+      try {
+        const response = await fetch(`/api/doctor/profile/info/get/${userId}`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          let metemeta;
+          if (data.metaTags) {
+            if (Array.isArray(data.metaTags)) {
+              const tags = data.metaTags.map(
+                (tagObj: { tag: string }) => tagObj.tag
+              );
+              metemeta = tags;
+            }
+          }
+          if (data.doctor) {
+            setDoctorData({
+              name: data.doctor.name || "",
+              email: data.doctor.email || "",
+              phone: data.doctor.phone || "",
+              specialization: data.doctor.specialization || "",
+              degree: data.doctor.degree || "",
+            });
+          }
+        } else {
+          console.error("Failed to fetch doctor data");
+        }
+      } catch (error) {
+        console.error("Error fetching doctor data:", error);
+      }
+    };
+
+    fetchDoctorData();
+  }, [userId]);
 
   const addDrugEntry = () => {
     setPrescription((prev) => ({
@@ -287,6 +199,21 @@ export default function CreatePrescription() {
     }));
   };
 
+  const selectPatient = (patient: Patient) => {
+    setSelectedPatient(patient);
+    handleInputChange("patient", patient.id.toString());
+    setSearchQuery(patient.name);
+    setIsPatientDropdownOpen(false);
+  };
+
+  const handlePatientSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredPatients = patients.filter((patient) =>
+    patient.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="p-4 min-h-screen md:p-6">
       <div className="flex justify-between items-center mb-6">
@@ -299,11 +226,13 @@ export default function CreatePrescription() {
         <div className="flex justify-between items-center border-b pb-4 mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-700">
-              Dr. Dheeraj Singh
+              {doctorData?.name}
             </h3>
-            <p className="text-gray-600 text-sm">doctor1@livedoctors.in</p>
-            <p className="text-gray-600 text-sm">Cardiology</p>
-            <p className="text-gray-600 text-sm">MBBS, MD</p>
+            <p className="text-gray-600 text-sm">{doctorData?.email}</p>
+            <p className="text-gray-600 text-sm">
+              {doctorData?.specialization}
+            </p>
+            <p className="text-gray-600 text-sm">{doctorData?.degree}</p>
           </div>
           <div className="text-right flex flex-col items-end">
             <FaHospital className="text-green-500 text-4xl" />
@@ -412,14 +341,42 @@ export default function CreatePrescription() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Patient Name
               </label>
-              <div className="flex flex-col md:flex-row gap-2">
-                <select
-                  className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md"
-                  value={prescription.patient}
-                  onChange={(e) => handleInputChange("patient", e.target.value)}
-                >
-                  <option value="">Select Patient</option>
-                </select>
+              <div className="flex flex-col md:flex-row gap-2 relative">
+                <div className="w-full md:w-1/2 relative">
+                  <div className="relative">
+                  <FiSearch className="absolute left-3 top-3 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search patients..."
+                      value={searchQuery}
+                      onChange={handlePatientSearch}
+                      className="w-full p-2 pl-9 border border-gray-300 rounded-md"
+                      autoFocus
+                    />
+                  </div>
+
+                  {isPatientDropdownOpen && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                      <div className="max-h-60 overflow-y-auto">
+                        {filteredPatients.length > 0 ? (
+                          filteredPatients.map((patient) => (
+                            <div
+                              key={patient.id}
+                              className="p-2 hover:bg-blue-50 cursor-pointer"
+                              onClick={() => selectPatient(patient)}
+                            >
+                              {patient.name} - {patient.id}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-2 text-gray-500">
+                            No patients found
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <div className="flex w-full md:w-1/2 gap-2">
                   <button className="w-1/2 bg-blue-100 text-blue-600 px-3 py-2 rounded-md text-sm hover:bg-blue-200 flex items-center justify-center gap-1">
