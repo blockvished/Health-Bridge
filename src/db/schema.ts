@@ -50,6 +50,8 @@ export const consultationPlatform = pgEnum("consultation_platform", [
   "teams",
 ]);
 
+export const TimeFrequencyType = pgEnum("time_frequency_type", ["days", "weeks", "months",]);
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -90,6 +92,46 @@ export const doctor = pgTable("doctor", {
   seo_description: text("seo_description"),
 });
 
+export const patient = pgTable("patient", {
+  id: serial("id").primaryKey(),
+
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
+
+  abhaId: text("abha_id"),
+  age: integer("age"),
+  weight: integer("weight"),
+  height: integer("height"),
+  address: text("address"),
+  gender: genderEnum("gender"), // assuming genderEnum is already defined
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const prescription = pgTable("prescription", {
+  id: serial("id").primaryKey(),
+  patientId: integer("patient_id")
+      .notNull()
+      .references(() => patient.id, { onDelete: "cascade" }),
+  doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctor.id, { onDelete: "cascade" }),
+  clinicalDiagnosis: text("clinical_diagnosis"),
+  additionalAdvice: text("additional_advice"),
+  advice: text("advice"),
+  diagnosisTests: text("diagnosis_tests"),
+  nextFollowUp: integer("next_follow_up"),
+  nextFollowUpType: TimeFrequencyType("next_follow_up_type"), // Use the enum here
+  prescriptionNotes: text("prescription_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const doctorBankDetail = pgTable("doctor_bank_detail", {
   id: serial("id").primaryKey(),
   doctorId: integer("doctor_id")
@@ -113,27 +155,6 @@ export const doctorDepartment = pgTable("doctor_department", {
     .notNull()
     .references(() => doctor.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
-});
-
-export const patient = pgTable("patient", {
-  id: serial("id").primaryKey(),
-
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-
-  doctorId: integer("doctor_id")
-    .notNull()
-    .references(() => doctor.id, { onDelete: "cascade" }),
-
-  abhaId: text("abha_id"),
-  age: integer("age"),
-  weight: integer("weight"),
-  height: integer("height"),
-  address: text("address"),
-  gender: genderEnum("gender"), // assuming genderEnum is already defined
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const appointments = pgTable("appointments", {
