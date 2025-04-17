@@ -58,11 +58,11 @@ const PrescriptionPreview: React.FC = () => {
                 <p className="text-sm sm:text-base">doctor1@livedoctors.in</p>
               </div>
               <div className="text-left sm:text-right">
-                <img
+                {/* <img
                   src="/hospital_logo.png"
                   alt="Digambar Healthcare Center"
                   className="w-24 sm:w-32 h-auto"
-                />
+                /> */}
                 <p className="font-semibold text-sm sm:text-base">Digambar Healthcare Center</p>
                 <p className="text-sm sm:text-base">Gorakhpur, U.P. India</p>
               </div>
