@@ -33,7 +33,6 @@ interface Patient {
 type PrescriptionState = {
   patient: string;
   clinicalDiagnosis: string;
-  additionalAdvice: string;
   advice: string;
   diagnosisTests: string;
   nextFollowUp: string;
@@ -56,7 +55,6 @@ export default function CreatePrescription() {
   const [prescription, setPrescription] = useState<PrescriptionState>({
     patient: "",
     clinicalDiagnosis: "",
-    additionalAdvice: "",
     advice: "",
     diagnosisTests: "",
     nextFollowUp: "",
@@ -92,6 +90,10 @@ export default function CreatePrescription() {
   useEffect(() => {
     fetchPatients();
   }, [userId]);
+
+  useEffect(() => {
+    console.log(prescription.drugs);
+  }, [prescription]);
 
   useEffect(() => {
     // Handle clicks outside of the patient dropdown
@@ -253,6 +255,12 @@ export default function CreatePrescription() {
         age: Number(selectedPatient?.age) || 0,
         weight: Number(selectedPatient?.weight) || 0,
       }}
+      advices={prescription.advice}
+      diagnosticTests={prescription.diagnosisTests}
+      notes={prescription.notes}
+      drugs={prescription.drugs}
+      nextFollowUp={prescription.nextFollowUp}
+      followUpDuration={prescription.followUpDuration}
     />
   ) : (
     <div className="p-4 min-h-screen md:p-6">
@@ -415,7 +423,7 @@ export default function CreatePrescription() {
               </h3>
               <button
                 onClick={addDrugEntry}
-                className="bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 flex items-center gap-1"
+                className="bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 flex items-center gap-1 cursor-pointer"
               >
                 <FaPlus /> Add Item
               </button>
@@ -427,7 +435,6 @@ export default function CreatePrescription() {
                   drug={drug}
                   isRemovable={index !== 0}
                   onRemove={() => removeDrugEntry(drug.id)}
-                  bgColor={index === 0 ? "bg-white" : "bg-[#f4f6f9]"}
                   onDrugChange={(updatedDrug) =>
                     updateDrug(drug.id, updatedDrug)
                   }

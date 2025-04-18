@@ -1,7 +1,8 @@
-import { FaHospital, FaPlus, FaPrint, FaTimes } from "react-icons/fa";
+import { FaHospital, FaPlus, FaPrint, FaTimes, FaSearch } from "react-icons/fa";
+import { useState, useEffect } from "react";
 
 // Define types for our state
-type Dosage = {
+export type Dosage = {
   id: number;
   morning: string;
   afternoon: string;
@@ -20,19 +21,64 @@ export type Drug = {
   dosages: Dosage[];
 };
 
+// Sample drug list for demonstration
+const sampleDrugList = [
+  "Acetaminophen",
+  "Amoxicillin",
+  "Atorvastatin",
+  "Azithromycin",
+  "Ciprofloxacin",
+  "Hydrochlorothiazide",
+  "Ibuprofen",
+  "Levothyroxine",
+  "Lisinopril",
+  "Metformin",
+  "Omeprazole",
+  "Prednisone",
+  "Sertraline",
+];
+
 function DrugEntry({
   drug,
   onRemove,
   isRemovable,
-  bgColor,
   onDrugChange,
+  drugsList = sampleDrugList, // Default to sample list if none provided
 }: {
   drug: Drug;
   onRemove: () => void;
   isRemovable: boolean;
-  bgColor: string;
   onDrugChange: (updatedDrug: Drug) => void;
+  drugsList?: string[];
 }) {
+  const [searchTerm, setSearchTerm] = useState(drug.name);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredDrugs, setFilteredDrugs] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!showSuggestions) {
+      return;
+    }
+
+    if (searchTerm.trim() === "") {
+      // Show all drugs when input is empty but focused
+      setFilteredDrugs([...drugsList]);
+      return;
+    }
+
+    const filtered = drugsList.filter((d) =>
+      d.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    setFilteredDrugs(filtered);
+  }, [searchTerm, drugsList, showSuggestions]);
+
+  const handleDrugSelect = (selectedDrug: string) => {
+    setSearchTerm(selectedDrug);
+    onDrugChange({ ...drug, name: selectedDrug });
+    setShowSuggestions(false);
+  };
+
   const addDosage = () => {
     const newDosage: Dosage = {
       id: Date.now(),
@@ -68,7 +114,9 @@ function DrugEntry({
   };
 
   return (
-    <div className={`p-2 flex flex-col gap-3 relative ${bgColor}`}>
+    <div
+      className={`p-2 flex flex-col gap-3 relative border shadow-md rounded-md`}
+    >
       {isRemovable && (
         <button
           onClick={onRemove}
@@ -77,41 +125,66 @@ function DrugEntry({
           <FaTimes />
         </button>
       )}
-
       <div className="flex flex-wrap gap-2 items-center">
         <select
-          className="border border-gray-300 p-2 w-1/3 min-w-[200px]"
-          value={drug.name}
+          className="border border-gray-300 p-2 w-1/3 min-w-[150px] cursor-pointer"
+          value={drug.type}
           onChange={(e) => onDrugChange({ ...drug, type: e.target.value })}
         >
-          <option value="">Drug Type</option>
-          <option value="Avil">CAP</option>
-          <option value="Avil">TAB</option>
-          <option value="Avil">SYP</option>
-          <option value="Avil">OIN</option>
-          {/* Add more drug options here */}
+          <option value="" className="cursor-pointer">&lt; Select Drug Type &gt;</option>
+          <option value="CAP" className="cursor-pointer">CAP</option>
+          <option value="TAB" className="cursor-pointer">TAB</option>
+          <option value="SYP" className="cursor-pointer">SYP</option>
+          <option value="OIN" className="cursor-pointer">OIN</option>
         </select>
-      </div>
 
-      <div className="flex flex-wrap gap-2 items-center">
-        <select
-          className="border border-gray-300 p-2 w-1/3 min-w-[200px]"
-          value={drug.name}
-          onChange={(e) => onDrugChange({ ...drug, name: e.target.value })}
-        >
-          <option value="">Select Drug</option>
-          <option value="Avil">Avil</option>
-          {/* Add more drug options here */}
-        </select>
-      </div>
+        <div className="w-2/3 min-w-[200px] relative">
+          <div className="flex items-center border border-gray-300 rounded">
+            <div className="pl-2 text-gray-400">
+              <FaSearch />
+            </div>
+            <input
+              type="text"
+              className="p-2 w-full outline-none"
+              placeholder="Search or enter drug name"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                onDrugChange({ ...drug, name: e.target.value });
+                setShowSuggestions(true);
+              }}
+              onFocus={() => {
+                setShowSuggestions(true);
+              }}
+              onBlur={() => {
+                // Delay hiding suggestions to allow clicking on them
+                setTimeout(() => setShowSuggestions(false), 200);
+              }}
+            />
+          </div>
 
+          {showSuggestions && filteredDrugs.length > 0 && (
+            <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-b shadow-lg max-h-48 overflow-y-auto">
+              {filteredDrugs.map((drugName, index) => (
+                <li
+                  key={index}
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => handleDrugSelect(drugName)}
+                >
+                  {drugName}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
       {drug.dosages.map((dosage, index) => (
-        <div key={dosage.id} className="flex flex-col gap-2 rounded">
+        <div key={dosage.id} className="flex flex-col gap-2 bg-gray-50 rounded">
           <div className="flex flex-nowrap gap-2">
             {["morning", "afternoon", "evening", "night"].map((time) => (
               <select
                 key={time}
-                className="border border-gray-300 p-2 rounded-md w-1/4"
+                className="border border-gray-300 p-2 rounded-md w-1/4 cursor-text"
                 value={dosage[time as keyof Dosage]}
                 onChange={(e) =>
                   updateDosage(dosage.id, time as keyof Dosage, e.target.value)
@@ -142,7 +215,7 @@ function DrugEntry({
           <div className="flex flex-wrap md:flex-nowrap gap-2">
             <div className="flex w-full md:w-auto gap-2">
               <select
-                className="border border-gray-300 p-2 rounded-md flex-1"
+                className="border border-gray-300 p-2 rounded-md flex-1 cursor-text"
                 value={dosage.durationValue}
                 onChange={(e) =>
                   updateDosage(dosage.id, "durationValue", e.target.value)
@@ -162,22 +235,22 @@ function DrugEntry({
                   updateDosage(dosage.id, "durationUnit", e.target.value)
                 }
               >
-                <option value="Days">Days</option>
-                <option value="Months">Months</option>
-                <option value="Years">Years</option>
+                <option value="Days" className="cursor-pointer">Days</option>
+                <option value="Months" className="cursor-pointer">Months</option>
+                <option value="Years" className="cursor-pointer">Years</option>
               </select>
             </div>
 
             <select
-              className="border border-gray-300 p-2 rounded-md flex-1 w-full md:w-auto"
+              className="border border-gray-300 p-2 rounded-md flex-1 w-full md:w-auto cursor-text"
               value={dosage.mealTime}
               onChange={(e) =>
                 updateDosage(dosage.id, "mealTime", e.target.value)
               }
             >
-              <option value="Before/After Meal">Before/After Meal</option>
-              <option value="Before Meal">Before Meal</option>
-              <option value="After Meal">After Meal</option>
+              <option value="Before/After Meal" className="cursor-pointer">Before/After Meal</option>
+              <option value="Before Meal" className="cursor-pointer">Before Meal</option>
+              <option value="After Meal" className="cursor-pointer">After Meal</option>
             </select>
           </div>
 
@@ -193,7 +266,7 @@ function DrugEntry({
             {index !== 0 && (
               <button
                 onClick={() => removeDosage(dosage.id)}
-                className="w-8 h-8 flex items-center justify-center rounded-md bg-red-100 text-red-700 hover:bg-red-200"
+                className="w-8 h-8 flex items-center justify-center rounded-md bg-red-100 text-red-700 hover:bg-red-200 cursor-pointer"
               >
                 <FaTimes className="w-4 h-4" />
               </button>
@@ -203,7 +276,7 @@ function DrugEntry({
       ))}
       <button
         onClick={addDosage}
-        className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
+        className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm cursor-pointer"
       >
         <FaPlus /> Add Dosage
       </button>

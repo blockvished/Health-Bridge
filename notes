@@ -35,3 +35,7 @@ select * from appointment_time_ranges;
 /subscription etc will be handled from admin side
 on to patient page and admin page
 / review / contact of doctor is remaining and etc
+
+
+/clinic
+/appointment upload old documents

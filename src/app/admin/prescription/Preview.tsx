@@ -2,6 +2,7 @@
 import React, { useRef } from "react";
 import { FaPrint, FaSave, FaEdit, FaArrowLeft } from "react-icons/fa";
 import { useReactToPrint } from "react-to-print";
+import { Drug, Dosage } from "./DrugEntry";
 
 interface PrescriptionPreviewProps {
   setTogglePreview: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,6 +15,12 @@ interface PrescriptionPreviewProps {
     age: number;
     weight: number;
   };
+  advices?: string;
+  diagnosticTests?: string;
+  notes?: string;
+  drugs?: Drug[];
+  nextFollowUp: string;
+  followUpDuration: string;
 }
 
 const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
@@ -23,6 +30,12 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
   doctorDegree,
   doctorEmail,
   patient,
+  advices,
+  diagnosticTests,
+  notes,
+  drugs,
+  nextFollowUp,
+  followUpDuration,
 }) => {
   const prescriptionRef = useRef<HTMLDivElement>(null);
 
@@ -44,13 +57,10 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
             className="bg-gray-300 px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer"
             onClick={() => setTogglePreview((prev) => !prev)}
           >
-            <FaArrowLeft /> Back
+            <FaArrowLeft /> Edit
           </button>
           <button className="ml-2 bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer">
             <FaSave /> Save & Continue
-          </button>
-          <button className="ml-2 bg-gray-300 px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer">
-            <FaEdit /> Edit
           </button>
           {/* Fix for the onClick event handler */}
           <button
@@ -119,11 +129,95 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
             <hr className="my-4" />
 
             {/* Prescription content */}
-            <div className="text-center mt-6 sm:mt-10">
-              <p className="text-2xl font-serif">Rx</p>
-              <p className="text-lg mt-4">Avil</p>
-            </div>
+            <div className="flex">
+              {/* Left sidebar for diagnostic tests, advices, and notes */}
+              <div className="w-1/3 pr-4 border-r border-gray-200">
+                {/* Diagnostic Tests Section */}
+                {diagnosticTests && (
+                  <div className="mb-6">
+                    <h3 className="font-bold mb-2 text-sm sm:text-base">
+                      Diagnostic Tests:
+                    </h3>
+                    <p className="text-sm whitespace-pre-wrap">
+                      {diagnosticTests}
+                    </p>
+                  </div>
+                )}
 
+                {/* Advice Section */}
+                {advices && (
+                  <div className="mb-6">
+                    <h3 className="font-bold mb-2 text-sm sm:text-base">
+                      Advice:
+                    </h3>
+                    <p className="text-sm whitespace-pre-wrap">{advices}</p>
+                  </div>
+                )}
+
+                {/* Notes Section */}
+                {notes && (
+                  <div>
+                    <h3 className="font-bold mb-2 text-sm sm:text-base">
+                      Notes:
+                    </h3>
+                    <p className="text-sm whitespace-pre-wrap">{notes}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Right side for medications */}
+              <div className="w-2/3 pl-4">
+                <div className="text-center">
+                  <p className="text-2xl font-serif">Rx</p>
+                </div>
+
+                {drugs && drugs.length > 0 ? (
+                  <div className="mt-3">
+                    {drugs.map((drug, index) => (
+                      <div key={`drug-${index}`} className="mt-4">
+                        <p className="text-md">
+                          <strong>{drug.name}</strong>
+                          <span className="text-sm">
+                            {drug.type && `- ( ${drug.type} )`}
+                          </span>
+                        </p>
+
+                        {drug.dosages.map((dosage, dosageIndex) => (
+                          <div
+                            key={`dosage-${index}-${dosageIndex}`}
+                            className="text-sm"
+                          >
+                            {dosageIndex > 0 && (
+                              <strong className="mr-2">then</strong>
+                            )}
+                            {dosage.morning} + {dosage.afternoon} +
+                            {dosage.evening} + {dosage.night} ---
+                            <em> {dosage.mealTime} </em>
+                            <span>
+                              --- ( {dosage.durationValue} {dosage.durationUnit}{" "}
+                              )
+                            </span>
+                            <div> {dosage.note} </div>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <></>
+                )}
+                {nextFollowUp && (
+                  <div className="mt-6 sm:mt-10">
+                    <strong>Next Follow up:</strong>
+                    <span className="text-md text-center">
+                      {nextFollowUp} {followUpDuration} later
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <></>
+            </div>
             {/* Footer content */}
             <div className="mt-16 sm:mt-32 pt-8 border-t border-gray-200">
               <div className="text-right">
