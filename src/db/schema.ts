@@ -59,6 +59,8 @@ export const DosageType = pgEnum("dosage_type", [
   "0.5 ml", "1 ml", "2 ml", "3 ml", "4 ml", "5 ml"
 ]);
 
+export const DrugType = pgEnum("drug_type",["cap", "tab", "syp", "oin"])
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -128,8 +130,6 @@ export const prescription = pgTable("prescription", {
   doctorId: integer("doctor_id")
       .notNull()
       .references(() => doctor.id, { onDelete: "cascade" }),
-  clinicalDiagnosis: text("clinical_diagnosis"),
-  additionalAdvice: text("additional_advice"),
   advice: text("advice"),
   diagnosisTests: text("diagnosis_tests"),
   nextFollowUp: integer("next_follow_up"),
@@ -144,6 +144,7 @@ export const medication = pgTable("medication", {
   prescriptionId: integer("prescription_id")
       .notNull()
       .references(() => prescription.id, { onDelete: "cascade" }),
+  drugType: DrugType("drug_type"),
   drugName: varchar("drug_name", { length: 255 }).notNull(),
   morning: DosageType("morning"),  // Use the DosageType enum
   afternoon: DosageType("afternoon"), // Use the DosageType enum
