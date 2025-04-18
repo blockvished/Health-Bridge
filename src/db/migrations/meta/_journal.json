@@ -113,6 +113,13 @@
       "when": 1744889710328,
       "tag": "0015_chunky_patch",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1744962221551,
+      "tag": "0016_sloppy_northstar",
+      "breakpoints": true
     }
   ]
 }
