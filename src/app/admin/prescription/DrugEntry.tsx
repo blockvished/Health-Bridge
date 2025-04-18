@@ -115,7 +115,7 @@ function DrugEntry({
 
   return (
     <div
-      className={`p-2 flex flex-col gap-3 bg-gray-50 relative border border-gray-200 rounded-md`}
+      className={`p-2 flex flex-col gap-3 relative border shadow-md rounded-md`}
     >
       {isRemovable && (
         <button
@@ -127,15 +127,15 @@ function DrugEntry({
       )}
       <div className="flex flex-wrap gap-2 items-center">
         <select
-          className="border border-gray-300 p-2 w-1/3 min-w-[150px]"
+          className="border border-gray-300 p-2 w-1/3 min-w-[150px] cursor-pointer"
           value={drug.type}
           onChange={(e) => onDrugChange({ ...drug, type: e.target.value })}
         >
-          <option value="">Drug Type</option>
-          <option value="CAP">CAP</option>
-          <option value="TAB">TAB</option>
-          <option value="SYP">SYP</option>
-          <option value="OIN">OIN</option>
+          <option value="" className="cursor-pointer">&lt; Select Drug Type &gt;</option>
+          <option value="CAP" className="cursor-pointer">CAP</option>
+          <option value="TAB" className="cursor-pointer">TAB</option>
+          <option value="SYP" className="cursor-pointer">SYP</option>
+          <option value="OIN" className="cursor-pointer">OIN</option>
         </select>
 
         <div className="w-2/3 min-w-[200px] relative">
@@ -179,12 +179,12 @@ function DrugEntry({
         </div>
       </div>
       {drug.dosages.map((dosage, index) => (
-        <div key={dosage.id} className="flex flex-col gap-2 bg-blue-50 rounded">
+        <div key={dosage.id} className="flex flex-col gap-2 bg-gray-50 rounded">
           <div className="flex flex-nowrap gap-2">
             {["morning", "afternoon", "evening", "night"].map((time) => (
               <select
                 key={time}
-                className="border border-gray-300 p-2 rounded-md w-1/4"
+                className="border border-gray-300 p-2 rounded-md w-1/4 cursor-text"
                 value={dosage[time as keyof Dosage]}
                 onChange={(e) =>
                   updateDosage(dosage.id, time as keyof Dosage, e.target.value)
@@ -215,7 +215,7 @@ function DrugEntry({
           <div className="flex flex-wrap md:flex-nowrap gap-2">
             <div className="flex w-full md:w-auto gap-2">
               <select
-                className="border border-gray-300 p-2 rounded-md flex-1"
+                className="border border-gray-300 p-2 rounded-md flex-1 cursor-text"
                 value={dosage.durationValue}
                 onChange={(e) =>
                   updateDosage(dosage.id, "durationValue", e.target.value)
@@ -235,22 +235,22 @@ function DrugEntry({
                   updateDosage(dosage.id, "durationUnit", e.target.value)
                 }
               >
-                <option value="Days">Days</option>
-                <option value="Months">Months</option>
-                <option value="Years">Years</option>
+                <option value="Days" className="cursor-pointer">Days</option>
+                <option value="Months" className="cursor-pointer">Months</option>
+                <option value="Years" className="cursor-pointer">Years</option>
               </select>
             </div>
 
             <select
-              className="border border-gray-300 p-2 rounded-md flex-1 w-full md:w-auto"
+              className="border border-gray-300 p-2 rounded-md flex-1 w-full md:w-auto cursor-text"
               value={dosage.mealTime}
               onChange={(e) =>
                 updateDosage(dosage.id, "mealTime", e.target.value)
               }
             >
-              <option value="Before/After Meal">Before/After Meal</option>
-              <option value="Before Meal">Before Meal</option>
-              <option value="After Meal">After Meal</option>
+              <option value="Before/After Meal" className="cursor-pointer">Before/After Meal</option>
+              <option value="Before Meal" className="cursor-pointer">Before Meal</option>
+              <option value="After Meal" className="cursor-pointer">After Meal</option>
             </select>
           </div>
 

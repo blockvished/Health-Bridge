@@ -94,6 +94,10 @@ export default function CreatePrescription() {
   }, [userId]);
 
   useEffect(() => {
+    console.log(prescription.drugs);
+  }, [prescription]);
+
+  useEffect(() => {
     // Handle clicks outside of the patient dropdown
     const handleOutsideClick = (e: MouseEvent) => {
       const target = e.target as Node;
@@ -415,7 +419,7 @@ export default function CreatePrescription() {
               </h3>
               <button
                 onClick={addDrugEntry}
-                className="bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 flex items-center gap-1"
+                className="bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 flex items-center gap-1 cursor-pointer"
               >
                 <FaPlus /> Add Item
               </button>
@@ -427,7 +431,6 @@ export default function CreatePrescription() {
                   drug={drug}
                   isRemovable={index !== 0}
                   onRemove={() => removeDrugEntry(drug.id)}
-                  bgColor={index === 0 ? "bg-white" : "bg-[#f4f6f9]"}
                   onDrugChange={(updatedDrug) =>
                     updateDrug(drug.id, updatedDrug)
                   }
