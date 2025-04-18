@@ -2,7 +2,7 @@ import { FaHospital, FaPlus, FaPrint, FaTimes, FaSearch } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
 // Define types for our state
-type Dosage = {
+export type Dosage = {
   id: number;
   morning: string;
   afternoon: string;
