@@ -80,6 +80,7 @@ const ClinicTable = () => {
         <thead>
           <tr className="bg-gray-100 text-gray-600">
             <th className="p-3 text-left font-medium">#</th>
+            <th className="p-3 text-left font-medium">Thumb</th>
             <th className="p-3 text-left font-medium">Information</th>
             <th className="p-3 text-left font-medium">Appointment Limit</th>
             <th className="p-3 text-left font-medium">Status</th>
@@ -93,6 +94,7 @@ const ClinicTable = () => {
               className="border-t border-gray-300 hover:bg-gray-50 transition"
             >
               <td className="p-4 text-gray-700">{clinic.id}</td>
+              <td className="p-4 text-gray-700">image</td>
               <td className="p-4">
                 <div className="font-semibold text-gray-800">{clinic.name}</div>
                 <div className="text-sm text-gray-500">{clinic.location}</div>
