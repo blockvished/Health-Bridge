@@ -1,9 +1,29 @@
-"use client"
+"use client";
 import React, { useRef } from "react";
-import { FaPrint, FaSave, FaEdit } from "react-icons/fa";
+import { FaPrint, FaSave, FaEdit, FaArrowLeft } from "react-icons/fa";
 import { useReactToPrint } from "react-to-print";
 
-const PrescriptionPreview: React.FC = () => {
+interface PrescriptionPreviewProps {
+  setTogglePreview: React.Dispatch<React.SetStateAction<boolean>>;
+  doctorName?: string;
+  doctorSpecialization?: string;
+  doctorDegree?: string;
+  doctorEmail?: string;
+  patient?: {
+    name: string;
+    age: number;
+    weight: number;
+  };
+}
+
+const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
+  setTogglePreview,
+  doctorName,
+  doctorSpecialization,
+  doctorDegree,
+  doctorEmail,
+  patient,
+}) => {
   const prescriptionRef = useRef<HTMLDivElement>(null);
 
   // Fix for TypeScript issues
@@ -20,16 +40,22 @@ const PrescriptionPreview: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-center my-4 gap-2 sm:gap-0">
         <h2 className="text-xl font-semibold">Prescription Preview</h2>
         <div className="flex">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2">
+          <button
+            className="bg-gray-300 px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer"
+            onClick={() => setTogglePreview((prev) => !prev)}
+          >
+            <FaArrowLeft /> Back
+          </button>
+          <button className="ml-2 bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer">
             <FaSave /> Save & Continue
           </button>
-          <button className="ml-2 bg-gray-300 px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2">
+          <button className="ml-2 bg-gray-300 px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer">
             <FaEdit /> Edit
           </button>
           {/* Fix for the onClick event handler */}
-          <button 
+          <button
             onClick={() => handlePrint()}
-            className="ml-2 bg-green-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2"
+            className="ml-2 bg-green-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer"
           >
             <FaPrint /> Print
           </button>
@@ -39,7 +65,8 @@ const PrescriptionPreview: React.FC = () => {
       {/* Preview banner */}
       <div className="flex justify-center px-2 sm:px-0 mb-4">
         <div className="w-full sm:w-[210mm] border border-blue-300 bg-blue-100 p-3 text-blue-700 rounded-md text-sm sm:text-base">
-          ⚠ This is a preview of your prescription. Click the Print button to print or save as PDF.
+          ⚠ This is a preview of your prescription. Click the Print button to
+          print or save as PDF.
         </div>
       </div>
 
@@ -52,10 +79,10 @@ const PrescriptionPreview: React.FC = () => {
             {/* Header section */}
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0">
               <div>
-                <h3 className="text-lg font-bold">Dr. Dheeraj Singh</h3>
-                <p className="text-sm sm:text-base">Cardiology</p>
-                <p className="text-sm sm:text-base">MBBS, MD</p>
-                <p className="text-sm sm:text-base">doctor1@livedoctors.in</p>
+                <h3 className="text-lg font-bold">{doctorName}</h3>
+                <p className="text-sm sm:text-base">{doctorSpecialization}</p>
+                <p className="text-sm sm:text-base">{doctorDegree}</p>
+                <p className="text-sm sm:text-base">{doctorEmail}</p>
               </div>
               <div className="text-left sm:text-right">
                 {/* <img
@@ -63,7 +90,9 @@ const PrescriptionPreview: React.FC = () => {
                   alt="Digambar Healthcare Center"
                   className="w-24 sm:w-32 h-auto"
                 /> */}
-                <p className="font-semibold text-sm sm:text-base">Digambar Healthcare Center</p>
+                <p className="font-semibold text-sm sm:text-base">
+                  Digambar Healthcare Center
+                </p>
                 <p className="text-sm sm:text-base">Gorakhpur, U.P. India</p>
               </div>
             </div>
@@ -73,13 +102,14 @@ const PrescriptionPreview: React.FC = () => {
             {/* Patient info section */}
             <div className="grid grid-cols-2 sm:flex justify-between text-sm mb-4 gap-2 sm:gap-0">
               <p>
-                <span className="font-semibold">Name:</span> jhf
+                <span className="font-semibold">Name:</span> {patient?.name}
               </p>
               <p>
-                <span className="font-semibold">Age:</span> 22 Years
+                <span className="font-semibold">Age:</span> {patient?.age} Years
               </p>
               <p>
-                <span className="font-semibold">Weight:</span> 0 Kg
+                <span className="font-semibold">Weight:</span> {patient?.weight}{" "}
+                Kg
               </p>
               <p>
                 <span className="font-semibold">Date:</span> 25 Mar 2025
@@ -97,7 +127,7 @@ const PrescriptionPreview: React.FC = () => {
             {/* Footer content */}
             <div className="mt-16 sm:mt-32 pt-8 border-t border-gray-200">
               <div className="text-right">
-                <p className="font-semibold">Dr. Dheeraj Singh</p>
+                <p className="font-semibold">{doctorName}</p>
                 <p className="text-sm">Signature</p>
               </div>
             </div>

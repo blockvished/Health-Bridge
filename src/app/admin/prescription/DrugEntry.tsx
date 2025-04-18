@@ -15,6 +15,7 @@ type Dosage = {
 
 export type Drug = {
   id: number;
+  type: string;
   name: string;
   dosages: Dosage[];
 };
@@ -76,6 +77,22 @@ function DrugEntry({
           <FaTimes />
         </button>
       )}
+
+      <div className="flex flex-wrap gap-2 items-center">
+        <select
+          className="border border-gray-300 p-2 w-1/3 min-w-[200px]"
+          value={drug.name}
+          onChange={(e) => onDrugChange({ ...drug, type: e.target.value })}
+        >
+          <option value="">Drug Type</option>
+          <option value="Avil">CAP</option>
+          <option value="Avil">TAB</option>
+          <option value="Avil">SYP</option>
+          <option value="Avil">OIN</option>
+          {/* Add more drug options here */}
+        </select>
+      </div>
+
       <div className="flex flex-wrap gap-2 items-center">
         <select
           className="border border-gray-300 p-2 w-1/3 min-w-[200px]"
@@ -195,8 +212,3 @@ function DrugEntry({
 }
 
 export default DrugEntry;
-
-
-
-
-
