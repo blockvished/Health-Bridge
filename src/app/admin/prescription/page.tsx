@@ -33,7 +33,6 @@ interface Patient {
 type PrescriptionState = {
   patient: string;
   clinicalDiagnosis: string;
-  additionalAdvice: string;
   advice: string;
   diagnosisTests: string;
   nextFollowUp: string;
@@ -56,7 +55,6 @@ export default function CreatePrescription() {
   const [prescription, setPrescription] = useState<PrescriptionState>({
     patient: "",
     clinicalDiagnosis: "",
-    additionalAdvice: "",
     advice: "",
     diagnosisTests: "",
     nextFollowUp: "",
@@ -257,6 +255,12 @@ export default function CreatePrescription() {
         age: Number(selectedPatient?.age) || 0,
         weight: Number(selectedPatient?.weight) || 0,
       }}
+      advices={prescription.advice}
+      diagnosticTests={prescription.diagnosisTests}
+      notes={prescription.notes}
+      drugs={prescription.drugs}
+      nextFollowUp={prescription.nextFollowUp}
+      followUpDuration={prescription.followUpDuration}
     />
   ) : (
     <div className="p-4 min-h-screen md:p-6">
