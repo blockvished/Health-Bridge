@@ -1,11 +1,12 @@
 "use client";
 
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { FaHospital, FaPlus, FaPrint, FaTimes } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 import DrugEntry from "./DrugEntry";
 import { Drug } from "./DrugEntry";
+import PrescriptionPreview from "./Preview";
 
 export interface Doctor {
   name: string;
@@ -48,6 +49,10 @@ export default function CreatePrescription() {
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isPatientDropdownOpen, setIsPatientDropdownOpen] = useState(false);
+  const [togglePreview, setTogglePreview] = useState<boolean>(false);
+
+  const searchRef = useRef<HTMLDivElement>(null);
+
   const [prescription, setPrescription] = useState<PrescriptionState>({
     patient: "",
     clinicalDiagnosis: "",
@@ -61,6 +66,7 @@ export default function CreatePrescription() {
       {
         id: 0,
         name: "",
+        type: "",
         dosages: [
           {
             id: 0,
@@ -86,6 +92,21 @@ export default function CreatePrescription() {
   useEffect(() => {
     fetchPatients();
   }, [userId]);
+
+  useEffect(() => {
+    // Handle clicks outside of the patient dropdown
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (searchRef.current && !searchRef.current.contains(target)) {
+        setIsPatientDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
 
   const fetchPatients = async () => {
     if (!userId) return;
@@ -160,6 +181,7 @@ export default function CreatePrescription() {
         {
           id: Date.now(),
           name: "",
+          type: "",
           dosages: [
             {
               id: Date.now() + 1,
@@ -208,13 +230,31 @@ export default function CreatePrescription() {
 
   const handlePatientSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+    setIsPatientDropdownOpen(true); // Always open dropdown when typing
+  };
+
+  const handleInputFocus = () => {
+    setIsPatientDropdownOpen(true);
   };
 
   const filteredPatients = patients.filter((patient) =>
     patient.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  return (
+  return togglePreview ? (
+    <PrescriptionPreview
+      setTogglePreview={setTogglePreview}
+      doctorName={doctorData?.name}
+      doctorSpecialization={doctorData?.specialization}
+      doctorDegree={doctorData?.degree}
+      doctorEmail={doctorData?.email}
+      patient={{
+        name: selectedPatient?.name || "",
+        age: Number(selectedPatient?.age) || 0,
+        weight: Number(selectedPatient?.weight) || 0,
+      }}
+    />
+  ) : (
     <div className="p-4 min-h-screen md:p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-gray-800">
@@ -257,18 +297,6 @@ export default function CreatePrescription() {
                   }
                 />
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Additional Advice
-              </label>
-              <input
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                value={prescription.additionalAdvice}
-                onChange={(e) =>
-                  handleInputChange("additionalAdvice", e.target.value)
-                }
-              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -342,16 +370,16 @@ export default function CreatePrescription() {
                 Patient Name
               </label>
               <div className="flex flex-col md:flex-row gap-2 relative">
-                <div className="w-full md:w-1/2 relative">
+                <div className="w-full md:w-1/2 relative" ref={searchRef}>
                   <div className="relative">
-                  <FiSearch className="absolute left-3 top-3 text-gray-400" />
+                    <FiSearch className="absolute left-3 top-3 text-gray-400" />
                     <input
                       type="text"
                       placeholder="Search patients..."
                       value={searchQuery}
                       onChange={handlePatientSearch}
+                      onFocus={handleInputFocus}
                       className="w-full p-2 pl-9 border border-gray-300 rounded-md"
-                      autoFocus
                     />
                   </div>
 
@@ -377,15 +405,7 @@ export default function CreatePrescription() {
                     </div>
                   )}
                 </div>
-
-                <div className="flex w-full md:w-1/2 gap-2">
-                  <button className="w-1/2 bg-blue-100 text-blue-600 px-3 py-2 rounded-md text-sm hover:bg-blue-200 flex items-center justify-center gap-1">
-                    <FaPlus /> New Patient
-                  </button>
-                  <button className="w-1/2 bg-blue-100 text-blue-600 px-3 py-2 rounded-md text-sm hover:bg-blue-200 flex items-center justify-center gap-1">
-                    <FaPlus /> New Drug
-                  </button>
-                </div>
+ 
               </div>
             </div>
 
@@ -420,10 +440,9 @@ export default function CreatePrescription() {
         {/* Preview Button */}
         <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6">
           <button
-            onClick={() => {
-              console.log("Prescription data:", prescription);
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 flex items-center gap-2"
+            onClick={() => setTogglePreview((prev) => !prev)}
+
+            className="bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 flex items-center gap-2 cursor-pointer"
           >
             <FaPrint className="text-white" />
             <span className="hidden md:inline">Preview</span>
