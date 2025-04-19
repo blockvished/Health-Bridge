@@ -192,19 +192,37 @@ export async function POST(req: NextRequest) {
     if (id) {
       console.log("lol");
       const numericId = parseInt(id, 10);
-      const updatedClinic = await db
-        .update(clinic)
-        .set({
-          name,
-          imageLink,
-          department,
-          appointmentLimit,
-          active,
-          address,
-          updatedAt: new Date(),
-        })
-        .where(eq(clinic.id, numericId))
-        .returning();
+
+      let updatedClinic
+      
+      if (imageLink == null) {
+        updatedClinic = await db
+          .update(clinic)
+          .set({
+            name,
+            department,
+            appointmentLimit,
+            active,
+            address,
+            updatedAt: new Date(),
+          })
+          .where(eq(clinic.id, numericId))
+          .returning();
+      } else {
+        updatedClinic = await db
+          .update(clinic)
+          .set({
+            name,
+            imageLink,
+            department,
+            appointmentLimit,
+            active,
+            address,
+            updatedAt: new Date(),
+          })
+          .where(eq(clinic.id, numericId))
+          .returning();
+      }
 
       if (!updatedClinic.length) {
         return NextResponse.json(
