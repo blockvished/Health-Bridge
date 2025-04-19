@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiEdit, FiTrash } from "react-icons/fi";
 import { FiUploadCloud } from "react-icons/fi";
 import { BsCheckCircle } from "react-icons/bs";
+import Cookies from "js-cookie";
 
 const clinics = [
   {
@@ -14,8 +15,22 @@ const clinics = [
   },
 ];
 
+const departments = [
+  "Cardiology",
+  "Dermatology",
+  "Neurology",
+  "Pediatrics",
+  "General Medicine",
+];
+
 const ClinicList = () => {
   const [showForm, setShowForm] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
 
   return (
     <div className="bg-white p-4 shadow-lg rounded-lg w-full max-w-4xl mx-auto">
@@ -31,7 +46,7 @@ const ClinicList = () => {
         </button>
       </div>
       {showForm ? (
-        <ClinicForm onClose={() => setShowForm(false)} />
+        <ClinicForm onClose={() => setShowForm(false)} userId={userId} />
       ) : (
         <ClinicTable />
       )}
@@ -50,7 +65,6 @@ const ClinicTable = () => {
             className="p-4 border border-gray-300 rounded-lg shadow-sm bg-gray-50"
           >
             <div className="flex items-center gap-4">
-
               <div>
                 <div className="font-semibold text-gray-800">{clinic.name}</div>
                 <div className="text-sm text-gray-500">{clinic.location}</div>
@@ -123,9 +137,10 @@ const ClinicTable = () => {
 
 interface ClinicFormProps {
   onClose: () => void;
+  userId: string | null;
 }
 
-const ClinicForm = ({ onClose }: ClinicFormProps) => {
+const ClinicForm = ({ onClose, userId }: ClinicFormProps) => {
   const [formData, setFormData] = useState({
     logo: null as File | null,
     department: "",
@@ -134,6 +149,8 @@ const ClinicForm = ({ onClose }: ClinicFormProps) => {
     appointmentLimit: "",
     address: "",
   });
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -151,10 +168,48 @@ const ClinicForm = ({ onClose }: ClinicFormProps) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form Submitted", formData);
-    onClose();
+    if (!userId) {
+      console.error("User ID not found.");
+      return;
+    }
+
+    setUploading(true);
+    setUploadError(null);
+
+    const apiUrl = `/api/doctor/clinic/${userId}`;
+    const form = new FormData();
+    if (formData.logo) {
+      form.append("logo", formData.logo);
+    }
+    form.append("department", formData.department);
+    form.append("name", formData.name);
+    form.append("title", formData.title);
+    form.append("appointmentLimit", formData.appointmentLimit);
+    form.append("address", formData.address);
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        body: form,
+      });
+
+      if (response.ok) {
+        console.log("Clinic data submitted successfully!");
+        onClose();
+        // Optionally, you can refetch the clinic list here to update the UI
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to submit clinic data:", errorData);
+        setUploadError(errorData.message || "Failed to submit clinic data.");
+      }
+    } catch (error: any) {
+      console.error("An error occurred while submitting:", error);
+      setUploadError(error.message || "An unexpected error occurred.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -182,6 +237,25 @@ const ClinicForm = ({ onClose }: ClinicFormProps) => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Department Dropdown */}
+        <div>
+          <label className="block text-gray-700">Department *</label>
+          <select
+            name="department"
+            value={formData.department}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-200 rounded-lg mt-1"
+            required
+          >
+            <option value="">Select Department</option>
+            {departments.map((dept) => (
+              <option key={dept} value={dept}>
+                {dept}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Clinic Name */}
@@ -235,15 +309,25 @@ const ClinicForm = ({ onClose }: ClinicFormProps) => {
           />
         </div>
 
-        {/* Buttons */}
+        {/* Buttons and Error Message */}
         <div className="flex justify-between">
+          <button
+            type="button"
+            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition w-1/2 mr-2"
+            onClick={onClose}
+            disabled={uploading}
+          >
+            Cancel
+          </button>
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-1/2"
+            disabled={uploading}
           >
-            Save
+            {uploading ? "Saving..." : "Save"}
           </button>
         </div>
+        {uploadError && <p className="text-red-500 mt-2">{uploadError}</p>}
       </form>
     </div>
   );
