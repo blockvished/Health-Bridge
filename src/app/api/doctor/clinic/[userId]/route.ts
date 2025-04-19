@@ -39,8 +39,6 @@ export async function GET(req: NextRequest) {
 
   const requiredDoctorId = doctorData[0].id;
 
-  console.log(requiredDoctorId);
-
   try {
     // Fetch clinics associated with the doctor.
     const clinicsData = await db
@@ -136,12 +134,16 @@ export async function POST(req: NextRequest) {
 
     // 1. Parse the form data
     const formData = await req.formData();
-    console.log(formData);
+    console.log("$$$$$$$$$$$$$$$$getting", formData.get("active"));
 
     // 2. Extract fields
     const id = formData.get("id") as string | null;
     const name = formData.get("name") as string;
-    const active = formData.get("active") as boolean | null;
+    
+    // Fix for active field - properly convert string to boolean
+    const activeValue = formData.get("active");
+    const active = activeValue === null ? null : activeValue === "true";
+    
     const department = formData.get("department") as string;
     const appointmentLimitStr = formData.get("appointmentLimit") as string;
     const address = formData.get("address") as string;
@@ -162,7 +164,7 @@ export async function POST(req: NextRequest) {
       const originalFileName = (imageFile as any).name;
       const fileExtension = extname(originalFileName || "") || ".png";
       const safeName = slugify(name);
-      const uniqueFilename = `${safeName}.${fileExtension}`;
+      const uniqueFilename = `${safeName}${fileExtension}`;
       const uploadDir = path.join(
         baseUploadPath,
         "clinics",
@@ -181,30 +183,47 @@ export async function POST(req: NextRequest) {
       // Write the file using the standard fs.writeFileSync
       fs.writeFileSync(uploadPath, buffer);
 
-      imageLink = `/private_uploads/clinics/${numericUserId}/${uniqueFilename}`;
+      imageLink = `/api/doctor/clinic/image/${numericUserId}/${uniqueFilename}`;
     }
 
-    // 5.  Convert appointmentLimit
+    // 5. Convert appointmentLimit
     const appointmentLimit = appointmentLimitStr
       ? parseInt(appointmentLimitStr, 10)
       : undefined;
 
     if (id) {
-      console.log("lol");
       const numericId = parseInt(id, 10);
-      const updatedClinic = await db
-        .update(clinic)
-        .set({
-          name,
-          imageLink,
-          department,
-          appointmentLimit,
-          active,
-          address,
-          updatedAt: new Date(),
-        })
-        .where(eq(clinic.id, numericId))
-        .returning();
+
+      let updatedClinic;
+      
+      if (imageLink == null) {
+        updatedClinic = await db
+          .update(clinic)
+          .set({
+            name,
+            department,
+            appointmentLimit,
+            active,
+            address,
+            updatedAt: new Date(),
+          })
+          .where(eq(clinic.id, numericId))
+          .returning();
+      } else {
+        updatedClinic = await db
+          .update(clinic)
+          .set({
+            name,
+            imageLink,
+            department,
+            appointmentLimit,
+            active,
+            address,
+            updatedAt: new Date(),
+          })
+          .where(eq(clinic.id, numericId))
+          .returning();
+      }
 
       if (!updatedClinic.length) {
         return NextResponse.json(
@@ -233,8 +252,6 @@ export async function POST(req: NextRequest) {
       // 7. Respond with the newly created clinic
       return NextResponse.json(newClinic[0], { status: 201 });
     }
-
-    // 7. Respond
   } catch (error: any) {
     console.error("Error creating clinic:", error);
     return NextResponse.json(
@@ -243,7 +260,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
 export async function DELETE(req: NextRequest) {
   // Get ID from URL
   const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";

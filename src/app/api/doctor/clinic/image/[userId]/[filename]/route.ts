@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import postgres from "postgres";
 import { eq } from "drizzle-orm";
-import { promises as fs } from "fs";
 import path from "path";
-import { doctor } from "../../../../../../../../db/schema";
-import db from "../../../../../../../../db/db";
-import { verifyAuthToken } from "../../../../../../../lib/verify";
+import { doctor } from "../../../../../../../db/schema";
+import db from "../../../../../../../db/db";
+import { verifyAuthToken } from "../../../../../../lib/verify";
+import { promises as fs } from 'fs'; // Import the promises API for fs
 
 export async function GET(req: NextRequest) {
-  let sql: postgres.Sql<{}> | undefined; // 
+  let sql: postgres.Sql<{}> | undefined;
   try {
-    // Get doctor ID from URL
+    // Get doctor ID and file name from URL
     const pathSegments = req.nextUrl.pathname.split("/");
     const file_name = pathSegments[pathSegments.length - 1] || "unknown";
     const userIdFromUrl = pathSegments[pathSegments.length - 2] || "unknown";
@@ -35,7 +34,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Query for doctor information
+    // Query for doctor information (although not directly used for serving the file)
     const doctorData = await db
       .select()
       .from(doctor)
@@ -48,75 +47,40 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Define the base upload directory (adjust according to your file structure)
-    const uploadDir = path.join(process.cwd(), "private_uploads");
-    let filePath: string;
-    let contentType: string;
+    // Define the base upload directory
+    const uploadDir = path.join(process.cwd(), "private_uploads/clinics");
+    const filePath = path.join(uploadDir, userIdFromUrl, file_name);
+    const contentType = getContentType(file_name);
 
-    // Check which file is being requested
-    if (req.nextUrl.pathname === doctorData[0].image_link) {
-      // Serve profile picture
-      filePath = path.join(uploadDir, "pictures", file_name);
-      contentType = getContentType(file_name);
-    } else if (req.nextUrl.pathname === doctorData[0].signature_link) {
-      // Serve signature
-      filePath = path.join(uploadDir, "signatures", file_name);
-      contentType = getContentType(file_name);
-    } else {
-      // If neither, return the doctor data as JSON
-      return NextResponse.json({
-        success: true,
-        doctor: doctorData[0],
-      });
-    }
     try {
-      // Read the file
       const fileBuffer = await fs.readFile(filePath);
-      
-      // Return the file with appropriate headers
+
       return new NextResponse(fileBuffer, {
-        status: 200,
         headers: {
           'Content-Type': contentType,
-          'Content-Disposition': 'inline',
-          'Cache-Control': 'no-cache'
-        }
+        },
       });
-    } catch (fileError) {
-      console.error("Error reading file:", fileError);
+    } catch (error: any) {
+      console.error("Error reading file:", error);
       return NextResponse.json(
         { error: "File not found" },
         { status: 404 }
       );
     }
 
-  } catch (error) {
-    console.error("Error retrieving doctor profile:", error);
-
-    if (error instanceof jwt.JsonWebTokenError) {
-      return NextResponse.json(
-        { error: "Invalid authentication token" },
-        { status: 401 }
-      );
-    }
-
+  } catch (error: any) {
+    console.error("An unexpected error occurred:", error);
     return NextResponse.json(
-      { error: "Server error while retrieving doctor profile" },
+      { error: "Internal server error" },
       { status: 500 }
     );
-  } finally {
-    if (sql) {
-      await sql.end();
-    }
-    // Ensure SQL connection is closed
-    // (postgres.js should handle this automatically with the connection pool)
   }
 }
 
 // Helper function to determine content type based on file extension
 function getContentType(fileName: string): string {
   const ext = path.extname(fileName).toLowerCase();
-  
+
   switch (ext) {
     case '.jpg':
     case '.jpeg':
