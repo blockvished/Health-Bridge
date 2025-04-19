@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
   const requiredDoctorId = doctorData[0].id;
 
-  console.log(requiredDoctorId)
+  console.log(requiredDoctorId);
 
   try {
     // Fetch clinics associated with the doctor.
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
       .from(clinic)
       .where(eq(clinic.doctorId, requiredDoctorId));
 
-      console.log(clinicsData)
+    console.log(clinicsData);
 
     if (!clinicsData.length) {
       //   return NextResponse.json(
@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
 
     // 1. Parse the form data
     const formData = await req.formData();
-    console.log(formData)
+    console.log(formData);
 
     // 2. Extract fields
     const id = formData.get("id") as string | null;
@@ -239,6 +239,78 @@ export async function POST(req: NextRequest) {
     console.error("Error creating clinic:", error);
     return NextResponse.json(
       { error: "Failed to create clinic", details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  // Get ID from URL
+  const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
+
+  // Verify JWT token
+  const decodedOrResponse = await verifyAuthToken();
+  if (decodedOrResponse instanceof NextResponse) return decodedOrResponse;
+  const { userId } = decodedOrResponse;
+  const numericUserId = Number(userId);
+
+  // Check if the requested ID matches the authenticated user's ID
+  if (String(numericUserId) !== userIdFromUrl) {
+    return NextResponse.json(
+      { error: "Forbidden: You don't have access to this profile" },
+      { status: 403 }
+    );
+  }
+
+  const doctorData = await db
+    .select({ id: doctor.id })
+    .from(doctor)
+    .where(eq(doctor.userId, numericUserId));
+
+  if (!doctorData.length) {
+    return NextResponse.json(
+      { error: "Doctor profile not found for this user." },
+      { status: 404 }
+    );
+  }
+
+  try {
+    // Parse the request body to get the clinic ID
+    const { id: clinicIdToDelete } = await req.json();
+
+    if (!clinicIdToDelete) {
+      return NextResponse.json(
+        { error: "Clinic ID to delete is missing." },
+        { status: 400 }
+      );
+    }
+
+    const numericClinicIdToDelete = Number(clinicIdToDelete);
+
+    // Delete the clinic
+    const deletedClinic = await db
+      .delete(clinic)
+      .where(eq(clinic.id, numericClinicIdToDelete))
+      .returning();
+
+    if (!deletedClinic.length) {
+      return NextResponse.json(
+        {
+          error: `Clinic with ID ${clinicIdToDelete} not found for this doctor.`,
+        },
+        { status: 404 }
+      );
+    }
+
+    // Respond with success
+    return NextResponse.json(
+      { message: `Clinic with ID ${clinicIdToDelete} deleted successfully.` },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Error deleting clinic:", error);
+    return NextResponse.json(
+      { error: "Failed to delete clinic", details: error.message },
       { status: 500 }
     );
   }
