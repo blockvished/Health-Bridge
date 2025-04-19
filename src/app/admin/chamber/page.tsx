@@ -77,6 +77,62 @@ const ClinicList = () => {
     setEditingClinic(null);
   };
 
+  const handleDeleteClick = async (clinicId: number) => {
+    if (!userId) {
+      console.error("User ID not found.");
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete clinic with ID: ${clinicId}?`)) {
+      try {
+        const response = await fetch(`/api/doctor/clinic/${userId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: clinicId }),
+        });
+
+        if (response.ok) {
+          console.log(`Clinic with ID ${clinicId} deleted successfully!`);
+          // Refetch the clinic list to update the UI
+          fetchClinics();
+        } else {
+          const errorData = await response.json();
+          console.error(`Failed to delete clinic with ID ${clinicId}:`, errorData);
+          setError(errorData.message || `Failed to delete clinic.`);
+        }
+      } catch (error: any) {
+        console.error("An error occurred while deleting the clinic:", error);
+        setError(error.message || "An unexpected error occurred during deletion.");
+      }
+    }
+  };
+
+  const fetchClinics = async () => {
+    if (userId) {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`/api/doctor/clinic/${userId}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.message || `Failed to fetch clinics: ${response.status}`
+          );
+        }
+        const data = await response.json();
+        console.log(data);
+        setClinicsData(data);
+      } catch (err: any) {
+        console.error("Error fetching clinics:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   return (
     <div className="bg-white p-4 shadow-lg rounded-lg w-full max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-4">
@@ -104,8 +160,10 @@ const ClinicList = () => {
           editClinic={editingClinic}
         />
       ) : (
-        <ClinicTable clinics={clinicsData} onEdit={handleEditClick} />
+        <ClinicTable clinics={clinicsData} onEdit={handleEditClick} onDelete={handleDeleteClick} />
       )}
+      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {loading && <p>Loading clinics...</p>}
     </div>
   );
 };
@@ -113,9 +171,10 @@ const ClinicList = () => {
 interface ClinicTableProps {
   clinics: Clinic[];
   onEdit: (clinic: Clinic) => void;
+  onDelete: (clinicId: number) => void;
 }
 
-const ClinicTable = ({ clinics, onEdit }: ClinicTableProps) => {
+const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
   return (
     <>
       {/* Mobile View */}
@@ -137,13 +196,10 @@ const ClinicTable = ({ clinics, onEdit }: ClinicTableProps) => {
             <div className="mt-2 flex justify-between items-center">
               <span
                 className={`px-3 py-1 text-sm rounded-full flex items-center ${
-                  clinic.active
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
+                  clinic.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                 }`}
               >
-                <BsCheckCircle className="mr-1" />{" "}
-                {clinic.active ? "Active" : "Inactive"}
+                <BsCheckCircle className="mr-1" /> {clinic.active ? "Active" : "Inactive"}
               </span>
               <div className="flex gap-2">
                 <button
@@ -152,7 +208,10 @@ const ClinicTable = ({ clinics, onEdit }: ClinicTableProps) => {
                 >
                   <FiEdit />
                 </button>
-                <button className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition active:scale-95">
+                <button
+                  className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition active:scale-95"
+                  onClick={() => onDelete(clinic.id)}
+                >
                   <FiTrash />
                 </button>
               </div>
@@ -198,13 +257,10 @@ const ClinicTable = ({ clinics, onEdit }: ClinicTableProps) => {
               <td className="p-4">
                 <span
                   className={`px-3 py-1 text-sm rounded-full flex items-center ${
-                    clinic.active
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
+                    clinic.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                   }`}
                 >
-                  <BsCheckCircle className="mr-1" />{" "}
-                  {clinic.active ? "Active" : "Inactive"}
+                  <BsCheckCircle className="mr-1" /> {clinic.active ? "Active" : "Inactive"}
                 </span>
               </td>
               <td className="p-4 flex justify-end gap-2">
@@ -214,7 +270,10 @@ const ClinicTable = ({ clinics, onEdit }: ClinicTableProps) => {
                 >
                   <FiEdit />
                 </button>
-                <button className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition active:scale-95">
+                <button
+                  className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition active:scale-95"
+                  onClick={() => onDelete(clinic.id)}
+                >
                   <FiTrash />
                 </button>
               </td>
@@ -305,8 +364,8 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
     setUploading(true);
     setUploadError(null);
 
-    const apiUrl = `/api/doctor/clinic/${userId}`; // Include ID in URL for edit
-    const method = "POST"; // Use POST for edit or create
+    const apiUrl = `/api/doctor/clinic/${userId}`; // Endpoint is the same
+    const method = "POST"; // Use PUT for edit
 
     const form = new FormData();
     if (formData.logo) {
@@ -461,23 +520,18 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
             onClick={onClose}
             disabled={uploading}
           >
-                        Cancel          {" "}
+            Cancel
           </button>
-                   {" "}
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-1/2"
             disabled={uploading}
           >
-                       {" "}
-            {uploading ? "Saving..." : editClinic ? "Update" : "Save"}         {" "}
+            {uploading ? "Saving..." : editClinic ? "Update" : "Save"}
           </button>
-                 {" "}
         </div>
-               {" "}
-        {uploadError && <p className="text-red-500 mt-2">{uploadError}</p>}     {" "}
+        {uploadError && <p className="text-red-500 mt-2">{uploadError}</p>}
       </form>
-         {" "}
     </div>
   );
 };

@@ -136,10 +136,12 @@ export async function POST(req: NextRequest) {
 
     // 1. Parse the form data
     const formData = await req.formData();
+    console.log(formData)
 
     // 2. Extract fields
     const id = formData.get("id") as string | null;
     const name = formData.get("name") as string;
+    const active = formData.get("active") as boolean | null;
     const department = formData.get("department") as string;
     const appointmentLimitStr = formData.get("appointmentLimit") as string;
     const address = formData.get("address") as string;
@@ -187,19 +189,6 @@ export async function POST(req: NextRequest) {
       ? parseInt(appointmentLimitStr, 10)
       : undefined;
 
-    // 6. Insert into DB
-    // const newClinic = await db
-    //   .insert(clinic)
-    //   .values({
-    //     doctorId: requiredDoctorId,
-    //     name,
-    //     imageLink,
-    //     department,
-    //     appointmentLimit,
-    //     address,
-    //   })
-    //   .returning();
-
     if (id) {
       console.log("lol");
       const numericId = parseInt(id, 10);
@@ -210,6 +199,7 @@ export async function POST(req: NextRequest) {
           imageLink,
           department,
           appointmentLimit,
+          active,
           address,
           updatedAt: new Date(),
         })
@@ -235,6 +225,7 @@ export async function POST(req: NextRequest) {
           imageLink,
           department,
           appointmentLimit,
+          active,
           address,
         })
         .returning();
