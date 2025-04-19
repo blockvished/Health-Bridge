@@ -366,7 +366,7 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
     setUploadError(null);
 
     const apiUrl = `/api/doctor/clinic/${userId}`; // Endpoint is the same
-    const method = "POST"; // Use PUT for edit
+    const method = "POST"; 
 
     const form = new FormData();
     if (formData.logo) {
