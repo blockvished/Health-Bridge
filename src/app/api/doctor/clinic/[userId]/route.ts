@@ -39,20 +39,9 @@ export async function GET(req: NextRequest) {
 
   const requiredDoctorId = doctorData[0].id;
 
+  console.log(requiredDoctorId)
+
   try {
-    // Find the doctor's record based on the user ID.
-    const doctorData = await db
-      .select({ id: doctor.id })
-      .from(doctor)
-      .where(eq(doctor.userId, requiredDoctorId));
-
-    if (!doctorData.length) {
-      return NextResponse.json(
-        { error: "Doctor profile not found for this user." },
-        { status: 404 }
-      );
-    }
-
     // Fetch clinics associated with the doctor.
     const clinicsData = await db
       .select({
@@ -68,6 +57,8 @@ export async function GET(req: NextRequest) {
       })
       .from(clinic)
       .where(eq(clinic.doctorId, requiredDoctorId));
+
+      console.log(clinicsData)
 
     if (!clinicsData.length) {
       //   return NextResponse.json(
