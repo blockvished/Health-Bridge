@@ -13,6 +13,9 @@ interface Clinic {
   active: boolean;
   // Assuming your API response includes these fields
   thumb?: string;
+  department?: string; // Add department here if it's in your API response
+  title?: string; // Add title here if it's in your API response
+  address?: string; // Add address here if it's in your API response
 }
 
 const departments = [
@@ -26,11 +29,11 @@ const departments = [
 const ClinicList = () => {
   const [showForm, setShowForm] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-
   const [clinicsData, setClinicsData] = useState<Clinic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+  const [editingClinic, setEditingClinic] = useState<Clinic | null>(null);
+
   useEffect(() => {
     const fetchClinics = async () => {
       if (userId) {
@@ -40,10 +43,12 @@ const ClinicList = () => {
           const response = await fetch(`/api/doctor/clinic/${userId}`);
           if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || `Failed to fetch clinics: ${response.status}`);
+            throw new Error(
+              errorData.message || `Failed to fetch clinics: ${response.status}`
+            );
           }
           const data = await response.json();
-          console.log(data)
+          console.log(data);
           setClinicsData(data);
         } catch (err: any) {
           console.error("Error fetching clinics:", err);
@@ -57,29 +62,49 @@ const ClinicList = () => {
     fetchClinics();
   }, [userId]);
 
-
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
   }, []);
 
+  const handleEditClick = (clinic: Clinic) => {
+    setEditingClinic(clinic);
+    setShowForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setEditingClinic(null);
+  };
+
   return (
     <div className="bg-white p-4 shadow-lg rounded-lg w-full max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">
-          {showForm ? "Add New Clinic" : "All Clinics"}
+          {showForm
+            ? editingClinic
+              ? "Edit Clinic"
+              : "Add New Clinic"
+            : "All Clinics"}
         </h2>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition active:scale-95"
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setShowForm(!showForm);
+            setEditingClinic(null); // Reset editing when toggling to add form
+          }}
         >
           {showForm ? "All Clinics" : "+ Add New Clinic"}
         </button>
       </div>
       {showForm ? (
-        <ClinicForm onClose={() => setShowForm(false)} userId={userId} />
+        <ClinicForm
+          onClose={handleCloseForm}
+          userId={userId}
+          editClinic={editingClinic}
+        />
       ) : (
-        <ClinicTable clinics={clinicsData} />
+        <ClinicTable clinics={clinicsData} onEdit={handleEditClick} />
       )}
     </div>
   );
@@ -87,10 +112,10 @@ const ClinicList = () => {
 
 interface ClinicTableProps {
   clinics: Clinic[];
+  onEdit: (clinic: Clinic) => void;
 }
 
-
-const ClinicTable = ({ clinics }: ClinicTableProps) => {
+const ClinicTable = ({ clinics, onEdit }: ClinicTableProps) => {
   return (
     <>
       {/* Mobile View */}
@@ -117,10 +142,14 @@ const ClinicTable = ({ clinics }: ClinicTableProps) => {
                     : "bg-red-100 text-red-700"
                 }`}
               >
-                <BsCheckCircle className="mr-1" /> {clinic.active ? "Active" : "Inactive"}
+                <BsCheckCircle className="mr-1" />{" "}
+                {clinic.active ? "Active" : "Inactive"}
               </span>
               <div className="flex gap-2">
-                <button className="bg-gray-200 text-gray-700 p-2 rounded-lg hover:bg-gray-300 transition active:scale-95">
+                <button
+                  className="bg-gray-200 text-gray-700 p-2 rounded-lg hover:bg-gray-300 transition active:scale-95"
+                  onClick={() => onEdit(clinic)}
+                >
                   <FiEdit />
                 </button>
                 <button className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition active:scale-95">
@@ -174,11 +203,15 @@ const ClinicTable = ({ clinics }: ClinicTableProps) => {
                       : "bg-red-100 text-red-700"
                   }`}
                 >
-                  <BsCheckCircle className="mr-1" /> {clinic.active ? "Active" : "Inactive"}
+                  <BsCheckCircle className="mr-1" />{" "}
+                  {clinic.active ? "Active" : "Inactive"}
                 </span>
               </td>
               <td className="p-4 flex justify-end gap-2">
-                <button className="bg-gray-200 text-gray-700 p-2 rounded-lg hover:bg-gray-300 transition active:scale-95">
+                <button
+                  className="bg-gray-200 text-gray-700 p-2 rounded-lg hover:bg-gray-300 transition active:scale-95"
+                  onClick={() => onEdit(clinic)}
+                >
                   <FiEdit />
                 </button>
                 <button className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition active:scale-95">
@@ -193,35 +226,68 @@ const ClinicTable = ({ clinics }: ClinicTableProps) => {
   );
 };
 
-
-
-
 interface ClinicFormProps {
   onClose: () => void;
   userId: string | null;
+  editClinic: Clinic | null;
 }
 
-const ClinicForm = ({ onClose, userId }: ClinicFormProps) => {
+const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
   const [formData, setFormData] = useState({
     logo: null as File | null,
-    department: "",
-    name: "",
-    title: "",
-    appointmentLimit: "",
-    address: "",
+    department: editClinic?.department || "",
+    name: editClinic?.name || "",
+    title: editClinic?.title || "",
+    appointmentLimit: editClinic?.appointmentLimit?.toString() || "",
+    address: editClinic?.address || "",
+    active: editClinic?.active ?? true, // Default to true for new clinics
+    id: editClinic?.id, // Include ID in the form data for editing
   });
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Pre-fill the form if editClinic prop is provided
+    if (editClinic) {
+      setFormData({
+        logo: null, // Keep logo as null initially, handle separately if needed
+        department: editClinic.department || "",
+        name: editClinic.name || "",
+        title: editClinic.title || "",
+        appointmentLimit: editClinic.appointmentLimit?.toString() || "",
+        address: editClinic.address || "",
+        active: editClinic.active,
+        id: editClinic.id,
+      });
+    } else {
+      // Reset form data when not editing
+      setFormData({
+        logo: null,
+        department: "",
+        name: "",
+        title: "",
+        appointmentLimit: "",
+        address: "",
+        active: true, // Default active state for new clinics
+        id: undefined,
+      });
+    }
+  }, [editClinic]);
 
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    setFormData((prev) => {
+      if (type === "checkbox" && e.target instanceof HTMLInputElement) {
+        return { ...prev, [name]: e.target.checked };
+      } else {
+        return { ...prev, [name]: value };
+      }
+    });
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -239,7 +305,9 @@ const ClinicForm = ({ onClose, userId }: ClinicFormProps) => {
     setUploading(true);
     setUploadError(null);
 
-    const apiUrl = `/api/doctor/clinic/${userId}`;
+    const apiUrl = `/api/doctor/clinic/${userId}`; // Include ID in URL for edit
+    const method = "POST"; // Use POST for edit or create
+
     const form = new FormData();
     if (formData.logo) {
       form.append("logo", formData.logo);
@@ -249,21 +317,34 @@ const ClinicForm = ({ onClose, userId }: ClinicFormProps) => {
     form.append("title", formData.title);
     form.append("appointmentLimit", formData.appointmentLimit);
     form.append("address", formData.address);
+    form.append("active", formData.active.toString()); // Send active as string
+    if (formData.id) {
+      form.append("id", formData.id.toString());
+    }
 
     try {
       const response = await fetch(apiUrl, {
-        method: "POST",
+        method: method,
         body: form,
       });
 
       if (response.ok) {
-        console.log("Clinic data submitted successfully!");
+        console.log(
+          `Clinic data ${formData.id ? "updated" : "submitted"} successfully!`
+        );
         onClose();
-        // Optionally, you can refetch the clinic list here to update the UI
+        // Optionally, you might want to trigger a refetch of the clinic list here
+        window.location.reload(); // Simple way to refresh the data
       } else {
         const errorData = await response.json();
-        console.error("Failed to submit clinic data:", errorData);
-        setUploadError(errorData.message || "Failed to submit clinic data.");
+        console.error(
+          `Failed to ${formData.id ? "update" : "submit"} clinic data:`,
+          errorData
+        );
+        setUploadError(
+          errorData.message ||
+            `Failed to ${formData.id ? "update" : "submit"} clinic data.`
+        );
       }
     } catch (error: any) {
       console.error("An error occurred while submitting:", error);
@@ -291,6 +372,12 @@ const ClinicForm = ({ onClose, userId }: ClinicFormProps) => {
                 alt="Clinic Logo"
                 className="w-full h-full object-cover rounded-lg"
               />
+            ) : editClinic?.thumb ? (
+              <img
+                src={editClinic.thumb}
+                alt="Clinic Logo"
+                className="w-full h-full object-cover rounded-lg"
+              />
             ) : (
               <div className="flex flex-col items-center text-gray-500">
                 <FiUploadCloud size={24} />
@@ -299,7 +386,6 @@ const ClinicForm = ({ onClose, userId }: ClinicFormProps) => {
             )}
           </div>
         </div>
-
         {/* Department Dropdown */}
         <div>
           <label className="block text-gray-700">Department *</label>
@@ -318,7 +404,6 @@ const ClinicForm = ({ onClose, userId }: ClinicFormProps) => {
             ))}
           </select>
         </div>
-
         {/* Clinic Name */}
         <div>
           <label className="block text-gray-700">Name *</label>
@@ -331,20 +416,6 @@ const ClinicForm = ({ onClose, userId }: ClinicFormProps) => {
             required
           />
         </div>
-
-        {/* Title */}
-        <div>
-          <label className="block text-gray-700">Clinic Details *</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-200 rounded-lg mt-1"
-            required
-          />
-        </div>
-
         {/* Appointment Limit */}
         <div>
           <label className="block text-gray-700">Appointment Limit</label>
@@ -357,7 +428,6 @@ const ClinicForm = ({ onClose, userId }: ClinicFormProps) => {
             required
           />
         </div>
-
         {/* Address */}
         <div>
           <label className="block text-gray-700">Address</label>
@@ -369,7 +439,20 @@ const ClinicForm = ({ onClose, userId }: ClinicFormProps) => {
             required
           />
         </div>
-
+        {/* Active/Inactive Switch */}
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="active"
+            name="active"
+            checked={formData.active}
+            onChange={handleChange}
+            className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+          />
+          <label htmlFor="active" className="ml-2 text-gray-700">
+            Active
+          </label>
+        </div>
         {/* Buttons and Error Message */}
         <div className="flex justify-between">
           <button
@@ -378,18 +461,23 @@ const ClinicForm = ({ onClose, userId }: ClinicFormProps) => {
             onClick={onClose}
             disabled={uploading}
           >
-            Cancel
+                        Cancel          {" "}
           </button>
+                   {" "}
           <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-1/2"
             disabled={uploading}
           >
-            {uploading ? "Saving..." : "Save"}
+                       {" "}
+            {uploading ? "Saving..." : editClinic ? "Update" : "Save"}         {" "}
           </button>
+                 {" "}
         </div>
-        {uploadError && <p className="text-red-500 mt-2">{uploadError}</p>}
+               {" "}
+        {uploadError && <p className="text-red-500 mt-2">{uploadError}</p>}     {" "}
       </form>
+         {" "}
     </div>
   );
 };
