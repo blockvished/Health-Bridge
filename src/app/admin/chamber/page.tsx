@@ -83,7 +83,11 @@ const ClinicList = () => {
       return;
     }
 
-    if (window.confirm(`Are you sure you want to delete clinic with ID: ${clinicId}?`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to delete clinic with ID: ${clinicId}?`
+      )
+    ) {
       try {
         const response = await fetch(`/api/doctor/clinic/${userId}`, {
           method: "DELETE",
@@ -99,12 +103,17 @@ const ClinicList = () => {
           fetchClinics();
         } else {
           const errorData = await response.json();
-          console.error(`Failed to delete clinic with ID ${clinicId}:`, errorData);
+          console.error(
+            `Failed to delete clinic with ID ${clinicId}:`,
+            errorData
+          );
           setError(errorData.message || `Failed to delete clinic.`);
         }
       } catch (error: any) {
         console.error("An error occurred while deleting the clinic:", error);
-        setError(error.message || "An unexpected error occurred during deletion.");
+        setError(
+          error.message || "An unexpected error occurred during deletion."
+        );
       }
     }
   };
@@ -160,7 +169,11 @@ const ClinicList = () => {
           editClinic={editingClinic}
         />
       ) : (
-        <ClinicTable clinics={clinicsData} onEdit={handleEditClick} onDelete={handleDeleteClick} />
+        <ClinicTable
+          clinics={clinicsData}
+          onEdit={handleEditClick}
+          onDelete={handleDeleteClick}
+        />
       )}
       {error && <p className="text-red-500 mt-2">{error}</p>}
       {loading && <p>Loading clinics...</p>}
@@ -199,10 +212,13 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
             <div className="mt-2 flex justify-between items-center">
               <span
                 className={`px-3 py-1 text-sm rounded-full flex items-center ${
-                  clinic.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                  clinic.active
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
                 }`}
               >
-                <BsCheckCircle className="mr-1" /> {clinic.active ? "Active" : "Inactive"}
+                <BsCheckCircle className="mr-1" />{" "}
+                {clinic.active ? "Active" : "Inactive"}
               </span>
               <div className="flex gap-2">
                 <button
@@ -224,7 +240,7 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
           </div>
         ))}
       </div>
-      
+
       {/* Desktop View */}
       <div className="hidden md:block w-full overflow-x-auto">
         <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm table-fixed">
@@ -233,21 +249,23 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
               <th className="p-3 text-left font-medium w-16">#</th>
               <th className="p-3 text-left font-medium w-24">Thumb</th>
               <th className="p-3 text-left font-medium">Information</th>
-              <th className="p-3 text-center font-medium w-36">Appointment Limit</th>
+              <th className="p-3 text-center font-medium w-36">
+                Appointment Limit
+              </th>
               <th className="p-3 text-center font-medium w-32">Status</th>
               <th className="p-3 text-center font-medium w-28">Action</th>
             </tr>
           </thead>
           <tbody>
-            {clinics.map((clinic) => (
+            {clinics.map((clinic, index) => (
               <tr
                 key={clinic.id}
                 className="border-t border-gray-300 hover:bg-gray-50 transition"
               >
-                <td className="p-4 text-gray-700">{clinic.id}</td>
+                <td className="p-4 text-gray-700">{index + 1}</td>
                 <td className="p-4 text-gray-700">
                   {clinic.imageLink ? (
-                    <div className="w-16 h-16 flex items-center justify-center">
+                    <div className="w-16 h-16 flex items-center justify-center rounded-md border border-gray-300 shadow-sm">
                       <img
                         src={clinic.imageLink}
                         alt={`${clinic.name} thumbnail`}
@@ -255,16 +273,22 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
                       />
                     </div>
                   ) : (
-                    <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 text-sm">
+                    <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 text-sm border border-gray-300 shadow-sm">
                       No Image
                     </div>
                   )}
                 </td>
                 <td className="p-4">
-                  <div className="font-semibold text-gray-800">{clinic.name}</div>
-                  <div className="text-sm text-gray-500 mt-1">{clinic.address}</div>
+                  <div className="font-semibold text-gray-800">
+                    {clinic.name}
+                  </div>
+                  <div className="text-sm text-gray-500 mt-1">
+                    {clinic.address}
+                  </div>
                   {clinic.location && (
-                    <div className="text-sm text-gray-500 mt-1">{clinic.location}</div>
+                    <div className="text-sm text-gray-500 mt-1">
+                      {clinic.location}
+                    </div>
                   )}
                 </td>
                 <td className="p-4 text-gray-700 text-center">
@@ -274,10 +298,12 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
                   <div className="flex justify-center">
                     <span
                       className={`px-3 py-1 text-sm rounded-full inline-flex items-center ${
-                        clinic.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                        clinic.active
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
                       }`}
                     >
-                      <BsCheckCircle className="mr-1" /> 
+                      <BsCheckCircle className="mr-1" />
                       {clinic.active ? "Active" : "Inactive"}
                     </span>
                   </div>
@@ -389,7 +415,7 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
     setUploadError(null);
 
     const apiUrl = `/api/doctor/clinic/${userId}`; // Endpoint is the same
-    const method = "POST"; 
+    const method = "POST";
 
     const form = new FormData();
     if (formData.logo) {
