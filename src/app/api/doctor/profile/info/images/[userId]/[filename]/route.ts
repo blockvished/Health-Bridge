@@ -69,7 +69,6 @@ export async function GET(req: NextRequest) {
         doctor: doctorData[0],
       });
     }
-
     try {
       // Read the file
       const fileBuffer = await fs.readFile(filePath);
