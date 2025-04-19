@@ -122,6 +122,22 @@ export const patient = pgTable("patient", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const clinic = pgTable("clinic", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id") // Foreign key linking to the doctor table
+      .notNull()
+      .references(() => doctor.id, { onDelete: "cascade" }), // Use onDelete: "cascade" to automatically delete clinics when the associated doctor is deleted
+  name: varchar("name", { length: 255 }).notNull(),
+  imageLink: text("image_link"),
+  department: text("department"),
+  appointmentLimit: integer("appointment_limit"),
+  active: boolean("active").default(true),
+  address: text("address").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+
 export const prescription = pgTable("prescription", {
   id: serial("id").primaryKey(),
   patientId: integer("patient_id")
