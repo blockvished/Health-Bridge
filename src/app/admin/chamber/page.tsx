@@ -5,15 +5,15 @@ import { FiUploadCloud } from "react-icons/fi";
 import { BsCheckCircle } from "react-icons/bs";
 import Cookies from "js-cookie";
 
-const clinics = [
-  {
-    id: 1,
-    name: "Digambar Healthcare Center",
-    location: "Gorakhpur, U.P. India",
-    appointmentLimit: 30,
-    status: "Active",
-  },
-];
+interface Clinic {
+  id: number;
+  name: string;
+  location: string;
+  appointmentLimit: number;
+  active: boolean;
+  // Assuming your API response includes these fields
+  thumb?: string;
+}
 
 const departments = [
   "Cardiology",
@@ -26,6 +26,37 @@ const departments = [
 const ClinicList = () => {
   const [showForm, setShowForm] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+
+  const [clinicsData, setClinicsData] = useState<Clinic[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const fetchClinics = async () => {
+      if (userId) {
+        setLoading(true);
+        setError(null);
+        try {
+          const response = await fetch(`/api/doctor/clinic/${userId}`);
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Failed to fetch clinics: ${response.status}`);
+          }
+          const data = await response.json();
+          console.log(data)
+          setClinicsData(data);
+        } catch (err: any) {
+          console.error("Error fetching clinics:", err);
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchClinics();
+  }, [userId]);
+
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -48,13 +79,18 @@ const ClinicList = () => {
       {showForm ? (
         <ClinicForm onClose={() => setShowForm(false)} userId={userId} />
       ) : (
-        <ClinicTable />
+        <ClinicTable clinics={clinicsData} />
       )}
     </div>
   );
 };
 
-const ClinicTable = () => {
+interface ClinicTableProps {
+  clinics: Clinic[];
+}
+
+
+const ClinicTable = ({ clinics }: ClinicTableProps) => {
   return (
     <>
       {/* Mobile View */}
@@ -74,8 +110,14 @@ const ClinicTable = () => {
               Appointment Limit: {clinic.appointmentLimit}
             </div>
             <div className="mt-2 flex justify-between items-center">
-              <span className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full flex items-center">
-                <BsCheckCircle className="mr-1" /> Active
+              <span
+                className={`px-3 py-1 text-sm rounded-full flex items-center ${
+                  clinic.active
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
+                <BsCheckCircle className="mr-1" /> {clinic.active ? "Active" : "Inactive"}
               </span>
               <div className="flex gap-2">
                 <button className="bg-gray-200 text-gray-700 p-2 rounded-lg hover:bg-gray-300 transition active:scale-95">
@@ -108,15 +150,31 @@ const ClinicTable = () => {
               className="border-t border-gray-300 hover:bg-gray-50 transition"
             >
               <td className="p-4 text-gray-700">{clinic.id}</td>
-              <td className="p-4 text-gray-700">image</td>
+              <td className="p-4 text-gray-700">
+                {clinic.thumb ? (
+                  <img
+                    src={clinic.thumb}
+                    alt="Clinic Thumb"
+                    className="w-16 h-16 object-cover rounded-md"
+                  />
+                ) : (
+                  "No Image"
+                )}
+              </td>
               <td className="p-4">
                 <div className="font-semibold text-gray-800">{clinic.name}</div>
                 <div className="text-sm text-gray-500">{clinic.location}</div>
               </td>
               <td className="p-4 text-gray-700">{clinic.appointmentLimit}</td>
               <td className="p-4">
-                <span className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded-full flex items-center">
-                  <BsCheckCircle className="mr-1" /> Active
+                <span
+                  className={`px-3 py-1 text-sm rounded-full flex items-center ${
+                    clinic.active
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  <BsCheckCircle className="mr-1" /> {clinic.active ? "Active" : "Inactive"}
                 </span>
               </td>
               <td className="p-4 flex justify-end gap-2">
@@ -134,6 +192,9 @@ const ClinicTable = () => {
     </>
   );
 };
+
+
+
 
 interface ClinicFormProps {
   onClose: () => void;
