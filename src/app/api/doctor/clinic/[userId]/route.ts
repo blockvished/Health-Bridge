@@ -147,6 +147,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
 
     // 2. Extract fields
+    const id = formData.get("id") as string | null;
     const name = formData.get("name") as string;
     const department = formData.get("department") as string;
     const appointmentLimitStr = formData.get("appointmentLimit") as string;
@@ -196,20 +197,62 @@ export async function POST(req: NextRequest) {
       : undefined;
 
     // 6. Insert into DB
-    const newClinic = await db
-      .insert(clinic)
-      .values({
-        doctorId: requiredDoctorId,
-        name,
-        imageLink,
-        department,
-        appointmentLimit,
-        address,
-      })
-      .returning();
+    // const newClinic = await db
+    //   .insert(clinic)
+    //   .values({
+    //     doctorId: requiredDoctorId,
+    //     name,
+    //     imageLink,
+    //     department,
+    //     appointmentLimit,
+    //     address,
+    //   })
+    //   .returning();
+
+    if (id) {
+      console.log("lol");
+      const numericId = parseInt(id, 10);
+      const updatedClinic = await db
+        .update(clinic)
+        .set({
+          name,
+          imageLink,
+          department,
+          appointmentLimit,
+          address,
+          updatedAt: new Date(),
+        })
+        .where(eq(clinic.id, numericId))
+        .returning();
+
+      if (!updatedClinic.length) {
+        return NextResponse.json(
+          { error: `Clinic with ID ${id} not found for this doctor.` },
+          { status: 404 }
+        );
+      }
+
+      // 7. Respond with the updated clinic
+      return NextResponse.json(updatedClinic[0], { status: 200 });
+    } else {
+      console.log("lol");
+      const newClinic = await db
+        .insert(clinic)
+        .values({
+          doctorId: requiredDoctorId,
+          name,
+          imageLink,
+          department,
+          appointmentLimit,
+          address,
+        })
+        .returning();
+
+      // 7. Respond with the newly created clinic
+      return NextResponse.json(newClinic[0], { status: 201 });
+    }
 
     // 7. Respond
-    return NextResponse.json(newClinic[0], { status: 201 });
   } catch (error: any) {
     console.error("Error creating clinic:", error);
     return NextResponse.json(
