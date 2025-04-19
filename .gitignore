@@ -11,6 +11,8 @@
 !.yarn/versions
 /private_uploads/pictures/*
 /private_uploads/signatures/*
+/private_uploads/*
+/private_uploads/clinics/*
 # testing
 /coverage
 

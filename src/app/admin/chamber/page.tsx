@@ -12,7 +12,7 @@ interface Clinic {
   appointmentLimit: number;
   active: boolean;
   // Assuming your API response includes these fields
-  thumb?: string;
+  imageLink?: string;
   department?: string; // Add department here if it's in your API response
   title?: string; // Add title here if it's in your API response
   address?: string; // Add address here if it's in your API response
@@ -239,9 +239,9 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
             >
               <td className="p-4 text-gray-700">{clinic.id}</td>
               <td className="p-4 text-gray-700">
-                {clinic.thumb ? (
+                {clinic.imageLink ? (
                   <img
-                    src={clinic.thumb}
+                    src={clinic.imageLink}
                     alt="Clinic Thumb"
                     className="w-16 h-16 object-cover rounded-md"
                   />
@@ -251,6 +251,7 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
               </td>
               <td className="p-4">
                 <div className="font-semibold text-gray-800">{clinic.name}</div>
+                <div className="text-sm text-gray-500">{clinic.address}</div> {/* Displaying address here */}
                 <div className="text-sm text-gray-500">{clinic.location}</div>
               </td>
               <td className="p-4 text-gray-700">{clinic.appointmentLimit}</td>
@@ -431,9 +432,9 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
                 alt="Clinic Logo"
                 className="w-full h-full object-cover rounded-lg"
               />
-            ) : editClinic?.thumb ? (
+            ) : editClinic?.imageLink ? (
               <img
-                src={editClinic.thumb}
+                src={editClinic.imageLink}
                 alt="Clinic Logo"
                 className="w-full h-full object-cover rounded-lg"
               />
