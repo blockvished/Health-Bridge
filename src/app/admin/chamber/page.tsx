@@ -257,12 +257,12 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
             </tr>
           </thead>
           <tbody>
-            {clinics.map((clinic) => (
+            {clinics.map((clinic, index) => (
               <tr
                 key={clinic.id}
                 className="border-t border-gray-300 hover:bg-gray-50 transition"
               >
-                <td className="p-4 text-gray-700">{clinic.id}</td>
+                <td className="p-4 text-gray-700">{index + 1}</td>
                 <td className="p-4 text-gray-700">
                   {clinic.imageLink ? (
                     <div className="w-16 h-16 flex items-center justify-center rounded-md border border-gray-300 shadow-sm">

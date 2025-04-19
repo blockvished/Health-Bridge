@@ -262,12 +262,12 @@ const DepartmentPage: React.FC = () => {
             <tbody>
               {/* **Ensure departments is an array before mapping** */}
               {Array.isArray(departments) &&
-                departments.map((dept) => (
+                departments.map((dept, index) => (
                   <tr
                     key={dept.id}
                     className="border-b border-gray-200 hover:bg-gray-50 transition"
                   >
-                    <td className="p-3 text-gray-900">{dept.id}</td>
+                    <td className="p-3 text-gray-900">{index +1 }</td>
                     <td className="p-3 text-gray-900">{dept.name}</td>
                     <td className="p-3 flex gap-2">
                       <button
