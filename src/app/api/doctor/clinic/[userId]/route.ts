@@ -160,9 +160,9 @@ export async function POST(req: NextRequest) {
     if (imageFile) {
       // Safely get the filename
       const originalFileName = (imageFile as any).name;
-      const fileExtension = extname(originalFileName || "") || ".png";
+      const fileExtension = extname(originalFileName || "") || "png";
       const safeName = slugify(name);
-      const uniqueFilename = `${safeName}.${fileExtension}`;
+      const uniqueFilename = `${safeName}${fileExtension}`;
       const uploadDir = path.join(
         baseUploadPath,
         "clinics",
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
       // Write the file using the standard fs.writeFileSync
       fs.writeFileSync(uploadPath, buffer);
 
-      imageLink = `/private_uploads/clinics/${numericUserId}/${uniqueFilename}`;
+      imageLink = `/api/doctor/clinic/image/${numericUserId}/${uniqueFilename}`;
     }
 
     // 5.  Convert appointmentLimit
