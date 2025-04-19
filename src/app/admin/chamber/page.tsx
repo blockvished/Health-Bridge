@@ -187,7 +187,10 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
             <div className="flex items-center gap-4">
               <div>
                 <div className="font-semibold text-gray-800">{clinic.name}</div>
-                <div className="text-sm text-gray-500">{clinic.location}</div>
+                <div className="text-sm text-gray-500">{clinic.address}</div>
+                {clinic.location && (
+                  <div className="text-sm text-gray-500">{clinic.location}</div>
+                )}
               </div>
             </div>
             <div className="mt-3 text-sm text-gray-700">
@@ -205,12 +208,14 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
                 <button
                   className="bg-gray-200 text-gray-700 p-2 rounded-lg hover:bg-gray-300 transition active:scale-95"
                   onClick={() => onEdit(clinic)}
+                  aria-label="Edit clinic"
                 >
                   <FiEdit />
                 </button>
                 <button
                   className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition active:scale-95"
                   onClick={() => onDelete(clinic.id)}
+                  aria-label="Delete clinic"
                 >
                   <FiTrash />
                 </button>
@@ -219,69 +224,87 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
           </div>
         ))}
       </div>
+      
       {/* Desktop View */}
-      <table className="hidden md:table w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm">
-        <thead>
-          <tr className="bg-gray-100 text-gray-600">
-            <th className="p-3 text-left font-medium">#</th>
-            <th className="p-3 text-left font-medium">Thumb</th>
-            <th className="p-3 text-left font-medium">Information</th>
-            <th className="p-3 text-left font-medium">Appointment Limit</th>
-            <th className="p-3 text-left font-medium">Status</th>
-            <th className="p-3 text-left font-medium">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clinics.map((clinic) => (
-            <tr
-              key={clinic.id}
-              className="border-t border-gray-300 hover:bg-gray-50 transition"
-            >
-              <td className="p-4 text-gray-700">{clinic.id}</td>
-              <td className="p-4 text-gray-700">
-                {clinic.imageLink ? (
-                  <img
-                    src={clinic.imageLink}
-                    alt="Clinic Thumb"
-                    className="w-16 h-16 object-cover rounded-md"
-                  />
-                ) : (
-                  "No Image"
-                )}
-              </td>
-              <td className="p-4">
-                <div className="font-semibold text-gray-800">{clinic.name}</div>
-                <div className="text-sm text-gray-500">{clinic.address}</div> {/* Displaying address here */}
-                <div className="text-sm text-gray-500">{clinic.location}</div>
-              </td>
-              <td className="p-4 text-gray-700">{clinic.appointmentLimit}</td>
-              <td className="p-4">
-                <span
-                  className={`px-3 py-1 text-sm rounded-full flex items-center ${
-                    clinic.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  <BsCheckCircle className="mr-1" /> {clinic.active ? "Active" : "Inactive"}
-                </span>
-              </td>
-              <td className="p-4 flex justify-end gap-2">
-                <button
-                  className="bg-gray-200 text-gray-700 p-2 rounded-lg hover:bg-gray-300 transition active:scale-95"
-                  onClick={() => onEdit(clinic)}
-                >
-                  <FiEdit />
-                </button>
-                <button
-                  className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition active:scale-95"
-                  onClick={() => onDelete(clinic.id)}
-                >
-                  <FiTrash />
-                </button>
-              </td>
+      <div className="hidden md:block w-full overflow-x-auto">
+        <table className="w-full border-collapse bg-white rounded-lg overflow-hidden shadow-sm table-fixed">
+          <thead>
+            <tr className="bg-gray-100 text-gray-600">
+              <th className="p-3 text-left font-medium w-16">#</th>
+              <th className="p-3 text-left font-medium w-24">Thumb</th>
+              <th className="p-3 text-left font-medium">Information</th>
+              <th className="p-3 text-center font-medium w-36">Appointment Limit</th>
+              <th className="p-3 text-center font-medium w-32">Status</th>
+              <th className="p-3 text-center font-medium w-28">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {clinics.map((clinic) => (
+              <tr
+                key={clinic.id}
+                className="border-t border-gray-300 hover:bg-gray-50 transition"
+              >
+                <td className="p-4 text-gray-700">{clinic.id}</td>
+                <td className="p-4 text-gray-700">
+                  {clinic.imageLink ? (
+                    <div className="w-16 h-16 flex items-center justify-center">
+                      <img
+                        src={clinic.imageLink}
+                        alt={`${clinic.name} thumbnail`}
+                        className="max-w-16 max-h-16 object-cover rounded-md"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 text-sm">
+                      No Image
+                    </div>
+                  )}
+                </td>
+                <td className="p-4">
+                  <div className="font-semibold text-gray-800">{clinic.name}</div>
+                  <div className="text-sm text-gray-500 mt-1">{clinic.address}</div>
+                  {clinic.location && (
+                    <div className="text-sm text-gray-500 mt-1">{clinic.location}</div>
+                  )}
+                </td>
+                <td className="p-4 text-gray-700 text-center">
+                  {clinic.appointmentLimit}
+                </td>
+                <td className="p-4 text-center">
+                  <div className="flex justify-center">
+                    <span
+                      className={`px-3 py-1 text-sm rounded-full inline-flex items-center ${
+                        clinic.active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      <BsCheckCircle className="mr-1" /> 
+                      {clinic.active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                </td>
+                <td className="p-4">
+                  <div className="flex justify-center gap-2">
+                    <button
+                      className="bg-gray-200 text-gray-700 p-2 rounded-lg hover:bg-gray-300 transition active:scale-95"
+                      onClick={() => onEdit(clinic)}
+                      aria-label="Edit clinic"
+                    >
+                      <FiEdit />
+                    </button>
+                    <button
+                      className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition active:scale-95"
+                      onClick={() => onDelete(clinic.id)}
+                      aria-label="Delete clinic"
+                    >
+                      <FiTrash />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 };
