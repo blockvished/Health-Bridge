@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useRef } from "react";
+import Cookies from "js-cookie";
+import React, { useState, useRef, useEffect } from "react";
 import { FiArrowLeft, FiCamera, FiEdit, FiTrash2 } from "react-icons/fi";
 
 type StaffMember = {
@@ -7,49 +8,15 @@ type StaffMember = {
   name: string;
   email: string;
   role: string;
-  clinics: string;
-  initial: string;
-  imageUrl?: string;
+  clinicName: string;
+  imageLink?: string;
 };
 
-const staffMembers: StaffMember[] = [
-  {
-    id: 1,
-    name: "vi",
-    email: "vivi",
-    role: "huh",
-    clinics: "All Clinics",
-    initial: "V",
-  },
-  {
-    id: 2,
-    name: "Jatin Gupta",
-    email: "Gjatin782@gmail.com",
-    role: "ASM",
-    clinics: "All Clinics",
-    initial: "J",
-  },
-];
-
-const rolePermissions = [
-  "Services",
-  "Drugs",
-  "Ratings & Review",
-  "Consultation",
-  "Custom Domain",
-  "Schedule",
-  "Blogs",
-  "Appointments",
-  "Prescription",
-  "Affiliate",
-  "QR Code",
-  "Department",
-  "Doctor Profile",
-  "Patients",
-  "Prescription Settings",
-  "Payouts",
-  "Consultation Settings",
-];
+type PermissionType = {
+  id: number;
+  name: string;
+  description: string | null;
+};
 
 interface AddStaffFormProps {
   onBack: () => void;
@@ -57,8 +24,93 @@ interface AddStaffFormProps {
 
 const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [clinicsData, setClinicsData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [rolePermissions, setRolePermissions] = useState<PermissionType[]>([]);
+  const [loadingPermissions, setLoadingPermissions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Form data state
+  const [formData, setFormData] = useState({
+    name: "",
+    role: "",
+    email: "",
+    password: "",
+    clinicId: "",
+  });
+  const [permissions, setPermissions] = useState<string[]>([]);
+
+  // Get user ID from cookie
+  useEffect(() => {
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchClinics();
+      fetchRolePermissions();
+    }
+  }, [userId]);
+
+  // Fetch clinics when userId is available
+  useEffect(() => {
+    fetchClinics();
+  }, [userId]);
+
+  const fetchClinics = async () => {
+    if (userId) {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`/api/doctor/clinic/${userId}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.message || `Failed to fetch clinics: ${response.status}`
+          );
+        }
+        const data = await response.json();
+        console.log(data);
+        setClinicsData(data);
+      } catch (err: any) {
+        console.error("Error fetching clinics:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const fetchRolePermissions = async () => {
+    console.log("fetching roles");
+    setLoadingPermissions(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/doctor/staff/role_permissions", {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            `Failed to fetch role permissions: ${response.status}`
+        );
+      }
+      const data = await response.json();
+      console.log("Role Permissions:", data);
+      setRolePermissions(data);
+    } catch (err: any) {
+      console.error("Error fetching role permissions:", err);
+      setError(err.message);
+    } finally {
+      setLoadingPermissions(false);
+    }
+  };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -67,6 +119,71 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  // Handle checkbox changes
+  const handlePermissionChange = (permission: string) => {
+    setPermissions((prev) => {
+      if (prev.includes(permission)) {
+        return prev.filter((p) => p !== permission);
+      } else {
+        return [...prev, permission];
+      }
+    });
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      // Create FormData object for file upload and other data
+      const submitData = new FormData();
+      submitData.append("name", formData.name);
+      submitData.append("email", formData.email);
+      submitData.append("role", formData.role);
+      submitData.append("password", formData.password);
+      submitData.append("clinicId", formData.clinicId);
+
+      // Add permissions as JSON string
+      submitData.append("permissions", JSON.stringify(permissions));
+
+      // Add image if available
+      if (fileInputRef.current?.files?.[0]) {
+        submitData.append("image", fileInputRef.current.files[0]);
+      }
+
+      // Send the data to the API
+      const response = await fetch(`/api/doctor/staff/${userId}`, {
+        method: "POST",
+        body: submitData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to create staff member");
+      }
+
+      // Success - go back to staff list
+      onBack();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -124,14 +241,27 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
       </div>
 
       {/* Form */}
-      <div className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Chambers
           </label>
-          <select className="w-full p-3 border border-gray-300 rounded-lg text-gray-700 appearance-none">
-            <option>Select</option>
+          <select
+            name="clinicId"
+            value={formData.clinicId}
+            onChange={handleInputChange}
+            className="w-full p-3 border border-gray-300 rounded-lg text-gray-700 appearance-none"
+          >
+            <option value="">Select</option>
+            {clinicsData.map((clinic) => (
+              <option key={clinic.id} value={clinic.id}>
+                {clinic.name}
+              </option>
+            ))}
           </select>
+          {loading && (
+            <p className="text-sm text-gray-500 mt-1">Loading clinics...</p>
+          )}
         </div>
 
         <div>
@@ -140,6 +270,10 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
           </label>
           <input
             type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
             className="w-full p-3 border border-gray-300 rounded-lg"
           />
         </div>
@@ -150,6 +284,10 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
           </label>
           <input
             type="text"
+            name="role"
+            value={formData.role}
+            onChange={handleInputChange}
+            required
             className="w-full p-3 border border-gray-300 rounded-lg"
           />
         </div>
@@ -160,6 +298,10 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
           </label>
           <input
             type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
             className="w-full p-3 border border-gray-300 rounded-lg"
           />
         </div>
@@ -170,39 +312,138 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
           </label>
           <input
             type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            required
             className="w-full p-3 border border-gray-300 rounded-lg"
           />
         </div>
-      </div>
 
-      {/* Role Permissions */}
-      <div className="mt-8">
-        <h2 className="text-lg font-semibold mb-3">Role Permissions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {rolePermissions.map((permission) => (
-            <label key={permission} className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                className="form-checkbox h-4 w-4 text-blue-600"
-              />
-              <span className="text-sm text-gray-700">{permission}</span>
-            </label>
-          ))}
+        {/* Role Permissions */}
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold mb-3">Role Permissions</h2>
+          {loadingPermissions ? (
+            <p className="text-sm text-gray-500">Loading permissions...</p>
+          ) : error && loadingPermissions ? (
+            <p className="text-red-500 text-sm">{error}</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {rolePermissions.map((permission) => (
+                <label
+                  key={permission.id}
+                  className="flex items-center space-x-2"
+                >
+                  <input
+                    type="checkbox"
+                    checked={permissions.includes(permission.name)}
+                    onChange={() => handlePermissionChange(permission.name)}
+                    className="form-checkbox h-4 w-4 text-blue-600"
+                  />
+                  <span className="text-sm text-gray-700">
+                    {permission.name}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
 
-      {/* Save Button */}
-      <div className="mt-8">
-        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium">
-          Save
-        </button>
-      </div>
+        {/* Error message */}
+        {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+
+        {/* Save Button */}
+        <div className="mt-8">
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium flex items-center justify-center"
+          >
+            {submitting ? "Saving..." : "Save"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
 
 const StaffPage: React.FC = () => {
   const [showAddStaff, setShowAddStaff] = useState(false);
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [deleteStaffId, setDeleteStaffId] = useState<number | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchStaff();
+    }
+  }, [userId]);
+
+  const handleShowDeleteModal = (staffId: number) => {
+    setDeleteStaffId(staffId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setDeleteStaffId(null);
+    setIsDeleteModalOpen(false);
+  };
+
+  const fetchStaff = async () => {
+    try {
+      const res = await fetch(`/api/doctor/staff/${userId}`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data: StaffMember[] = await res.json();
+      setStaffMembers(data);
+    } catch (error) {
+      console.error("Error fetching staff:", error);
+    }
+  };
+
+  const handleDeleteStaff = async () => {
+    if (!userId || !deleteStaffId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/doctor/staff/${userId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ staffIdToDelete: deleteStaffId }),
+
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(
+          errorData.message || `Failed to delete staff: ${res.status}`
+        );
+      }
+      // Re-fetch staff after successful deletion
+      fetchStaff();
+      handleCloseDeleteModal();
+    } catch (err: any) {
+      console.error("Error deleting staff:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStaffAdded = () => {
+    fetchStaff();
+    setShowAddStaff(false);
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6">
@@ -223,61 +464,100 @@ const StaffPage: React.FC = () => {
             </button>
           </div>
 
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse border-0">
-              <thead>
-                <tr className="bg-gray-50 text-gray-600">
-                  <th className="text-left p-3 font-medium">#</th>
-                  <th className="text-left p-3 font-medium">Thumb</th>
-                  <th className="text-left p-3 font-medium">Information</th>
-                  <th className="text-left p-3 font-medium">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {staffMembers.map((staff, index) => (
-                  <tr
-                    key={staff.id}
-                    className="hover:bg-gray-50 transition border-b border-gray-200"
-                  >
-                    <td className="p-3 text-gray-700">{index + 1}</td>
-                    <td className="p-3">
-                      {staff.imageUrl ? (
-                        <img
-                          src={staff.imageUrl}
-                          alt={staff.name}
-                          width={40}
-                          height={40}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full font-semibold text-lg">
-                          {staff.initial}
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      <div className="font-semibold text-gray-900">
-                        {staff.name}
-                      </div>
-                      <div className="text-sm text-gray-500 font-medium">
-                        {staff.clinics}
-                      </div>
-                      <div className="text-sm text-gray-500">{staff.email}</div>
-                      <div className="text-sm text-gray-500">{staff.role}</div>
-                    </td>
-                    <td className="p-3 flex gap-2">
-                      <button className="p-1.5 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8">
-                        <FiEdit className="text-gray-600" />
-                      </button>
-                      <button className="p-1.5 border rounded-md bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center w-8 h-8">
-                        <FiTrash2 />
-                      </button>
-                    </td>
+          {loading ? (
+            <p>Loading staff...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border-0">
+                <thead>
+                  <tr className="bg-gray-50 text-gray-600">
+                    <th className="text-left p-3 font-medium">#</th>
+                    <th className="text-left p-3 font-medium">Thumb</th>
+                    <th className="text-left p-3 font-medium">Information</th>
+                    <th className="text-left p-3 font-medium">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {staffMembers.map((staff, index) => (
+                    <tr
+                      key={staff.id}
+                      className="hover:bg-gray-50 transition border-b border-gray-200"
+                    >
+                      <td className="p-3 text-gray-700">{index + 1}</td>
+                      <td className="p-3">
+                        {staff.imageLink ? (
+                          <img
+                            src={staff.imageLink}
+                            alt={staff.name}
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full font-semibold text-lg">
+                            {staff.name.trim().charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        <div className="font-semibold text-gray-900">
+                          {staff.name}
+                        </div>
+                        <div className="text-sm text-gray-500 font-medium">
+                          {staff.clinicName}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {staff.email}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {staff.role}
+                        </div>
+                      </td>
+                      <td className="p-3 flex gap-2">
+                        <button className="p-1.5 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8">
+                          <FiEdit className="text-gray-600" />
+                        </button>
+                        <button
+                          onClick={() => handleShowDeleteModal(staff.id)}
+                          className="p-1.5 border rounded-md bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center w-8 h-8"
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+          <div className="relative bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
+            <h2 className="text-lg font-semibold mb-4">Confirm Delete</h2>
+            <p className="mb-4">
+              Are you sure you want to delete this staff member?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={handleCloseDeleteModal}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteStaff}
+                className="bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded"
+                disabled={loading}
+              >
+                {loading ? "Deleting..." : "Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}
