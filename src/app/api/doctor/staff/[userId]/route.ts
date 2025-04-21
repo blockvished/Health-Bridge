@@ -119,20 +119,6 @@ export async function GET(req: NextRequest) {
 
   const requiredDoctorId = doctorData[0].id;
   try {
-    const staffs = await db
-      .select({
-        id: staff.id,
-        name: staff.name,
-        email: staff.email,
-        role: staff.role,
-        imageLink: staff.imageLink,
-        clinicId: clinic.id,
-        clinicName: clinic.name, // Include clinic name
-      })
-      .from(staff)
-      .leftJoin(clinic, eq(staff.clinicId, clinic.id))
-      .where(eq(staff.doctorId, requiredDoctorId));
-
       const staffsWithPermissions = await db
       .select({
         id: staff.id,
@@ -165,7 +151,7 @@ export async function GET(req: NextRequest) {
     console.log(staffsWithPermissions);
 
 
-    return NextResponse.json(staffs, { status: 200 });
+    return NextResponse.json(staffsWithPermissions, { status: 200 });
   } catch (error) {
     console.error("Error fetching role permissions:", error);
     return NextResponse.json(
@@ -218,7 +204,6 @@ export async function POST(req: NextRequest) {
 
     // 1. Parse the form data
     const formData = await req.formData();
-    console.log(formData);
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const clinicId = formData.get("clinicId") as string;
@@ -228,8 +213,6 @@ export async function POST(req: NextRequest) {
     const password = formData.get("password") as string;
 
     const permissionsString = formData.get("permissions") as string;
-
-    console.log("psakdksfgkjkjfgg", permissionsString); // [16,13,11]
 
     const imageFile = formData.get("image") as Blob | null;
     let imageLink: string | null = null;
