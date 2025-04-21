@@ -20,9 +20,13 @@ type PermissionType = {
 
 interface AddStaffFormProps {
   onBack: () => void;
+  onStaffAdded: () => void;
 }
 
-const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
+const AddStaffForm: React.FC<AddStaffFormProps> = ({
+  onBack,
+  onStaffAdded,
+}) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [clinicsData, setClinicsData] = useState<any[]>([]);
@@ -32,6 +36,8 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
   const [rolePermissions, setRolePermissions] = useState<PermissionType[]>([]);
   const [loadingPermissions, setLoadingPermissions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [permissions, setPermissions] = useState<number[]>([]); // Store IDs
+
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -41,7 +47,6 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
     password: "",
     clinicId: "",
   });
-  const [permissions, setPermissions] = useState<string[]>([]);
 
   // Get user ID from cookie
   useEffect(() => {
@@ -133,12 +138,12 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
   };
 
   // Handle checkbox changes
-  const handlePermissionChange = (permission: string) => {
+  const handlePermissionChange = (permissionId: number) => {
     setPermissions((prev) => {
-      if (prev.includes(permission)) {
-        return prev.filter((p) => p !== permission);
+      if (prev.includes(permissionId)) {
+        return prev.filter((id) => id !== permissionId);
       } else {
-        return [...prev, permission];
+        return [...prev, permissionId];
       }
     });
   };
@@ -173,6 +178,8 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
       });
 
       const result = await response.json();
+
+      onStaffAdded();
 
       if (!response.ok) {
         throw new Error(result.error || "Failed to create staff member");
@@ -336,8 +343,8 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({ onBack }) => {
                 >
                   <input
                     type="checkbox"
-                    checked={permissions.includes(permission.name)}
-                    onChange={() => handlePermissionChange(permission.name)}
+                    checked={permissions.includes(permission.id)}
+                    onChange={() => handlePermissionChange(permission.id)}
                     className="form-checkbox h-4 w-4 text-blue-600"
                   />
                   <span className="text-sm text-gray-700">
@@ -421,7 +428,6 @@ const StaffPage: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ staffIdToDelete: deleteStaffId }),
-
       });
       if (!res.ok) {
         const errorData = await res.json();
@@ -448,7 +454,10 @@ const StaffPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6">
       {showAddStaff ? (
-        <AddStaffForm onBack={() => setShowAddStaff(false)} />
+        <AddStaffForm
+          onBack={() => setShowAddStaff(false)}
+          onStaffAdded={handleStaffAdded}
+        />
       ) : (
         <div className="bg-white shadow-md rounded-xl overflow-hidden w-full p-4 md:p-6">
           {/* Header */}
