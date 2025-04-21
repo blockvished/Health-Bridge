@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import {
   doctor,
   users,
   staff,
   clinic,
   staffPermissions,
+  permissionTypes,
 } from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
@@ -125,11 +126,44 @@ export async function GET(req: NextRequest) {
         email: staff.email,
         role: staff.role,
         imageLink: staff.imageLink,
+        clinicId: clinic.id,
         clinicName: clinic.name, // Include clinic name
       })
       .from(staff)
       .leftJoin(clinic, eq(staff.clinicId, clinic.id))
       .where(eq(staff.doctorId, requiredDoctorId));
+
+      const staffsWithPermissions = await db
+      .select({
+        id: staff.id,
+        name: staff.name,
+        email: staff.email,
+        role: staff.role,
+        imageLink: staff.imageLink,
+        clinicId: clinic.id,
+        clinicName: clinic.name,
+        permissionIds: sql<number[]>`COALESCE(JSON_AGG(${permissionTypes.id}), '[]')`.as('permissionIds'),
+      })
+      .from(staff)
+      .leftJoin(clinic, eq(staff.clinicId, clinic.id))
+      .leftJoin(staffPermissions, eq(staff.id, staffPermissions.staffId))
+      .leftJoin(
+        permissionTypes,
+        eq(staffPermissions.permissionTypeId, permissionTypes.id)
+      )
+      .where(eq(staff.doctorId, requiredDoctorId))
+      .groupBy(
+        staff.id,
+        staff.name,
+        staff.email,
+        staff.role,
+        staff.imageLink,
+        clinic.id,
+        clinic.name
+      );
+
+    console.log(staffsWithPermissions);
+
 
     return NextResponse.json(staffs, { status: 200 });
   } catch (error) {
