@@ -101,6 +101,63 @@ export const doctor = pgTable("doctor", {
   seo_description: text("seo_description"),
 });
 
+export const clinic = pgTable("clinic", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id") // Foreign key linking to the doctor table
+      .notNull()
+      .references(() => doctor.id, { onDelete: "cascade" }), // Use onDelete: "cascade" to automatically delete clinics when the associated doctor is deleted
+  name: varchar("name", { length: 255 }).notNull(),
+  imageLink: text("image_link"),
+  department: text("department"),
+  appointmentLimit: integer("appointment_limit"),
+  active: boolean("active").default(true),
+  address: text("address").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const staff = pgTable("staff", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  imageLink: varchar("image_link", { length: 255 }),
+  clinicId: integer("clinic_id")
+    .references(() => clinic.id, { onDelete: "set null" }),
+  role: varchar("role", { length: 100 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Define all possible permission types
+export const permissionTypes = pgTable("permission_types", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+  description: varchar("description", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Junction table for many-to-many relationship between staff and permissions
+export const staffPermissions = pgTable("staff_permissions", {
+  id: serial("id").primaryKey(),
+  staffId: integer("staff_id")
+    .notNull()
+    .references(() => staff.id, { onDelete: "cascade" }),
+  permissionTypeId: integer("permission_type_id")
+    .notNull()
+    .references(() => permissionTypes.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    // Create a unique constraint to prevent duplicate permissions
+    unq: uniqueIndex("staff_permission_unique").on(table.staffId, table.permissionTypeId),
+  };
+});
+
 export const patient = pgTable("patient", {
   id: serial("id").primaryKey(),
 
@@ -121,22 +178,6 @@ export const patient = pgTable("patient", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
-
-export const clinic = pgTable("clinic", {
-  id: serial("id").primaryKey(),
-  doctorId: integer("doctor_id") // Foreign key linking to the doctor table
-      .notNull()
-      .references(() => doctor.id, { onDelete: "cascade" }), // Use onDelete: "cascade" to automatically delete clinics when the associated doctor is deleted
-  name: varchar("name", { length: 255 }).notNull(),
-  imageLink: text("image_link"),
-  department: text("department"),
-  appointmentLimit: integer("appointment_limit"),
-  active: boolean("active").default(true),
-  address: text("address").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
 
 export const prescription = pgTable("prescription", {
   id: serial("id").primaryKey(),
