@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq, or } from "drizzle-orm";
-import { doctor, users, staff } from "../../../../../db/schema";
+import { doctor, users, staff, clinic } from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
 import { hash } from "argon2";
@@ -8,6 +8,69 @@ import { randomBytes } from "crypto";
 import { extname } from "path";
 import * as fs from "fs";
 import path from "path";
+import { permissionTypes } from "../../../../../db/schema";
+
+
+
+export async function GET(req: NextRequest) {
+  // Get doctor ID from URL
+  const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
+
+  // Verify JWT token
+  const decodedOrResponse = await verifyAuthToken();
+  if (decodedOrResponse instanceof NextResponse) {
+    return decodedOrResponse;
+  }
+  const decoded = decodedOrResponse;
+  const userId = Number(decoded.userId);
+
+  // Check if the requested ID matches the authenticated user's ID
+  if (String(userId) !== userIdFromUrl) {
+    console.log("hsifhisf");
+    return NextResponse.json(
+      { error: "Forbidden: You don't have access to this profile" },
+      { status: 403 }
+    );
+  }
+
+  // Fetch doctor information to ensure the requesting user is the correct doctor
+  const doctorData = await db
+    .select()
+    .from(doctor)
+    .where(eq(doctor.userId, userId));
+
+  if (!doctorData.length) {
+    return NextResponse.json(
+      { error: "Doctor profile not found for this user." },
+      { status: 404 }
+    );
+  }
+
+  const requiredDoctorId = doctorData[0].id;
+  try {
+    const staffs = await db
+      .select({
+        id: staff.id,
+        name: staff.name,
+        email: staff.email,
+        role: staff.role,
+        imageLink: staff.imageLink,
+        clinicName: clinic.name, // Include clinic name
+      })
+      .from(staff)
+      .leftJoin(clinic, eq(staff.clinicId, clinic.id))
+      .where(eq(staff.doctorId, requiredDoctorId));
+
+    return NextResponse.json(staffs, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching role permissions:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch role permissions" },
+      { status: 500 }
+    );
+  }
+}
+
 // =======================
 // POST - Create - Staff
 // =======================
@@ -56,9 +119,18 @@ export async function POST(req: NextRequest) {
     const clinicId = formData.get("clinicId") as string;
     const role = formData.get("role") as string;
 
-
     // Fix for active field - properly convert string to boolean
     const password = formData.get("password") as string;
+    const permissionsString = formData.get("permissions") as string;
+    let permissions: string[] = [];
+
+    if (permissionsString) {
+      try {
+        permissions = JSON.parse(permissionsString);
+      } catch (e) {
+        console.error("Failed to parse permissions:", e);
+      }
+    }
 
     const imageFile = formData.get("image") as Blob | null;
     let imageLink: string | null = null;
@@ -143,7 +215,7 @@ export async function POST(req: NextRequest) {
         name: name,
         email: email,
         imageLink: imageLink,
-        clinicId: clinicId ? Number(clinicId) : null, 
+        clinicId: clinicId ? Number(clinicId) : null,
         role,
       })
       .returning();
