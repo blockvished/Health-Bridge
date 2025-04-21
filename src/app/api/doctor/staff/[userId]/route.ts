@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, or } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { doctor, users, staff, clinic } from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
@@ -8,9 +8,75 @@ import { randomBytes } from "crypto";
 import { extname } from "path";
 import * as fs from "fs";
 import path from "path";
-import { permissionTypes } from "../../../../../db/schema";
 
+export async function DELETE(req: NextRequest) {
+  // Get doctor ID from URL
+  const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
 
+  // Verify JWT token
+  const decodedOrResponse = await verifyAuthToken();
+  if (decodedOrResponse instanceof NextResponse) {
+    return decodedOrResponse;
+  }
+  const decoded = decodedOrResponse;
+  const userId = Number(decoded.userId);
+
+  // Check if the requested ID matches the authenticated user's ID
+  if (String(userId) !== userIdFromUrl) {
+    console.log("hsifhisf");
+    return NextResponse.json(
+      { error: "Forbidden: You don't have access to this profile" },
+      { status: 403 }
+    );
+  }
+
+  // Fetch doctor information to ensure the requesting user is the correct doctor
+  const doctorData = await db
+    .select()
+    .from(doctor)
+    .where(eq(doctor.userId, userId));
+
+  if (!doctorData.length) {
+    return NextResponse.json(
+      { error: "Doctor profile not found for this user." },
+      { status: 404 }
+    );
+  }
+
+  const requiredDoctorId = doctorData[0].id;
+
+  const reqBody = await req.json();
+  const { staffIdToDelete } = reqBody;
+
+  if (!staffIdToDelete) {
+    return NextResponse.json({ error: "Missing staff ID" }, { status: 400 });
+  }
+
+  try {
+    const deletedStaff = await db
+      .delete(staff)
+      .where(eq(staff.id, parseInt(staffIdToDelete)))
+      .returning();
+
+    if (deletedStaff.length > 0) {
+      return NextResponse.json(
+        { message: "Staff member deleted successfully" },
+        { status: 200 }
+      );
+    } else {
+      return NextResponse.json(
+        { error: "Staff member not found or does not belong to this doctor" },
+        { status: 404 }
+      );
+    }
+  } catch (error) {
+    console.error("Error deleting staff:", error);
+    return NextResponse.json(
+      { error: "Failed to delete staff" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function GET(req: NextRequest) {
   // Get doctor ID from URL
