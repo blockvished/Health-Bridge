@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { and, eq, or } from "drizzle-orm";
-import { doctor, users, staff, clinic } from "../../../../../db/schema";
+import {
+  doctor,
+  users,
+  staff,
+  clinic,
+  staffPermissions,
+} from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
 import { hash } from "argon2";
@@ -42,8 +48,6 @@ export async function DELETE(req: NextRequest) {
       { status: 404 }
     );
   }
-
-  const requiredDoctorId = doctorData[0].id;
 
   const reqBody = await req.json();
   const { staffIdToDelete } = reqBody;
@@ -180,6 +184,7 @@ export async function POST(req: NextRequest) {
 
     // 1. Parse the form data
     const formData = await req.formData();
+    console.log(formData);
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const clinicId = formData.get("clinicId") as string;
@@ -187,16 +192,10 @@ export async function POST(req: NextRequest) {
 
     // Fix for active field - properly convert string to boolean
     const password = formData.get("password") as string;
-    const permissionsString = formData.get("permissions") as string;
-    let permissions: string[] = [];
 
-    if (permissionsString) {
-      try {
-        permissions = JSON.parse(permissionsString);
-      } catch (e) {
-        console.error("Failed to parse permissions:", e);
-      }
-    }
+    const permissionsString = formData.get("permissions") as string;
+
+    console.log("psakdksfgkjkjfgg", permissionsString); // [16,13,11]
 
     const imageFile = formData.get("image") as Blob | null;
     let imageLink: string | null = null;
@@ -284,7 +283,7 @@ export async function POST(req: NextRequest) {
         clinicId: clinicId ? Number(clinicId) : null,
         role,
       })
-      .returning();
+      .returning({ id: staff.id });
 
     if (!newStaff) {
       // If staff creation fails, roll back the user creation
@@ -293,6 +292,31 @@ export async function POST(req: NextRequest) {
         { error: "Failed to create staff profile." },
         { status: 500 }
       );
+    }
+
+    if (permissionsString) {
+      try {
+        const permissionIds: number[] = JSON.parse(permissionsString);
+        if (Array.isArray(permissionIds)) {
+          // Insert each permission ID associated with the new staff member
+          await db.insert(staffPermissions).values(
+            permissionIds.map((permissionTypeId) => ({
+              staffId: newStaff.id,
+              permissionTypeId: permissionTypeId,
+            }))
+          );
+        } else {
+          console.error(
+            "permissionsString did not parse to an array:",
+            permissionsString
+          );
+        }
+      } catch (error) {
+        console.error("Error parsing permissionsString:", error);
+        // Optionally, you might want to handle this error more specifically,
+        // e.g., by rolling back the staff creation or returning an error.
+        // For now, we'll log it and continue.
+      }
     }
 
     return NextResponse.json(
