@@ -121,6 +121,9 @@ export const staff = pgTable("staff", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  doctorId: integer("doctor_id")  // Add this new field
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
   imageLink: varchar("image_link", { length: 255 }),
