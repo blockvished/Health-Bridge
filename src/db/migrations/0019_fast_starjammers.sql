@@ -1,0 +1,2 @@
+ALTER TABLE "staff" ADD COLUMN "doctor_id" integer NOT NULL;--> statement-breakpoint
+ALTER TABLE "staff" ADD CONSTRAINT "staff_doctor_id_doctor_id_fk" FOREIGN KEY ("doctor_id") REFERENCES "public"."doctor"("id") ON DELETE cascade ON UPDATE no action;
