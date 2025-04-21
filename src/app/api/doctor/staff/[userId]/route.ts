@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq, or } from "drizzle-orm";
-import { doctor, users, staff, clinic } from "../../../../../db/schema";
+import { and, eq, or, sql } from "drizzle-orm";
+import {
+  doctor,
+  users,
+  staff,
+  clinic,
+  staffPermissions,
+  permissionTypes,
+} from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
 import { hash } from "argon2";
@@ -42,8 +49,6 @@ export async function DELETE(req: NextRequest) {
       { status: 404 }
     );
   }
-
-  const requiredDoctorId = doctorData[0].id;
 
   const reqBody = await req.json();
   const { staffIdToDelete } = reqBody;
@@ -114,20 +119,39 @@ export async function GET(req: NextRequest) {
 
   const requiredDoctorId = doctorData[0].id;
   try {
-    const staffs = await db
+      const staffsWithPermissions = await db
       .select({
         id: staff.id,
         name: staff.name,
         email: staff.email,
         role: staff.role,
         imageLink: staff.imageLink,
-        clinicName: clinic.name, // Include clinic name
+        clinicId: clinic.id,
+        clinicName: clinic.name,
+        permissionIds: sql<number[]>`COALESCE(JSON_AGG(${permissionTypes.id}), '[]')`.as('permissionIds'),
       })
       .from(staff)
       .leftJoin(clinic, eq(staff.clinicId, clinic.id))
-      .where(eq(staff.doctorId, requiredDoctorId));
+      .leftJoin(staffPermissions, eq(staff.id, staffPermissions.staffId))
+      .leftJoin(
+        permissionTypes,
+        eq(staffPermissions.permissionTypeId, permissionTypes.id)
+      )
+      .where(eq(staff.doctorId, requiredDoctorId))
+      .groupBy(
+        staff.id,
+        staff.name,
+        staff.email,
+        staff.role,
+        staff.imageLink,
+        clinic.id,
+        clinic.name
+      );
 
-    return NextResponse.json(staffs, { status: 200 });
+    console.log(staffsWithPermissions);
+
+
+    return NextResponse.json(staffsWithPermissions, { status: 200 });
   } catch (error) {
     console.error("Error fetching role permissions:", error);
     return NextResponse.json(
@@ -187,16 +211,8 @@ export async function POST(req: NextRequest) {
 
     // Fix for active field - properly convert string to boolean
     const password = formData.get("password") as string;
-    const permissionsString = formData.get("permissions") as string;
-    let permissions: string[] = [];
 
-    if (permissionsString) {
-      try {
-        permissions = JSON.parse(permissionsString);
-      } catch (e) {
-        console.error("Failed to parse permissions:", e);
-      }
-    }
+    const permissionsString = formData.get("permissions") as string;
 
     const imageFile = formData.get("image") as Blob | null;
     let imageLink: string | null = null;
@@ -284,7 +300,7 @@ export async function POST(req: NextRequest) {
         clinicId: clinicId ? Number(clinicId) : null,
         role,
       })
-      .returning();
+      .returning({ id: staff.id });
 
     if (!newStaff) {
       // If staff creation fails, roll back the user creation
@@ -293,6 +309,31 @@ export async function POST(req: NextRequest) {
         { error: "Failed to create staff profile." },
         { status: 500 }
       );
+    }
+
+    if (permissionsString) {
+      try {
+        const permissionIds: number[] = JSON.parse(permissionsString);
+        if (Array.isArray(permissionIds)) {
+          // Insert each permission ID associated with the new staff member
+          await db.insert(staffPermissions).values(
+            permissionIds.map((permissionTypeId) => ({
+              staffId: newStaff.id,
+              permissionTypeId: permissionTypeId,
+            }))
+          );
+        } else {
+          console.error(
+            "permissionsString did not parse to an array:",
+            permissionsString
+          );
+        }
+      } catch (error) {
+        console.error("Error parsing permissionsString:", error);
+        // Optionally, you might want to handle this error more specifically,
+        // e.g., by rolling back the staff creation or returning an error.
+        // For now, we'll log it and continue.
+      }
     }
 
     return NextResponse.json(
