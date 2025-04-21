@@ -185,7 +185,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         </h1>
         <button
           onClick={onBack}
-          className="flex items-center bg-gray-100 text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-200"
+          className="flex items-center bg-gray-100 text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-200 cursor-pointer"
         >
           <FiArrowLeft className="mr-2" /> All staffs
         </button>
@@ -213,7 +213,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
             )}
           </div>
           <button
-            className="absolute bottom-0 right-0 bg-white p-1.5 rounded-full border shadow-sm"
+            className="absolute bottom-0 right-0 bg-white p-1.5 rounded-full border shadow-sm cursor-pointer"
             onClick={triggerFileInput}
           >
             <FiEdit className="text-gray-600 text-sm" />
@@ -350,7 +350,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium flex items-center justify-center"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium flex items-center justify-center cursor-pointer"
           >
             {submitting ? "Saving..." : "Save"}
           </button>
@@ -536,7 +536,7 @@ const StaffPage: React.FC = () => {
             </h1>
             <button
               onClick={() => setShowAddStaff(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm rounded-lg shadow-md"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm rounded-lg shadow-md cursor-pointer"
             >
               + Add new staff
             </button>
@@ -596,13 +596,13 @@ const StaffPage: React.FC = () => {
                       <td className="p-3 flex gap-2">
                         <button
                           onClick={() => handleEditClick(staff.id)}
-                          className="p-1.5 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8"
+                          className="p-1.5 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8 cursor-pointer"
                         >
                           <FiEdit className="text-gray-600" />
                         </button>
                         <button
                           onClick={() => handleShowDeleteModal(staff.id)}
-                          className="p-1.5 border rounded-md bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center w-8 h-8"
+                          className="p-1.5 border rounded-md bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center w-8 h-8 cursor-pointer"
                         >
                           <FiTrash2 />
                         </button>
@@ -627,13 +627,13 @@ const StaffPage: React.FC = () => {
             <div className="flex justify-end gap-4">
               <button
                 onClick={handleCloseDeleteModal}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded"
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteStaff}
-                className="bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded"
+                className="bg-red-500 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded cursor-pointer"
                 disabled={loading}
               >
                 {loading ? "Deleting..." : "Delete"}
