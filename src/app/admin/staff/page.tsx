@@ -2,6 +2,7 @@
 import Cookies from "js-cookie";
 import React, { useState, useRef, useEffect } from "react";
 import { FiArrowLeft, FiCamera, FiEdit, FiTrash2 } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 
 type StaffMember = {
   id: number;
@@ -11,7 +12,7 @@ type StaffMember = {
   imageLink?: string;
   clinicId: string;
   clinicName: string;
-  permissionIds: number[]
+  permissionIds: number[];
 };
 
 type PermissionType = {
@@ -20,35 +21,41 @@ type PermissionType = {
   description: string | null;
 };
 
-interface AddStaffFormProps {
+interface StaffFormProps {
   onBack: () => void;
-  onStaffAdded: () => void;
+  onStaffUpdated?: () => void;
   rolePermissions: PermissionType[];
-  clinicsData: any[]
+  clinicsData: any[];
+  initialStaffData?: StaffMember | null;
 }
 
-const AddStaffForm: React.FC<AddStaffFormProps> = ({
+const StaffForm: React.FC<StaffFormProps> = ({
   onBack,
-  onStaffAdded,
+  onStaffUpdated,
   rolePermissions,
-  clinicsData
+  clinicsData,
+  initialStaffData,
 }) => {
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    initialStaffData?.imageLink || null
+  );
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [permissions, setPermissions] = useState<number[]>([]); // Store IDs
+  const [permissions, setPermissions] = useState<number[]>(
+    initialStaffData?.permissionIds || []
+  );
   const [loadingPermissions, setLoadingPermissions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   // Form data state
   const [formData, setFormData] = useState({
-    name: "",
-    role: "",
-    email: "",
-    password: "",
-    clinicId: "",
+    name: initialStaffData?.name || "",
+    role: initialStaffData?.role || "",
+    email: initialStaffData?.email || "",
+    password: "", // Password should be empty for edit unless they want to change it
+    clinicId: initialStaffData?.clinicId || "",
   });
 
   // Get user ID from cookie
@@ -56,8 +63,22 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
   }, []);
-  
-  // Fetch clinics when userId is available
+
+  useEffect(() => {
+    if (initialStaffData) {
+      setFormData({
+        name: initialStaffData.name || "",
+        role: initialStaffData.role || "",
+        email: initialStaffData.email || "",
+        password: "", // Always reset password field
+        clinicId: initialStaffData.clinicId || "",
+      });
+      console.log(initialStaffData)
+      setPermissions(initialStaffData.permissionIds || []);
+      setImagePreview(initialStaffData.imageLink || null);
+    }
+  }, [initialStaffData]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -97,38 +118,54 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({
     setError(null);
 
     try {
-      // Create FormData object for file upload and other data
       const submitData = new FormData();
       submitData.append("name", formData.name);
       submitData.append("email", formData.email);
       submitData.append("role", formData.role);
-      submitData.append("password", formData.password);
       submitData.append("clinicId", formData.clinicId);
-
-      // Add permissions as JSON string
       submitData.append("permissions", JSON.stringify(permissions));
 
-      // Add image if available
+      if (formData.password) {
+        submitData.append("password", formData.password);
+      }
+
       if (fileInputRef.current?.files?.[0]) {
         submitData.append("image", fileInputRef.current.files[0]);
       }
 
-      // Send the data to the API
-      const response = await fetch(`/api/doctor/staff/${userId}`, {
-        method: "POST",
-        body: submitData,
-      });
+      const method = initialStaffData?.id ? "PUT" : "POST";
+      console.log("staffdit", initialStaffData?.id);
+      const apiUrl = initialStaffData?.id?  `/api/doctor/staff/put/${userId}`:  `/api/doctor/staff/${userId}` 
+
+      let response;
+
+      if (initialStaffData?.id) {
+        submitData.append("staffId", String(initialStaffData?.id));
+        response = await fetch(apiUrl, {
+          method: method,
+          body: submitData,
+        });
+      } else {
+        response = await fetch(apiUrl, {
+          method: method,
+          body: submitData,
+        });
+      }
 
       const result = await response.json();
 
-      onStaffAdded();
-
       if (!response.ok) {
-        throw new Error(result.error || "Failed to create staff member");
+        throw new Error(
+          result.error ||
+            `Failed to ${method === "PUT" ? "update" : "create"} staff member`
+        );
       }
 
-      // Success - go back to staff list
-      onBack();
+      if (method === "PUT" && onStaffUpdated) {
+        onStaffUpdated();
+      } else if (method === "POST") {
+        onBack(); // Go back after successful creation
+      }
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -143,7 +180,9 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({
   return (
     <div className="bg-white rounded-lg max-w-4xl mx-auto w-full p-6">
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-300">
-        <h1 className="text-xl font-medium">Add new staff</h1>
+        <h1 className="text-xl font-medium">
+          {initialStaffData?.id ? "Edit Staff" : "Add new staff"}
+        </h1>
         <button
           onClick={onBack}
           className="flex items-center bg-gray-100 text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-200"
@@ -193,13 +232,14 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Chambers
+            Chambers <span className="text-red-500">*</span>
           </label>
           <select
             name="clinicId"
             value={formData.clinicId}
             onChange={handleInputChange}
             className="w-full p-3 border border-gray-300 rounded-lg text-gray-700 appearance-none"
+            required
           >
             <option value="">Select</option>
             {clinicsData.map((clinic) => (
@@ -257,15 +297,19 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Password <span className="text-red-500">*</span>
+            Password{" "}
+            {!initialStaffData?.id && <span className="text-red-500">*</span>}
+            <span className="text-gray-500">
+              (Leave blank to keep current password)
+            </span>
           </label>
           <input
             type="password"
             name="password"
             value={formData.password}
             onChange={handleInputChange}
-            required
             className="w-full p-3 border border-gray-300 rounded-lg"
+            {...(!initialStaffData?.id && { required: true })}
           />
         </div>
 
@@ -318,6 +362,7 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({
 
 const StaffPage: React.FC = () => {
   const [showAddStaff, setShowAddStaff] = useState(false);
+  const [showEditStaff, setShowEditStaff] = useState<number | null>(null);
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [deleteStaffId, setDeleteStaffId] = useState<number | null>(null);
@@ -325,9 +370,8 @@ const StaffPage: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  //
   const [clinicsData, setClinicsData] = useState<any[]>([]);
+
   useEffect(() => {
     fetchClinics();
   }, [userId]);
@@ -345,7 +389,6 @@ const StaffPage: React.FC = () => {
           );
         }
         const data = await response.json();
-        console.log(data);
         setClinicsData(data);
       } catch (err: any) {
         console.error("Error fetching clinics:", err);
@@ -355,8 +398,6 @@ const StaffPage: React.FC = () => {
       }
     }
   };
-
-  //
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -374,10 +415,9 @@ const StaffPage: React.FC = () => {
     if (userId) {
       fetchStaff();
     }
-  }, [userId]);
+  }, [userId, showAddStaff, showEditStaff]); // Re-fetch on state changes
 
   const fetchRolePermissions = async () => {
-    console.log("fetching roles");
     setError(null);
     try {
       const response = await fetch("/api/doctor/staff/role_permissions", {
@@ -392,7 +432,6 @@ const StaffPage: React.FC = () => {
         );
       }
       const data = await response.json();
-      console.log("Role Permissions:", data);
       setRolePermissions(data);
     } catch (err: any) {
       console.error("Error fetching role permissions:", err);
@@ -418,6 +457,7 @@ const StaffPage: React.FC = () => {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data: StaffMember[] = await res.json();
+      console.log(data)
       setStaffMembers(data);
     } catch (error) {
       console.error("Error fetching staff:", error);
@@ -442,7 +482,6 @@ const StaffPage: React.FC = () => {
           errorData.message || `Failed to delete staff: ${res.status}`
         );
       }
-      // Re-fetch staff after successful deletion
       fetchStaff();
       handleCloseDeleteModal();
     } catch (err: any) {
@@ -458,14 +497,35 @@ const StaffPage: React.FC = () => {
     setShowAddStaff(false);
   };
 
+  const handleStaffUpdated = () => {
+    fetchStaff();
+    setShowEditStaff(null);
+  };
+
+  const handleEditClick = (staffId: number) => {
+    setShowEditStaff(staffId);
+  };
+
+  const currentStaffToEdit = staffMembers.find(
+    (staff) => staff.id === showEditStaff
+  );
+
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6">
       {showAddStaff ? (
-        <AddStaffForm
+        <StaffForm
           onBack={() => setShowAddStaff(false)}
-          onStaffAdded={handleStaffAdded}
+          onStaffUpdated={handleStaffAdded}
           rolePermissions={rolePermissions}
           clinicsData={clinicsData}
+        />
+      ) : showEditStaff !== null && currentStaffToEdit ? (
+        <StaffForm
+          onBack={() => setShowEditStaff(null)}
+          onStaffUpdated={handleStaffUpdated}
+          rolePermissions={rolePermissions}
+          clinicsData={clinicsData}
+          initialStaffData={currentStaffToEdit}
         />
       ) : (
         <div className="bg-white shadow-md rounded-xl overflow-hidden w-full p-4 md:p-6">
@@ -534,7 +594,10 @@ const StaffPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="p-3 flex gap-2">
-                        <button className="p-1.5 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8">
+                        <button
+                          onClick={() => handleEditClick(staff.id)}
+                          className="p-1.5 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8"
+                        >
                           <FiEdit className="text-gray-600" />
                         </button>
                         <button
