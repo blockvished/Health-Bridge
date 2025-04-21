@@ -8,8 +8,10 @@ type StaffMember = {
   name: string;
   email: string;
   role: string;
-  clinicName: string;
   imageLink?: string;
+  clinicId: string;
+  clinicName: string;
+  permissionIds: number[]
 };
 
 type PermissionType = {
@@ -21,24 +23,25 @@ type PermissionType = {
 interface AddStaffFormProps {
   onBack: () => void;
   onStaffAdded: () => void;
+  rolePermissions: PermissionType[];
+  clinicsData: any[]
 }
 
 const AddStaffForm: React.FC<AddStaffFormProps> = ({
   onBack,
   onStaffAdded,
+  rolePermissions,
+  clinicsData
 }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [clinicsData, setClinicsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [rolePermissions, setRolePermissions] = useState<PermissionType[]>([]);
+  const [permissions, setPermissions] = useState<number[]>([]); // Store IDs
   const [loadingPermissions, setLoadingPermissions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [permissions, setPermissions] = useState<number[]>([]); // Store IDs
-
-
+  
   // Form data state
   const [formData, setFormData] = useState({
     name: "",
@@ -53,69 +56,8 @@ const AddStaffForm: React.FC<AddStaffFormProps> = ({
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
   }, []);
-
-  useEffect(() => {
-    if (userId) {
-      fetchClinics();
-      fetchRolePermissions();
-    }
-  }, [userId]);
-
+  
   // Fetch clinics when userId is available
-  useEffect(() => {
-    fetchClinics();
-  }, [userId]);
-
-  const fetchClinics = async () => {
-    if (userId) {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`/api/doctor/clinic/${userId}`);
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.message || `Failed to fetch clinics: ${response.status}`
-          );
-        }
-        const data = await response.json();
-        console.log(data);
-        setClinicsData(data);
-      } catch (err: any) {
-        console.error("Error fetching clinics:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  const fetchRolePermissions = async () => {
-    console.log("fetching roles");
-    setLoadingPermissions(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/doctor/staff/role_permissions", {
-        method: "GET",
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message ||
-            `Failed to fetch role permissions: ${response.status}`
-        );
-      }
-      const data = await response.json();
-      console.log("Role Permissions:", data);
-      setRolePermissions(data);
-    } catch (err: any) {
-      console.error("Error fetching role permissions:", err);
-      setError(err.message);
-    } finally {
-      setLoadingPermissions(false);
-    }
-  };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -379,9 +321,42 @@ const StaffPage: React.FC = () => {
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [deleteStaffId, setDeleteStaffId] = useState<number | null>(null);
+  const [rolePermissions, setRolePermissions] = useState<PermissionType[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  //
+  const [clinicsData, setClinicsData] = useState<any[]>([]);
+  useEffect(() => {
+    fetchClinics();
+  }, [userId]);
+
+  const fetchClinics = async () => {
+    if (userId) {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`/api/doctor/clinic/${userId}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.message || `Failed to fetch clinics: ${response.status}`
+          );
+        }
+        const data = await response.json();
+        console.log(data);
+        setClinicsData(data);
+      } catch (err: any) {
+        console.error("Error fetching clinics:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  //
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -390,9 +365,41 @@ const StaffPage: React.FC = () => {
 
   useEffect(() => {
     if (userId) {
+      fetchClinics();
+      fetchRolePermissions();
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
       fetchStaff();
     }
   }, [userId]);
+
+  const fetchRolePermissions = async () => {
+    console.log("fetching roles");
+    setError(null);
+    try {
+      const response = await fetch("/api/doctor/staff/role_permissions", {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            `Failed to fetch role permissions: ${response.status}`
+        );
+      }
+      const data = await response.json();
+      console.log("Role Permissions:", data);
+      setRolePermissions(data);
+    } catch (err: any) {
+      console.error("Error fetching role permissions:", err);
+      setError(err.message);
+    } finally {
+    }
+  };
 
   const handleShowDeleteModal = (staffId: number) => {
     setDeleteStaffId(staffId);
@@ -457,6 +464,8 @@ const StaffPage: React.FC = () => {
         <AddStaffForm
           onBack={() => setShowAddStaff(false)}
           onStaffAdded={handleStaffAdded}
+          rolePermissions={rolePermissions}
+          clinicsData={clinicsData}
         />
       ) : (
         <div className="bg-white shadow-md rounded-xl overflow-hidden w-full p-4 md:p-6">
