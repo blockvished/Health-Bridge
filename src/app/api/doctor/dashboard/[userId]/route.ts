@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { eq, and } from "drizzle-orm";
-import { doctor, patient, appointments } from "../../../../../db/schema";
+import { doctor, patient, staff, appointments } from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
 
@@ -73,11 +73,16 @@ export async function GET(req: NextRequest) {
     const futureAppointments = allAppointments.filter(
       (appointment) => appointment.date >= tomorrowDateString
     );
+    
+    const staffss = await db
+    .select()
+    .from(staff)
+    .where(eq(staff.doctorId, requiredDoctorId));
 
     const patientsCount = patients.length;
     const todaysAppointmentsCount = todaysAppointments.length;
     const allAppointmentsCount = allAppointments.length;
-    const staffCount = 0;
+    const staffCount = staffss.length
 
     return NextResponse.json({
       patientsCount,

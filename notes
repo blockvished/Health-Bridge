@@ -36,7 +36,7 @@ select * from appointment_time_ranges;
 on to patient page and admin page
 / review / contact of doctor is remaining and etc
 
-
-/clinic image pending 
 /showing clinic on appointment is pending
 /appointment upload old documents
+
+/prescription signature and date

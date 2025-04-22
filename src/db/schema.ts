@@ -50,16 +50,35 @@ export const consultationPlatform = pgEnum("consultation_platform", [
   "teams",
 ]);
 
-export const TimeFrequencyType = pgEnum("time_frequency_type", ["days", "weeks", "months",]);
-
-export const MealTimeType = pgEnum("meal_time", ["after_meal", "before_meal", "after/before_meal"]);
-
-export const DosageType = pgEnum("dosage_type", [
-  "0", "1", "2", "3", "4", "5", "1/2",
-  "0.5 ml", "1 ml", "2 ml", "3 ml", "4 ml", "5 ml"
+export const TimeFrequencyType = pgEnum("time_frequency_type", [
+  "days",
+  "weeks",
+  "months",
 ]);
 
-export const DrugType = pgEnum("drug_type",["cap", "tab", "syp", "oin"])
+export const MealTimeType = pgEnum("meal_time", [
+  "after_meal",
+  "before_meal",
+  "after/before_meal",
+]);
+
+export const DosageType = pgEnum("dosage_type", [
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "1/2",
+  "0.5 ml",
+  "1 ml",
+  "2 ml",
+  "3 ml",
+  "4 ml",
+  "5 ml",
+]);
+
+export const DrugType = pgEnum("drug_type", ["cap", "tab", "syp", "oin"]);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -104,8 +123,8 @@ export const doctor = pgTable("doctor", {
 export const clinic = pgTable("clinic", {
   id: serial("id").primaryKey(),
   doctorId: integer("doctor_id") // Foreign key linking to the doctor table
-      .notNull()
-      .references(() => doctor.id, { onDelete: "cascade" }), // Use onDelete: "cascade" to automatically delete clinics when the associated doctor is deleted
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }), // Use onDelete: "cascade" to automatically delete clinics when the associated doctor is deleted
   name: varchar("name", { length: 255 }).notNull(),
   imageLink: text("image_link"),
   department: text("department"),
@@ -121,14 +140,15 @@ export const staff = pgTable("staff", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  doctorId: integer("doctor_id")  // Add this new field
+  doctorId: integer("doctor_id") // Add this new field
     .notNull()
     .references(() => doctor.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
   imageLink: varchar("image_link", { length: 255 }),
-  clinicId: integer("clinic_id")
-    .references(() => clinic.id, { onDelete: "set null" }),
+  clinicId: integer("clinic_id").references(() => clinic.id, {
+    onDelete: "set null",
+  }),
   role: varchar("role", { length: 100 }).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -144,22 +164,29 @@ export const permissionTypes = pgTable("permission_types", {
 });
 
 // Junction table for many-to-many relationship between staff and permissions
-export const staffPermissions = pgTable("staff_permissions", {
-  id: serial("id").primaryKey(),
-  staffId: integer("staff_id")
-    .notNull()
-    .references(() => staff.id, { onDelete: "cascade" }),
-  permissionTypeId: integer("permission_type_id")
-    .notNull()
-    .references(() => permissionTypes.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => {
-  return {
-    // Create a unique constraint to prevent duplicate permissions
-    unq: uniqueIndex("staff_permission_unique").on(table.staffId, table.permissionTypeId),
-  };
-});
+export const staffPermissions = pgTable(
+  "staff_permissions",
+  {
+    id: serial("id").primaryKey(),
+    staffId: integer("staff_id")
+      .notNull()
+      .references(() => staff.id, { onDelete: "cascade" }),
+    permissionTypeId: integer("permission_type_id")
+      .notNull()
+      .references(() => permissionTypes.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => {
+    return {
+      // Create a unique constraint to prevent duplicate permissions
+      unq: uniqueIndex("staff_permission_unique").on(
+        table.staffId,
+        table.permissionTypeId
+      ),
+    };
+  }
+);
 
 export const patient = pgTable("patient", {
   id: serial("id").primaryKey(),
@@ -185,11 +212,14 @@ export const patient = pgTable("patient", {
 export const prescription = pgTable("prescription", {
   id: serial("id").primaryKey(),
   patientId: integer("patient_id")
-      .notNull()
-      .references(() => patient.id, { onDelete: "cascade" }),
+    .notNull()
+    .references(() => patient.id, { onDelete: "cascade" }),
   doctorId: integer("doctor_id")
-      .notNull()
-      .references(() => doctor.id, { onDelete: "cascade" }),
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
+  clinicId: integer("clinic_id")
+    .notNull()
+    .references(() => clinic.id, { onDelete: "cascade" }),
   advice: text("advice"),
   diagnosisTests: text("diagnosis_tests"),
   nextFollowUp: integer("next_follow_up"),
@@ -202,14 +232,14 @@ export const prescription = pgTable("prescription", {
 export const medication = pgTable("medication", {
   id: serial("id").primaryKey(),
   prescriptionId: integer("prescription_id")
-      .notNull()
-      .references(() => prescription.id, { onDelete: "cascade" }),
+    .notNull()
+    .references(() => prescription.id, { onDelete: "cascade" }),
   drugType: DrugType("drug_type"),
   drugName: varchar("drug_name", { length: 255 }).notNull(),
-  morning: DosageType("morning"),  // Use the DosageType enum
+  morning: DosageType("morning"), // Use the DosageType enum
   afternoon: DosageType("afternoon"), // Use the DosageType enum
-  evening: DosageType("evening"),   // Use the DosageType enum
-  night: DosageType("night"),     // Use the DosageType enum
+  evening: DosageType("evening"), // Use the DosageType enum
+  night: DosageType("night"), // Use the DosageType enum
   whenToTake: MealTimeType("when_to_take"),
   note: text("note"),
   howManyDaysToTakeMedication: integer("how_many_days_to_take_medication"),
