@@ -14,6 +14,7 @@ export interface Doctor {
   phone: string;
   specialization: string;
   degree: string;
+  signatureImage: string
 }
 
 interface Patient {
@@ -250,6 +251,7 @@ export default function CreatePrescription() {
               phone: data.doctor.phone || "",
               specialization: data.doctor.specialization || "",
               degree: data.doctor.degree || "",
+              signatureImage: data.doctor.signature_link || ""
             });
           }
         } else {
@@ -338,6 +340,7 @@ export default function CreatePrescription() {
       doctorSpecialization={doctorData?.specialization}
       doctorDegree={doctorData?.degree}
       doctorEmail={doctorData?.email}
+      signatureImage={doctorData?.signatureImage}
       patient={{
         name: selectedPatient?.name || "",
         age: Number(selectedPatient?.age) || 0,
@@ -365,7 +368,7 @@ export default function CreatePrescription() {
             <h3 className="text-lg font-semibold text-gray-700">
               {doctorData?.name}
             </h3>
-            <p className="text-gray-600 text-sm">{doctorData?.email}</p>
+            <p className="text-gray-600 text-sm">{doctorData?.email} {doctorData?.signatureImage}</p>
             <p className="text-gray-600 text-sm">
               {doctorData?.specialization}
             </p>
