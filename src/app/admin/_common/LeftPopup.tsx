@@ -51,6 +51,13 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
           const data = await response.json();
           console.log(data);
           setClinicsData(data);
+          const storedClinicId = Cookies.get("currentClinicId");
+          if (storedClinicId) {
+            setActiveClinicId(parseInt(storedClinicId, 10));
+          } else if (data.length > 0) {
+            // If no cookie, default to the first clinic
+            setActiveClinicId(data[0].id);
+          }
         } catch (err: any) {
           console.error("Error fetching clinics:", err);
           setError(err.message);
@@ -113,6 +120,14 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
     }
   };
 
+  const handleClinicClick = (clinicId: number) => {
+    setActiveClinicId(clinicId);
+    Cookies.set("currentClinicId", String(clinicId));
+    console.log("Active clinic ID set to:", clinicId);
+    // You might want to trigger a refresh or some other action here
+    // to reflect the change in the rest of your application.
+  };
+
   return (
     <div
       ref={popupRef}
@@ -143,7 +158,9 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
       </div>
 
       {loading ? (
-        <div className="p-3 text-gray-600 text-sm italic">Loading clinics...</div>
+        <div className="p-3 text-gray-600 text-sm italic">
+          Loading clinics...
+        </div>
       ) : error ? (
         <div className="p-3 text-red-500 text-sm">{error}</div>
       ) : (
@@ -151,12 +168,12 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
           <div
             key={clinic.id}
             className={`p-3 rounded-md flex items-center justify-between mb-2 cursor-pointer
-              ${clinic.active ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600 opacity-70"}
+              ${activeClinicId === clinic.id ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600 opacity-70"}
             `}
-            onClick={() => setActiveClinicId(clinic.id)} // You can add logic here to switch clinics
+            onClick={() => handleClinicClick(clinic.id)}
           >
             <span className="text-base font-medium">{clinic.name}</span>
-            {clinic.active && <FaCheck className="text-blue-600 w-5 h-5" />}
+            {activeClinicId === clinic.id && <FaCheck className="text-blue-600 w-5 h-5" />}
           </div>
         ))
       )}

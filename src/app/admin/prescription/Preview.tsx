@@ -1,6 +1,12 @@
 "use client";
 import React, { useRef } from "react";
-import { FaPrint, FaSave, FaEdit, FaArrowLeft } from "react-icons/fa";
+import {
+  FaPrint,
+  FaSave,
+  FaEdit,
+  FaArrowLeft,
+  FaHospital,
+} from "react-icons/fa";
 import { useReactToPrint } from "react-to-print";
 import { Drug, Dosage } from "./DrugEntry";
 
@@ -21,6 +27,19 @@ interface PrescriptionPreviewProps {
   drugs?: Drug[];
   nextFollowUp: string;
   followUpDuration: string;
+  activeClinic: Clinic | undefined;
+}
+interface Clinic {
+  id: number;
+  name: string;
+  location: string;
+  appointmentLimit: number;
+  active: boolean;
+  // Assuming your API response includes these fields
+  imageLink?: string;
+  department?: string; // Add department here if it's in your API response
+  title?: string; // Add title here if it's in your API response
+  address?: string; // Add address here if it's in your API response
 }
 
 const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
@@ -36,6 +55,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
   drugs,
   nextFollowUp,
   followUpDuration,
+  activeClinic,
 }) => {
   const prescriptionRef = useRef<HTMLDivElement>(null);
 
@@ -87,23 +107,27 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
           {/* This div will be the only content printed */}
           <div ref={prescriptionRef} className="prescription-print-content">
             {/* Header section */}
-            <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0">
-              <div>
+            <div className="flex flex-col sm:flex-row justify-between items-start w-full gap-4 sm:gap-0">
+              <div className="flex-1">
                 <h3 className="text-lg font-bold">{doctorName}</h3>
                 <p className="text-sm sm:text-base">{doctorSpecialization}</p>
                 <p className="text-sm sm:text-base">{doctorDegree}</p>
                 <p className="text-sm sm:text-base">{doctorEmail}</p>
               </div>
-              <div className="text-left sm:text-right">
-                {/* <img
-                  src="/hospital_logo.png"
-                  alt="Digambar Healthcare Center"
-                  className="w-24 sm:w-32 h-auto"
-                /> */}
+              <div className="text-left sm:text-right flex flex-col items-start sm:items-end">
+                {activeClinic?.imageLink ? (
+                  <img
+                    src={activeClinic?.imageLink}
+                    alt={activeClinic?.name || "Clinic Image"}
+                    className="w-24 h-16 rounded-md object-cover mb-1"
+                  />
+                ) : (
+                  <FaHospital className="text-green-500 text-4xl mb-1" />
+                )}
                 <p className="font-semibold text-sm sm:text-base">
-                  Digambar Healthcare Center
+                  {activeClinic?.name}
                 </p>
-                <p className="text-sm sm:text-base">Gorakhpur, U.P. India</p>
+                <p className="text-sm sm:text-base">{activeClinic?.address}</p>
               </div>
             </div>
 
