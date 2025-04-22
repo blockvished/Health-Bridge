@@ -8,6 +8,20 @@ import { FiChevronRight } from "react-icons/fi";
 import { menuItemsDoctor } from "./menuItems";
 import LeftPopup from "./LeftPopup";
 import { live_doctors_icon, temp } from "./global_variables";
+import Cookies from "js-cookie";
+
+interface Clinic {
+  id: number;
+  name: string;
+  location: string;
+  appointmentLimit: number;
+  active: boolean;
+  // Assuming your API response includes these fields
+  imageLink?: string;
+  department?: string; // Add department here if it's in your API response
+  title?: string; // Add title here if it's in your API response
+  address?: string; // Add address here if it's in your API response
+}
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -28,6 +42,53 @@ const Sidebar: React.FC<SidebarProps> = ({
   const sidebarButtonRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+
+  const [userId, setUserId] = useState<string | null>(null);
+  const [clinicsData, setClinicsData] = useState<Clinic[]>([]);
+
+  useEffect(() => {
+    const fetchClinics = async () => {
+      if (userId) {
+        try {
+          const response = await fetch(`/api/doctor/clinic/${userId}`);
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(
+              errorData.message || `Failed to fetch clinics: ${response.status}`
+            );
+          }
+          const data = await response.json();
+          console.log("Fetched clinics:", data);
+          setClinicsData(data);
+
+          // If clinics exist, check and potentially update the stored clinic ID
+          if (data && data.length > 0) {
+            const currentClinicId = Cookies.get("currentClinicId");
+            const firstClinicId = String(data[0].id);
+            console.log("currentClinicId exists", currentClinicId)
+
+            // If no clinic ID is stored or it's not a valid ID from the fetched data, store the first clinic's ID
+            if (!currentClinicId || !data.some((clinic: Clinic) => String(clinic.id) === currentClinicId)) {
+              Cookies.set("currentClinicId", firstClinicId);
+              console.log("Clinic ID stored in cookie:", firstClinicId);
+            } else {
+              console.log("Current clinic ID is valid:", currentClinicId);
+            }
+          }
+        } catch (err: any) {
+          console.error("Error fetching clinics:", err);
+        } finally {
+        }
+      }
+    };
+
+    fetchClinics();
+  }, [userId]);
+
+  useEffect(() => {
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
 
   // Set isMounted to true after component mounts
   useEffect(() => {
