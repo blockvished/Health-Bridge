@@ -16,6 +16,7 @@ interface PrescriptionPreviewProps {
   doctorSpecialization?: string;
   doctorDegree?: string;
   doctorEmail?: string;
+  signatureImage?: string;
   patient?: {
     name: string;
     age: number;
@@ -48,6 +49,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
   doctorSpecialization,
   doctorDegree,
   doctorEmail,
+  signatureImage,
   patient,
   advices,
   diagnosticTests,
@@ -250,8 +252,17 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
             {/* Footer content */}
             <div className="mt-16 sm:mt-32 pt-8 border-t border-gray-200">
               <div className="text-right">
+                {signatureImage ? (
+                  <img
+                    src={signatureImage}
+                    alt={`${doctorName}'s signature`}
+                    className="h-16 inline-block mb-2"
+                    style={{ maxWidth: "200px", objectFit: "contain" }}
+                  />
+                ) : (
+                  <p className="text-sm">Signature</p>
+                )}
                 <p className="font-semibold">{doctorName}</p>
-                <p className="text-sm">Signature</p>
               </div>
             </div>
           </div>
