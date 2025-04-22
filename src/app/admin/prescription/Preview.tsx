@@ -146,7 +146,12 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                 Kg
               </p>
               <p>
-                <span className="font-semibold">Date:</span> 25 Mar 2025
+                <span className="font-semibold">Date:</span>{" "}
+                {new Date().toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
               </p>
             </div>
 
