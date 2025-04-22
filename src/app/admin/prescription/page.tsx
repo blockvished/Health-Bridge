@@ -41,6 +41,19 @@ type PrescriptionState = {
   drugs: Drug[];
 };
 
+interface Clinic {
+  id: number;
+  name: string;
+  location: string;
+  appointmentLimit: number;
+  active: boolean;
+  // Assuming your API response includes these fields
+  imageLink?: string;
+  department?: string; // Add department here if it's in your API response
+  title?: string; // Add title here if it's in your API response
+  address?: string; // Add address here if it's in your API response
+}
+
 export default function CreatePrescription() {
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -49,8 +62,60 @@ export default function CreatePrescription() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isPatientDropdownOpen, setIsPatientDropdownOpen] = useState(false);
   const [togglePreview, setTogglePreview] = useState<boolean>(false);
+  const [activeClinic, setActiveClinic] = useState<Clinic>();
+  const [allClinics, setAllClinics] = useState<Clinic[]>([]);
+  const [prevClinicId, setPrevClinicId] = useState<number | null>(null);
 
   const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchClinics = async () => {
+      if (userId) {
+        try {
+          const response = await fetch(`/api/doctor/clinic/${userId}`);
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(
+              errorData.message || `Failed to fetch clinics: ${response.status}`
+            );
+          }
+          const data: Clinic[] = await response.json();
+          setAllClinics(data);
+          const storedClinicId = Cookies.get("currentClinicId");
+
+          if (storedClinicId) {
+            const currentId = parseInt(storedClinicId, 10);
+            if (currentId !== prevClinicId) {
+              const matchedClinic = data.find(
+                (clinic) => clinic.id === currentId
+              );
+              setActiveClinic(matchedClinic);
+              setPrevClinicId(currentId);
+              console.log("Active clinic found/updated:", matchedClinic);
+            } else {
+              console.log("Clinic ID unchanged, no update needed.");
+            }
+          } else if (data.length > 0) {
+            setActiveClinic(data[0]);
+            Cookies.set("currentClinicId", String(data[0].id));
+            setPrevClinicId(data[0].id);
+            console.log("Default active clinic set:", data[0]);
+          } else {
+            setActiveClinic(undefined);
+            setPrevClinicId(null);
+          }
+        } catch (err: any) {
+          console.error("Error fetching clinics:", err);
+        } finally {
+        }
+      }
+    };
+
+    fetchClinics();
+    const intervalId = setInterval(fetchClinics, 60000);
+
+    return () => clearInterval(intervalId);
+  }, [userId, prevClinicId]); // Re-run if userId changes or prevClinicId changes
 
   const [prescription, setPrescription] = useState<PrescriptionState>({
     patient: "",
@@ -283,9 +348,17 @@ export default function CreatePrescription() {
             <p className="text-gray-600 text-sm">{doctorData?.degree}</p>
           </div>
           <div className="text-right flex flex-col items-end">
-            <FaHospital className="text-green-500 text-4xl" />
-            <p className="text-sm font-semibold">Digambar Healthcare Center</p>
-            <p className="text-xs text-gray-500">Gorakhpur, U.P. India</p>
+            {activeClinic?.imageLink ? (
+              <img
+                src={activeClinic?.imageLink}
+                alt={activeClinic?.name || "Clinic Image"}
+                className="w-16 h-16 rounded-full object-cover mb-1" // Adjust size as needed
+              />
+            ) : (
+              <FaHospital className="text-green-500 text-4xl mb-1" />
+            )}
+            <p className="text-sm font-semibold">{activeClinic?.name}</p>
+            <p className="text-xs text-gray-500">{activeClinic?.address}</p>
           </div>
         </div>
 
@@ -413,7 +486,6 @@ export default function CreatePrescription() {
                     </div>
                   )}
                 </div>
- 
               </div>
             </div>
 
@@ -448,7 +520,6 @@ export default function CreatePrescription() {
         <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6">
           <button
             onClick={() => setTogglePreview((prev) => !prev)}
-
             className="bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 flex items-center gap-2 cursor-pointer"
           >
             <FaPrint className="text-white" />
