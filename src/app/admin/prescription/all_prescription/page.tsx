@@ -1,56 +1,135 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FaPlus, FaTrash, FaDownload } from "react-icons/fa";
+import { format, parseISO } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz'; // Import toZonedTime
 
-// Sample data for prescriptions
-const initialPrescriptions = [
-  {
-    id: 1,
-    mrNo: "12345",
-    patientName: "John Doe",
-    phone: "(123) 456-7890",
-    email: "john.doe@example.com",
-    created: "2024-03-17 12:00 PM",
-  },
-  {
-    id: 2,
-    mrNo: "67890",
-    patientName: "Jane Smith",
-    phone: "(987) 654-3210",
-    email: "jane.smith@example.com",
-    created: "2024-03-18 02:30 PM",
-  },
-  {
-    id: 3,
-    mrNo: "13579",
-    patientName: "Alice Johnson",
-    phone: "(111) 222-3333",
-    email: "alice.johnson@example.com",
-    created: "2024-03-19 09:45 AM",
-  },
-  // Add more prescriptions as needed
-];
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+interface Patient {
+  id: number;
+  userId: number;
+  age: number;
+  weight: number;
+  user?: User;
+}
+
+interface MedicationDosage {
+  id: number;
+  medicationId: number;
+  morning?: string;
+  afternoon?: string;
+  evening?: string;
+  night?: string;
+  whenToTake?: string;
+  howManyDaysToTakeMedication?: number;
+  medicationFrequecyType?: string;
+  note?: string;
+}
+
+interface Medication {
+  id: number;
+  prescriptionId: number;
+  drugType?: string;
+  drugName: string;
+  medicationDosage: MedicationDosage[];
+}
+
+interface Prescription {
+  id: number;
+  patientId: number;
+  doctorId: number;
+  clinicId: number;
+  advice?: string;
+  diagnosisTests?: string;
+  nextFollowUp?: number;
+  nextFollowUpType?: string;
+  prescriptionNotes?: string;
+  createdAt: string;
+  updatedAt?: string;
+  medication: Medication[];
+  patient?: Patient;
+}
 
 export default function Prescriptions() {
   const router = useRouter();
-  const [prescriptions, setPrescriptions] = React.useState(initialPrescriptions);
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPrescriptions = async () => {
+      try {
+        const response = await fetch("/api/doctor/prescription/get_all");
+        if (!response.ok) {
+          throw new Error(`Failed to fetch prescriptions: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data && data.prescriptions) {
+          setPrescriptions(data.prescriptions);
+        } else {
+          setError("Invalid data format received from the API.");
+        }
+      } catch (err: any) {
+        setError(err.message || "An error occurred while fetching prescriptions.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPrescriptions();
+  }, []);
 
   const handleDelete = (id: number) => {
     if (window.confirm("Are you sure you want to delete this prescription?")) {
+      // In a real application, you would also delete the prescription from the server
       setPrescriptions((prevPrescriptions) =>
         prevPrescriptions.filter((prescription) => prescription.id !== id)
       );
-      alert(`Prescription with ID ${id} deleted.`);
+      alert(`Prescription with ID ${id} deleted (client-side only).`);
     }
   };
 
   const handleDownload = (id: number) => {
     console.log(`Downloading prescription with ID: ${id}`);
-    alert(`Downloading prescription with ID: ${id}`);
-    // ... your download logic here
+    alert(`Downloading prescription with ID ${id} (client-side only).`);
+    // In a real application, you would initiate the download from the server
   };
+
+  const displayISTTime = (dateString: string) => {
+    try {
+      // Attempt to parse the date string.  parseISO handles many formats.
+      const parsedDate = parseISO(dateString);
+      const istDate = toZonedTime(parsedDate, 'Asia/Kolkata'); // Use toZonedTime
+      return format(istDate, "PPPppp");
+    } catch (error) {
+      console.error("Error formatting date:", error, "Date String:", dateString);
+      return "Invalid Date";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center p-4">
+        <p>Loading prescriptions...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center p-4 text-red-500">
+        <p>Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow-lg w-full max-w-5xl mx-auto">
@@ -89,14 +168,20 @@ export default function Prescriptions() {
                 className="hover:bg-gray-50 transition-all"
               >
                 <td className="py-3 px-4 text-gray-700">{prescription.id}</td>
-                <td className="py-3 px-4 text-gray-700">{prescription.mrNo}</td>
+                <td className="py-3 px-4 text-gray-700">{prescription.patient?.id}</td>
                 <td className="py-3 px-4 text-gray-700">
-                  {prescription.patientName}
+                  {prescription.patient?.user?.name || "N/A"}
                 </td>
-                <td className="py-3 px-4 text-gray-700">{prescription.phone}</td>
-                <td className="py-3 px-4 text-gray-700">{prescription.email}</td>
                 <td className="py-3 px-4 text-gray-700">
-                  {prescription.created}
+                  {prescription.patient?.user?.phone || "N/A"}
+                </td>
+                <td className="py-3 px-4 text-gray-700">
+                  {prescription.patient?.user?.email || "N/A"}
+                </td>
+                <td className="py-3 px-4 text-gray-700">
+                  {prescription.createdAt
+                    ? displayISTTime(prescription.createdAt)
+                    : "N/A"}
                 </td>
                 <td className="py-3 px-4 text-gray-700 flex space-x-2">
                   <button
@@ -120,3 +205,4 @@ export default function Prescriptions() {
     </div>
   );
 }
+
