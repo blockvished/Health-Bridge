@@ -148,6 +148,13 @@
       "when": 1745308516013,
       "tag": "0020_equal_diamondback",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1745393860819,
+      "tag": "0021_stormy_anthem",
+      "breakpoints": true
     }
   ]
 }
