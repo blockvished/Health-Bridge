@@ -228,6 +228,11 @@ export const prescription = pgTable("prescription", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const prescriptionRelations = relations(prescription, ({ many }) => ({
+  medication: many(medication),
+}));
+
+
 export const medication = pgTable("medication", {
   id: serial("id").primaryKey(),
   prescriptionId: integer("prescription_id")
@@ -238,6 +243,15 @@ export const medication = pgTable("medication", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const medicationRelations = relations(medication, ({ one, many }) => ({
+  prescription: one(prescription, {
+    fields: [medication.prescriptionId],
+    references: [prescription.id],
+  }),
+  medicationDosage: many(medicationDosage),
+}));
+
 
 export const medicationDosage = pgTable("medication_dosage", {
   id: serial("id").primaryKey(),
@@ -255,6 +269,16 @@ export const medicationDosage = pgTable("medication_dosage", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export const medicationDosageRelations = relations(
+  medicationDosage,
+  ({ one }) => ({
+    medication: one(medication, {
+      fields: [medicationDosage.medicationId],
+      references: [medication.id],
+    }),
+  })
+);
 
 export const doctorBankDetail = pgTable("doctor_bank_detail", {
   id: serial("id").primaryKey(),
