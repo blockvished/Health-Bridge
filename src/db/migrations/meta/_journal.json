@@ -155,6 +155,20 @@
       "when": 1745393860819,
       "tag": "0021_stormy_anthem",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1745398578074,
+      "tag": "0022_jittery_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1745403344668,
+      "tag": "0023_wealthy_molten_man",
+      "breakpoints": true
     }
   ]
 }
