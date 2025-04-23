@@ -188,7 +188,7 @@ export const TimeFrequencyType = pgEnum("time_frequency_type", [
 export const MealTimeType = pgEnum("meal_time", [
   "after_meal",
   "before_meal",
-  "after/before_meal",
+  "after_before_meal",
 ]);
 
 export const DosageType = pgEnum("dosage_type", [
