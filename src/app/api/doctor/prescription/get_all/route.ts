@@ -14,22 +14,22 @@ import { verifyAuthToken } from "../../../../lib/verify";
 export async function GET(req: NextRequest) {
   // Get ID from URL
   // *** COMMENT OUT AUTHENTICATION AND AUTHORIZATION BELOW ***
+  //   const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
+
   // // Verify JWT token
-  // const decodedOrResponse = await verifyAuthToken();
-  // if (decodedOrResponse instanceof NextResponse) return decodedOrResponse;
-  // const { userId } = decodedOrResponse;
-  // const numericUserId = Number(userId);
+  const decodedOrResponse = await verifyAuthToken();
+  if (decodedOrResponse instanceof NextResponse) return decodedOrResponse;
+  const { userId } = decodedOrResponse;
 
-  // // Check if the requested ID matches the authenticated user's ID
-  // if (String(numericUserId) !== userIdFromUrl) {
-  //   return NextResponse.json(
-  //     { error: "Forbidden: You don't have access to this profile" },
-  //     { status: 403 }
-  //   );
-  // }
+  const numericUserId = Number(userId);
 
-  // *** HARDCODE A DOCTOR ID FOR TESTING ***
-  const numericUserId = Number(1); // Use the ID from the URL for doctor lookup
+  //   // Check if the requested ID matches the authenticated user's ID
+  //   if (String(numericUserId) !== userIdFromUrl) {
+  //     return NextResponse.json(
+  //       { error: "Forbidden: You don't have access to this profile" },
+  //       { status: 403 }
+  //     );
+  //   }
 
   // Find the doctor's record
   const doctorData = await db
@@ -47,24 +47,18 @@ export async function GET(req: NextRequest) {
   const requiredDoctorId = doctorData[0].id;
 
   try {
-    const prescriptionsWithDetails = await db.query.prescription.findMany({
-      where: eq(prescription.doctorId, requiredDoctorId),
+    const allPrescriptionsWithDetails = await db.query.prescription.findMany({
       with: {
-        medication: true,
+        medication: {
+          with: {
+            medicationDosage: true,
+          },
+        },
       },
     });
 
-    // const prescriptionsWithDetails = await db.query.prescription.findMany({
-    //     where: eq(prescription.doctorId, requiredDoctorId),
-    //     with: {
-    //       medication: {
-            
-    //       },
-    //     },
-    //   });
-
     return NextResponse.json(
-      { prescriptions: prescriptionsWithDetails },
+      { prescriptions: allPrescriptionsWithDetails },
       { status: 200 }
     );
   } catch (error) {
