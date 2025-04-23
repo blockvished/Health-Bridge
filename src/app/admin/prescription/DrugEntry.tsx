@@ -88,7 +88,7 @@ function DrugEntry({
       night: "0",
       durationValue: "1",
       durationUnit: "Days",
-      mealTime: "Before/After Meal",
+      mealTime: "after_before_meal",
       note: "",
     };
     onDrugChange({
@@ -248,9 +248,9 @@ function DrugEntry({
                 updateDosage(dosage.id, "mealTime", e.target.value)
               }
             >
-              <option value="Before/After Meal" className="cursor-pointer">Before/After Meal</option>
-              <option value="Before Meal" className="cursor-pointer">Before Meal</option>
-              <option value="After Meal" className="cursor-pointer">After Meal</option>
+              <option value="after_before_meal" className="cursor-pointer">Before/After Meal</option>
+              <option value="before_meal" className="cursor-pointer">Before Meal</option>
+              <option value="after_meal" className="cursor-pointer">After Meal</option>
             </select>
           </div>
 

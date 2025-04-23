@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq, and } from "drizzle-orm";
-import { doctor, prescription, medication } from "../../../../../db/schema";
+import {
+  doctor,
+  prescription,
+  medication,
+  medicationDosage,
+} from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
 
-// Define enum types to match your schema
-type TimeFrequencyType = "days" | "weeks" | "months";
-type MealTimeType = "after_meal" | "before_meal" | "after/before_meal";
-type DrugType = "cap" | "tab" | "syp" | "oin";
-type DosageType = 
+type ValidTimeFrequencyType = "days" | "weeks" | "months";
+type ValidDosageType =
   | "0"
   | "1"
   | "2"
@@ -21,19 +23,29 @@ type DosageType =
   | "2 ml"
   | "3 ml"
   | "4 ml"
-  | "5 ml"
-  | null;
+  | "5 ml";
+type ValidMealTimeType = "after_meal" | "before_meal" | "after_before_meal";
 
-type DrugDosage = {
-  time: "morning" | "afternoon" | "evening" | "night";
-  value: string;
+// Define enum types to match your schema
+type ValidDrugType = "cap" | "tab" | "syp" | "oin";
+
+type APIDrugDosage = {
+  id?: number;
+  morning?: string;
+  afternoon?: string;
+  evening?: string;
+  night?: string;
+  durationValue?: string;
+  durationUnit?: string;
+  mealTime?: string;
+  note?: string;
 };
 
-type Drug = {
-  id: number;
+type APIDrug = {
+  id?: number;
   name: string;
-  type: DrugType;
-  dosages: DrugDosage[];
+  type: ValidDrugType;
+  dosages: APIDrugDosage[];
 };
 
 // POST - create
@@ -70,6 +82,7 @@ export async function POST(req: NextRequest) {
   }
 
   const requiredDoctorId = doctorData[0].id;
+  console.log(requiredDoctorId);
 
   try {
     const reqBody = await req.json();
@@ -91,113 +104,78 @@ export async function POST(req: NextRequest) {
       nextFollowUp: string | number;
       nextFollowUpType: string;
       prescriptionNotes: string;
-      drugs: Drug[];
+      drugs: APIDrug[];
     } = reqBody;
-    
-    // Convert nextFollowUpType to proper enum value
-    const validatedFollowUpType: TimeFrequencyType = 
-      nextFollowUpType === "day" || nextFollowUpType === "days" ? "days" :
-      nextFollowUpType === "week" || nextFollowUpType === "weeks" ? "weeks" :
-      nextFollowUpType === "month" || nextFollowUpType === "months" ? "months" :
-      "days"; // Default to days if invalid
-      
+
+    const lowerCaseNextFollowUpType = (nextFollowUpType || "").toLowerCase();
+
+    console.log("drugs:", JSON.stringify(drugs, null, 2));
+
     const [newPrescription] = await db
       .insert(prescription)
       .values({
-        patientId: typeof patientId === 'string' ? parseInt(patientId) : patientId,
+        patientId:
+          typeof patientId === "string" ? parseInt(patientId) : patientId,
         doctorId: requiredDoctorId,
-        clinicId: typeof clinicId === 'string' ? parseInt(clinicId) : clinicId,
+        clinicId: typeof clinicId === "string" ? parseInt(clinicId) : clinicId,
         advice,
         diagnosisTests,
-        nextFollowUp: typeof nextFollowUp === 'string' ? parseInt(nextFollowUp) : nextFollowUp,
-        nextFollowUpType: validatedFollowUpType,
+        nextFollowUp:
+          typeof nextFollowUp === "string"
+            ? parseInt(nextFollowUp)
+            : nextFollowUp,
+        nextFollowUpType: lowerCaseNextFollowUpType as ValidTimeFrequencyType,
         prescriptionNotes,
       })
       .returning({ id: prescription.id });
 
     if (drugs && Array.isArray(drugs)) {
-      const medicationValues = drugs
-        .filter((drug) => drug.name)
-        .map((drug) => {
-          // Map dosage values to proper enum values
-          const mapToDosageType = (value: string | null): DosageType => {
-            if (!value) return null;
-            
-            // Map to one of the valid DosageType enum values
-            const validDosageTypes = ["0", "1", "2", "3", "4", "5", "1/2", "0.5 ml", "1 ml", "2 ml", "3 ml", "4 ml", "5 ml"];
-            if (validDosageTypes.includes(value)) {
-              return value as DosageType;
-            }
-            
-            // If not a direct match, try to find the closest match
-            if (value === "0.5") return "1/2";
-            if (value === "AS_NEEDED") return "1"; // Default to 1 for AS_NEEDED
-            
-            return "1"; // Default if not matching
-          };
-          
-          const dosagesObj = drug.dosages.reduce<{
-            morning: DosageType;
-            afternoon: DosageType;
-            evening: DosageType;
-            night: DosageType;
-          }>(
-            (acc, dosage: DrugDosage) => {
-              const { time, value } = dosage;
-              if (time === "morning") acc.morning = mapToDosageType(value);
-              if (time === "afternoon") acc.afternoon = mapToDosageType(value);
-              if (time === "evening") acc.evening = mapToDosageType(value);
-              if (time === "night") acc.night = mapToDosageType(value);
-              return acc;
-            },
-            {
-              morning: null,
-              afternoon: null,
-              evening: null,
-              night: null,
-            }
-          );
-
-          const daysToTake = typeof nextFollowUp === 'string' 
-            ? parseInt(nextFollowUp) 
-            : nextFollowUp;
-
-          // Map drug type to match enum
-          const mapDrugType = (type: string): DrugType => {
-            const typeMap: Record<string, DrugType> = {
-              "TAB": "tab",
-              "SYP": "syp",
-              "CAP": "cap",
-              "OIN": "oin",
-            };
-            
-            return typeMap[type] || "tab"; // Default to tab if not found
-          };
-
-          return {
+      for (const drugItem of drugs) {
+        // Insert the medication
+        const [newMedication] = await db
+          .insert(medication)
+          .values({
             prescriptionId: newPrescription.id,
-            drugName: drug.name,
-            drugType: mapDrugType(drug.type),
-            morning: dosagesObj.morning,
-            afternoon: dosagesObj.afternoon,
-            evening: dosagesObj.evening,
-            night: dosagesObj.night,
-            whenToTake: "after_meal" as MealTimeType, // Changed to lowercase to match enum
-            note: "",
-            howManyDaysToTakeMedication: daysToTake,
-            medicationFrequecyType: validatedFollowUpType,
-          };
-        });
+            drugType: drugItem.type.toLowerCase() as ValidDrugType, // Use the actual DrugType
+            drugName: drugItem.name,
+          })
+          .returning({ id: medication.id });
 
-      if (medicationValues.length > 0) {
-        await db.insert(medication).values(medicationValues);
+        if (newMedication?.id && Array.isArray(drugItem.dosages)) {
+          for (const dosage of drugItem.dosages) {
+            await db.insert(medicationDosage).values({
+              medicationId: newMedication.id,
+              morning: dosage.morning as ValidDosageType | undefined, // Use ValidDosageType
+              afternoon: dosage.afternoon as ValidDosageType | undefined, // Use ValidDosageType
+              evening: dosage.evening as ValidDosageType | undefined, // Use ValidDosageType
+              night: dosage.night as ValidDosageType | undefined, // Use ValidDosageType
+              whenToTake: dosage.mealTime as ValidMealTimeType,
+              howManyDaysToTakeMedication: dosage.durationValue
+                ? parseInt(dosage.durationValue)
+                : undefined,
+              medicationFrequecyType: dosage.durationUnit?.toLowerCase() as
+                | ValidTimeFrequencyType
+                | undefined, // Use ValidTimeFrequencyType
+              note: dosage.note,
+            });
+          }
+        }
       }
-    }
 
-    return NextResponse.json(
-      { success: true, prescriptionId: newPrescription.id },
-      { status: 201 }
-    );
+      return NextResponse.json(
+        { success: true, prescriptionId: newPrescription.id },
+        { status: 201 }
+      );
+    } else {
+      return NextResponse.json(
+        {
+          success: true,
+          prescriptionId: newPrescription.id,
+          message: "Prescription created without medications.",
+        },
+        { status: 201 }
+      );
+    }
   } catch (error) {
     console.error("Error creating prescription:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
