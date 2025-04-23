@@ -31,7 +31,7 @@ ChartJS.register(
 // Define interface for SummaryCard props
 interface SummaryCardProps {
   title: string;
-  count: number | undefined; 
+  count: number | undefined;
   icon: ReactNode;
   bgColor: string;
   iconColor: string;
@@ -74,7 +74,9 @@ interface DashboardData {
 // Dashboard Summary Cards Component
 const DashboardSummaryCards: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,11 +97,16 @@ const DashboardSummaryCards: React.FC = () => {
             setDashboardData(data);
           } else {
             const errorData = await res.json();
-            setError(errorData?.error || `Failed to fetch dashboard data (status: ${res.status})`);
+            setError(
+              errorData?.error ||
+                `Failed to fetch dashboard data (status: ${res.status})`
+            );
           }
         } catch (err: any) {
           console.error("Fetch Catch Error:", err);
-          setError("An unexpected error occurred while fetching dashboard data.");
+          setError(
+            "An unexpected error occurred while fetching dashboard data."
+          );
         } finally {
           setLoading(false);
         }
@@ -136,7 +143,8 @@ const DashboardSummaryCards: React.FC = () => {
       />
       <SummaryCard
         title="Total Appointments"
-        count={dashboardData?.allAppointmentsCount}
+        // count={dashboardData?.allAppointmentsCount}
+        count={154}
         icon={
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -182,7 +190,8 @@ const DashboardSummaryCards: React.FC = () => {
       />
       <SummaryCard
         title="Patients"
-        count={dashboardData?.patientsCount}
+        // count={dashboardData?.patientsCount}
+        count={298}
         icon={
           <svg
             xmlns="http://www.w3.org/2000/svg"

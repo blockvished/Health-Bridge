@@ -336,12 +336,14 @@ export default function CreatePrescription() {
   return togglePreview ? (
     <PrescriptionPreview
       setTogglePreview={setTogglePreview}
+      userId={userId}
       doctorName={doctorData?.name}
       doctorSpecialization={doctorData?.specialization}
       doctorDegree={doctorData?.degree}
       doctorEmail={doctorData?.email}
       signatureImage={doctorData?.signatureImage}
       patient={{
+        id: selectedPatient?.id || 0,
         name: selectedPatient?.name || "",
         age: Number(selectedPatient?.age) || 0,
         weight: Number(selectedPatient?.weight) || 0,

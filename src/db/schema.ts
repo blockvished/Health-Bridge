@@ -232,18 +232,25 @@ export const prescription = pgTable("prescription", {
 export const medication = pgTable("medication", {
   id: serial("id").primaryKey(),
   prescriptionId: integer("prescription_id")
-    .notNull()
-    .references(() => prescription.id, { onDelete: "cascade" }),
+      .notNull()
+      .references(() => prescription.id, { onDelete: "cascade" }),
   drugType: DrugType("drug_type"),
   drugName: varchar("drug_name", { length: 255 }).notNull(),
-  morning: DosageType("morning"), // Use the DosageType enum
-  afternoon: DosageType("afternoon"), // Use the DosageType enum
-  evening: DosageType("evening"), // Use the DosageType enum
-  night: DosageType("night"), // Use the DosageType enum
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const medicationDosage = pgTable("medication_dosage", {
+  id: serial("id").primaryKey(),
+  medicationId: integer("medication_id")
+      .notNull()
+      .references(() => medication.id, { onDelete: "cascade" }),
+  dosageType: DosageType("dosage_type").notNull(),  // e.g., 'morning', 'afternoon'
+  dosage: varchar("dosage", { length: 50 }).notNull(), // e.g., '10mg', '2 tablets'
   whenToTake: MealTimeType("when_to_take"),
   note: text("note"),
   howManyDaysToTakeMedication: integer("how_many_days_to_take_medication"),
-  medicationFrequecyType: TimeFrequencyType("medication_frequecy_type"),
+  medicationFrequencyType: TimeFrequencyType("medication_frequecy_type"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
