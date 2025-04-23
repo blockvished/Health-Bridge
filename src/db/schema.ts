@@ -50,6 +50,39 @@ export const consultationPlatform = pgEnum("consultation_platform", [
   "teams",
 ]);
 
+export const TimeFrequencyType = pgEnum("time_frequency_type", [
+  "days",
+  "weeks",
+  "months",
+]);
+
+export const MealTimeType = pgEnum("meal_time", [
+  "after_meal",
+  "before_meal",
+  "after_before_meal",
+]);
+
+export const DosageType = pgEnum("dosage_type", [
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "1/2",
+  "0.5 ml",
+  "1 ml",
+  "2 ml",
+  "3 ml",
+  "4 ml",
+  "5 ml",
+]);
+
+export const DrugType = pgEnum("drug_type", ["cap", "tab", "syp", "oin"]);
+
+///
+// Users
+///
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -64,6 +97,24 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const usersRelations = relations(users, ({ one }) => ({
+  patient: one(patient, {
+    fields: [users.id], // Specify the field in the 'users' table
+    references: [patient.userId], // Specify the referenced field in the 'patient' table
+  }),
+  doctor: one(doctor, {
+    fields: [users.id], // Specify the field in the 'users' table
+    references: [doctor.userId], // Specify the referenced field in the 'doctor' table
+  }),
+  staff: one(staff, {
+    fields: [users.id], // Specify the field in the 'users' table
+    references: [staff.userId], // Specify the referenced field in the 'doctor' table
+  }),
+}));
+
+///
+// Doctor
+///
 export const doctor = pgTable("doctor", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
@@ -89,6 +140,55 @@ export const doctor = pgTable("doctor", {
   linkedin_link: text("linkedin_link"),
   seo_description: text("seo_description"),
 });
+
+export const doctorRelations = relations(doctor, ({ one, many }) => ({
+  user: one(users, {
+    fields: [doctor.userId],
+    references: [users.id],
+  }),
+  patients: many(patient),
+  metaTags: many(doctorMetaTags),
+  educations: many(doctorEducation),
+  experiences: many(doctorExperience),
+}));
+
+//
+// Patient
+//
+export const patient = pgTable("patient", {
+  id: serial("id").primaryKey(),
+
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
+
+  abhaId: text("abha_id"),
+  age: integer("age"),
+  weight: integer("weight"),
+  height: integer("height"),
+  address: text("address"),
+  gender: genderEnum("gender"), // assuming genderEnum is already defined
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const patientRelations = relations(patient, ({ one, many }) => ({
+  user: one(users, {
+    fields: [patient.userId],
+    references: [users.id],
+  }),
+  prescription: many(prescription),
+  doctor: one(doctor, {
+    fields: [patient.doctorId],
+    references: [doctor.id],
+  }),
+}));
+
+// clinic
 
 export const clinic = pgTable("clinic", {
   id: serial("id").primaryKey(),
@@ -158,56 +258,6 @@ export const staffPermissions = pgTable(
   }
 );
 
-export const patient = pgTable("patient", {
-  id: serial("id").primaryKey(),
-
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-
-  doctorId: integer("doctor_id")
-    .notNull()
-    .references(() => doctor.id, { onDelete: "cascade" }),
-
-  abhaId: text("abha_id"),
-  age: integer("age"),
-  weight: integer("weight"),
-  height: integer("height"),
-  address: text("address"),
-  gender: genderEnum("gender"), // assuming genderEnum is already defined
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const TimeFrequencyType = pgEnum("time_frequency_type", [
-  "days",
-  "weeks",
-  "months",
-]);
-
-export const MealTimeType = pgEnum("meal_time", [
-  "after_meal",
-  "before_meal",
-  "after_before_meal",
-]);
-
-export const DosageType = pgEnum("dosage_type", [
-  "0",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "1/2",
-  "0.5 ml",
-  "1 ml",
-  "2 ml",
-  "3 ml",
-  "4 ml",
-  "5 ml",
-]);
-
-export const DrugType = pgEnum("drug_type", ["cap", "tab", "syp", "oin"]);
 export const prescription = pgTable("prescription", {
   id: serial("id").primaryKey(),
   patientId: integer("patient_id")
@@ -228,10 +278,16 @@ export const prescription = pgTable("prescription", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const prescriptionRelations = relations(prescription, ({ many }) => ({
-  medication: many(medication),
-}));
-
+export const prescriptionRelations = relations(
+  prescription,
+  ({ one, many }) => ({
+    patient: one(patient, {
+      fields: [prescription.patientId],
+      references: [patient.id],
+    }),
+    medication: many(medication),
+  })
+);
 
 export const medication = pgTable("medication", {
   id: serial("id").primaryKey(),
@@ -251,7 +307,6 @@ export const medicationRelations = relations(medication, ({ one, many }) => ({
   }),
   medicationDosage: many(medicationDosage),
 }));
-
 
 export const medicationDosage = pgTable("medication_dosage", {
   id: serial("id").primaryKey(),
@@ -424,17 +479,6 @@ export const appointmentTimeRanges = pgTable("appointment_time_ranges", {
   startTime: time("start_time").notNull(),
   endTime: time("end_time").notNull(),
 });
-
-// Relations
-export const doctorRelations = relations(doctor, ({ one, many }) => ({
-  user: one(users, {
-    fields: [doctor.userId],
-    references: [users.id],
-  }),
-  metaTags: many(doctorMetaTags),
-  educations: many(doctorEducation),
-  experiences: many(doctorExperience),
-}));
 
 export const doctorMetaTagRelations = relations(doctorMetaTags, ({ one }) => ({
   doctor: one(doctor, {

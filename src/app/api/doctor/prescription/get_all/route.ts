@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq, and } from "drizzle-orm";
 import {
   doctor,
+  patient,
   prescription,
   medication,
   medicationDosage,
@@ -48,14 +49,52 @@ export async function GET(req: NextRequest) {
 
   try {
     const allPrescriptionsWithDetails = await db.query.prescription.findMany({
+      columns: {
+        id: true,
+        advice: true,
+        diagnosisTests: true,
+        nextFollowUp: true,
+        nextFollowUpType: true,
+        prescriptionNotes: true,
+        createdAt: true,
+        doctorId: true,
+        clinicId: true,
+      },
       with: {
         medication: {
+          columns: {
+            id: true,
+            drugType: true,
+            drugName: true,
+          },
           with: {
-            medicationDosage: true,
+            medicationDosage: { columns: { medicationId: true } },
+          },
+        },
+        patient: {
+          // Include the patient relation
+          columns: {
+            id: true,
+            userId: true, // Include userId to link to the users table
+            age: true,
+            weight: true,
+          },
+          with: {
+            user: {
+              columns: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+              },
+            },
           },
         },
       },
     });
+
+    // i also need the name, phone and email of the patient to which could be found by prescription.patientid
+    //  where you have to get userid from patient table and using userid you can get name email and phone
 
     return NextResponse.json(
       { prescriptions: allPrescriptionsWithDetails },
