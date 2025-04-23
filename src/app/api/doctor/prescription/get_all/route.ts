@@ -13,24 +13,14 @@ import { verifyAuthToken } from "../../../../lib/verify";
 // GET - get all prescriptions for a doctor
 // =======================
 export async function GET(req: NextRequest) {
-  // Get ID from URL
   // *** COMMENT OUT AUTHENTICATION AND AUTHORIZATION BELOW ***
-  //   const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
 
-  // // Verify JWT token
+  // Verify JWT token
   const decodedOrResponse = await verifyAuthToken();
   if (decodedOrResponse instanceof NextResponse) return decodedOrResponse;
   const { userId } = decodedOrResponse;
 
   const numericUserId = Number(userId);
-
-  //   // Check if the requested ID matches the authenticated user's ID
-  //   if (String(numericUserId) !== userIdFromUrl) {
-  //     return NextResponse.json(
-  //       { error: "Forbidden: You don't have access to this profile" },
-  //       { status: 403 }
-  //     );
-  //   }
 
   // Find the doctor's record
   const doctorData = await db
