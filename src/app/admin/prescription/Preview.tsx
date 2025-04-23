@@ -12,12 +12,14 @@ import { Drug, Dosage } from "./DrugEntry";
 
 interface PrescriptionPreviewProps {
   setTogglePreview: React.Dispatch<React.SetStateAction<boolean>>;
+  userId?: string | null;
   doctorName?: string;
   doctorSpecialization?: string;
   doctorDegree?: string;
   doctorEmail?: string;
   signatureImage?: string;
   patient?: {
+    id: number;
     name: string;
     age: number;
     weight: number;
@@ -30,6 +32,7 @@ interface PrescriptionPreviewProps {
   followUpDuration: string;
   activeClinic: Clinic | undefined;
 }
+
 interface Clinic {
   id: number;
   name: string;
@@ -45,6 +48,7 @@ interface Clinic {
 
 const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
   setTogglePreview,
+  userId,
   doctorName,
   doctorSpecialization,
   doctorDegree,
@@ -69,6 +73,38 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
     contentRef: prescriptionRef,
   });
 
+  const handleSubmit = async () => {
+    if (!activeClinic?.id || !patient?.id) {
+      console.error("Missing required data: clinic or patient information");
+      return;
+    }
+
+    try {
+      // Option 1: Using FormData (if you really need FormData)
+      const payload = {
+        patientId: patient.id,
+        clinicId: activeClinic.id,
+        advice: advices || "",
+        diagnosisTests: diagnosticTests || "",
+        nextFollowUp: nextFollowUp || "0",
+        nextFollowUpType: followUpDuration || "DAY",
+        prescriptionNotes: notes || "",
+        drugs: drugs || [],
+      };
+      
+      const response = await fetch(`/api/doctor/prescription/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      
+    } catch (error) {
+      console.error("Error saving prescription:", error);
+    }
+  };
+
   return (
     <div className="prescription-container">
       {/* Control buttons */}
@@ -81,7 +117,10 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
           >
             <FaArrowLeft /> Edit
           </button>
-          <button className="ml-2 bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer">
+          <button
+            className="ml-2 bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer"
+            onClick={handleSubmit}
+          >
             <FaSave /> Save & Continue
           </button>
           {/* Fix for the onClick event handler */}
@@ -194,6 +233,16 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                     <p className="text-sm whitespace-pre-wrap">{notes}</p>
                   </div>
                 )}
+                {nextFollowUp && (
+                  <div>
+                    <h3 className="font-bold mb-2 text-sm sm:text-base">
+                      Next Follow up:
+                    </h3>
+                    <p className="text-sm whitespace-pre-wrap">
+                      {nextFollowUp} {followUpDuration} later
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Right side for medications */}
@@ -207,10 +256,12 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                     {drugs.map((drug, index) => (
                       <div key={`drug-${index}`} className="mt-4">
                         <p className="text-md">
-                          <strong>{drug.name}</strong>
                           <span className="text-sm">
-                            {drug.type && `- ( ${drug.type} )`}
+                            {drug.type &&
+                              drug.type.charAt(0).toUpperCase() +
+                                drug.type.slice(1).toLowerCase()}
                           </span>
+                          <strong> {drug.name}</strong>
                         </p>
 
                         {drug.dosages.map((dosage, dosageIndex) => (
@@ -236,14 +287,6 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                   </div>
                 ) : (
                   <></>
-                )}
-                {nextFollowUp && (
-                  <div className="mt-6 sm:mt-10">
-                    <strong>Next Follow up:</strong>
-                    <span className="text-md text-center">
-                      {nextFollowUp} {followUpDuration} later
-                    </span>
-                  </div>
                 )}
               </div>
 
