@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const allPrescriptionsWithDetails = await db.query.prescription.findMany({
+      where: eq(prescription.doctorId, requiredDoctorId),
       columns: {
         id: true,
         advice: true,
@@ -82,9 +83,6 @@ export async function GET(req: NextRequest) {
         },
       },
     });
-
-    // i also need the name, phone and email of the patient to which could be found by prescription.patientid
-    //  where you have to get userid from patient table and using userid you can get name email and phone
 
     return NextResponse.json(
       { prescriptions: allPrescriptionsWithDetails },
