@@ -176,6 +176,13 @@
       "when": 1745470966417,
       "tag": "0024_special_mach_iv",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1745494783861,
+      "tag": "0025_third_whirlwind",
+      "breakpoints": true
     }
   ]
 }
