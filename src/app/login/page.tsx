@@ -38,12 +38,11 @@ const Login = () => {
       if (data.user.role === "doctor") {
         router.push("/admin/dashboard/user");
       } else if (
-        data.user.role === "admin" ||
-        data.user.role === "/admin/dashboard/"
+        data.user.role === "admin"
       ) {
         router.push("/dashboard/admin");
-      } else {
-        router.push("/dashboard");
+      } else if (data.user.role = "patient") {
+        router.push("/admin/dashboard/patient");
       }
     } catch (err: any) {
       setError(err.message || "An error occurred during login");
