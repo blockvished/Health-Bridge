@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { doctor, prescription } from "../../../../../db/schema";
-
 import db from "../../../../../db/db";
-
 import { verifyAuthToken } from "../../../../lib/verify";
-
-
 
 // DELETE - delete a prescription by ID
 // =======================
