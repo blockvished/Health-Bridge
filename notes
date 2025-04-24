@@ -16,11 +16,6 @@ ngrok http 3000
 <div className="hidden md:block">
 <div className="block md:hidden">
 
-//auth fixing salting
-//education and experience fixing when doctorid is not created as userid is not created
-// from and to time validations
-
-
 select * from appointment_time_ranges;
 -- select * from appointment_days;
 -- select * from appointment_settings;
@@ -31,7 +26,10 @@ select * from appointment_time_ranges;
 -- select * from doctor_experience;
 -- select * from doctor_education;
 
-/prescription patient form 
+//auth fixing salting
+//education and experience fixing when doctorid is not created as userid is not created
+// from and to time validations
+
 /subscription etc will be handled from admin side
 on to patient page and admin page
 / review / contact of doctor is remaining and etc
@@ -39,4 +37,4 @@ on to patient page and admin page
 /showing clinic on appointment is pending
 /appointment upload old documents
 
-/prescription signature and date
+/ prescription from patient page and download 
