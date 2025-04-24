@@ -28,22 +28,32 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
 
   const [patientData, setPatientData] = useState<Patient | null>(null);
 
-  // useEffect(() => {
-  //   const fetchDoctor = async () => {
-  //     try {
-  //       const response = await fetch("/api/doctor");
-  //       const data = await response.json();
-  //       if (data.length > 0) {
-  //         setDoctorData(data[0]);
-  //         console.log(data);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching doctor data:", error);
-  //     }
-  //   };
-
-  //   fetchDoctor();
-  // }, []);
+  useEffect(() => {
+    const fetchPatient = async () => {
+      try {
+        const response = await fetch("/api/patient");
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+  
+        if (Array.isArray(data) && data.length > 0) {
+          setPatientData(data[0]);
+          console.log(data);
+        } else {
+          console.warn("No patient data found.");
+        }
+  
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+      }
+    };
+  
+    fetchPatient();
+  }, []);
+  
 
   // Handle logout
   const handleLogout = async () => {
@@ -107,13 +117,9 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full shadow-sm bg-white hover:bg-gray-100 transition"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
-              <img
-                src={temp}
-                alt="Profile"
-                className="w-6 h-6 rounded-full"
-              />
+              <img src={temp} alt="Profile" className="w-6 h-6 rounded-full" />
               <span className="text-gray-800 font-medium hidden sm:inline">
-                Patient name
+                {patientData?.name}
               </span>
 
               <FiChevronDown className="w-5 h-5 text-gray-600" />
@@ -135,9 +141,9 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                 />
                 <div>
                   <h4 className="text-gray-800 font-semibold text-sm">
-                    Patient name
+                    {patientData?.name}
                   </h4>
-                  <p className="text-xs text-gray-500">patient email</p>
+                  <p className="text-xs text-gray-500">{patientData?.email}</p>
                 </div>
               </div>
 
