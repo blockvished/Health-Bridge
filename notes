@@ -16,15 +16,31 @@ ngrok http 3000
 <div className="hidden md:block">
 <div className="block md:hidden">
 
+select * from users;
+select * from doctor;
+select * from doctor_bank_detail;
+select * from doctor_consultation;
+select * from doctor_department;
+select * from doctor_education;
+select * from doctor_experience;
+select * from doctor_meta_tags;
+
+select * from appointment_days;
+select * from appointment_settings;
 select * from appointment_time_ranges;
--- select * from appointment_days;
--- select * from appointment_settings;
--- select * from doctor;
--- select * from patient;
--- select * from users;
--- select * from doctor_meta_tags;
--- select * from doctor_experience;
--- select * from doctor_education;
+select * from appointments;
+
+select * from clinic;
+select * from patient;
+
+select * from prescription;
+select * from medication;
+select * from medication_dosage;
+
+select * from staff;
+select * from staff_permissions;
+select * from permission_types;
+
 
 //auth fixing salting
 //education and experience fixing when doctorid is not created as userid is not created
