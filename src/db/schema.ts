@@ -188,6 +188,19 @@ export const patientRelations = relations(patient, ({ one, many }) => ({
   }),
 }));
 
+export const doctor_ratings = pgTable("doctor_ratings", {
+  id: serial("id").primaryKey(),
+  patientid: integer("patient_id")
+    .notNull()
+    .references(() => patient.id), // Assuming you have a 'patient' table
+  doctorid: integer("doctor_id")
+    .notNull()
+    .references(() => users.id), // Assuming doctors are in your 'users' table
+  rating: integer("rating").notNull(),
+  text: text("text"), // Optional text feedback
+  createdAt: timestamp("created_at").defaultNow(), // Automatically record creation time
+});
+
 // clinic
 
 export const clinic = pgTable("clinic", {
