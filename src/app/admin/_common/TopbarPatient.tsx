@@ -28,22 +28,32 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
 
   const [patientData, setPatientData] = useState<Patient | null>(null);
 
-  // useEffect(() => {
-  //   const fetchDoctor = async () => {
-  //     try {
-  //       const response = await fetch("/api/doctor");
-  //       const data = await response.json();
-  //       if (data.length > 0) {
-  //         setDoctorData(data[0]);
-  //         console.log(data);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching doctor data:", error);
-  //     }
-  //   };
-
-  //   fetchDoctor();
-  // }, []);
+  useEffect(() => {
+    const fetchPatient = async () => {
+      try {
+        const response = await fetch("/api/patient");
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+  
+        if (Array.isArray(data) && data.length > 0) {
+          setPatientData(data[0]);
+          console.log(data);
+        } else {
+          console.warn("No patient data found.");
+        }
+  
+      } catch (error) {
+        console.error("Error fetching patient data:", error);
+      }
+    };
+  
+    fetchPatient();
+  }, []);
+  
 
   // Handle logout
   const handleLogout = async () => {
@@ -93,7 +103,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
       <div className="flex justify-between items-center px-3 py-3 z-100">
         {/* Left: Sidebar Toggle Button */}
         <button
-          className="p-2 rounded-full hover:bg-gray-100"
+          className="p-2 rounded-full hover:bg-gray-100 cursor-pointer"
           onClick={onToggleSidebar}
         >
           <FiMenu className="w-6 h-6" />
@@ -104,16 +114,12 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
           {/* Profile Section */}
           <div className="relative" ref={profileRef}>
             <button
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full shadow-sm bg-white hover:bg-gray-100 transition"
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full shadow-sm bg-white hover:bg-gray-100 transition cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
-              <img
-                src={temp}
-                alt="Profile"
-                className="w-6 h-6 rounded-full"
-              />
+              <img src={temp} alt="Profile" className="w-6 h-6 rounded-full" />
               <span className="text-gray-800 font-medium hidden sm:inline">
-                Patient name
+                {patientData?.name}
               </span>
 
               <FiChevronDown className="w-5 h-5 text-gray-600" />
@@ -135,9 +141,9 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                 />
                 <div>
                   <h4 className="text-gray-800 font-semibold text-sm">
-                    Patient name
+                    {patientData?.name}
                   </h4>
-                  <p className="text-xs text-gray-500">patient email</p>
+                  <p className="text-xs text-gray-500">{patientData?.email}</p>
                 </div>
               </div>
 
@@ -164,7 +170,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                 {/* Logout Button */}
                 <li>
                   <button
-                    className="flex w-full items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition cursor-pointer"
                     onClick={handleLogout}
                   >
                     <FiLogOut className="w-5 h-5 text-red-500" />

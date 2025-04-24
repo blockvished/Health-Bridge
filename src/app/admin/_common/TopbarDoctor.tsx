@@ -14,6 +14,7 @@ import MobileTitle from "./MobileTitleDoctor";
 import { MdAddCircle } from "react-icons/md";
 import { FaCaretDown } from "react-icons/fa";
 import { live_doctors_icon } from "./global_variables";
+import Cookies from "js-cookie";
 
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   onToggleSidebar,
@@ -29,16 +30,51 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   }
 
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Dummy doctor data
-    const dummyDoctor: Doctor = {
-      name: 'Dr. John Doe',
-      email: 'john.doe@example.com',
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
+
+  useEffect(() => {
+    const fetchDoctorData = async () => {
+      if (!userId) return;
+
+      try {
+        const response = await fetch(`/api/doctor/profile/info/get/${userId}`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          let metemeta;
+          if (data.metaTags) {
+            if (Array.isArray(data.metaTags)) {
+              const tags = data.metaTags.map(
+                (tagObj: { tag: string }) => tagObj.tag
+              );
+              metemeta = tags;
+            }
+          }
+          if (data.doctor) {
+            setDoctorData({
+              name: data.doctor.name || "",
+              email: data.doctor.email || "",
+            });
+          }
+        } else {
+          console.error("Failed to fetch doctor data");
+        }
+      } catch (error) {
+        console.error("Error fetching doctor data:", error);
+      } finally {
+      }
     };
-    setDoctorData(dummyDoctor);
-  }
-  , []);
+
+    fetchDoctorData();
+  }, [userId]);
 
   // useEffect(() => {
   //   const fetchDoctor = async () => {
@@ -105,7 +141,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
       <div className="flex justify-between items-center px-3 py-3 z-100">
         {/* Left: Sidebar Toggle Button */}
         <button
-          className="p-2 rounded-full hover:bg-gray-100"
+          className="p-2 rounded-full hover:bg-gray-100 cursor-pointer"
           onClick={onToggleSidebar}
         >
           <FiMenu className="w-6 h-6" />
@@ -116,7 +152,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
           {/* Create as New Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
-              className="flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full hover:bg-blue-300 hover:text-white hover:bg-blue-700 transition"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full hover:bg-blue-300 hover:text-white hover:bg-blue-700 transition cursor-pointer"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               <MdAddCircle className="w-6 h-6" />
@@ -125,7 +161,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
             </button>
 
             <div
-              className={`absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg transform transition-all duration-200 ${
+              className={`absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg transform transition-all duration-200 cursor-pointer ${
                 dropdownOpen
                   ? "opacity-100 scale-100 translate-y-0"
                   : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
@@ -137,7 +173,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                     <li key={index}>
                       <Link
                         href={`/admin/${item.toLowerCase()}`}
-                        className="block px-4 py-3 text-gray-800 hover:bg-blue-50 transition"
+                        className="block px-4 py-3 text-gray-800 hover:bg-blue-50 transition cursor-pointer"
                         onClick={() => setDropdownOpen(false)}
                       >
                         {item}
@@ -152,7 +188,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
           {/* Profile Section */}
           <div className="relative" ref={profileRef}>
             <button
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full shadow-sm bg-white hover:bg-gray-100 transition"
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full shadow-sm bg-white hover:bg-gray-100 transition cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
               <img
@@ -222,7 +258,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                 {/* Logout Button */}
                 <li>
                   <button
-                    className="flex w-full items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition cursor-pointer"
                     onClick={handleLogout}
                   >
                     <FiLogOut className="w-5 h-5 text-red-500" />
