@@ -1,18 +1,75 @@
 "use client";
+import React, { useState, useEffect } from 'react';
 import { FaEye } from "react-icons/fa";
 
-const prescriptions = [
-  {
-    serialNo: 1,
-    mrNo: "#14590",
-    doctor: "Dr. Dheeraj Singh",
-    phone: "8356860659",
-    email: "jcmwishael@gmail.com",
-    created: "25 Mar 2025",
-  },
-];
+interface Prescription {
+  prescriptionId: number;
+  advice: string;
+  diagnosisTests: string;
+  nextFollowUp: number;
+  nextFollowUpType: string;
+  prescriptionNotes: string;
+  createdAt: string;
+  patientId: number;
+  patientName: string;
+  patientEmail: string;
+  patientPhone: string;
+  doctorId: number;
+  doctorName: string;
+  doctorEmail: string;
+  doctorPhone: string;
+  clinicName: string;
+  clinicAddress: string;
+}
 
 export default function PrescriptionsList() {
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPrescriptions = async () => {
+      try {
+        const response = await fetch('/api/patient/prescriptions');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch prescriptions: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data && data.prescriptions) {
+          setPrescriptions(data.prescriptions);
+        } else {
+            setPrescriptions([]); // set to empty array if data.prescriptions is undefined/null
+        }
+      } catch (err: any) {
+        setError(err.message || 'An error occurred while fetching prescriptions.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPrescriptions();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-6 bg-gray-100 min-h-screen">
+        <div className="bg-white shadow-md rounded-lg p-4">
+          <p>Loading prescriptions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 bg-gray-100 min-h-screen">
+        <div className="bg-white shadow-md rounded-lg p-4 text-red-500">
+          Error: {error}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="bg-white shadow-md rounded-lg p-4">
@@ -31,26 +88,32 @@ export default function PrescriptionsList() {
               </tr>
             </thead>
             <tbody className="bg-white">
-              {prescriptions.map((prescription) => (
-                <tr
-                  key={prescription.serialNo}
-                  className="border-b last:border-none text-gray-700"
-                >
-                  <td className="p-3">{prescription.serialNo}</td>
-                  <td className="p-3 font-medium text-blue-600">
-                    {prescription.mrNo}
-                  </td>
-                  <td className="p-3 font-semibold">{prescription.doctor}</td>
-                  <td className="p-3">{prescription.phone}</td>
-                  <td className="p-3">{prescription.email}</td>
-                  <td className="p-3">{prescription.created}</td>
-                  <td className="p-3">
-                    <button className="p-2 bg-blue-600 text-white rounded-md">
-                      <FaEye />
-                    </button>
-                  </td>
+              {prescriptions.length > 0 ? (
+                prescriptions.map((prescription, index) => (
+                  <tr
+                    key={prescription.prescriptionId}
+                    className="border-b last:border-none text-gray-700"
+                  >
+                    <td className="p-3">{index + 1}</td>
+                    <td className="p-3 font-medium text-blue-600">
+                      {prescription.patientId}
+                    </td>
+                    <td className="p-3 font-semibold">{prescription.doctorName}</td>
+                    <td className="p-3">{prescription.doctorPhone}</td>
+                    <td className="p-3">{prescription.doctorEmail}</td>
+                    <td className="p-3">{new Date(prescription.createdAt).toLocaleDateString()}</td>
+                    <td className="p-3">
+                      <button className="p-2 bg-blue-600 text-white rounded-md">
+                        <FaEye />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="p-3 text-center text-gray-500">No prescriptions found.</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
