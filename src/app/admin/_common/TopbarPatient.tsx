@@ -11,8 +11,6 @@ import {
   FiChevronDown,
 } from "react-icons/fi";
 import MobileTitle from "./MobileTitlePatientNAdmin";
-import { MdAddCircle } from "react-icons/md";
-import { FaCaretDown } from "react-icons/fa";
 import { live_doctors_icon, temp } from "./global_variables";
 
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
@@ -23,29 +21,29 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  interface Doctor {
+  interface Patient {
     name: string;
     email: string;
   }
 
-  const [doctorData, setDoctorData] = useState<Doctor | null>(null);
+  const [patientData, setPatientData] = useState<Patient | null>(null);
 
-  useEffect(() => {
-    const fetchDoctor = async () => {
-      try {
-        const response = await fetch("/api/doctor");
-        const data = await response.json();
-        if (data.length > 0) {
-          setDoctorData(data[0]);
-          console.log(data);
-        }
-      } catch (error) {
-        console.error("Error fetching doctor data:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchDoctor = async () => {
+  //     try {
+  //       const response = await fetch("/api/doctor");
+  //       const data = await response.json();
+  //       if (data.length > 0) {
+  //         setDoctorData(data[0]);
+  //         console.log(data);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching doctor data:", error);
+  //     }
+  //   };
 
-    fetchDoctor();
-  }, []);
+  //   fetchDoctor();
+  // }, []);
 
   // Handle logout
   const handleLogout = async () => {
@@ -56,7 +54,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
 
       if (res.ok) {
         // Optional: Clear client-side state
-        setDoctorData(null);
+        setPatientData(null);
 
         // Redirect to login or landing page
         window.location.href = "/login";

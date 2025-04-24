@@ -48,6 +48,7 @@ export async function GET(req: NextRequest) {
         visitStatus: appointments.visitStatus,
         paymentStatus: appointments.paymentStatus,
 
+        patientId:appointments.patientId,
         patientName: users.name,
         patientEmail: users.email,
         patientPhone: users.phone,

@@ -34,7 +34,7 @@ const DOCTOR_ONLY_ROUTES = [
   "/admin/dashboard/rating",
   "/admin/contact/user",
 ];
-const PATIENT_ONLY_ROUTES = ["/admin/dashboard/patient"];
+const PATIENT_ONLY_ROUTES = ["/admin/dashboard/patient","/admin/patient/doctors","/admin/patient/appointments","/admin/patient/prescriptions"];
 
 const DEFAULT_REDIRECT: Record<string, string> = {
   admin: "/admin/dashboard",
