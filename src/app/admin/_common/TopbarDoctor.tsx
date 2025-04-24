@@ -14,6 +14,7 @@ import MobileTitle from "./MobileTitleDoctor";
 import { MdAddCircle } from "react-icons/md";
 import { FaCaretDown } from "react-icons/fa";
 import { live_doctors_icon } from "./global_variables";
+import Cookies from "js-cookie";
 
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   onToggleSidebar,
@@ -29,16 +30,51 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   }
 
   const [doctorData, setDoctorData] = useState<Doctor | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Dummy doctor data
-    const dummyDoctor: Doctor = {
-      name: 'Dr. John Doe',
-      email: 'john.doe@example.com',
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
+
+  useEffect(() => {
+    const fetchDoctorData = async () => {
+      if (!userId) return;
+
+      try {
+        const response = await fetch(`/api/doctor/profile/info/get/${userId}`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          let metemeta;
+          if (data.metaTags) {
+            if (Array.isArray(data.metaTags)) {
+              const tags = data.metaTags.map(
+                (tagObj: { tag: string }) => tagObj.tag
+              );
+              metemeta = tags;
+            }
+          }
+          if (data.doctor) {
+            setDoctorData({
+              name: data.doctor.name || "",
+              email: data.doctor.email || "",
+            });
+          }
+        } else {
+          console.error("Failed to fetch doctor data");
+        }
+      } catch (error) {
+        console.error("Error fetching doctor data:", error);
+      } finally {
+      }
     };
-    setDoctorData(dummyDoctor);
-  }
-  , []);
+
+    fetchDoctorData();
+  }, [userId]);
 
   // useEffect(() => {
   //   const fetchDoctor = async () => {
