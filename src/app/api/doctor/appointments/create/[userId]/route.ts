@@ -7,6 +7,7 @@ import {
   users,
   patient,
   genderEnum,
+  clinic,
 } from "../../../../../../db/schema";
 import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
@@ -154,6 +155,7 @@ export async function POST(req: NextRequest) {
         mode: reqBody.appointmentType.toLowerCase() as "online" | "offline",
         patientId: parseInt(String(newPatientId), 10),
         doctorId: parseInt(String(requiredDoctorId), 10),
+        clinicId: reqBody.clinic_id,
         reason: reqBody.reason,
         paymentStatus: false,
         visitStatus: false,
@@ -182,6 +184,7 @@ export async function POST(req: NextRequest) {
         mode: reqBody.appointmentType.toLowerCase() as "online" | "offline",
         patientId: parseInt(String(newPatientId), 10),
         doctorId: parseInt(String(requiredDoctorId), 10),
+        clinicId: reqBody.clinic_id,
         reason: reqBody.reason,
         paymentStatus: false,
         visitStatus: false,

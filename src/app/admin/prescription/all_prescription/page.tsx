@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FaPlus, FaTrash, FaDownload } from "react-icons/fa";
-import { format, parseISO } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz'; // Import toZonedTime
+import { format, parseISO } from "date-fns";
+import { toZonedTime } from "date-fns-tz"; // Import toZonedTime
 
 interface User {
   id: number;
@@ -78,7 +78,9 @@ export default function Prescriptions() {
           setError("Invalid data format received from the API.");
         }
       } catch (err: any) {
-        setError(err.message || "An error occurred while fetching prescriptions.");
+        setError(
+          err.message || "An error occurred while fetching prescriptions."
+        );
       } finally {
         setLoading(false);
       }
@@ -90,19 +92,28 @@ export default function Prescriptions() {
   const handleDelete = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this prescription?")) {
       try {
-        const response = await fetch(`/api/doctor/prescription/delete?id=${id}`, {
-          method: 'DELETE',
-        });
+        const response = await fetch(
+          `/api/doctor/prescription/delete?id=${id}`,
+          {
+            method: "DELETE",
+          }
+        );
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(`Failed to delete prescription: ${response.status} - ${errorData?.message || 'Unknown error'}`);
+          throw new Error(
+            `Failed to delete prescription: ${response.status} - ${
+              errorData?.message || "Unknown error"
+            }`
+          );
         }
         setPrescriptions((prevPrescriptions) =>
           prevPrescriptions.filter((prescription) => prescription.id !== id)
         );
         alert(`Prescription with ID ${id} deleted successfully.`);
       } catch (err: any) {
-        setError(err.message || "An error occurred while deleting the prescription.");
+        setError(
+          err.message || "An error occurred while deleting the prescription."
+        );
       }
     }
   };
@@ -117,10 +128,15 @@ export default function Prescriptions() {
     try {
       // Attempt to parse the date string.  parseISO handles many formats.
       const parsedDate = parseISO(dateString);
-      const istDate = toZonedTime(parsedDate, 'Asia/Kolkata'); // Use toZonedTime
+      const istDate = toZonedTime(parsedDate, "Asia/Kolkata"); // Use toZonedTime
       return format(istDate, "PPPppp");
     } catch (error) {
-      console.error("Error formatting date:", error, "Date String:", dateString);
+      console.error(
+        "Error formatting date:",
+        error,
+        "Date String:",
+        dateString
+      );
       return "Invalid Date";
     }
   };
@@ -178,7 +194,9 @@ export default function Prescriptions() {
                 className="hover:bg-gray-50 transition-all"
               >
                 <td className="py-3 px-4 text-gray-700">{prescription.id}</td>
-                <td className="py-3 px-4 text-gray-700">{prescription.patient?.id}</td>
+                <td className="py-3 px-4 text-gray-700">
+                  {prescription.patient?.id}
+                </td>
                 <td className="py-3 px-4 text-gray-700">
                   {prescription.patient?.user?.name || "N/A"}
                 </td>
@@ -215,4 +233,3 @@ export default function Prescriptions() {
     </div>
   );
 }
-

@@ -7,6 +7,19 @@ import "react-datepicker/dist/react-datepicker.css";
 import Cookies from "js-cookie";
 import AppointmentTable from "./AppointmentTable";
 
+interface Clinic {
+  id: number;
+  name: string;
+  location: string;
+  appointmentLimit: number;
+  active: boolean;
+  // Assuming your API response includes these fields
+  imageLink?: string;
+  department?: string; // Add department here if it's in your API response
+  title?: string; // Add title here if it's in your API response
+  address?: string; // Add address here if it's in your API response
+}
+
 interface Patient {
   id: number;
   name: string;
@@ -51,6 +64,81 @@ const Appointments = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const [refreshAppointments, setRefreshAppointments] = useState(false);
+  const [activeClinic, setActiveClinic] = useState<Clinic>();
+  const [allClinics, setAllClinics] = useState<Clinic[]>([]);
+
+  useEffect(() => {
+    const fetchClinic = async () => {
+      try {
+        if (!userId) return;
+
+        const response = await fetch(`/api/doctor/clinic/${userId}`);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.message || `Failed to fetch clinics: ${response.status}`
+          );
+        }
+
+        const data: Clinic[] = await response.json();
+        setAllClinics(data);
+      } catch (error) {
+        console.error("Error fetching clinics:", error);
+        // Optional: set an error state to display to the user
+        // setClinicError(error instanceof Error ? error.message : "Failed to fetch clinics");
+      }
+    };
+
+    fetchClinic();
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId || allClinics.length === 0) return;
+
+    const updateActiveClinic = (clinics: Clinic[] = allClinics) => {
+      const storedClinicId = Cookies.get("currentClinicId");
+
+      if (storedClinicId) {
+        const currentId = parseInt(storedClinicId, 10);
+        const matchedClinic = clinics.find((clinic) => clinic.id === currentId);
+
+        if (matchedClinic) {
+          setActiveClinic(matchedClinic);
+          console.log("Active clinic updated:", matchedClinic.name);
+        } else {
+          // If stored clinic ID doesn't match any clinic, fallback to first one
+          setActiveClinic(clinics[0]);
+          Cookies.set("currentClinicId", String(clinics[0].id));
+          console.log(
+            "Stored clinic not found, using default:",
+            clinics[0].name
+          );
+        }
+      } else if (clinics.length > 0) {
+        // No stored clinic ID, use first one
+        setActiveClinic(clinics[0]);
+        Cookies.set("currentClinicId", String(clinics[0].id));
+        console.log("No stored clinic, using default:", clinics[0].name);
+      }
+    };
+
+    // Initial update
+    updateActiveClinic();
+
+    // Set up polling for changes
+    const intervalId = setInterval(() => {
+      const storedClinicId = Cookies.get("currentClinicId");
+      const currentActiveId = activeClinic?.id;
+
+      // Only update if the cookie value changed
+      if (storedClinicId && parseInt(storedClinicId, 10) !== currentActiveId) {
+        updateActiveClinic();
+      }
+    }, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [userId, allClinics]);
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -323,6 +411,7 @@ const Appointments = () => {
 
     // Prepare the data object based on patient type
     const appointmentData = {
+      clinic_id: activeClinic?.id,
       date: formattedDate,
       time: {
         from: selectedTime?.from || selectedTime?.startTime, // Using optional chaining for safety
@@ -346,8 +435,6 @@ const Appointments = () => {
             },
           }),
     };
-
-    console.log(appointmentData);
 
     setIsSubmitting(true);
     setSubmitError(null);
