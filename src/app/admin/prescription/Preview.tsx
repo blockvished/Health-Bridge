@@ -1,14 +1,16 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   FaPrint,
   FaSave,
   FaEdit,
   FaArrowLeft,
   FaHospital,
+  FaClipboardList,
 } from "react-icons/fa";
 import { useReactToPrint } from "react-to-print";
 import { Drug, Dosage } from "./DrugEntry";
+import Link from "next/link";
 
 interface PrescriptionPreviewProps {
   setTogglePreview: React.Dispatch<React.SetStateAction<boolean>>;
@@ -64,6 +66,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
   activeClinic,
 }) => {
   const prescriptionRef = useRef<HTMLDivElement>(null);
+  const [prescriptionSaved, setPrescriptionSaved] = useState(false);
 
   // Fix for TypeScript issues
   const handlePrint = useReactToPrint({
@@ -91,7 +94,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
         prescriptionNotes: notes || "",
         drugs: drugs || [],
       };
-      
+
       const response = await fetch(`/api/doctor/prescription/${userId}`, {
         method: "POST",
         headers: {
@@ -99,7 +102,11 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
         },
         body: JSON.stringify(payload),
       });
-      
+
+      if (response.ok) {
+        // Mark prescription as saved when successful
+        setPrescriptionSaved(true);
+      }
     } catch (error) {
       console.error("Error saving prescription:", error);
     }
@@ -117,12 +124,28 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
           >
             <FaArrowLeft /> Edit
           </button>
-          <button
+          {/* <button
             className="ml-2 bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer"
             onClick={handleSubmit}
           >
             <FaSave /> Save & Continue
-          </button>
+          </button> */}
+          {!prescriptionSaved && (
+            <button
+              className="ml-2 bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer"
+              onClick={handleSubmit}
+            >
+              <FaSave /> Save & Continue
+            </button>
+          )}
+
+          {prescriptionSaved && (
+            <Link href="/admin/prescription/all_prescription">
+              <button className="ml-2 bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer">
+                <FaClipboardList /> All Prescriptions
+              </button>
+            </Link>
+          )}
           {/* Fix for the onClick event handler */}
           <button
             onClick={() => handlePrint()}
@@ -205,7 +228,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                 {/* Diagnostic Tests Section */}
                 {diagnosticTests && (
                   <div className="mb-6">
-                    <h3 className="font-bold mb-2 text-sm sm:text-base">
+                    <h3 className="font-bold text-sm sm:text-base">
                       Diagnostic Tests:
                     </h3>
                     <p className="text-sm whitespace-pre-wrap">
@@ -217,7 +240,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                 {/* Advice Section */}
                 {advices && (
                   <div className="mb-6">
-                    <h3 className="font-bold mb-2 text-sm sm:text-base">
+                    <h3 className="font-bold text-sm sm:text-base">
                       Advice:
                     </h3>
                     <p className="text-sm whitespace-pre-wrap">{advices}</p>
@@ -226,8 +249,8 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
 
                 {/* Notes Section */}
                 {notes && (
-                  <div>
-                    <h3 className="font-bold mb-2 text-sm sm:text-base">
+                  <div className="mb-6">
+                    <h3 className="font-bold text-sm sm:text-base">
                       Notes:
                     </h3>
                     <p className="text-sm whitespace-pre-wrap">{notes}</p>
@@ -235,7 +258,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                 )}
                 {nextFollowUp && (
                   <div>
-                    <h3 className="font-bold mb-2 text-sm sm:text-base">
+                    <h3 className="font-bold text-sm sm:text-base">
                       Next Follow up:
                     </h3>
                     <p className="text-sm whitespace-pre-wrap">
