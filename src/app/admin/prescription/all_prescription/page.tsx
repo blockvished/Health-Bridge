@@ -87,13 +87,23 @@ export default function Prescriptions() {
     fetchPrescriptions();
   }, []);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this prescription?")) {
-      // In a real application, you would also delete the prescription from the server
-      setPrescriptions((prevPrescriptions) =>
-        prevPrescriptions.filter((prescription) => prescription.id !== id)
-      );
-      alert(`Prescription with ID ${id} deleted (client-side only).`);
+      try {
+        const response = await fetch(`/api/doctor/prescription/delete?id=${id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`Failed to delete prescription: ${response.status} - ${errorData?.message || 'Unknown error'}`);
+        }
+        setPrescriptions((prevPrescriptions) =>
+          prevPrescriptions.filter((prescription) => prescription.id !== id)
+        );
+        alert(`Prescription with ID ${id} deleted successfully.`);
+      } catch (err: any) {
+        setError(err.message || "An error occurred while deleting the prescription.");
+      }
     }
   };
 
