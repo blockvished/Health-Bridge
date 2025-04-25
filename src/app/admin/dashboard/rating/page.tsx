@@ -16,10 +16,17 @@ export default function RatingReviews() {
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [enableRating, setEnableRating] = useState<boolean>(false);
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
+    
+    // Load the rating status from localStorage if available
+    const savedEnableRating = localStorage.getItem("enableRating");
+    if (savedEnableRating) {
+      setEnableRating(savedEnableRating === "true");
+    }
   }, []);
 
   useEffect(() => {
@@ -50,6 +57,18 @@ export default function RatingReviews() {
     fetchRatings();
   }, [userId]);
 
+  // Toggle function for the rating button
+  const toggleRating = () => {
+    const newValue = !enableRating;
+    setEnableRating(newValue);
+    
+    // Save to localStorage for persistence
+    localStorage.setItem("enableRating", String(newValue));
+    
+    // You could potentially call an API here to update the setting on the server
+    // Example: updateRatingSettings(userId, newValue);
+  };
+
   const renderStars = (rating: number) => {
     return [...Array(5)].map((_, index) => {
       const starValue = index + 1;
@@ -66,15 +85,19 @@ export default function RatingReviews() {
 
   return (
     <div className="bg-white p-4 sm:p-5 rounded-lg m-8 shadow-md w-full max-w-3xl">
-      {/* Future Active Button */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
         <h3 className="text-base sm:text-lg font-semibold text-gray-700">
           Rating & Reviews
         </h3>
-        <label className="flex items-center gap-2 text-gray-600 text-sm">
-          <input type="checkbox" className="hidden" />
-          <div className="w-10 h-5 bg-gray-300 rounded-full relative cursor-pointer">
-            <div className="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform duration-300"></div>
+        <label className="flex items-center gap-2 text-gray-600 text-sm cursor-pointer">
+          <input 
+            type="checkbox" 
+            className="hidden" 
+            checked={enableRating}
+            onChange={toggleRating}
+          />
+          <div className={`w-10 h-5 ${enableRating ? 'bg-green-500' : 'bg-gray-300'} rounded-full relative transition-colors duration-300`}>
+            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-transform duration-300 ${enableRating ? 'left-6' : 'left-1'}`}></div>
           </div>
           <span className="whitespace-nowrap">Enable rating in frontend</span>
         </label>
@@ -90,8 +113,6 @@ export default function RatingReviews() {
                 <th className="p-4 font-semibold text-sm w-24">Rating</th>
                 <th className="p-4 font-semibold text-sm w-auto">Review</th>
                 <th className="p-4 font-semibold text-sm w-32">Rated On</th>
-                {/* Future Active Column */}
-                {/* <th className="p-4 font-semibold text-sm">Active</th> */}
               </tr>
             </thead>
             <tbody className="bg-white">
@@ -108,12 +129,6 @@ export default function RatingReviews() {
                   <td className="p-4 text-sm">
                     {new Date(rating.createdAt).toLocaleDateString()}
                   </td>
-                  {/* Future Active Column */}
-                  {/* <td className="p-4 text-sm">
-                    <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded text-xs">
-                      Active
-                    </button>
-                  </td> */}
                 </tr>
               ))}
             </tbody>
