@@ -45,6 +45,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const [userId, setUserId] = useState<string | null>(null);
   const [clinicsData, setClinicsData] = useState<Clinic[]>([]);
+  const [activeClinicName, setActiveClinicName] = useState<string | null>();
+  const [activeClinicThumb, setActiveClinicThumb] = useState<string>();
+  const [clinicChange, setClinicChange] = useState<boolean>();
+
+    useEffect(() => {
+      const idFromCookie = Cookies.get("currentClinicName");
+      const thumbFromCookie = Cookies.get("currentClinicThumb");
+      setActiveClinicName(idFromCookie || null);
+      setActiveClinicThumb(thumbFromCookie || "")
+    }, []);
 
   useEffect(() => {
     const fetchClinics = async () => {
@@ -65,10 +75,15 @@ const Sidebar: React.FC<SidebarProps> = ({
           if (data && data.length > 0) {
             const currentClinicId = Cookies.get("currentClinicId");
             const firstClinicId = String(data[0].id);
-            console.log("currentClinicId exists", currentClinicId)
+            console.log("currentClinicId exists", currentClinicId);
 
             // If no clinic ID is stored or it's not a valid ID from the fetched data, store the first clinic's ID
-            if (!currentClinicId || !data.some((clinic: Clinic) => String(clinic.id) === currentClinicId)) {
+            if (
+              !currentClinicId ||
+              !data.some(
+                (clinic: Clinic) => String(clinic.id) === currentClinicId
+              )
+            ) {
               Cookies.set("currentClinicId", firstClinicId);
               console.log("Clinic ID stored in cookie:", firstClinicId);
             } else {
@@ -190,16 +205,25 @@ const Sidebar: React.FC<SidebarProps> = ({
           >
             {isMounted && (!isCollapsed || (isMobile && sidebarOpen)) ? (
               <div className="flex items-center space-x-2">
+                {activeClinicName ? (
+                  <img src={activeClinicThumb} alt="Logo" className="h-6 w-6" />
+                ) : (
+                  <img src={temp} alt="Logo" className="h-6 w-6" />
+                )}
+                <span
+                  className={`font-bold truncate ${isMobile ? "text-sm" : ""}`}
+                >
+                  {activeClinicName}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
                 <img src={temp} alt="Logo" className="h-6 w-6" />
                 <span
                   className={`font-bold truncate ${isMobile ? "text-sm" : ""}`}
                 >
-                  Digambar Healthcare
+                  Live Doctors
                 </span>
-              </div>
-            ) : (
-              <div className="flex justify-center">
-                <img src={temp} alt="Logo" className="h-6 w-6" />
               </div>
             )}
           </div>

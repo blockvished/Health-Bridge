@@ -26,6 +26,7 @@ interface Clinic {
   title?: string; // Add title here if it's in your API response
   address?: string; // Add address here if it's in your API response
 }
+
 const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
   const [isVisible, setIsVisible] = useState(false);
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -120,10 +121,17 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
     }
   };
 
-  const handleClinicClick = (clinicId: number) => {
-    setActiveClinicId(clinicId);
-    Cookies.set("currentClinicId", String(clinicId));
-    console.log("Active clinic ID set to:", clinicId);
+  const handleClinicClick = (clinic: Clinic) => {
+    setActiveClinicId(clinic.id);
+    Cookies.set("currentClinicId", String(clinic.id));
+    Cookies.set("currentClinicName", clinic.name);
+    if (clinic.imageLink) {
+      Cookies.set("currentClinicThumb", clinic.imageLink);
+    } else {
+      Cookies.set("currentClinicThumb", ""); // Or some other default value like null
+    }
+
+    console.log("Active clinic ID set to:", clinic.id);
     // You might want to trigger a refresh or some other action here
     // to reflect the change in the rest of your application.
   };
@@ -170,7 +178,7 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
             className={`p-3 rounded-md flex items-center justify-between mb-2 cursor-pointer
               ${activeClinicId === clinic.id ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600 opacity-70"}
             `}
-            onClick={() => handleClinicClick(clinic.id)}
+            onClick={() => handleClinicClick(clinic)}
           >
             <span className="text-base font-medium">{clinic.name}</span>
             {activeClinicId === clinic.id && <FaCheck className="text-blue-600 w-5 h-5" />}
