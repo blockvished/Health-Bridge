@@ -11,22 +11,22 @@ interface Rating {
   patientName: string;
 }
 
+interface EnableRatingResponse {
+  doctorid: number;
+  enable: boolean;
+}
+
 export default function RatingReviews() {
   const [userId, setUserId] = useState<string | null>(null);
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [enableRating, setEnableRating] = useState<boolean>(false);
+  const [updatingStatus, setUpdatingStatus] = useState<boolean>(false);
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
-    
-    // Load the rating status from localStorage if available
-    const savedEnableRating = localStorage.getItem("enableRating");
-    if (savedEnableRating) {
-      setEnableRating(savedEnableRating === "true");
-    }
   }, []);
 
   useEffect(() => {
@@ -57,16 +57,75 @@ export default function RatingReviews() {
     fetchRatings();
   }, [userId]);
 
+  // Fetch enable rating status
+  useEffect(() => {
+    const fetchEnableRatingStatus = async () => {
+      if (userId) {
+        try {
+          const response = await fetch(`/api/doctor/enable_ratings/${userId}`);
+          if (!response.ok) {
+            setEnableRating(false);
+            return; // Exit the function early if the response is not ok
+          }
+
+          const data = await response.json();
+          // Check if data is an array with at least one item
+          if (Array.isArray(data) && data.length > 0) {
+            setEnableRating(
+              data[0].enable !== undefined ? data[0].enable : true
+            );
+          } else if (data.enable !== undefined) {
+            // Direct object with enable property
+            setEnableRating(data.enable);
+          } else {
+            // Default to false if no clear enable property
+            setEnableRating(false);
+          }
+        } catch (err) {
+          console.error("Error fetching rating status:", err);
+          setEnableRating(false);
+        }
+      }
+    };
+
+    fetchEnableRatingStatus();
+  }, [userId]);
+
   // Toggle function for the rating button
-  const toggleRating = () => {
+  const toggleRating = async () => {
+    if (!userId || updatingStatus) return;
+
     const newValue = !enableRating;
-    setEnableRating(newValue);
-    
-    // Save to localStorage for persistence
-    localStorage.setItem("enableRating", String(newValue));
-    
-    // You could potentially call an API here to update the setting on the server
-    // Example: updateRatingSettings(userId, newValue);
+    setUpdatingStatus(true);
+
+    try {
+      const response = await fetch(`/api/doctor/enable_ratings/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ enable: newValue }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update rating status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Rating status updated:", result);
+
+      // Update state after successful API call
+      setEnableRating(newValue);
+    } catch (err) {
+      console.error("Error updating rating status:", err);
+      // Revert the visual state if API call fails
+      setEnableRating(enableRating);
+      setError(
+        err instanceof Error ? err.message : "Failed to update rating status"
+      );
+    } finally {
+      setUpdatingStatus(false);
+    }
   };
 
   const renderStars = (rating: number) => {
@@ -90,18 +149,37 @@ export default function RatingReviews() {
           Rating & Reviews
         </h3>
         <label className="flex items-center gap-2 text-gray-600 text-sm cursor-pointer">
-          <input 
-            type="checkbox" 
-            className="hidden" 
+          <input
+            type="checkbox"
+            className="hidden"
             checked={enableRating}
             onChange={toggleRating}
+            disabled={updatingStatus}
           />
-          <div className={`w-10 h-5 ${enableRating ? 'bg-green-500' : 'bg-gray-300'} rounded-full relative transition-colors duration-300`}>
-            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-transform duration-300 ${enableRating ? 'left-6' : 'left-1'}`}></div>
+          <div
+            className={`w-10 h-5 ${
+              enableRating ? "bg-green-500" : "bg-gray-300"
+            } rounded-full relative transition-colors duration-300 ${
+              updatingStatus ? "opacity-50" : ""
+            }`}
+          >
+            <div
+              className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-transform duration-300 ${
+                enableRating ? "left-6" : "left-1"
+              }`}
+            ></div>
           </div>
-          <span className="whitespace-nowrap">Enable rating in frontend</span>
+          <span className="whitespace-nowrap">
+            {updatingStatus ? "Updating..." : "Enable rating in frontend"}
+          </span>
         </label>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
 
       {ratings.length > 0 ? (
         <div className="overflow-x-auto">
@@ -125,7 +203,9 @@ export default function RatingReviews() {
                       {renderStars(rating.rating)}
                     </div>
                   </td>
-                  <td className="p-4 text-sm">{rating.text || "No feedback given."}</td>
+                  <td className="p-4 text-sm">
+                    {rating.text || "No feedback given."}
+                  </td>
                   <td className="p-4 text-sm">
                     {new Date(rating.createdAt).toLocaleDateString()}
                   </td>
