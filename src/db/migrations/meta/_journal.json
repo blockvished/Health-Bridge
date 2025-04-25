@@ -183,6 +183,13 @@
       "when": 1745494783861,
       "tag": "0025_third_whirlwind",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1745560881187,
+      "tag": "0026_boring_wendigo",
+      "breakpoints": true
     }
   ]
 }
