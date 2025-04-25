@@ -61,6 +61,7 @@ export async function GET(req: NextRequest) {
         appointmentsData.map((appt) => [
           appt.doctorId,
           {
+            id: appt.doctorId,
             name: appt.doctorName,
             thumb: appt.doctorThumb,
             email: appt.doctorEmail,
@@ -69,7 +70,7 @@ export async function GET(req: NextRequest) {
       ).values()
     );
 
-    return NextResponse.json({ uniqueDoctors: uniqueDoctors });
+    return NextResponse.json( uniqueDoctors );
   } catch (error) {
     console.error("Error fetching appointment of doctor:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
