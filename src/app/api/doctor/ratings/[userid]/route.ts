@@ -10,7 +10,7 @@ import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
 
 // =======================
-// Get - All Departments of Doctor
+// Get - All RAtings of Doctor
 // =======================
 export async function GET(req: NextRequest) {
   // Get ID from URL
