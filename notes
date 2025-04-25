@@ -42,8 +42,8 @@ select * from staff_permissions;
 select * from permission_types;
 
 
-//auth fixing salting
-//education and experience fixing when doctorid is not created as userid is not created
+// auth fixing salting
+// education and experience fixing when doctorid is not created as userid is not created
 // from and to time validations
 // fix needed when creating patient (like patient shouldnt require all fields for api or even submit)
 

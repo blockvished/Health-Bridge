@@ -190,6 +190,20 @@
       "when": 1745560881187,
       "tag": "0026_boring_wendigo",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1745563647416,
+      "tag": "0027_funny_lethal_legion",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1745570731680,
+      "tag": "0028_silly_thanos",
+      "breakpoints": true
     }
   ]
 }
