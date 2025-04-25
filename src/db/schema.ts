@@ -201,7 +201,7 @@ export const doctor_ratings = pgTable("doctor_ratings", {
   createdAt: timestamp("created_at").defaultNow(), // Automatically record creation time
 });
 
-export const enableRating = pgTable('enableRating', {
+export const enableRating = pgTable('enable_rating', {
   doctorid: integer('doctorid')
     .references(() => doctor.id, { onDelete: 'cascade' })
     .primaryKey(),
