@@ -4,6 +4,7 @@ import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 
 // Define the Doctor interface to match your API response
 interface Doctor {
+  id: number;
   name: string;
   thumb: string;
   email: string;
@@ -20,35 +21,62 @@ export default function DoctorList() {
     [key: string]: { rating: number | null; feedback: string };
   }>({});
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch doctors only once when the component mounts
   useEffect(() => {
-    // Simulate fetching data from your API endpoint
-    const fetchedDoctors: Doctor[] = [
-      {
-        name: "Dr. Dheeraj Singh",
-        thumb: "/api/doctor/profile/info/images/1/1_picture.PNG",
-        email: "vishal@agzfdx.jh",
-      },
-      {
-        name: "Dr. Another One",
-        thumb: "/doctor2.jpg",
-        email: "another@example.com",
-      },
-    ];
+    const fetchDoctors = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/patient/doctors");
 
-    // Initialize the doctors state with null ratings and empty feedback
-    const initialDoctorsWithRating = fetchedDoctors.map((doctor, index) => ({
-      ...doctor,
-      rating: ratingStates[doctor.email]?.rating || null,
-      feedback: ratingStates[doctor.email]?.feedback || "",
-    }));
-    setDoctors(initialDoctorsWithRating);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch doctors: ${response.status}`);
+        }
+
+        const fetchedDoctors: Doctor[] = await response.json();
+
+        // Initialize the doctors state with null ratings and empty feedback
+        const initialDoctorsWithRating = fetchedDoctors.map((doctor) => ({
+          ...doctor,
+          rating: ratingStates[doctor.email]?.rating || null,
+          feedback: ratingStates[doctor.email]?.feedback || "",
+        }));
+
+        setDoctors(initialDoctorsWithRating);
+        setError(null);
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "An error occurred while fetching doctors"
+        );
+        console.error("Error fetching doctors:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctors();
+  }, []); // Empty dependency array to run only once on mount
+
+  // Update doctors with the latest rating states when ratingStates changes
+  useEffect(() => {
+    if (doctors.length > 0) {
+      const updatedDoctors = doctors.map((doctor) => ({
+        ...doctor,
+        rating: ratingStates[doctor.email]?.rating || null,
+        feedback: ratingStates[doctor.email]?.feedback || "",
+      }));
+      setDoctors(updatedDoctors);
+    }
   }, [ratingStates]);
 
   const handleStarClick = (doctorId: string, rating: number) => {
     setRatingStates((prevStates) => ({
       ...prevStates,
-      [doctorId]: { ...prevStates[doctorId], rating },
+      [doctorId]: { ...(prevStates[doctorId] || { feedback: "" }), rating },
     }));
   };
 
@@ -58,7 +86,10 @@ export default function DoctorList() {
   ) => {
     setRatingStates((prevStates) => ({
       ...prevStates,
-      [doctorId]: { ...prevStates[doctorId], feedback: event.target.value },
+      [doctorId]: {
+        ...(prevStates[doctorId] || { rating: null }),
+        feedback: event.target.value,
+      },
     }));
   };
 
@@ -67,12 +98,6 @@ export default function DoctorList() {
   };
 
   const handleRatingSubmit = (doctorId: string) => {
-    const updatedDoctors = doctors.map((doc) =>
-      doc.email === doctorId
-        ? { ...doc, rating: ratingStates[doctorId]?.rating, feedback: ratingStates[doctorId]?.feedback || "" }
-        : doc
-    );
-    setDoctors(updatedDoctors);
     setSelectedDoctorId(null); // Close the form
   };
 
@@ -85,13 +110,29 @@ export default function DoctorList() {
           key={`${doctorId}-${starValue}`}
           type="button"
           onClick={() => handleStarClick(doctorId, starValue)}
-          className={starValue <= currentRating ? "text-orange-500" : "text-gray-300"}
+          className={
+            starValue <= currentRating ? "text-orange-500" : "text-gray-300"
+          }
         >
           {starValue <= currentRating ? <AiFillStar /> : <AiOutlineStar />}
         </button>
       );
     });
   };
+
+  if (error) {
+    return (
+      <div className="p-6 bg-white shadow-lg rounded-xl">
+        <p className="text-red-500">Error: {error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-2 bg-blue-500 text-white rounded py-2 px-4 text-sm"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-xl">
@@ -108,77 +149,100 @@ export default function DoctorList() {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {doctors.map((doctor, index) => (
-              <tr key={doctor.email} className="border-b last:border-none">
-                <td className="p-4">{index + 1}</td>
-                <td className="p-4">
-                  <img
-                    src={doctor.thumb}
-                    alt={doctor.name}
-                    width={50}
-                    height={50}
-                    className="rounded-md"
-                  />
-                </td>
-                <td className="p-4">
-                  <p className="font-semibold">{doctor.name}</p>
-                  <p className="text-sm text-gray-500">{doctor.email}</p>
-                </td>
-                <td className="p-4">
-                  {ratingStates[doctor.email]?.rating !== null && (
-                    <div className="flex items-center text-orange-500">
-                      {[...Array(5)].map((_, i) => (
-                        i < (ratingStates[doctor.email]?.rating || 0) ? (
-                          <AiFillStar key={i} />
-                        ) : (
-                          <AiOutlineStar key={i} />
-                        )
-                      ))}
-                    </div>
-                  )}
-                  {ratingStates[doctor.email]?.feedback && (
-                    <p className="text-sm text-gray-600">
-                      {ratingStates[doctor.email]?.feedback}
-                    </p>
-                  )}
-                  {!ratingStates[doctor.email]?.rating && !ratingStates[doctor.email]?.feedback && (
-                    <p className="text-gray-400">Not yet rated</p>
-                  )}
-                </td>
-                <td className="p-4">
-                  {selectedDoctorId === doctor.email ? (
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center">{renderRatingStars(doctor.email)}</div>
-                      <textarea
-                        value={ratingStates[doctor.email]?.feedback || ""}
-                        onChange={(e) => handleFeedbackChange(doctor.email, e)}
-                        placeholder="Your feedback..."
-                        className="border rounded p-2 text-sm w-full"
-                      />
+            {doctors.length > 0 ? (
+              doctors.map((doctor, index) => (
+                <tr key={doctor.email} className="border-b last:border-none">
+                  <td className="p-4">{index + 1}</td>
+                  <td className="p-4">
+                    <img
+                      src={doctor.thumb}
+                      alt={doctor.name}
+                      width={50}
+                      height={50}
+                      className="rounded-md"
+                    />
+                  </td>
+                  <td className="p-4">
+                    <p className="font-semibold">{doctor.name}</p>
+                    <p className="text-sm text-gray-500">{doctor.email}</p>
+                  </td>
+                  <td className="p-4">
+                    {ratingStates[doctor.email]?.rating !== null && (
+                      <div className="flex items-center text-orange-500">
+                        {[...Array(5)].map((_, i) =>
+                          i < (ratingStates[doctor.email]?.rating || 0) ? (
+                            <AiFillStar key={i} />
+                          ) : (
+                            <AiOutlineStar key={i} />
+                          )
+                        )}
+                      </div>
+                    )}
+                    {ratingStates[doctor.email]?.feedback && (
+                      <p className="text-sm text-gray-600">
+                        {ratingStates[doctor.email]?.feedback}
+                      </p>
+                    )}
+                    {!ratingStates[doctor.email]?.rating &&
+                      !ratingStates[doctor.email]?.feedback && (
+                        <p className="text-gray-400">Not yet rated</p>
+                      )}
+                  </td>
+                  <td className="p-4">
+                    {selectedDoctorId === doctor.email ? (
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center">
+                          {renderRatingStars(doctor.email)}
+                        </div>
+                        <textarea
+                          value={ratingStates[doctor.email]?.feedback || ""}
+                          onChange={(e) =>
+                            handleFeedbackChange(doctor.email, e)
+                          }
+                          placeholder="Your feedback..."
+                          className="border rounded p-2 text-sm w-full"
+                        />
+                        <button
+                          onClick={() => handleRatingSubmit(doctor.email)}
+                          className="bg-blue-500 text-white rounded py-2 px-4 text-sm"
+                        >
+                          Submit
+                        </button>
+                        <button
+                          onClick={() => setSelectedDoctorId(null)}
+                          className="text-gray-500 text-sm"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
                       <button
-                        onClick={() => handleRatingSubmit(doctor.email)}
-                        className="bg-blue-500 text-white rounded py-2 px-4 text-sm"
+                        onClick={() => handleRateDoctor(doctor.email)}
+                        className="bg-green-500 text-white rounded py-2 px-4 text-sm"
                       >
-                        Submit
+                        Rate
                       </button>
-                      <button
-                        onClick={() => setSelectedDoctorId(null)}
-                        className="text-gray-500 text-sm"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleRateDoctor(doctor.email)}
-                      className="bg-green-500 text-white rounded py-2 px-4 text-sm"
-                    >
-                      Rate
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <>
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} className="p-4 text-center text-gray-500">
+                      <p className="text-gray-500">Loading doctors...</p>
+                    </td>
+                  </tr>
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="p-4 text-center text-gray-500">
+                      No doctors found.
+                    </td>
+                  </tr>
+                )}
+              </>
+            )}
           </tbody>
         </table>
       </div>
