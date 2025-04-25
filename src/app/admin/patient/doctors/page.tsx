@@ -1,30 +1,37 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 
-// Define the Doctor interface to match your API response
 interface Doctor {
   id: number;
   name: string;
   thumb: string;
   email: string;
+  rating: boolean; // Indicates if a rating exists
+  ratingId: number;
+  stars: number; // The actual star rating
+  text: string; // The feedback text
 }
 
-interface DoctorWithRating extends Doctor {
+interface RatingState {
+  ratingid: number; // Add ratingid
+  doctorId: number; // Add doctorId
   rating: number | null;
   feedback: string;
 }
 
+interface RatingStates {
+  [key: string]: RatingState;
+}
+
 export default function DoctorList() {
-  const [doctors, setDoctors] = useState<DoctorWithRating[]>([]);
-  const [ratingStates, setRatingStates] = useState<{
-    [key: string]: { rating: number | null; feedback: string };
-  }>({});
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [ratingStates, setRatingStates] = useState<RatingStates>({});
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch doctors only once when the component mounts
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
@@ -37,14 +44,21 @@ export default function DoctorList() {
 
         const fetchedDoctors: Doctor[] = await response.json();
 
-        // Initialize the doctors state with null ratings and empty feedback
-        const initialDoctorsWithRating = fetchedDoctors.map((doctor) => ({
-          ...doctor,
-          rating: ratingStates[doctor.email]?.rating || null,
-          feedback: ratingStates[doctor.email]?.feedback || "",
-        }));
+        const initialRatingStates = fetchedDoctors.reduce<RatingStates>(
+          (acc, doctor) => {
+            acc[doctor.email] = {
+              ratingid: doctor.rating ? doctor.ratingId : 0, // Set ratingId
+              doctorId: doctor.id, // Set doctorId
+              rating: doctor.rating ? doctor.stars : null,
+              feedback: doctor.text,
+            };
+            return acc;
+          },
+          {}
+        );
 
-        setDoctors(initialDoctorsWithRating);
+        setRatingStates(initialRatingStates);
+        setDoctors(fetchedDoctors);
         setError(null);
       } catch (err) {
         setError(
@@ -59,24 +73,17 @@ export default function DoctorList() {
     };
 
     fetchDoctors();
-  }, []); // Empty dependency array to run only once on mount
-
-  // Update doctors with the latest rating states when ratingStates changes
-  useEffect(() => {
-    if (doctors.length > 0) {
-      const updatedDoctors = doctors.map((doctor) => ({
-        ...doctor,
-        rating: ratingStates[doctor.email]?.rating || null,
-        feedback: ratingStates[doctor.email]?.feedback || "",
-      }));
-      setDoctors(updatedDoctors);
-    }
-  }, [ratingStates]);
+  }, []);
 
   const handleStarClick = (doctorId: string, rating: number) => {
     setRatingStates((prevStates) => ({
       ...prevStates,
-      [doctorId]: { ...(prevStates[doctorId] || { feedback: "" }), rating },
+      [doctorId]: {
+        ratingid: prevStates[doctorId]?.ratingid || 0, // Keep existing or default to 0
+        doctorId: prevStates[doctorId]?.doctorId, // Keep existing doctorId
+        rating,
+        feedback: prevStates[doctorId]?.feedback || "",
+      },
     }));
   };
 
@@ -87,7 +94,9 @@ export default function DoctorList() {
     setRatingStates((prevStates) => ({
       ...prevStates,
       [doctorId]: {
-        ...(prevStates[doctorId] || { rating: null }),
+        ratingid: prevStates[doctorId]?.ratingid || 0, // Keep existing or default to 0
+        doctorId: prevStates[doctorId]?.doctorId, // Keep existing doctorId
+        rating: prevStates[doctorId]?.rating || null,
         feedback: event.target.value,
       },
     }));
@@ -97,8 +106,41 @@ export default function DoctorList() {
     setSelectedDoctorId(doctorId);
   };
 
-  const handleRatingSubmit = (doctorId: string) => {
-    setSelectedDoctorId(null); // Close the form
+  const handleRatingSubmit = async (doctorId: string) => {
+    const ratingData = ratingStates[doctorId];
+    const doctorEmail = Object.keys(ratingStates).find(
+      (key) => ratingStates[key]?.doctorId === ratingData.doctorId
+    );
+
+    try {
+      const response = await fetch(`/api/patient/doctors/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(ratingData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to submit rating:", errorData);
+        return;
+      }
+
+      console.log("Rating submitted successfully!");
+      setSelectedDoctorId(null);
+
+      // Optimistic update
+      if (doctorEmail) {
+        setDoctors((prevDoctors) =>
+          prevDoctors.map((doc) =>
+            doc.email === doctorEmail ? { ...doc, rating: true } : doc
+          )
+        );
+      }
+    } catch (error) {
+      console.error("An error occurred while submitting rating:", error);
+    }
   };
 
   const renderRatingStars = (doctorId: string) => {
@@ -107,11 +149,11 @@ export default function DoctorList() {
       const starValue = index + 1;
       return (
         <button
-          key={`${doctorId}-${starValue}`}
+          key={`${doctorId}-star-${starValue}`}
           type="button"
           onClick={() => handleStarClick(doctorId, starValue)}
           className={
-            starValue <= currentRating ? "text-orange-500" : "text-gray-300"
+            starValue <= currentRating ? "text-orange-500 cursor-pointer" : "text-gray-300 cursor-pointer"
           }
         >
           {starValue <= currentRating ? <AiFillStar /> : <AiOutlineStar />}
@@ -126,7 +168,7 @@ export default function DoctorList() {
         <p className="text-red-500">Error: {error}</p>
         <button
           onClick={() => window.location.reload()}
-          className="mt-2 bg-blue-500 text-white rounded py-2 px-4 text-sm"
+          className="mt-2 bg-blue-500 text-white rounded py-2 px-4 text-sm cursor-pointer"
         >
           Try Again
         </button>
@@ -183,10 +225,9 @@ export default function DoctorList() {
                         {ratingStates[doctor.email]?.feedback}
                       </p>
                     )}
-                    {!ratingStates[doctor.email]?.rating &&
-                      !ratingStates[doctor.email]?.feedback && (
-                        <p className="text-gray-400">Not yet rated</p>
-                      )}
+                    {!ratingStates[doctor.email]?.rating && (
+                      <p className="text-gray-400">Not yet rated</p>
+                    )}
                   </td>
                   <td className="p-4">
                     {selectedDoctorId === doctor.email ? (
@@ -204,13 +245,13 @@ export default function DoctorList() {
                         />
                         <button
                           onClick={() => handleRatingSubmit(doctor.email)}
-                          className="bg-blue-500 text-white rounded py-2 px-4 text-sm"
+                          className="bg-blue-500 text-white rounded py-2 px-4 text-sm cursor-pointer"
                         >
                           Submit
                         </button>
                         <button
                           onClick={() => setSelectedDoctorId(null)}
-                          className="text-gray-500 text-sm"
+                          className="text-gray-500 text-sm cursor-pointer"
                         >
                           Cancel
                         </button>
@@ -218,9 +259,13 @@ export default function DoctorList() {
                     ) : (
                       <button
                         onClick={() => handleRateDoctor(doctor.email)}
-                        className="bg-green-500 text-white rounded py-2 px-4 text-sm"
+                        className={
+                          doctor.rating
+                            ? "bg-green-400 text-white rounded py-2 px-4 text-sm cursor-pointer"
+                            : "bg-green-500 text-white rounded py-2 px-4 text-sm cursor-pointer"
+                        }
                       >
-                        Rate
+                        {doctor.rating ? "Edit" : "Rate"}
                       </button>
                     )}
                   </td>
