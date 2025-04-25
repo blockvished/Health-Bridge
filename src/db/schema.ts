@@ -195,7 +195,7 @@ export const doctor_ratings = pgTable("doctor_ratings", {
     .references(() => patient.id), // Assuming you have a 'patient' table
   doctorid: integer("doctor_id")
     .notNull()
-    .references(() => users.id), // Assuming doctors are in your 'users' table
+    .references(() => doctor.id), // Assuming doctors are in your 'users' table
   rating: integer("rating").notNull(),
   text: text("text"), // Optional text feedback
   createdAt: timestamp("created_at").defaultNow(), // Automatically record creation time
