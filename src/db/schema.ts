@@ -208,7 +208,6 @@ export const enableRating = pgTable('enable_rating', {
   enable: boolean('enable').notNull(),
 });
 
-
 // clinic
 
 export const clinic = pgTable("clinic", {

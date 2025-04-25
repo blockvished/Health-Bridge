@@ -40,7 +40,7 @@ const Login = () => {
       } else if (
         data.user.role === "admin"
       ) {
-        router.push("/dashboard/admin");
+        router.push("/admin/dashboard");
       } else if (data.user.role = "patient") {
         router.push("/admin/dashboard/patient");
       }
