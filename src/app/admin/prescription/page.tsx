@@ -14,7 +14,7 @@ export interface Doctor {
   phone: string;
   specialization: string;
   degree: string;
-  signatureImage: string
+  signatureImage: string;
 }
 
 interface Patient {
@@ -67,20 +67,23 @@ export default function CreatePrescription() {
   const [allClinics, setAllClinics] = useState<Clinic[]>([]);
   const [documentFilenames, setDocumentFilenames] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
+  const [isDocumentDropdownOpen, setIsDocumentDropdownOpen] = useState(false);
 
   // if selectedPatient?.id is not null in useeffect make a get request to /api/doctor/patients/documents/[selectedPatient.id]/ which will send the list of filenames for that patient
   useEffect(() => {
     const fetchPatientDocuments = async () => {
       if (selectedPatient?.id) {
         try {
-          const response = await fetch(`/api/doctor/patients/documents/${selectedPatient.id}`);
+          const response = await fetch(
+            `/api/doctor/patients/documents/${selectedPatient.id}`
+          );
           if (!response.ok) {
             throw new Error(`Failed to fetch documents: ${response.status}`);
           }
           const data: string[] = await response.json(); // Assuming the API returns an array of strings
           setDocumentFilenames(data);
         } catch (err: any) {
-          console.log(err)
+          console.log(err);
         }
       } else {
         // Clear the document list if no patient is selected
@@ -90,21 +93,20 @@ export default function CreatePrescription() {
     fetchPatientDocuments();
   }, [selectedPatient?.id]); // Dependency array: only re-run when selectedPatient.id changes
 
-
   useEffect(() => {
     const fetchClinic = async () => {
       try {
         if (!userId) return;
-        
+
         const response = await fetch(`/api/doctor/clinic/${userId}`);
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(
             errorData.message || `Failed to fetch clinics: ${response.status}`
           );
         }
-        
+
         const data: Clinic[] = await response.json();
         setAllClinics(data);
       } catch (error) {
@@ -113,7 +115,7 @@ export default function CreatePrescription() {
         // setClinicError(error instanceof Error ? error.message : "Failed to fetch clinics");
       }
     };
-    
+
     fetchClinic();
   }, [userId]);
 
@@ -274,7 +276,7 @@ export default function CreatePrescription() {
               phone: data.doctor.phone || "",
               specialization: data.doctor.specialization || "",
               degree: data.doctor.degree || "",
-              signatureImage: data.doctor.signature_link || ""
+              signatureImage: data.doctor.signature_link || "",
             });
           }
         } else {
@@ -356,6 +358,16 @@ export default function CreatePrescription() {
     patient.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleDocumentSelect = async (filename: string) => {
+    handleInputChange("clinicalDiagnosis", filename);
+    setIsDocumentDropdownOpen(false);
+
+    if (selectedPatient?.id) {
+      const documentUrl = `/api/doctor/patients/documents/document/${selectedPatient.id}/${filename}`;
+      window.open(documentUrl);
+    }
+  };
+
   return togglePreview ? (
     <PrescriptionPreview
       setTogglePreview={setTogglePreview}
@@ -393,7 +405,9 @@ export default function CreatePrescription() {
             <h3 className="text-lg font-semibold text-gray-700">
               {doctorData?.name}
             </h3>
-            <p className="text-gray-600 text-sm">{doctorData?.email} {doctorData?.signatureImage}</p>
+            <p className="text-gray-600 text-sm">
+              {doctorData?.email} {doctorData?.signatureImage}
+            </p>
             <p className="text-gray-600 text-sm">
               {doctorData?.specialization}
             </p>
@@ -422,13 +436,37 @@ export default function CreatePrescription() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Clinical Diagnosis
                 </label>
-                <input
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={prescription.clinicalDiagnosis}
-                  onChange={(e) =>
-                    handleInputChange("clinicalDiagnosis", e.target.value)
-                  }
-                />
+                <div className="relative">
+                  <input
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+                    value={prescription.clinicalDiagnosis}
+                    readOnly // Make input read-only
+                    onClick={() =>
+                      setIsDocumentDropdownOpen(!isDocumentDropdownOpen)
+                    } // Open dropdown on click
+                  />
+                  {isDocumentDropdownOpen && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                      <div className="max-h-60 overflow-y-auto">
+                        {documentFilenames.length > 0 ? (
+                          documentFilenames.map((filename, index) => (
+                            <div
+                              key={index}
+                              className="p-2 hover:bg-blue-50 cursor-pointer"
+                              onClick={() => handleDocumentSelect(filename)}
+                            >
+                              {filename}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-2 text-gray-500">
+                            No documents found
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div>
