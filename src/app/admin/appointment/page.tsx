@@ -141,6 +141,32 @@ const Appointments = () => {
   }, [userId, allClinics]);
 
   useEffect(() => {
+    if (!userId || allClinics.length === 0) return;
+
+    // Set up polling for clinic changes
+    const intervalId = setInterval(() => {
+      const storedClinicId = Cookies.get("currentClinicId");
+      const currentActiveId = activeClinic?.id;
+
+      // Only update if the cookie value changed
+      if (storedClinicId && parseInt(storedClinicId, 10) !== currentActiveId) {
+        // Find the clinic with the new ID
+        const newActiveClinic = allClinics.find(
+          (clinic) => clinic.id === parseInt(storedClinicId, 10)
+        );
+
+        if (newActiveClinic) {
+          console.log("Detected clinic change:", newActiveClinic.name);
+          setActiveClinic(newActiveClinic);
+          console.log("appointment", newActiveClinic);
+        }
+      }
+    }, 1000); // Check more frequently than the Sidebar
+
+    return () => clearInterval(intervalId);
+  }, [userId, allClinics, activeClinic?.id]);
+
+  useEffect(() => {
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
   }, []);
@@ -481,6 +507,35 @@ const Appointments = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
+  // Add these functions to handle file uploads
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+
+      // Optional: Check file size (10MB limit)
+      const validFiles = newFiles.filter(
+        (file) => file.size <= 10 * 1024 * 1024
+      );
+
+      if (validFiles.length !== newFiles.length) {
+        alert("Some files exceed the 10MB size limit and were not added.");
+      }
+
+      setUploadedFiles([...uploadedFiles, ...validFiles]);
+
+      // Reset file input
+      e.target.value = "";
+    }
+  };
+
+  const removeFile = (index: number) => {
+    const updatedFiles = [...uploadedFiles];
+    updatedFiles.splice(index, 1);
+    setUploadedFiles(updatedFiles);
   };
 
   return (
@@ -828,6 +883,74 @@ const Appointments = () => {
               className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Describe the reason for appointment..."
             />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Upload Medical Reports or Documents
+            </label>
+            <div className="flex items-center justify-center w-full">
+              <label
+                htmlFor="fileUpload"
+                className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-md cursor-pointer bg-gray-50 hover:bg-gray-100"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <svg
+                    className="w-8 h-8 mb-1 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    ></path>
+                  </svg>
+                  <p className="mb-2 text-sm text-gray-500">
+                    <span className="font-semibold">Click to upload</span> or
+                    drag and drop
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    PDF, JPG, PNG (Max. 10MB)
+                  </p>
+                </div>
+                <input
+                  id="fileUpload"
+                  type="file"
+                  className="hidden"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) => handleFileUpload(e)}
+                  multiple
+                />
+              </label>
+            </div>
+            {uploadedFiles.length > 0 && (
+              <div className="mt-2">
+                <p className="text-sm font-medium text-gray-700 mb-1">
+                  Uploaded files:
+                </p>
+                <ul className="text-xs text-gray-600">
+                  {uploadedFiles.map((file, index) => (
+                    <li
+                      key={index}
+                      className="flex items-center justify-between py-1"
+                    >
+                      <span>{file.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeFile(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           {/* Error and Success Messages */}

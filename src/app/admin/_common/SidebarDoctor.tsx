@@ -1,10 +1,9 @@
-"use client";
+// Sidebar.tsx - Modified to handle clinic changes
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa";
-import { FiChevronRight } from "react-icons/fi";
 import { menuItemsDoctor } from "./menuItems";
 import LeftPopup from "./LeftPopup";
 import { live_doctors_icon, temp } from "./global_variables";
@@ -16,11 +15,10 @@ interface Clinic {
   location: string;
   appointmentLimit: number;
   active: boolean;
-  // Assuming your API response includes these fields
   imageLink?: string;
-  department?: string; // Add department here if it's in your API response
-  title?: string; // Add title here if it's in your API response
-  address?: string; // Add address here if it's in your API response
+  department?: string;
+  title?: string;
+  address?: string;
 }
 
 interface SidebarProps {
@@ -45,16 +43,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const [userId, setUserId] = useState<string | null>(null);
   const [clinicsData, setClinicsData] = useState<Clinic[]>([]);
-  const [activeClinicName, setActiveClinicName] = useState<string | null>();
-  const [activeClinicThumb, setActiveClinicThumb] = useState<string>();
-  const [clinicChange, setClinicChange] = useState<boolean>();
+  const [activeClinicName, setActiveClinicName] = useState<string | null>(null);
+  const [activeClinicThumb, setActiveClinicThumb] = useState<string>(temp);
 
-    useEffect(() => {
-      const idFromCookie = Cookies.get("currentClinicName");
-      const thumbFromCookie = Cookies.get("currentClinicThumb");
-      setActiveClinicName(idFromCookie || null);
-      setActiveClinicThumb(thumbFromCookie || "")
-    }, []);
+  // Initialize clinic data from cookies
+  useEffect(() => {
+    const idFromCookie = Cookies.get("currentClinicName");
+    const thumbFromCookie = Cookies.get("currentClinicThumb");
+    setActiveClinicName(idFromCookie || null);
+    setActiveClinicThumb(thumbFromCookie || temp);
+  }, []);
 
   useEffect(() => {
     const fetchClinics = async () => {
@@ -86,13 +84,21 @@ const Sidebar: React.FC<SidebarProps> = ({
             ) {
               Cookies.set("currentClinicId", firstClinicId);
               console.log("Clinic ID stored in cookie:", firstClinicId);
+              
+              // Also update the clinic name and thumb
+              const firstClinic = data[0];
+              Cookies.set("currentClinicName", firstClinic.name);
+              Cookies.set("currentClinicThumb", firstClinic.imageLink || temp);
+              
+              // Update the state to reflect these changes
+              setActiveClinicName(firstClinic.name);
+              setActiveClinicThumb(firstClinic.imageLink || temp);
             } else {
               console.log("Current clinic ID is valid:", currentClinicId);
             }
           }
         } catch (err: any) {
           console.error("Error fetching clinics:", err);
-        } finally {
         }
       }
     };
@@ -134,6 +140,13 @@ const Sidebar: React.FC<SidebarProps> = ({
   // Close popup function
   const closePopup = () => {
     setShowPopup(false);
+  };
+
+  // Handler for when clinic changes in LeftPopup
+  const handleClinicChange = (clinicName: string, clinicThumb: string) => {
+    setActiveClinicName(clinicName);
+    setActiveClinicThumb(clinicThumb || temp);
+    closePopup();
   };
 
   const isActiveRoute = (route: string) => {
@@ -213,7 +226,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <span
                   className={`font-bold truncate ${isMobile ? "text-sm" : ""}`}
                 >
-                  {activeClinicName}
+                  {activeClinicName || "Live Doctors"}
                 </span>
               </div>
             ) : (
@@ -343,7 +356,12 @@ const Sidebar: React.FC<SidebarProps> = ({
           </ul>
         </nav>
       </div>
-      {showPopup && <LeftPopup onClose={closePopup} />}
+      {showPopup && (
+        <LeftPopup 
+          onClose={closePopup} 
+          onClinicChange={handleClinicChange} 
+        />
+      )}
     </>
   );
 };
