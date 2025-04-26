@@ -57,3 +57,6 @@ on to patient page and admin page
 / prescription from patient page and download 
 / once prescription is saved then it should  not show edit
 / strong password validation in confirm password as well
+
+active clinic of left topbar
+images of doctor on patient not working

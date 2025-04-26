@@ -7,7 +7,23 @@ interface JWTPayloadWithRole extends JWTPayload {
 }
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const ADMIN_ROUTES = ["/admin/dashboard"];
+
+const ADMIN_ROUTES = [
+  "/admin/dashboard",
+  "/admin/dashboard",
+  "/admin/settings",
+  "/admin/payouts/settings",
+  "/admin/payouts/add",
+  "/admin/payouts/requests",
+  "/admin/payouts/completed",
+  "/admin/domain/request",
+  "/admin/domain/settings",
+  "/admin/package",
+  "/admin/payment/transactions",
+  "/admin/users",
+  "/admin/contact",
+];
+
 const DOCTOR_ONLY_ROUTES = [
   "/admin/dashboard/user",
   "/admin/subscription",
@@ -34,7 +50,12 @@ const DOCTOR_ONLY_ROUTES = [
   "/admin/dashboard/rating",
   "/admin/contact/user",
 ];
-const PATIENT_ONLY_ROUTES = ["/admin/dashboard/patient","/admin/patient/doctors","/admin/patient/appointments","/admin/patient/prescriptions"];
+const PATIENT_ONLY_ROUTES = [
+  "/admin/dashboard/patient",
+  "/admin/patient/doctors",
+  "/admin/patient/appointments",
+  "/admin/patient/prescriptions",
+];
 
 const DEFAULT_REDIRECT: Record<string, string> = {
   admin: "/admin/dashboard",
@@ -81,7 +102,8 @@ export async function middleware(req: NextRequest) {
       maxAge: 60 * 60, // 1 hour
     });
 
-    res.cookies.set("userId", userId.toString(), { // Ensure userId is a string
+    res.cookies.set("userId", userId.toString(), {
+      // Ensure userId is a string
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
@@ -107,7 +129,7 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 
-    return res
+    return res;
   } catch (err) {
     console.error("JWT verification failed:", err);
     return NextResponse.redirect(new URL("/login", req.url));

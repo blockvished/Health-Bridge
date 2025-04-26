@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa";
-import { FiChevronRight } from "react-icons/fi";
 import { menuItemsAdmin } from "./menuItems";
 import LeftPopup from "./LeftPopup";
 import { live_doctors_icon } from "./global_variables";
@@ -46,12 +45,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       return newDropdowns;
     });
-  };
-
-  // Toggle popup function
-  const togglePopup = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    setShowPopup(!showPopup);
   };
 
   // Close popup function

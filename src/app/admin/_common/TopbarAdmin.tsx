@@ -14,30 +14,6 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  interface Doctor {
-    name: string;
-    email: string;
-  }
-
-  const [doctorData, setDoctorData] = useState<Doctor | null>(null);
-
-  useEffect(() => {
-    const fetchDoctor = async () => {
-      try {
-        const response = await fetch("/api/doctor");
-        const data = await response.json();
-        if (data.length > 0) {
-          setDoctorData(data[0]);
-          console.log(data);
-        }
-      } catch (error) {
-        console.error("Error fetching doctor data:", error);
-      }
-    };
-
-    fetchDoctor();
-  }, []);
-
   // Handle logout
   const handleLogout = async () => {
     try {
@@ -46,9 +22,6 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
       });
 
       if (res.ok) {
-        // Optional: Clear client-side state
-        setDoctorData(null);
-
         // Redirect to login or landing page
         window.location.href = "/login";
       } else {
@@ -86,7 +59,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
       <div className="flex justify-between items-center px-3 py-3 z-100">
         {/* Left: Sidebar Toggle Button */}
         <button
-          className="p-2 rounded-full hover:bg-gray-100"
+          className="p-2 rounded-full hover:bg-gray-100 cursor-pointer"
           onClick={onToggleSidebar}
         >
           <FiMenu className="w-6 h-6" />
@@ -97,7 +70,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
           {/* Profile Section */}
           <div className="relative" ref={profileRef}>
             <button
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full shadow-sm bg-white hover:bg-gray-100 transition"
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full shadow-sm bg-white hover:bg-gray-100 transition cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
               <img
@@ -153,7 +126,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                 {/* Logout Button */}
                 <li>
                   <button
-                    className="flex w-full items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition cursor-pointer"
                     onClick={handleLogout}
                   >
                     <FiLogOut className="w-5 h-5 text-red-500" />
