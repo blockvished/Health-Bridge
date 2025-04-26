@@ -141,6 +141,32 @@ const Appointments = () => {
   }, [userId, allClinics]);
 
   useEffect(() => {
+    if (!userId || allClinics.length === 0) return;
+  
+    // Set up polling for clinic changes
+    const intervalId = setInterval(() => {
+      const storedClinicId = Cookies.get("currentClinicId");
+      const currentActiveId = activeClinic?.id;
+  
+      // Only update if the cookie value changed
+      if (storedClinicId && parseInt(storedClinicId, 10) !== currentActiveId) {
+        // Find the clinic with the new ID
+        const newActiveClinic = allClinics.find(
+          clinic => clinic.id === parseInt(storedClinicId, 10)
+        );
+        
+        if (newActiveClinic) {
+          console.log("Detected clinic change:", newActiveClinic.name);
+          setActiveClinic(newActiveClinic);
+          console.log("appointment",newActiveClinic)
+        }
+      }
+    }, 1000); // Check more frequently than the Sidebar
+  
+    return () => clearInterval(intervalId);
+  }, [userId, allClinics, activeClinic?.id]);
+
+  useEffect(() => {
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
   }, []);

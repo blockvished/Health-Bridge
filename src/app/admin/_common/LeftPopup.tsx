@@ -1,6 +1,7 @@
+// LeftPopup.tsx - Modified to handle clinic changes
+
 import {
   FaClinicMedical,
-  FaUser,
   FaSignOutAlt,
   FaTimes,
   FaHospital,
@@ -12,29 +13,34 @@ import Cookies from "js-cookie";
 
 interface LeftPopupProps {
   onClose: () => void;
+  onClinicChange: (clinicName: string, clinicThumb: string) => void;
   isMobile?: boolean;
 }
+
 interface Clinic {
   id: number;
   name: string;
   location: string;
   appointmentLimit: number;
   active: boolean;
-  // Assuming your API response includes these fields
   imageLink?: string;
-  department?: string; // Add department here if it's in your API response
-  title?: string; // Add title here if it's in your API response
-  address?: string; // Add address here if it's in your API response
+  department?: string;
+  title?: string;
+  address?: string;
 }
 
-const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
+const LeftPopup: React.FC<LeftPopupProps> = ({ 
+  onClose, 
+  onClinicChange,
+  isMobile = false 
+}) => {
   const [isVisible, setIsVisible] = useState(false);
   const popupRef = useRef<HTMLDivElement | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [clinicsData, setClinicsData] = useState<Clinic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeClinicId, setActiveClinicId] = useState<number | null>(null); // To track the active clinic
+  const [activeClinicId, setActiveClinicId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchClinics = async () => {
@@ -58,6 +64,14 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
           } else if (data.length > 0) {
             // If no cookie, default to the first clinic
             setActiveClinicId(data[0].id);
+            
+            // Set cookies and update parent component
+            Cookies.set("currentClinicId", String(data[0].id));
+            Cookies.set("currentClinicName", data[0].name);
+            Cookies.set("currentClinicThumb", data[0].imageLink || "");
+            
+            // Notify parent component about the clinic change
+            onClinicChange(data[0].name, data[0].imageLink || "");
           }
         } catch (err: any) {
           console.error("Error fetching clinics:", err);
@@ -69,7 +83,7 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
     };
 
     fetchClinics();
-  }, [userId]);
+  }, [userId, onClinicChange]);
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -123,23 +137,23 @@ const LeftPopup: React.FC<LeftPopupProps> = ({ onClose, isMobile = false }) => {
 
   const handleClinicClick = (clinic: Clinic) => {
     setActiveClinicId(clinic.id);
+    
+    // Update cookies
     Cookies.set("currentClinicId", String(clinic.id));
     Cookies.set("currentClinicName", clinic.name);
-    if (clinic.imageLink) {
-      Cookies.set("currentClinicThumb", clinic.imageLink);
-    } else {
-      Cookies.set("currentClinicThumb", ""); // Or some other default value like null
-    }
-
+    const clinicThumb = clinic.imageLink || "";
+    Cookies.set("currentClinicThumb", clinicThumb);
+    
+    // Notify parent component about the clinic change
+    onClinicChange(clinic.name, clinicThumb);
+    
     console.log("Active clinic ID set to:", clinic.id);
-    // You might want to trigger a refresh or some other action here
-    // to reflect the change in the rest of your application.
   };
 
   return (
     <div
       ref={popupRef}
-      className={`absolute ${getPositionClasses()} bg-white  rounded-lg shadow-xl 
+      className={`absolute ${getPositionClasses()} bg-white rounded-lg shadow-xl 
       ${isMobileDevice ? "w-[75%] max-w-[320px] p-2 text-xs " : "w-96 p-4"}
       transform transition-all duration-300 ease-in-out z-[9999]
       ${
