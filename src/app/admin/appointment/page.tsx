@@ -467,15 +467,27 @@ const Appointments = () => {
     setSubmitSuccess(false);
 
     try {
+      const formData = new FormData();
+
+      formData.append("appointmentData", JSON.stringify(appointmentData));
+
+      uploadedFiles.forEach((file, index) => {
+        formData.append(`files`, file);
+      });
+
+      console.log("FormData contents:");
+      for (let pair of formData.entries()) {
+        console.log(
+          pair[0] + ": " + (pair[1] instanceof File ? pair[1].name : pair[1])
+        );
+      }
+
       const response = await fetch(
         `/api/doctor/appointments/create/${userId}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
           credentials: "include",
-          body: JSON.stringify(appointmentData),
+          body: formData,
         }
       );
 
@@ -494,6 +506,7 @@ const Appointments = () => {
           weight: "",
           gender: "Male",
         });
+        setUploadedFiles([]); 
         setSubmitSuccess(true);
         setRefreshAppointments((prev) => !prev);
         // Optionally refresh appointment table if implemented
