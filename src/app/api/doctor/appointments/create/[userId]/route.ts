@@ -66,7 +66,30 @@ export async function POST(req: NextRequest) {
 
   const requiredDoctorId = doctorData[0].id;
   try {
-    const reqBody = await req.json();
+    // const reqBody = await req.json();
+    const formData = await req.formData();
+
+    const appointmentDataStr = formData.get("appointmentData");
+    if (!appointmentDataStr || typeof appointmentDataStr !== "string") {
+      return NextResponse.json(
+        { error: "Missing or invalid appointment data" },
+        { status: 400 }
+      );
+    }
+    const reqBody = JSON.parse(appointmentDataStr);
+    // Handle files - just log them for now
+    const files = formData.getAll("files");
+    console.log("Received files:");
+    files.forEach((file, index) => {
+      if (file instanceof File) {
+        console.log(
+          `File ${index + 1}: ${file.name}, Size: ${file.size} bytes, Type: ${
+            file.type
+          }`
+        );
+      }
+    });
+
     let newPatientId: number | undefined;
 
     console.log("Request Body:", reqBody);
@@ -90,7 +113,7 @@ export async function POST(req: NextRequest) {
           status: 400,
         });
       }
-      
+
       const existingUsers = await db
         .select()
         .from(users)
@@ -127,7 +150,7 @@ export async function POST(req: NextRequest) {
         })
         .returning({ id: users.id });
 
-        console.log("user created")
+      console.log("user created");
       const [newPatient] = await db
         .insert(patient)
         .values({
