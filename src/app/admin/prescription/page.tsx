@@ -65,8 +65,31 @@ export default function CreatePrescription() {
   const [togglePreview, setTogglePreview] = useState<boolean>(false);
   const [activeClinic, setActiveClinic] = useState<Clinic>();
   const [allClinics, setAllClinics] = useState<Clinic[]>([]);
-
+  const [documentFilenames, setDocumentFilenames] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // if selectedPatient?.id is not null in useeffect make a get request to /api/doctor/patients/documents/[selectedPatient.id]/ which will send the list of filenames for that patient
+  useEffect(() => {
+    const fetchPatientDocuments = async () => {
+      if (selectedPatient?.id) {
+        try {
+          const response = await fetch(`/api/doctor/patients/documents/${selectedPatient.id}`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch documents: ${response.status}`);
+          }
+          const data: string[] = await response.json(); // Assuming the API returns an array of strings
+          setDocumentFilenames(data);
+        } catch (err: any) {
+          console.log(err)
+        }
+      } else {
+        // Clear the document list if no patient is selected
+        setDocumentFilenames([]);
+      }
+    };
+    fetchPatientDocuments();
+  }, [selectedPatient?.id]); // Dependency array: only re-run when selectedPatient.id changes
+
 
   useEffect(() => {
     const fetchClinic = async () => {
