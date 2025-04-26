@@ -13,6 +13,8 @@ import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
 import { hash } from "argon2";
 import { randomBytes } from "crypto";
+import fs from "fs/promises";
+import path from "path";
 
 type TimeRange = {
   from: string; // e.g. '09:00:00'
@@ -66,7 +68,6 @@ export async function POST(req: NextRequest) {
 
   const requiredDoctorId = doctorData[0].id;
   try {
-    // const reqBody = await req.json();
     const formData = await req.formData();
 
     const appointmentDataStr = formData.get("appointmentData");
@@ -77,22 +78,68 @@ export async function POST(req: NextRequest) {
       );
     }
     const reqBody = JSON.parse(appointmentDataStr);
+    console.log("print reqbody", reqBody);
+
+    const { patientId } = reqBody;
     // Handle files - just log them for now
     const files = formData.getAll("files");
-    console.log("Received files:");
-    files.forEach((file, index) => {
-      if (file instanceof File) {
-        console.log(
-          `File ${index + 1}: ${file.name}, Size: ${file.size} bytes, Type: ${
-            file.type
-          }`
-        );
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    const dateTimePrefix = `${year}_${month}_${day}_${hours}${minutes}${seconds}`;
+
+    const uploadDir = path.join(
+      process.cwd(),
+      "private_uploads",
+      "patient_docs",
+      String(patientId)
+    );
+
+    try {
+      await fs.mkdir(uploadDir, { recursive: true }); // Create directory if it doesn't exist
+
+      for (const file of files) {
+        if (file instanceof File) {
+          const originalName = file.name;
+          const fileExtension = originalName.split(".").pop();
+          const baseName = originalName.substring(
+            0,
+            originalName.lastIndexOf(".")
+          );
+          const newFileName = `${dateTimePrefix}_${baseName}.${fileExtension}`;
+          const filePath = path.join(uploadDir, newFileName);
+
+          const fileBuffer = await file.arrayBuffer();
+          const fileArray = Array.from(new Uint8Array(fileBuffer));
+
+          await fs.writeFile(filePath, Buffer.from(fileArray));
+          console.log(`Saved ${originalName} as ${newFileName} to ${filePath}`);
+        }
       }
-    });
+    } catch (error) {
+      console.log("lol");
+    }
+
+    // console.log("Received files:");
+
+    // files.forEach((file, index) => {
+    //   if (file instanceof File) {
+    //     console.log(
+    //       `File ${index + 1}: ${file.name}, Size: ${file.size} bytes, Type: ${
+    //         file.type
+    //       }`
+    //     );
+    //   }
+    // });
 
     let newPatientId: number | undefined;
 
-    console.log("Request Body:", reqBody);
+    // console.log("Request Body:", reqBody);
 
     if (reqBody.patientType === "New") {
       const { height, address, role = "patient" } = reqBody;
