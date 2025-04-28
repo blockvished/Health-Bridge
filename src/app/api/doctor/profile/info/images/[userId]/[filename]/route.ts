@@ -27,26 +27,11 @@ export async function GET(req: NextRequest) {
     const decoded = decodedOrResponse;
     const userId = Number(decoded.userId);
 
-    // Check if the requested doctor ID matches the authenticated user's ID
-    if (String(userId) !== userIdFromUrl) {
-      return NextResponse.json(
-        { error: "Forbidden: You don't have access to this profile" },
-        { status: 403 }
-      );
-    }
-
     // Query for doctor information
     const doctorData = await db
       .select()
       .from(doctor)
-      .where(eq(doctor.userId, userId));
-
-    if (doctorData.length === 0) {
-      return NextResponse.json(
-        { error: "Doctor profile not found" },
-        { status: 404 }
-      );
-    }
+      .where(eq(doctor.userId, Number(userIdFromUrl)))
 
     // Define the base upload directory (adjust according to your file structure)
     const uploadDir = path.join(process.cwd(), "private_uploads");
