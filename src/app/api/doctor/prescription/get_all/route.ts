@@ -59,7 +59,20 @@ export async function GET(req: NextRequest) {
             drugName: true,
           },
           with: {
-            medicationDosage: { columns: { medicationId: true } },
+            medicationDosage: {
+              columns: {
+                id: true,
+                medicationId: true,
+                morning: true,
+                afternoon: true,
+                evening: true,
+                night: true,
+                whenToTake: true,
+                howManyDaysToTakeMedication: true,
+                medicationFrequecyType: true,
+                note: true,
+              },
+            },
           },
         },
         patient: {

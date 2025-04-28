@@ -231,12 +231,11 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <img src={temp} alt="Logo" className="h-6 w-6" />
-                <span
-                  className={`font-bold truncate ${isMobile ? "text-sm" : ""}`}
-                >
-                  Live Doctors
-                </span>
+                {activeClinicName ? (
+                  <img src={activeClinicThumb} alt="Logo" className="h-6 w-6" />
+                ) : (
+                  <img src={temp} alt="Logo" className="h-6 w-6" />
+                )}
               </div>
             )}
           </div>
