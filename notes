@@ -57,3 +57,5 @@ select * from permission_types;
 / strong password validation in confirm password as well
 
 images of doctor on patient not working
+
+prescription should be checked based on clinicidfrom db
