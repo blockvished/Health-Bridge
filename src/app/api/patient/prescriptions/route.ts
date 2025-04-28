@@ -35,35 +35,79 @@ export async function GET(req: NextRequest) {
   const requiredPatientId = patientData[0].id;
 
   try {
-    const prescriptionsData = await db
-      .select({
-        prescriptionId: prescription.id,
-        advice: prescription.advice,
-        diagnosisTests: prescription.diagnosisTests,
-        nextFollowUp: prescription.nextFollowUp,
-        nextFollowUpType: prescription.nextFollowUpType,
-        prescriptionNotes: prescription.prescriptionNotes,
-        createdAt: prescription.createdAt,
-        
-        patientId: prescription.patientId,
-        patientName: users.name,
-        patientEmail: users.email,
-        patientPhone: users.phone,
-        
-        doctorId: prescription.doctorId,
-        doctorName: doctor.name,
-        doctorEmail: doctor.email,
-        doctorPhone: doctor.phone,
-        
-        clinicName: clinic.name,
-        clinicAddress: clinic.address,
-      })
-      .from(prescription)
-      .innerJoin(patient, eq(prescription.patientId, patient.id))
-      .innerJoin(users, eq(patient.userId, users.id))
-      .innerJoin(doctor, eq(prescription.doctorId, doctor.id))
-      .innerJoin(clinic, eq(prescription.clinicId, clinic.id))
-      .where(eq(prescription.patientId, requiredPatientId));
+    const prescriptionsData = await db.query.prescription.findMany({
+          where: eq(prescription.patientId, requiredPatientId),
+          columns: {
+            id: true,
+            advice: true,
+            diagnosisTests: true,
+            nextFollowUp: true,
+            nextFollowUpType: true,
+            prescriptionNotes: true,
+            createdAt: true,
+            doctorId: true,
+            clinicId: true,
+          },
+          with: {
+            medication: {
+              columns: {
+                id: true,
+                drugType: true,
+                drugName: true,
+              },
+              with: {
+                medicationDosage: {
+                  columns: {
+                    id: true,
+                    medicationId: true,
+                    morning: true,
+                    afternoon: true,
+                    evening: true,
+                    night: true,
+                    whenToTake: true,
+                    howManyDaysToTakeMedication: true,
+                    medicationFrequecyType: true,
+                    note: true,
+                  },
+                },
+              },
+            },
+            patient: {
+              // Include the patient relation
+              columns: {
+                id: true,
+                userId: true, // Include userId to link to the users table
+                age: true,
+                weight: true,
+              },
+              with: {
+                user: {
+                  columns: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    phone: true,
+                  },
+                },
+              },
+            },
+            doctor: {
+              columns: {
+                name: true,
+                specialization: true,
+                email: true,
+                degree: true,
+              },
+            },
+            clinic: {
+              columns: {
+                name: true,
+                address: true,
+                imageLink: true,
+              },
+            },    
+          },
+        });
 
     return NextResponse.json(
       { prescriptions: prescriptionsData },
