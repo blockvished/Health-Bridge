@@ -26,19 +26,11 @@ export async function GET(req: NextRequest) {
     const decoded = decodedOrResponse;
     const userId = Number(decoded.userId);
 
-    // Check if the requested doctor ID matches the authenticated user's ID
-    if (String(userId) !== userIdFromUrl) {
-      return NextResponse.json(
-        { error: "Forbidden: You don't have access to this profile" },
-        { status: 403 }
-      );
-    }
-
     // Query for doctor information (although not directly used for serving the file)
     const doctorData = await db
       .select()
       .from(doctor)
-      .where(eq(doctor.userId, userId));
+      .where(eq(doctor.userId, Number(userIdFromUrl)));
 
     if (doctorData.length === 0) {
       return NextResponse.json(
