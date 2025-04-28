@@ -117,7 +117,6 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full shadow-sm bg-white hover:bg-gray-100 transition cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
-              <img src={temp} alt="Profile" className="w-6 h-6 rounded-full" />
               <span className="text-gray-800 font-medium hidden sm:inline">
                 {patientData?.name}
               </span>
@@ -134,11 +133,6 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
             >
               {/* Profile Info Section */}
               <div className="flex items-center gap-3 p-4 border-b border-gray-200">
-                <img
-                  src={temp}
-                  alt="Profile"
-                  className="w-12 h-12 rounded-full"
-                />
                 <div>
                   <h4 className="text-gray-800 font-semibold text-sm">
                     {patientData?.name}
