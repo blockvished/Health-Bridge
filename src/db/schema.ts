@@ -305,6 +305,14 @@ export const prescriptionRelations = relations(
       fields: [prescription.patientId],
       references: [patient.id],
     }),
+    doctor: one(doctor, {
+      fields: [prescription.doctorId],
+      references: [doctor.id],
+    }),
+    clinic: one(clinic, {
+      fields: [prescription.clinicId],
+      references: [clinic.id],
+    }),
     medication: many(medication),
   })
 );
