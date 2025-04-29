@@ -1,3 +1,6 @@
+// if consultation is online and if payment status is pending and not paid then he wont get the link
+// else the row will contain the link from doctor id to doctor consultation settings and llnk
+
 "use client";
 import { Video } from "lucide-react";
 import Link from "next/link";
@@ -208,6 +211,3 @@ export default function AppointmentsList() {
     </div>
   );
 }
-
-// if consultation is online and if payment status is pending and not paid then he wont get the link
-// else the row will contain the link from doctor id to doctor consultation settings and llnk
