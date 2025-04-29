@@ -141,7 +141,6 @@ export default function AppointmentsList() {
               <th className="p-3">Schedule Info</th>
               <th className="p-3">Consultation type</th>
               <th className="p-3">Price</th>
-              <th className="p-3">Prescription</th>
               <th className="p-3">Action</th>
             </tr>
           </thead>
@@ -182,13 +181,6 @@ export default function AppointmentsList() {
                   </div>
                 </td>
 
-                <td className="p-3">
-                  <div className="flex flex-col gap-1">
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-md text-xs">
-                      ✖ Not Created
-                    </span>
-                  </div>
-                </td>
                 <td className="p-3 flex items-center gap-2">
                   <button 
                     className="p-2 bg-red-100 text-red-600 rounded-md"
@@ -207,3 +199,6 @@ export default function AppointmentsList() {
     </div>
   );
 }
+
+// if consultation is online and if payment status is pending and not paid then he wont get the link
+// else the row will contain the link from doctor id to doctor consultation settings and llnk

@@ -63,6 +63,3 @@ change
 http://localhost:3000/admin/patient/appointments
 if offline then no link and pending allowed
 else paid and link available
-
-http://localhost:3000/admin/patient/appointments
-prescription column remove
