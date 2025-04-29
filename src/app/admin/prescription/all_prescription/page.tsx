@@ -144,7 +144,41 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
 
   const handlePrint = useReactToPrint({
     documentTitle: "Prescription",
-    onAfterPrint: () => console.log("Printed successfully"),
+    onBeforePrint: async () => {
+      // Add print-specific styles if needed
+      const style = document.createElement('style');
+      style.id = 'print-specific-styles';
+      style.innerHTML = `
+        @media print {
+          body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .prescription-print-content {
+            padding: 20px !important;
+            font-size: 12pt !important;
+          }
+          .prescription-print-content hr {
+            margin: 15px 0 !important;
+          }
+          .prescription-print-content .medication-item {
+            margin-bottom: 10px !important;
+          }
+          .prescription-print-content .dosage-item {
+            margin: 5px 0 !important;
+            padding-left: 20px !important;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+      return Promise.resolve();
+    },
+    onAfterPrint: () => {
+      // Clean up print-specific styles
+      const style = document.getElementById('print-specific-styles');
+      if (style) document.head.removeChild(style);
+      console.log("Printed successfully");
+    },
     contentRef: prescriptionRef,
   });
 
