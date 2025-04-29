@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "../../../db/db"; // Your Drizzle DB instance
 
-
 // GET /api/plans
 export async function GET() {
   try {
