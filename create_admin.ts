@@ -1,6 +1,6 @@
 import { hash } from "argon2";
 import crypto from "crypto";
-import { users, UserRole, userRoleEnum } from "./src/db/schema";
+import { users, UserRole } from "./src/db/schema";
 import { InferInsertModel } from "drizzle-orm";
 import { db } from "./src/db/db";
 

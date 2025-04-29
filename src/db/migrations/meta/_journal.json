@@ -204,6 +204,13 @@
       "when": 1745570731680,
       "tag": "0028_silly_thanos",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1745914868978,
+      "tag": "0029_gigantic_captain_cross",
+      "breakpoints": true
     }
   ]
 }
