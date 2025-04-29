@@ -97,6 +97,35 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const plans = pgTable("plans", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(), // BASIC, CLASSIC, PREMIUM
+  monthlyPrice: integer("monthly_price").notNull(),
+  yearlyPrice: integer("yearly_price").notNull(),
+  staffLimit: integer("staff_limit").notNull(),
+  chamberLimit: integer("chamber_limit").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+});
+
+export const planFeatures = pgTable("plan_features", {
+  id: serial("id").primaryKey(),
+  planId: integer("plan_id").references(() => plans.id).notNull(),
+  featureName: text("feature_name").notNull(),
+  enabled: boolean("enabled").notNull(),
+});
+
+// Optional: Define relations
+export const planRelations = relations(plans, ({ many }) => ({
+  features: many(planFeatures),
+}));
+
+export const planFeatureRelations = relations(planFeatures, ({ one }) => ({
+  plan: one(plans, {
+    fields: [planFeatures.planId],
+    references: [plans.id],
+  }),
+}));
+
 export const usersRelations = relations(users, ({ one }) => ({
   patient: one(patient, {
     fields: [users.id], // Specify the field in the 'users' table
