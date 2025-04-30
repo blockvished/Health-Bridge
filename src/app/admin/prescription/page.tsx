@@ -7,6 +7,7 @@ import { FiSearch } from "react-icons/fi";
 import DrugEntry from "./DrugEntry";
 import { Drug } from "./DrugEntry";
 import PrescriptionPreview from "./Preview";
+import DocumentPreviewModal from "./DocumentPreviewModal";
 
 export interface Doctor {
   name: string;
@@ -68,6 +69,11 @@ export default function CreatePrescription() {
   const [documentFilenames, setDocumentFilenames] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
   const [isDocumentDropdownOpen, setIsDocumentDropdownOpen] = useState(false);
+  
+  // Added state for document preview modal
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [previewDocumentUrl, setPreviewDocumentUrl] = useState("");
+  const [previewFilename, setPreviewFilename] = useState("");
 
   // if selectedPatient?.id is not null in useeffect make a get request to /api/doctor/patients/documents/[selectedPatient.id]/ which will send the list of filenames for that patient
   useEffect(() => {
@@ -358,14 +364,23 @@ export default function CreatePrescription() {
     patient.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleDocumentSelect = async (filename: string) => {
-    handleInputChange("clinicalDiagnosis", filename);
-    setIsDocumentDropdownOpen(false);
-
+  // Modified to show preview modal instead of direct download
+  const handleDocumentSelect = (filename: string) => {
     if (selectedPatient?.id) {
+      // Set the selected document as the clinical diagnosis
+      handleInputChange("clinicalDiagnosis", filename);
+      setIsDocumentDropdownOpen(false);
+      
+      // Set up the preview modal
       const documentUrl = `/api/doctor/patients/documents/document/${selectedPatient.id}/${filename}`;
-      window.open(documentUrl);
+      setPreviewDocumentUrl(documentUrl);
+      setPreviewFilename(filename);
+      setIsPreviewModalOpen(true);
     }
+  };
+
+  const closePreviewModal = () => {
+    setIsPreviewModalOpen(false);
   };
 
   return togglePreview ? (
@@ -605,6 +620,14 @@ export default function CreatePrescription() {
             </div>
           </div>
         </div>
+
+        {/* Document Preview Modal */}
+        <DocumentPreviewModal
+          isOpen={isPreviewModalOpen}
+          onClose={closePreviewModal}
+          documentUrl={previewDocumentUrl}
+          filename={previewFilename}
+        />
 
         {/* Preview Button */}
         <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6">

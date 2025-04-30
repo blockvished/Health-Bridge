@@ -1,64 +1,120 @@
 import { plans, planFeatures } from "./src/db/schema";
 import { db } from "./src/db/db";
 
-const featuresList = [
-  "Services",
-  "Blogs",
-  "Custom Domain",
-  "Online Consultation",
-  "Patients",
-  "Advise",
-  "Diagnosis",
-  "Prescription",
-  "Appointments",
-  "Profile page",
+const basicFeaturesList = [
+  "Online Appointment Booking",
+  "Patient Follow-Up Messages",
+  "WhatsApp & SMS Reminders",
+  "Clinic Staff Accounts",
+  "Social Media Automation",
+  "ePrescription (Digital Prescription)",
+  "Track Patients & Growth Metrics",
+  "Access to Doctor's App",
+  "Teleconsultation (100/month)",
+  "Basic Mail & Chat Support",
+];
+
+const professionalFeaturesList = [
+  "Everything in Basic",
+  "HD Teleconsultation",
+  "Unlimited ePrescriptions",
+  "Clinic Staff Accounts (6)",
+  "Advanced Marketing Tools",
+  "Google Business Listing",
+  "Campaign Tracking Dashboard",
+  "Advanced Dashboard Analytics",
+  "Advanced Rating & Reviews",
+  "Dedicated 24/7 Live Support",
+];
+
+const premiumFeaturesList = [
+  "Everything in Professional",
+  "Unlimited HD Video Consults",
+  "WhatsApp Campaign Blasts",
+  "Staff & Branch Control",
+  "Location & Staff Wise Report",
+  "Custom Domain* Setup",
+  "Advanced Branding Tools",
+  "Monthly YouTube Video",
+  "Monthly Interview Podcast",
+  "Dedicated Success Manager",
+  "Priority Phone + WhatsApp Support",
 ];
 
 async function seed() {
   const planData = [
     {
       name: "BASIC",
-      monthlyPrice: 3990,
-      yearlyPrice: 43890,
-      staffLimit: 2,
+      monthlyPrice: 4999,
+      yearlyPrice: 59988,
+      staffLimit: 3,
       chamberLimit: 1,
-      features: [true, false, false, false, true, false, false, true, true, true],
+      features: [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+      ],
+      featureList: basicFeaturesList,
+
     },
     {
-      name: "CLASSIC",
-      monthlyPrice: 5490,
-      yearlyPrice: 60390,
-      staffLimit: 4,
+      name: "PROFESSIONAL",
+      monthlyPrice: 7999,
+      yearlyPrice: 95988,
+      staffLimit: 6,
       chamberLimit: 2,
-      features: [true, false, false, false, true, false, false, true, true, true],
+      features: [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+      ],
+      featureList: professionalFeaturesList,
     },
     {
       name: "PREMIUM",
       monthlyPrice: 8990,
-      yearlyPrice: 98890,
-      staffLimit: 6,
+      yearlyPrice: 107880,
+      staffLimit: 100,
       chamberLimit: 3,
       features: [true, true, true, true, true, true, true, true, true, true],
+      featureList: premiumFeaturesList,
     },
   ];
 
   for (const plan of planData) {
-    const inserted = await db.insert(plans).values({
-      name: plan.name,
-      monthlyPrice: plan.monthlyPrice,
-      yearlyPrice: plan.yearlyPrice,
-      staffLimit: plan.staffLimit,
-      chamberLimit: plan.chamberLimit,
-      isActive: true,
-    }).returning();
+    const inserted = await db
+      .insert(plans)
+      .values({
+        name: plan.name,
+        monthlyPrice: plan.monthlyPrice,
+        yearlyPrice: plan.yearlyPrice,
+        staffLimit: plan.staffLimit,
+        chamberLimit: plan.chamberLimit,
+        isActive: true,
+      })
+      .returning();
 
     const planId = inserted[0].id;
 
-    const featureRecords = featuresList.map((feature, idx) => ({
+    const featureRecords = plan.featureList.map((featureName, index) => ({
       planId,
-      featureName: feature,
-      enabled: plan.features[idx],
-    }));
+      featureName: featureName,
+      enabled: plan.features[index] === true || typeof plan.features[index] === 'string',
+    })).filter(record => record.enabled);
 
     await db.insert(planFeatures).values(featureRecords);
   }
