@@ -1,12 +1,8 @@
-// if consultation is online and if payment status is pending and not paid then he wont get the link
-// else the row will contain the link from doctor id to doctor consultation settings and llnk
-
 "use client";
 import { Video } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AiOutlineCalendar, AiOutlineClockCircle } from "react-icons/ai";
-import { FaTimesCircle } from "react-icons/fa";
 
 // Define types for the appointment data
 interface Appointment {
@@ -17,12 +13,13 @@ interface Appointment {
   mode: string;
   reason: string;
   visitStatus: string;
-  paymentStatus: string | null;
+  paymentStatus: string | boolean | null; // Updated to handle boolean values
   patientId: string | number;
   patientName: string;
   patientEmail: string;
   patientPhone: string;
   doctorName: string;
+  doctorId?: string | number; // Added doctorId for consultation link
   clinicName: string;
   clinicAddress: string;
   isCancelled: boolean;
@@ -35,10 +32,19 @@ interface ApiResponse {
   error?: string;
 }
 
+interface ConsultationLinkResponse {
+  consultationLink: string | null;
+  message?: string;
+  error?: string;
+}
+
 export default function AppointmentsList() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [consultationLinks, setConsultationLinks] = useState<{
+    [appointmentId: number]: string | null;
+  }>({});
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -66,6 +72,63 @@ export default function AppointmentsList() {
 
     fetchAppointments();
   }, []);
+
+  useEffect(() => {
+    const fetchConsultationLinks = async () => {
+      for (const appointment of appointments) {
+        if (
+          appointment.paymentStatus === true ||
+          appointment.paymentStatus === "true"
+        ) {
+          if (appointment.mode?.toLowerCase() === "online") {
+            try {
+              const response = await fetch(
+                `/api/patient/consultation`
+              );
+              if (response.ok) {
+                const data: ConsultationLinkResponse = await response.json();
+                setConsultationLinks((prevLinks) => ({
+                  ...prevLinks,
+                  [appointment.appointmentId]: data.consultationLink,
+                }));
+              } else {
+                console.error(
+                  `Failed to fetch consultation link for appointment ${appointment.appointmentId}`
+                );
+                setConsultationLinks((prevLinks) => ({
+                  ...prevLinks,
+                  [appointment.appointmentId]: null,
+                }));
+              }
+            } catch (error) {
+              console.error(
+                `Error fetching consultation link for appointment ${appointment.appointmentId}:`,
+                error
+              );
+              setConsultationLinks((prevLinks) => ({
+                ...prevLinks,
+                [appointment.appointmentId]: null,
+              }));
+            }
+          } else {
+            setConsultationLinks((prevLinks) => ({
+              ...prevLinks,
+              [appointment.appointmentId]: null,
+            }));
+          }
+        } else {
+          setConsultationLinks((prevLinks) => ({
+            ...prevLinks,
+            [appointment.appointmentId]: null,
+          }));
+        }
+      }
+    };
+
+    if (!loading && appointments.length > 0) {
+      fetchConsultationLinks();
+    }
+  }, [appointments, loading]);
 
   // Function to format date in required format (e.g. "01 Apr 2025")
   const formatDate = (dateString: string): string => {
@@ -125,11 +188,26 @@ export default function AppointmentsList() {
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
   };
 
-  if (loading) return <div className="p-4">Loading appointments...</div>;
+  // Function to check if join button should be displayed
+  const shouldShowJoinButton = (appointment: Appointment): boolean => {
+    // Only show join button for online consultations
+    if (!appointment.mode || appointment.mode.toLowerCase() !== "online") {
+      return false;
+    }
+
+    if (
+      appointment.paymentStatus !== "true" &&
+      appointment.paymentStatus !== true
+    ) {
+      return false;
+    }
+
+    return true;
+  };
 
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
 
-  if (appointments.length === 0) {
+  if (appointments.length === 0 && !loading) {
     return <div className="p-4">No appointments found.</div>;
   }
 
@@ -151,60 +229,96 @@ export default function AppointmentsList() {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {appointments.map((appointment, index) => (
-              <tr
-                key={appointment.appointmentId}
-                className="border-b last:border-none text-gray-700"
-              >
-                <td className="p-3">{index + 1}</td>
-                <td className="p-3 font-medium text-blue-600">
-                  #{appointment?.patientId}
-                </td>
-                <td className="p-3 font-semibold">
-                  {appointment.doctorName || "N/A"}
-                </td>
-                <td className="p-3">
-                  <div className="flex flex-col gap-1">
-                    <span className="flex items-center gap-2 text-blue-700 bg-blue-100 px-2 py-1 rounded-md text-xs">
-                      <AiOutlineCalendar />
-                      {formatDate(appointment.date)}
-                    </span>
-                    <span className="flex items-center gap-2 text-blue-700 bg-blue-100 px-2 py-1 rounded-md text-xs">
-                      <AiOutlineClockCircle />
-                      {formatTimeRange(
-                        appointment.timeFrom,
-                        appointment.timeTo
-                      )}
-                    </span>
-                  </div>
-                </td>
-                <td className="p-3">
-                  <span className="px-3 py-1 bg-gray-300 text-gray-800 rounded-full text-xs inline-flex items-center gap-2">
-                    ● {capitalizeFirstLetter(appointment.mode)}
-                  </span>
-                </td>
-                <td className="p-3 text-gray-900 font-semibold">
-                  <div className="flex flex-col">
-                    <span>₹ {appointment.price || "1000.00"}</span>
-                    <span
-                      className={`mt-1 px-3 py-1 ${getStatusClass(
-                        appointment.paymentStatus
-                      )} rounded-md text-xs inline-block`}
-                    >
-                      ● {appointment.paymentStatus || "Pending"}
-                    </span>
-                  </div>
-                </td>
-
-                <td className="p-3 flex items-center gap-2">
-                  <Link href={`/consultation`}>
-                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-md text-xs flex items-center gap-1">
-                      <Video size={14} className="mr-1" /> Join
-                    </button>
-                  </Link>
+            {loading ? (
+              <tr>
+                <td colSpan={7} className="p-4 text-center text-gray-500">
+                  Loading appointments...
                 </td>
               </tr>
-            ))}
+            ) : (
+              appointments.map((appointment, index) => (
+                <tr
+                  key={appointment.appointmentId}
+                  className="border-b last:border-none text-gray-700"
+                >
+                  <td className="p-3">{index + 1}</td>
+                  <td className="p-3 font-medium text-blue-600">
+                    #{appointment?.patientId}
+                  </td>
+                  <td className="p-3 font-semibold">
+                    {appointment.doctorName || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    <div className="flex flex-col gap-1">
+                      <span className="flex items-center gap-2 text-blue-700 bg-blue-100 px-2 py-1 rounded-md text-xs">
+                        <AiOutlineCalendar />
+                        {formatDate(appointment.date)}
+                      </span>
+                      <span className="flex items-center gap-2 text-blue-700 bg-blue-100 px-2 py-1 rounded-md text-xs">
+                        <AiOutlineClockCircle />
+                        {formatTimeRange(
+                          appointment.timeFrom,
+                          appointment.timeTo
+                        )}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <span className="px-3 py-1 bg-gray-300 text-gray-800 rounded-full text-xs inline-flex items-center gap-2">
+                      ● {capitalizeFirstLetter(appointment.mode)}
+                    </span>
+                  </td>
+                  <td className="p-3 text-gray-900 font-semibold">
+                    <div className="flex flex-col">
+                      <span>₹ {appointment.price || "1000.00"}</span>
+                      <span
+                        className={`mt-1 px-3 py-1 ${getStatusClass(
+                          appointment.paymentStatus === true ||
+                            appointment.paymentStatus === "true"
+                            ? "completed"
+                            : "pending"
+                        )} rounded-md text-xs inline-block`}
+                      >
+                        ●{" "}
+                        {appointment.paymentStatus === true ||
+                        appointment.paymentStatus === "true"
+                          ? "Paid"
+                          : "Pending"}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td className="p-3">
+                    {appointment.mode?.toLowerCase() === "offline" && (
+                      <span className="text-xs text-gray-500">N/A offline</span>
+                    )}
+                    {shouldShowJoinButton(appointment) ? (
+                      <Link
+                        href={
+                          consultationLinks[appointment.appointmentId] || "#"
+                        }
+                      >
+                        <button
+                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-md text-xs flex items-center gap-1"
+                          disabled={!consultationLinks[appointment.appointmentId]}
+                        >
+                          <Video size={14} className="mr-1" /> Join
+                        </button>
+                      </Link>
+                    ) : (
+                      appointment.mode?.toLowerCase() === "online" && (
+                        <span className="text-xs text-gray-500">
+                          {appointment.paymentStatus === true ||
+                          appointment.paymentStatus === "true"
+                            ? "Waiting to join"
+                            : "Pay to join"}
+                        </span>
+                      )
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
