@@ -57,9 +57,3 @@ select * from permission_types;
 / strong password validation in confirm password as well
 
 http://localhost:3000/admin/prescription popup 
-
-change 
-
-http://localhost:3000/admin/patient/appointments
-if offline then no link and pending allowed
-else paid and link available
