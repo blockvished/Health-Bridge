@@ -48,12 +48,5 @@ select * from permission_types;
 // fix needed when creating patient (like patient shouldnt require all fields for api or even submit)
 
 / subscription etc will be handled from admin side on to patient page and admin page
-/ review / contact of doctor is remaining and etc
-
-/appointment upload old documents
-
-/ prescription from patient page and download 
-/ prescription
+/ contact of doctor is remaining and etc
 / strong password validation in confirm password as well
-
-http://localhost:3000/admin/prescription popup 
