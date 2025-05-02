@@ -4,6 +4,7 @@ import React, { useState, ChangeEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Image from "next/image";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -37,15 +38,20 @@ const Login = () => {
       // Redirect based on user role
       if (data.user.role === "doctor") {
         router.push("/admin/dashboard/user");
-      } else if (
-        data.user.role === "admin"
-      ) {
+      } else if (data.user.role === "admin") {
         router.push("/admin/dashboard");
-      } else if (data.user.role = "patient") {
+      } else if ((data.user.role = "patient")) {
         router.push("/admin/dashboard/patient");
       }
-    } catch (err: any) {
-      setError(err.message || "An error occurred during login");
+    } catch (err: unknown) {
+      let errorMessage = "An unexpected error occurred during login";
+      if (err instanceof Error) {
+        errorMessage = err.message || errorMessage;
+      } else if (typeof err === "string") {
+        errorMessage = err;
+      }
+      setError(errorMessage);
+      console.error("Login error:", err);
     } finally {
       setLoading(false);
     }
@@ -72,8 +78,7 @@ const Login = () => {
               <p>
                 <Link href="#" className="underline">
                   Privacy
-                </Link>{" "}
-                |{" "}
+                </Link>
                 <Link href="#" className="underline">
                   Terms
                 </Link>
@@ -85,10 +90,12 @@ const Login = () => {
         {/* Right Section - Form */}
         <div className="w-full md:w-2/3 p-8 flex flex-col justify-center">
           <div className="text-center">
-            <img
+            <Image
               src="/logo_live_doctors.png"
               alt="Live Doctors Logo"
-              className="h-12 mx-auto mb-4"
+              className="mx-auto mb-4" // Removed h-12 as we'll use the height prop
+              width={150} // Replace with the actual width in pixels
+              height={48} // 12 * 4px = 48px (Tailwind's default scale)
             />
             <h2 className="text-3xl font-bold text-gray-800">
               Sign in to Live Doctors
@@ -161,7 +168,7 @@ const Login = () => {
           </form>
 
           <p className="mt-4 text-center text-gray-600 text-sm mx-4">
-            Don't have an account?{" "}
+          Don&apos;t have an account?
             <Link href="/register" className="text-blue-500 font-medium">
               Register
             </Link>

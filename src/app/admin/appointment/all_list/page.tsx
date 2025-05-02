@@ -1,6 +1,6 @@
 "use client"; // Ensure this is a client component
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   FaArrowLeft,
@@ -44,7 +44,7 @@ const formatTime12Hour = (time24: string): string => {
 };
 
 export default function AppointmentsPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [datedAppointments, setDatedAppointments] = useState<
     DatedAppointments[]

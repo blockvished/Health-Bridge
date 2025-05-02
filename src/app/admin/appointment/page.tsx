@@ -471,7 +471,7 @@ const Appointments = () => {
 
       formData.append("appointmentData", JSON.stringify(appointmentData));
 
-      uploadedFiles.forEach((file, index) => {
+      uploadedFiles.forEach((file) => {
         formData.append(`files`, file);
       });
 

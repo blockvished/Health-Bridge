@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, or } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { users } from "../../../db/schema";
 import db from "../../../db/db";
 import { verifyAuthToken } from "../../lib/verify";
@@ -7,10 +7,7 @@ import { verify, hash } from "argon2";
 // =======================
 // PUT - Update - Password
 // =======================
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { userId: string; patientId: string } }
-) {
+export async function PUT(req: NextRequest) {
   try {
     // Verify JWT token
     const decodedOrResponse = await verifyAuthToken();
@@ -88,11 +85,11 @@ export async function PUT(
     // else hash new password and update in db
 
     return NextResponse.json(
-        { message: "Password changed successfully." },
-        { status: 200 }
-      );
-    } catch (error) {
-      console.error("Error changing password:", error);
-      return NextResponse.json({ error: "Server error" }, { status: 500 });
-    }
+      { message: "Password changed successfully." },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error changing password:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
+}

@@ -2,6 +2,7 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Link from "next/link";
+import Image from "next/image";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -144,10 +145,12 @@ const Signup = () => {
         </div>
         <div className="w-full md:w-2/3 p-8 flex flex-col justify-center items-center">
           <div className="text-center w-full max-w-md">
-            <img
+            <Image
               src="/logo_live_doctors.png"
               alt="Live Doctors Logo"
-              className="h-12 mx-auto mb-2"
+              className="mx-auto mb-2" // Removed h-12 as we'll use the height prop
+              width={48} // h-12 in Tailwind corresponds to a height of 3rem, which is typically 48px
+              height={48} // Assuming you want a square logo with the same height
             />
             <h2 className="text-2xl font-bold text-gray-800">
               Create Your Account

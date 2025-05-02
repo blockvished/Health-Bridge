@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import postgres from "postgres";
 import { eq } from "drizzle-orm";
 import path from "path";
 import { doctor } from "../../../../../../../db/schema";
@@ -8,7 +7,6 @@ import { verifyAuthToken } from "../../../../../../lib/verify";
 import { promises as fs } from 'fs'; // Import the promises API for fs
 
 export async function GET(req: NextRequest) {
-  let sql: postgres.Sql<{}> | undefined;
   try {
     // Get doctor ID and file name from URL
     const pathSegments = req.nextUrl.pathname.split("/");

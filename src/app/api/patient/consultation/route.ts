@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { eq, and, sql } from "drizzle-orm";
-import { doctor, appointments, patient, doctorConsultation } from "../../../../db/schema";
+import { appointments, patient, doctorConsultation } from "../../../../db/schema";
 import db from "../../../../db/db";
 import { verifyAuthToken } from "../../../lib/verify";
 
 // =======================
 // Get - Consultation Link if Patient has Appointment Today
 // =======================
-export async function GET(req: NextRequest) {
+export async function GET() {
   // Verify JWT token using the modularized function
   const decodedOrResponse = await verifyAuthToken();
 

@@ -6,7 +6,6 @@ import {
 import SettingsSection from "./_common/SettingsSection";
 import React, { useState } from "react";
 import type { NextPage } from "next";
-import LinkedinApi from "./_common/LinkedinApi";
 import TumblrApi from "./_common/TumblrApi";
 
 interface User {

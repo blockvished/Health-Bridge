@@ -7,12 +7,11 @@ const FooterFormSection: React.FC = () => {
         When does B-School start?
       </h2>
       <p className="mt-4 text-lg text-gray-700 max-w-2xl mx-auto">
-        <strong>B-School doors open on February 13th, 2025!</strong> Put your
+        <strong>B-School doors open on February 13th, 2025!</strong> {`Put your
         name and email on the VIP waitlist below so you get first dibs when
-        doors reopen. Plus, I'll send you my brand new free guide:
+        doors reopen. Plus, I'll send you my brand new free guide:`}
         <strong className="text-[#1565C0]">
-          {" "}
-          12 Entrepreneurial Mistakes You Can't Afford to Make in 2025.
+          {`12 Entrepreneurial Mistakes You Can't Afford to Make in 2025.`}
         </strong>
         So you can stop struggling and start seeing results in your business.
       </p>
@@ -39,10 +38,10 @@ const FooterFormSection: React.FC = () => {
       </form>
 
       <p className="mt-4 text-xs text-gray-600 max-w-md mx-auto">
-        By entering your info, you'll become an MF Insider — with FREE access to
+        {`By entering your info, you'll become an MF Insider — with FREE access to
         exclusive insights, private Q+As, and inspiring episodes of MarieTV,
         delivered with love to your inbox. (Unsub anytime in a click.) You also
-        agree to our{" "}
+        agree to our`}
         <a
           href="#"
           className="underline text-[#1976D2] hover:text-[#1565C0] transition duration-300"

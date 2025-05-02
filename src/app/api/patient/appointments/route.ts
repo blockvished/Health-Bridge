@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { eq, and } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 import { doctor, appointments, users, patient, clinic } from "../../../../db/schema";
 import db from "../../../../db/db";
 import { verifyAuthToken } from "../../../lib/verify";
@@ -7,7 +7,7 @@ import { verifyAuthToken } from "../../../lib/verify";
 // =======================
 // Get - All Appointments for Patient
 // =======================
-export async function GET(req: NextRequest) {
+export async function GET() {
   // Get ID from URL
   //   const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
 

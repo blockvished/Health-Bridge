@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 const MediaFeaturesSection: React.FC = () => {
@@ -27,7 +28,7 @@ const MediaFeaturesSection: React.FC = () => {
             >
               {media}
             </span>
-          ),
+          )
         )}
       </div>
 
@@ -38,10 +39,14 @@ const MediaFeaturesSection: React.FC = () => {
             key={index}
             className="group overflow-hidden rounded-lg shadow-lg"
           >
-            <img
+            <Image
               src={src}
               className="w-full h-auto rounded-lg transform transition duration-300 group-hover:scale-105 group-hover:shadow-xl"
               alt={`Featured media ${index + 1}`}
+              layout="responsive"
+              width={1} // Aspect ratio will be maintained by layout="responsive" and h-auto
+              height={1} // Aspect ratio will be maintained by layout="responsive" and h-auto
+              objectFit="cover" // Ensures the image covers the container without distortion (you might adjust this)
             />
           </div>
         ))}

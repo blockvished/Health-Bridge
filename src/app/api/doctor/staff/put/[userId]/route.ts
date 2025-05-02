@@ -7,14 +7,12 @@ import {
   doctor,
   users,
   staff,
-  clinic,
   staffPermissions,
-  permissionTypes,
 } from "../../../../../../db/schema";
 import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
 import { hash } from "argon2";
-import { randomBytes } from "crypto";
+// import { randomBytes } from "crypto";
 
 // =======================
 // PUT - Update - Staff
@@ -54,7 +52,7 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const requiredDoctorId = doctorData[0].id;
+    // const requiredDoctorId = doctorData[0].id;
     const baseUploadPath = path.join(process.cwd(), "private_uploads");
 
     // 1. Parse the form data

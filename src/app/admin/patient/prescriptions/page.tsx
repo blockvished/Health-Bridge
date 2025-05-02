@@ -3,17 +3,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
-  FaPlus,
-  FaTrash,
-  FaDownload,
   FaEye,
   FaPrint,
-  FaClipboardList,
   FaHospital,
 } from "react-icons/fa";
 import { format, parseISO } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import Link from "next/link";
 import { useReactToPrint } from "react-to-print";
 import Cookies from "js-cookie";
 

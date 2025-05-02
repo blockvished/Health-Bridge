@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, or } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { doctor, plans, users } from "../../../../db/schema";
 import db from "../../../../db/db";
 import { verifyAuthToken } from "../../../lib/verify";
@@ -8,7 +8,7 @@ import { verifyAuthToken } from "../../../lib/verify";
 // GET - Fetch Patients for a Doctor
 // =======================
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     // Verify JWT token using the modularized function
     const decodedOrResponse = await verifyAuthToken();
   

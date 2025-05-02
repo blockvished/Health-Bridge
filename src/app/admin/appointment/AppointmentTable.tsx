@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect, useCallback } from "react";
 import { FaEdit } from "react-icons/fa";
-import { FiTrash, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { MdOutlineDateRange, MdOutlineAccessTime } from "react-icons/md";
 import AppointmentEditForm from "./AppointmentEditForm";
 
@@ -93,32 +93,32 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({
   }, [userId]);
 
   // Function to handle appointment deletion
-  const deleteAppointment = async (appointmentId: number) => {
-    if (!userId) return;
+  // const deleteAppointment = async (appointmentId: number) => {
+  //   if (!userId) return;
 
-    try {
-      const response = await fetch(
-        `/api/doctor/appointments/delete/${userId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ appointmentId }),
-        }
-      );
+  //   try {
+  //     const response = await fetch(
+  //       `/api/doctor/appointments/delete/${userId}`,
+  //       {
+  //         method: "DELETE",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({ appointmentId }),
+  //       }
+  //     );
 
-      if (!response.ok) {
-        throw new Error("Failed to delete appointment");
-      }
+  //     if (!response.ok) {
+  //       throw new Error("Failed to delete appointment");
+  //     }
 
-      // Refresh the appointments list after successful deletion
-      fetchAppointments();
-    } catch (error) {
-      console.error("Error deleting appointment:", error);
-      alert("Failed to delete appointment. Please try again.");
-    }
-  };
+  //     // Refresh the appointments list after successful deletion
+  //     fetchAppointments();
+  //   } catch (error) {
+  //     console.error("Error deleting appointment:", error);
+  //     alert("Failed to delete appointment. Please try again.");
+  //   }
+  // };
 
   // Function to toggle row expansion
   const toggleRowExpansion = (appointmentId: string) => {

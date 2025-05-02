@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, inArray, and } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { doctor, doctorEducation } from "../../../../../../db/schema";
 import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
-import { Readable } from "stream";
 // =======================
 // GET - Fetch -Educations
 // =======================

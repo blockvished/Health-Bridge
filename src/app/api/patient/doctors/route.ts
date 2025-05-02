@@ -3,9 +3,7 @@ import { eq, and } from "drizzle-orm";
 import {
   doctor,
   appointments,
-  users,
   patient,
-  clinic,
   doctor_ratings,
 } from "../../../../db/schema";
 import db from "../../../../db/db";
@@ -14,7 +12,7 @@ import { verifyAuthToken } from "../../../lib/verify";
 // =======================
 // Get - All Appointments for Patient with Doctor Ratings
 // =======================
-export async function GET(req: NextRequest) {
+export async function GET() {
   // Verify JWT token
   const decodedOrResponse = await verifyAuthToken();
   if (decodedOrResponse instanceof NextResponse) {

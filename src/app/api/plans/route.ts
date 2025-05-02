@@ -11,7 +11,17 @@ export async function GET() {
     });
 
     return NextResponse.json({ success: true, data: allPlans });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: "Failed to fetch plans" }, { status: 500 });
+  } catch (error: unknown) {
+    console.error("Error fetching plans:", error);
+    let errorMessage = "Failed to fetch plans";
+    if (error instanceof Error) {
+      errorMessage = error.message || errorMessage;
+    } else if (typeof error === "string") {
+      errorMessage = error;
+    }
+    return NextResponse.json(
+      { success: false, error: errorMessage },
+      { status: 500 }
+    );
   }
 }

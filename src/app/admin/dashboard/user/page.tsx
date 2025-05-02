@@ -1,6 +1,11 @@
 "use client";
 
-import React, { ReactNode, use, useEffect, useState } from "react";
+import React, {
+  ReactNode,
+  // use,
+  useEffect,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
 import {
   Chart as ChartJS,
@@ -11,9 +16,9 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import IncomeChart from "../_common/Chart";
+// import IncomeChart from "../_common/Chart";
 // import AppointmentsTable from "../_common/AppointmentsTable";
-import NetIncomeTable from "../_common/NetIncomeTable";
+// import NetIncomeTable from "../_common/NetIncomeTable";
 
 import AppointmentsPage from "../../appointment/all_list/page";
 import Cookies from "js-cookie";

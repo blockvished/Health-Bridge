@@ -1,7 +1,7 @@
 // Create and Get Patients for a Doctor
 
 import { NextRequest, NextResponse } from "next/server";
-import { eq, or } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { doctor, patient, users } from "../../../../../../../db/schema";
 import db from "../../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../../lib/verify";
@@ -9,10 +9,7 @@ import { verifyAuthToken } from "../../../../../../lib/verify";
 // =======================
 // DELETE - Delete - Patient
 // =======================
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { userId: string; patientId: string } }
-) {
+export async function DELETE(req: NextRequest) {
   try {
     // Get doctor ID and patient ID from URL params
     const patientIdFromUrl = req.nextUrl.pathname.split("/").pop();

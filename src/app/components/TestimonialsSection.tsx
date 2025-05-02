@@ -45,11 +45,11 @@ const TestimonialsSection: React.FC = () => {
     <section className="py-20 bg-gradient-to-b from-[#FAF5E8] to-[#F3E8D5] text-center">
       {/* Section Title */}
       <h2 className="text-4xl font-extrabold text-gray-900">
-        B-School Works. <span className="text-teal-600">Here's Proof.</span>
+        B-School Works. <span className="text-teal-600">{`Here's Proof.`}</span>
       </h2>
       <p className="mt-4 text-lg text-gray-700 max-w-3xl mx-auto">
-        14 years, nearly 80,000 students from 650+ industries worldwide. There's
-        a reason we're the gold standard in this industry.
+        {`14 years, nearly 80,000 students from 650+ industries worldwide. There's
+        a reason we're the gold standard in this industry.`}
       </p>
 
       {/* Testimonials Grid */}
@@ -93,7 +93,7 @@ const TestimonialCard: React.FC<{ testimonial: (typeof testimonials)[0] }> = ({
 
       {/* Testimonial Text */}
       <blockquote className="mt-3 text-gray-800 italic text-center">
-        "{testimonial.text}"
+      &apos;{testimonial.text}&apos;
       </blockquote>
     </div>
   );

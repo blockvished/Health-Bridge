@@ -1,18 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
-import { eq, and } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 import {
   doctor,
-  patient,
   prescription,
-  medication,
-  medicationDosage,
 } from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
 
 // GET - get all prescriptions for a doctor
 // =======================
-export async function GET(req: NextRequest) {
+export async function GET() {
   // *** COMMENT OUT AUTHENTICATION AND AUTHORIZATION BELOW ***
 
   // Verify JWT token

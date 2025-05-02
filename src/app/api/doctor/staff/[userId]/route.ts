@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq, or, sql } from "drizzle-orm";
+import { eq, or, sql } from "drizzle-orm";
 import {
   doctor,
   users,
