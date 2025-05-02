@@ -51,7 +51,7 @@ const Plans: React.FC = () => {
     type: 'success' | 'error';
     message: string;
   } | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("show"); // Default to "show" tab
+  const [activeTab, setActiveTab] = useState<string>("active"); // Default to "active" tab - changed here
 
   useEffect(() => {
     fetchPlans();

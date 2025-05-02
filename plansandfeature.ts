@@ -118,6 +118,18 @@ async function seed() {
 
     await db.insert(planFeatures).values(featureRecords);
   }
+  const insertedNoPlan = await db
+  .insert(plans)
+  .values({
+    id: 0,
+    name: "No plan",
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    staffLimit: 0,
+    chamberLimit: 0,
+    isActive: false,
+  })
+  .returning();
 
   console.log("Seed completed.");
 }

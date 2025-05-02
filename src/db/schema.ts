@@ -109,7 +109,9 @@ export const plans = pgTable("plans", {
 
 export const planFeatures = pgTable("plan_features", {
   id: serial("id").primaryKey(),
-  planId: integer("plan_id").references(() => plans.id).notNull(),
+  planId: integer("plan_id")
+    .references(() => plans.id)
+    .notNull(),
   featureName: text("feature_name").notNull(),
   enabled: boolean("enabled").notNull(),
 });
@@ -168,6 +170,13 @@ export const doctor = pgTable("doctor", {
   twitter_link: text("twitter_link"),
   linkedin_link: text("linkedin_link"),
   seo_description: text("seo_description"),
+
+  planId: integer("plan_id") // Changed from planid to planId to follow convention
+    .default(0) // Corrected default value to 0
+    .references(() => plans.id), // Foreign key to plans table
+  accountVerified: boolean("account_verified").default(false).notNull(),
+  paymentStatus: boolean("payment_status").default(false).notNull(),
+  accountStatus: boolean("account_status").default(false).notNull(),
 });
 
 export const doctorRelations = relations(doctor, ({ one, many }) => ({
@@ -230,11 +239,11 @@ export const doctor_ratings = pgTable("doctor_ratings", {
   createdAt: timestamp("created_at").defaultNow(), // Automatically record creation time
 });
 
-export const enableRating = pgTable('enable_rating', {
-  doctorid: integer('doctorid')
-    .references(() => doctor.id, { onDelete: 'cascade' })
+export const enableRating = pgTable("enable_rating", {
+  doctorid: integer("doctorid")
+    .references(() => doctor.id, { onDelete: "cascade" })
     .primaryKey(),
-  enable: boolean('enable').notNull(),
+  enable: boolean("enable").notNull(),
 });
 
 // clinic
