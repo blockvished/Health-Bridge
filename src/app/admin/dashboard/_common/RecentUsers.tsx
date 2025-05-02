@@ -14,52 +14,6 @@ interface RecentUsersProps {
   users?: User[];
 }
 
-// Default sample data
-const defaultUsers: User[] = [
-  {
-    name: "lmao",
-    email: "postpostman123@gmail.com",
-    status: "pending",
-    plan: "Basic",
-    joined: "4 days ago",
-  },
-  {
-    name: "Dr Sabir Ali",
-    email: "sabirali735536@gmail.com",
-    status: "verified",
-    plan: "Basic",
-    joined: "2 months ago",
-  },
-  {
-    name: "Dr Ganesh Hambarde",
-    email: "ganeshhambarde1114@gmail.com",
-    status: "verified",
-    plan: "Basic",
-    joined: "2 months ago",
-  },
-  {
-    name: "Dr Sheetal Rangrao Jagtap",
-    email: "jagtagsheetali2@gmail.com",
-    status: "verified",
-    plan: "Basic",
-    joined: "2 months ago",
-  },
-  {
-    name: "DR ANEEL KUMAR vaswani",
-    email: "draneelvaswani480@gmail.com",
-    status: "verified",
-    plan: "Basic",
-    joined: "2 months ago",
-  },
-  {
-    name: "Shravan Kumar Ratcha",
-    email: "itsratcha@gmail.com",
-    status: "pending",
-    plan: "Basic",
-    joined: "2 months ago",
-  }
-];
-
 const UserIcon = () => (
   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-blue-500 fill-current">
@@ -68,8 +22,8 @@ const UserIcon = () => (
   </div>
 );
 
-const RecentUsers: React.FC<RecentUsersProps> = ({ users = defaultUsers }) => {
-  const displayUsers = users.slice(0, 6); // Limit to 6 users
+const RecentUsers: React.FC<RecentUsersProps> = ({ users }) => {
+  const displayUsers = users ? users.slice(0, 6) : []; // Limit to 6 users if users exist
 
   return (
     <div className="bg-white p-6 rounded-lg shadow">
