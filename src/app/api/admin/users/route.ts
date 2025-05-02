@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { doctor, plans, users } from "../../../../db/schema";
 import db from "../../../../db/db";

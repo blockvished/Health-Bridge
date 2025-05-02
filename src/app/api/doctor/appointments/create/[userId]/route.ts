@@ -15,11 +15,6 @@ import { randomBytes } from "crypto";
 import fs from "fs/promises";
 import path from "path";
 
-type TimeRange = {
-  from: string; // e.g. '09:00:00'
-  to: string; // e.g. '11:00:00'
-};
-
 // =======================
 // POST - Appointment Settings for a Doctor
 // =======================

@@ -2,7 +2,6 @@
 
 import {
   FaClinicMedical,
-  FaSignOutAlt,
   FaTimes,
   FaHospital,
 } from "react-icons/fa";
