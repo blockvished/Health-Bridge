@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { FaCheck, FaSpinner } from "react-icons/fa";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
 const LiveConsultationSettings = () => {
@@ -15,7 +15,7 @@ const LiveConsultationSettings = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false); // New state for saving status
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  // const router = useRouter();
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");

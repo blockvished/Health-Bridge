@@ -11,11 +11,6 @@ interface Rating {
   patientName: string;
 }
 
-interface EnableRatingResponse {
-  doctorid: number;
-  enable: boolean;
-}
-
 export default function RatingReviews() {
   const [userId, setUserId] = useState<string | null>(null);
   const [ratings, setRatings] = useState<Rating[]>([]);

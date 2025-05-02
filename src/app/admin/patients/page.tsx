@@ -235,7 +235,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
+        <Input
           label="Abha Id"
           type="text"
           name="abha_id"
@@ -389,7 +389,10 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 const PatientsTable: React.FC<{
   onRefresh: () => void;
   onEditPatient: (patient: Patient) => void;
-}> = ({ onRefresh, onEditPatient }) => {
+}> = ({
+  //  onRefresh,
+  onEditPatient,
+}) => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

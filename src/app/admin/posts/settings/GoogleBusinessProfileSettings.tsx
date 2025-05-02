@@ -4,10 +4,9 @@ import {
   MultiSelectDropdown,
 } from "./_common/SelectDropdown";
 import SettingsSection from "./_common/SettingsSection";
-import React, { useState, ChangeEvent } from "react";
+import React, { useState } from "react";
 import type { NextPage } from "next";
 import AlertBanner from "./_common/AlertBanner";
-import TwitterApi from "./_common/TwitterApi";
 
 interface User {
   userId: string;
@@ -89,9 +88,9 @@ const GoogleBusinessProfileSettings: NextPage = () => {
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleAuthTypeChange = (type: "app" | "graph") => {
-    setSettings((prev) => ({ ...prev, authType: type }));
-  };
+  // const handleAuthTypeChange = (type: "app" | "graph") => {
+  //   setSettings((prev) => ({ ...prev, authType: type }));
+  // };
 
   return (
     <div className="p-6 space-y-6">

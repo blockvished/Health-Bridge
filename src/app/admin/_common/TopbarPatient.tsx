@@ -3,15 +3,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
-  FiUser,
-  FiEdit,
   FiLock,
   FiLogOut,
   FiMenu,
   FiChevronDown,
 } from "react-icons/fi";
 import MobileTitle from "./MobileTitlePatientNAdmin";
-import { live_doctors_icon, temp } from "./global_variables";
+// import { live_doctors_icon, temp } from "./global_variables";
 
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   onToggleSidebar,

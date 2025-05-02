@@ -3,13 +3,12 @@ import React, { useRef, useState } from "react";
 import {
   FaPrint,
   FaSave,
-  FaEdit,
   FaArrowLeft,
   FaHospital,
   FaClipboardList,
 } from "react-icons/fa";
 import { useReactToPrint } from "react-to-print";
-import { Drug, Dosage } from "./DrugEntry";
+import { Drug } from "./DrugEntry";
 import Link from "next/link";
 
 interface PrescriptionPreviewProps {

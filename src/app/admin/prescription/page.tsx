@@ -2,7 +2,7 @@
 
 import Cookies from "js-cookie";
 import { useEffect, useState, useRef } from "react";
-import { FaHospital, FaPlus, FaPrint, FaTimes } from "react-icons/fa";
+import { FaHospital, FaPlus, FaPrint } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 import DrugEntry from "./DrugEntry";
 import { Drug } from "./DrugEntry";

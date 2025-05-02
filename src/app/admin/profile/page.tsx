@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaUserEdit, FaGlobe, FaSearch } from "react-icons/fa";
 import UpdateInfoTab from "./UpdateInfoTab";
 import SocialSettingsTab from "./SocialSettingsTab";

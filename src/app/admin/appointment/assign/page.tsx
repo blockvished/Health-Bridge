@@ -5,11 +5,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { FaPlus, FaTrash, FaSave, FaSpinner } from "react-icons/fa";
 
 import {
-  ScheduleState,
   OpenDropdownState,
   DayConfig,
   generateTimeOptions,
-  isTimeRangeValid,
 } from "./utils";
 import TimeDropdown from "./TimeDropdown";
 import TimeInput from "./TimeInput";
@@ -468,8 +466,8 @@ const AppointmentsSchedule: React.FC = () => {
             Set Appointments Schedule
           </h2>
           <p className="text-gray-600 text-sm mb-6">
-            Configure which days you're available and set your working hours for
-            each day.
+            {`Configure which days you're available and set your working hours for
+            each day.`}
           </p>
 
           <div className="max-h-[500px] overflow-y-auto pr-2 -mr-2">

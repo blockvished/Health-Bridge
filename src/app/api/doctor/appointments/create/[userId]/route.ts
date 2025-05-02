@@ -7,7 +7,6 @@ import {
   users,
   patient,
   genderEnum,
-  clinic,
 } from "../../../../../../db/schema";
 import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
@@ -21,12 +20,6 @@ type TimeRange = {
   to: string; // e.g. '11:00:00'
 };
 
-type ScheduleItem = {
-  id: number;
-  dayOfWeek: string;
-  isActive: boolean;
-  times: TimeRange[];
-};
 // =======================
 // POST - Appointment Settings for a Doctor
 // =======================

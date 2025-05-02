@@ -4,10 +4,8 @@ import {
   MultiSelectDropdown,
 } from "./_common/SelectDropdown";
 import SettingsSection from "./_common/SettingsSection";
-import React, { useState, ChangeEvent } from "react";
+import React, { useState } from "react";
 import type { NextPage } from "next";
-import AlertBanner from "./_common/AlertBanner";
-import TwitterApi from "./_common/TwitterApi";
 import LinkedinApi from "./_common/LinkedinApi";
 
 interface User {

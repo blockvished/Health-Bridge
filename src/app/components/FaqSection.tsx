@@ -64,7 +64,7 @@ const FaqSection: React.FC = () => {
           </p>
           <div className="bg-[#E8F4FC] p-6 rounded-lg mt-6 shadow-md">
             <p className="text-gray-800 italic text-lg">
-              "{faq.testimonial.text}"
+              &quot;{faq.testimonial.text}&quot;
             </p>
             <p className="mt-4 font-semibold text-gray-700">
               {faq.testimonial.author}

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 const testimonials = [
@@ -45,11 +46,11 @@ const TestimonialsSection: React.FC = () => {
     <section className="py-20 bg-gradient-to-b from-[#FAF5E8] to-[#F3E8D5] text-center">
       {/* Section Title */}
       <h2 className="text-4xl font-extrabold text-gray-900">
-        B-School Works. <span className="text-teal-600">Here's Proof.</span>
+        B-School Works. <span className="text-teal-600">{`Here's Proof.`}</span>
       </h2>
       <p className="mt-4 text-lg text-gray-700 max-w-3xl mx-auto">
-        14 years, nearly 80,000 students from 650+ industries worldwide. There's
-        a reason we're the gold standard in this industry.
+        {`14 years, nearly 80,000 students from 650+ industries worldwide. There's
+        a reason we're the gold standard in this industry.`}
       </p>
 
       {/* Testimonials Grid */}
@@ -70,10 +71,12 @@ const TestimonialCard: React.FC<{ testimonial: (typeof testimonials)[0] }> = ({
     <div className="bg-[#FEF8F2] p-6 shadow-lg rounded-xl border border-gray-200 transition-transform transform hover:scale-[1.03] hover:shadow-xl duration-300">
       {/* Reviewer Info */}
       <div className="flex items-center gap-4 mb-4">
-        <img
+        <Image
           src={testimonial.image}
           alt={`Photo of ${testimonial.name}`}
-          className="w-14 h-14 rounded-full border border-gray-300 object-cover"
+          className="rounded-full border border-gray-300 object-cover" // Removed w-14 and h-14
+          width={56} // Tailwind's w-14 is 3.5rem, which is typically 56px (3.5 * 16)
+          height={56} // Tailwind's h-14 is also 3.5rem, which is typically 56px
         />
         <div>
           <p className="font-semibold text-gray-900">{testimonial.name}</p>
@@ -93,7 +96,7 @@ const TestimonialCard: React.FC<{ testimonial: (typeof testimonials)[0] }> = ({
 
       {/* Testimonial Text */}
       <blockquote className="mt-3 text-gray-800 italic text-center">
-        "{testimonial.text}"
+        &apos;{testimonial.text}&apos;
       </blockquote>
     </div>
   );

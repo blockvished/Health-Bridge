@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { or, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { doctor } from "../../../../../../../../db/schema";
 import db from "../../../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../../../lib/verify";
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const requiredDoctorId = doctorData[0].id;
+  // const requiredDoctorId = doctorData[0].id;
   try {
     // Construct the file path
     const filePath = path.join(

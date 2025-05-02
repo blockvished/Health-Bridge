@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { doctor, enableRating } from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";

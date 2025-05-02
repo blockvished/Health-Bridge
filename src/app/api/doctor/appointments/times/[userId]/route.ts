@@ -4,7 +4,6 @@ import {
   doctor,
   appointmentSettings,
   appointmentDays,
-  dayEnum,
   appointmentTimeRanges,
 } from "../../../../../../db/schema";
 import db from "../../../../../../db/db";

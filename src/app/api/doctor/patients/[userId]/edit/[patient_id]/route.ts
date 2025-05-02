@@ -9,12 +9,9 @@ import { verifyAuthToken } from "../../../../../../lib/verify";
 // =======================
 // PUT - Update - Patient
 // =======================
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { userId: string; patientId: string } }
-) {
+export async function PUT(req: NextRequest) {
   try {
-    const patientIdFromUrl = req.nextUrl.pathname.split("/").pop()
+    const patientIdFromUrl = req.nextUrl.pathname.split("/").pop();
     const segments = req.nextUrl.pathname.split("/");
     const userIdFromUrl = segments[segments.length - 3];
 

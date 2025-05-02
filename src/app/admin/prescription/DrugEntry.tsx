@@ -1,4 +1,4 @@
-import { FaHospital, FaPlus, FaPrint, FaTimes, FaSearch } from "react-icons/fa";
+import { FaPlus, FaTimes, FaSearch } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
 // Define types for our state

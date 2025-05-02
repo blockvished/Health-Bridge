@@ -1,5 +1,6 @@
 import React from "react";
 import WaitlistForm from "./WaitlistForm";
+import Image from "next/image";
 
 const HeroSection: React.FC = () => {
   return (
@@ -7,10 +8,11 @@ const HeroSection: React.FC = () => {
       <div className="container mx-auto flex flex-col lg:flex-row items-center w-full h-full">
         {/* Image Section */}
         <div className="relative w-full lg:w-1/2 h-full lg:h-[95vh]">
-          <img
+          <Image
             src="/hero.webp"
             alt="Hero Image"
-            className="rounded-lg shadow-lg"
+            className="rounded-lg shadow-lg object-cover"
+            layout="fill"
           />
           <div className="absolute inset-0 bg-black/10"></div>
         </div>
@@ -24,12 +26,11 @@ const HeroSection: React.FC = () => {
             Join the VIP Waitlist & Get My 2025 Success Guide!
           </h1>
           <p className="mt-4 text-lg text-gray-700 max-w-lg animate-fadeIn delay-200">
-            Don't miss out! Join the VIP waitlist now to get first dibs when
+            {`Don't miss out! Join the VIP waitlist now to get first dibs when
             B-School reopens on February 13th, 2025. Plus, you'll get instant
-            access to my NEW Free Guide:
+            access to my NEW Free Guide:`}
             <span className="font-semibold">
-              {" "}
-              12 Mistakes You Can't Afford to Make in 2025.
+              {`12 Mistakes You Can't Afford to Make in 2025.`}
             </span>
           </p>
 
@@ -44,12 +45,10 @@ const HeroSection: React.FC = () => {
             of MarieTV, delivered with love to your inbox. (Unsub anytime in a
             click.) You also agree to our
             <a href="#" className="underline hover:text-teal-600 transition">
-              {" "}
               Terms of Use
-            </a>{" "}
+            </a>
             and
             <a href="#" className="underline hover:text-teal-600 transition">
-              {" "}
               Privacy Policy
             </a>
             .

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { doctor } from "../../../../../../db/schema";
 import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const requiredDoctorId = doctorData[0].id;
+  // const requiredDoctorId = doctorData[0].id;
   const patientIdURL = req.nextUrl.pathname.split("/").pop() || "unknown";
   const uploadDir = path.join("private_uploads", "patient_docs", patientIdURL);
 

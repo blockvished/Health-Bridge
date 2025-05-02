@@ -168,9 +168,9 @@ const generatePatientData = (patientUserIds, doctorIds) => {
   const genders = ["male", "female", "other"];
   const cities = ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Pune", "Ahmedabad", "Jaipur", "Lucknow"];
   
-  return patientUserIds.map((userId, index) => ({
+  return patientUserIds.map((userId) => ({
     userId,
-    doctorId: 2, 
+    doctorId: doctorIds, 
     abhaId: `ABHA${1000000 + userId}`,
     age: Math.floor(Math.random() * 70) + 10, // Age between 10-80
     weight: Math.floor(Math.random() * 70) + 40, // Weight between 40-110kg
@@ -230,13 +230,13 @@ async function insertData() {
 }
 
 // Function for just viewing the generated data without inserting
-function showGeneratedData() {
-  const indianUsers = generateIndianUsers();
-  const doctorUsers = generateDoctors();
+// function showGeneratedData() {
+//   const indianUsers = generateIndianUsers();
+//   const doctorUsers = generateDoctors();
   
-  console.log("Patient users:", JSON.stringify(indianUsers, null, 2));
-  console.log("Doctor users:", JSON.stringify(doctorUsers, null, 2));
-}
+//   console.log("Patient users:", JSON.stringify(indianUsers, null, 2));
+//   console.log("Doctor users:", JSON.stringify(doctorUsers, null, 2));
+// }
 
 // Uncomment one of these functions based on what you want to do
 insertData();
