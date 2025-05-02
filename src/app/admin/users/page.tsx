@@ -61,7 +61,7 @@ const Users: React.FC = () => {
         }
         
         const data = await response.json();
-        setUsers(data);
+        setUsers(data.doctors);
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');

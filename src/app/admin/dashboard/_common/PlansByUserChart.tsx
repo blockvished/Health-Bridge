@@ -8,54 +8,71 @@ interface PlanData {
   color: string;
 }
 
-const data: PlanData[] = [
+interface PlansByUserChartProps {
+  data?: PlanData[];
+}
+
+const defaultData: PlanData[] = [
   { name: "Basic", count: 13, color: "#36A2EB" },
   { name: "Classic", count: 16, color: "#3586AF" },
   { name: "Premium", count: 10, color: "#5A47CE" },
 ];
 
-const PlansByUserChart: React.FC = () => {
+const PlansByUserChart: React.FC<PlansByUserChartProps> = ({ data = defaultData }) => {
   const totalCount = data.reduce((sum, entry) => sum + entry.count, 0);
 
   const chartData = data.map((entry) => ({
     name: entry.name,
-    value: (entry.count / totalCount) * 100,
+    value: totalCount > 0 ? (entry.count / totalCount) * 100 : 0,
     color: entry.color,
     count: entry.count, // Include count in chartData for legend
   }));
 
   return (
-    <div className="bg-white p-6 rounded-lg" style={{ height: "fit-content" }}>
-      <h3 className="text-lg font-semibold mb-2">Plans by user (Percentage)</h3>
-      <div style={{ width: "100%", height: "auto", margin: "0 auto" }}>
-        <ResponsiveContainer width="100%" height={250}>
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              labelLine={true}
-              outerRadius={80}
-              dataKey="value"
-              label={({ name, value }) => `${name} ${typeof value === 'number' ? value.toFixed(2) : '0'}%`}
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip formatter={(value) => {
-              if (typeof value === 'number') {
-                return `${value.toFixed(2)}%`;
-              }
-              return '0%';
-            }} />
-            <Legend formatter={(value, entry, index) => {
-              const item = chartData[index];
-              return `${item.name} (${item.count})`;
-            }} />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
+    <div className="bg-white p-6 rounded-lg shadow" style={{ height: "fit-content" }}>
+      <h3 className="text-lg font-semibold mb-2">Plans by User (Percentage)</h3>
+      {totalCount === 0 ? (
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          No plan data available
+        </div>
+      ) : (
+        <div style={{ width: "100%", height: "auto", margin: "0 auto" }}>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                labelLine={true}
+                outerRadius={80}
+                dataKey="value"
+                label={({ name, value }) => `${name} ${typeof value === 'number' ? value.toFixed(1) : '0'}%`}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip 
+                formatter={(value) => {
+                  if (typeof value === 'number') {
+                    return `${value.toFixed(1)}%`;
+                  }
+                  return '0%';
+                }}
+              />
+              <Legend 
+                formatter={(value, entry, index) => {
+                  const item = chartData[index];
+                  return `${item.name} (${item.count})`;
+                }}
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 };

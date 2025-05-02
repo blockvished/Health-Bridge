@@ -58,7 +58,22 @@ export async function GET(req: NextRequest) {
         .innerJoin(users, eq(doctor.userId, users.id))
         .leftJoin(plans, eq(doctor.planId, plans.id)); // Left join to get plan name (left join in case some doctors don't have a plan)
       
-      return NextResponse.json( doctors );
+      // Calculate counts
+      const totalDoctors = doctors.length;
+      const verifiedDoctorsCount = doctors.filter(doc => doc.verified === true).length;
+      const pendingVerifications = doctors.filter(doc => doc.verified === false).length;
+      const expiredAccounts = doctors.filter(doc => doc.accountStatus === false && doc.verified === true).length;
+      
+      // Return both the doctors array and the counts
+      return NextResponse.json({
+        doctors: doctors,
+        counts: {
+          totalDoctors,
+          verifiedDoctorsCount,
+          pendingVerifications,
+          expiredAccounts
+        }
+      });
     } catch (error) {
       console.error("Error fetching doctors:", error);
       return NextResponse.json({ error: "Server error" }, { status: 500 });
