@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 const testimonials = [
@@ -70,10 +71,12 @@ const TestimonialCard: React.FC<{ testimonial: (typeof testimonials)[0] }> = ({
     <div className="bg-[#FEF8F2] p-6 shadow-lg rounded-xl border border-gray-200 transition-transform transform hover:scale-[1.03] hover:shadow-xl duration-300">
       {/* Reviewer Info */}
       <div className="flex items-center gap-4 mb-4">
-        <img
+        <Image
           src={testimonial.image}
           alt={`Photo of ${testimonial.name}`}
-          className="w-14 h-14 rounded-full border border-gray-300 object-cover"
+          className="rounded-full border border-gray-300 object-cover" // Removed w-14 and h-14
+          width={56} // Tailwind's w-14 is 3.5rem, which is typically 56px (3.5 * 16)
+          height={56} // Tailwind's h-14 is also 3.5rem, which is typically 56px
         />
         <div>
           <p className="font-semibold text-gray-900">{testimonial.name}</p>
@@ -93,7 +96,7 @@ const TestimonialCard: React.FC<{ testimonial: (typeof testimonials)[0] }> = ({
 
       {/* Testimonial Text */}
       <blockquote className="mt-3 text-gray-800 italic text-center">
-      &apos;{testimonial.text}&apos;
+        &apos;{testimonial.text}&apos;
       </blockquote>
     </div>
   );

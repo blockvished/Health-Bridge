@@ -1,5 +1,6 @@
 import React from "react";
 import WaitlistForm from "./WaitlistForm";
+import Image from "next/image";
 
 const HeroSection: React.FC = () => {
   return (
@@ -7,10 +8,11 @@ const HeroSection: React.FC = () => {
       <div className="container mx-auto flex flex-col lg:flex-row items-center w-full h-full">
         {/* Image Section */}
         <div className="relative w-full lg:w-1/2 h-full lg:h-[95vh]">
-          <img
+          <Image
             src="/hero.webp"
             alt="Hero Image"
-            className="rounded-lg shadow-lg"
+            className="rounded-lg shadow-lg object-cover"
+            layout="fill"
           />
           <div className="absolute inset-0 bg-black/10"></div>
         </div>
