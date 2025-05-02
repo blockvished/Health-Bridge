@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
+import Link from "next/link";
 
 interface User {
   name: string;
@@ -10,7 +10,12 @@ interface User {
   joined: string;
 }
 
-const users: User[] = [
+interface RecentUsersProps {
+  users?: User[];
+}
+
+// Default sample data
+const defaultUsers: User[] = [
   {
     name: "lmao",
     email: "postpostman123@gmail.com",
@@ -63,40 +68,48 @@ const UserIcon = () => (
   </div>
 );
 
-const RecentUsers = () => {
+const RecentUsers: React.FC<RecentUsersProps> = ({ users = defaultUsers }) => {
+  const displayUsers = users.slice(0, 6); // Limit to 6 users
+
   return (
-    <div className="bg-white bg-white p-6 rounded-lg shadow">
+    <div className="bg-white p-6 rounded-lg shadow">
       <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-800">Recently joined Users</h2>
+        <h2 className="text-lg font-semibold text-gray-800">Recently Joined Users</h2>
       </div>
-      <ul>
-        {users.map((user, index) => (
-          <li key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-gray-200 last:border-none hover:bg-gray-50 transition-colors">
-            <div className="flex items-center gap-4">
-              <UserIcon />
-              <div>
-                <p className="font-semibold text-gray-800 text-sm sm:text-base">{user.name}</p>
-                <p className="text-gray-500 text-xs sm:text-sm">{user.email}</p>
-                <div className="flex flex-wrap items-center gap-2 mt-1">
-                  {user.status === "verified" ? (
-                    <span className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full flex items-center">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-                      Verified
-                    </span>
-                  ) : (
-                    <span className="bg-red-50 text-red-600 text-xs px-2 py-0.5 rounded-full flex items-center">
-                      <span className="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
-                      Pending
-                    </span>
-                  )}
-                  <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">{user.plan}</span>
+      {displayUsers.length === 0 ? (
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          No users available
+        </div>
+      ) : (
+        <ul>
+          {displayUsers.map((user, index) => (
+            <li key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-gray-200 last:border-none hover:bg-gray-50 transition-colors">
+              <div className="flex items-center gap-4">
+                <UserIcon />
+                <div>
+                  <p className="font-semibold text-gray-800 text-sm sm:text-base">{user.name}</p>
+                  <p className="text-gray-500 text-xs sm:text-sm">{user.email}</p>
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                    {user.status === "verified" ? (
+                      <span className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full flex items-center">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                        Verified
+                      </span>
+                    ) : (
+                      <span className="bg-red-50 text-red-600 text-xs px-2 py-0.5 rounded-full flex items-center">
+                        <span className="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
+                        Pending
+                      </span>
+                    )}
+                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">{user.plan}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <span className="text-gray-500 text-xs sm:text-sm mt-2 sm:mt-0">{user.joined}</span>
-          </li>
-        ))}
-      </ul>
+              <span className="text-gray-500 text-xs sm:text-sm mt-2 sm:mt-0">{user.joined}</span>
+            </li>
+          ))}
+        </ul>
+      )}
       <Link href="/admin/users" className="block text-center p-4 border-t border-gray-200 hover:bg-gray-100 cursor-pointer transition-colors">
         <span className="text-blue-600 text-sm">See all Users →</span>
       </Link>
