@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -19,75 +19,79 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Loader2 } from 'lucide-react';
 
 interface User {
   id: number;
   name: string;
   email: string;
-  accountVerification: 'Pending' | 'Verified';
-  chambers: string;
-  package: string;
-  paymentStatus: 'Pending' | 'Completed';
-  accountStatus: 'Active' | 'Inactive';
-  joined: string;
-  avatarUrl?: string; // Optional avatar URL
+  phone: string;
+  verified: boolean;
+  paymentStatus: boolean;
+  accountStatus: boolean;
+  image_link: string | null;
+  planId: number;
+  planName: string;
+  createdAt: string;
 }
 
 const Users: React.FC = () => {
-  const allUsers: User[] = [
-    { id: 1, name: 'Lmao', email: 'postpostman123@gmail.com', accountVerification: 'Pending', chambers: 'Clinic Name', package: 'BASIC', paymentStatus: 'Pending', accountStatus: 'Active', joined: '22 Mar 2025', avatarUrl: 'https://github.com/shadcn.png' },
-    { id: 2, name: 'John Doe', email: 'john.doe@example.com', accountVerification: 'Verified', chambers: 'City Clinic', package: 'STANDARD', paymentStatus: 'Completed', accountStatus: 'Active', joined: '15 Jan 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?portrait' },
-    { id: 3, name: 'Jane Smith', email: 'jane.smith@email.com', accountVerification: 'Verified', chambers: 'Town Hospital', package: 'PREMIUM', paymentStatus: 'Completed', accountStatus: 'Active', joined: '01 Feb 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?woman' },
-    { id: 4, name: 'Robert Jones', email: 'robert.jones@test.com', accountVerification: 'Pending', chambers: 'County Clinic', package: 'BASIC', paymentStatus: 'Pending', accountStatus: 'Inactive', joined: '10 Mar 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?man' },
-    { id: 5, name: 'Mary Brown', email: 'mary.brown@sample.com', accountVerification: 'Verified', chambers: 'State Hospital', package: 'STANDARD', paymentStatus: 'Completed', accountStatus: 'Active', joined: '05 Mar 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?female' },
-    { id: 6, name: 'Michael Davis', email: 'michael.davis@email.com', accountVerification: 'Verified', chambers: 'Private Clinic', package: 'PREMIUM', paymentStatus: 'Completed', accountStatus: 'Active', joined: '28 Feb 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?male' },
-    { id: 7, name: 'Jennifer Wilson', email: 'jennifer.wilson@test.com', accountVerification: 'Pending', chambers: 'Community Health', package: 'BASIC', paymentStatus: 'Pending', accountStatus: 'Inactive', joined: '20 Mar 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?girl' },
-    { id: 8, name: 'David Garcia', email: 'david.garcia@example.com', accountVerification: 'Verified', chambers: 'Wellness Center', package: 'STANDARD', paymentStatus: 'Completed', accountStatus: 'Active', joined: '12 Jan 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?boy' },
-    { id: 9, name: 'Linda Rodriguez', email: 'linda.rodriguez@email.com', accountVerification: 'Verified', chambers: 'Family Clinic', package: 'PREMIUM', paymentStatus: 'Completed', accountStatus: 'Active', joined: '08 Feb 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?lady' },
-    { id: 10, name: 'Christopher Williams', email: 'chris.williams@test.com', accountVerification: 'Pending', chambers: 'Urgent Care', package: 'BASIC', paymentStatus: 'Pending', accountStatus: 'Inactive', joined: '18 Mar 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?guy' },
-    { id: 11, name: 'Angela Garcia', email: 'angela.garcia@sample.com', accountVerification: 'Verified', chambers: 'Specialty Clinic', package: 'STANDARD', paymentStatus: 'Completed', accountStatus: 'Active', joined: '03 Mar 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?woman' },
-    { id: 12, name: 'Brian Martinez', email: 'brian.martinez@email.com', accountVerification: 'Verified', chambers: 'Medical Center', package: 'PREMIUM', paymentStatus: 'Completed', accountStatus: 'Active', joined: '25 Feb 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?male' },
-    { id: 13, name: 'Nicole Robinson', email: 'nicole.robinson@test.com', accountVerification: 'Pending', chambers: 'Health Services', package: 'BASIC', paymentStatus: 'Pending', accountStatus: 'Inactive', joined: '15 Mar 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?girl' },
-    { id: 14, name: 'Kevin Patel', email: 'kevin.patel@example.com', accountVerification: 'Verified', chambers: 'General Hospital', package: 'STANDARD', paymentStatus: 'Completed', accountStatus: 'Active', joined: '20 Jan 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?indian' },
-    { id: 15, name: 'Priya Sharma', email: 'priya.sharma@email.com', accountVerification: 'Verified', chambers: 'Ayurvedic Clinic', package: 'PREMIUM', paymentStatus: 'Completed', accountStatus: 'Active', joined: '10 Feb 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?indianfemale' },
-    { id: 16, name: 'Amit Singh', email: 'amit.singh@test.com', accountVerification: 'Pending', chambers: 'Homeopathy Center', package: 'BASIC', paymentStatus: 'Pending', accountStatus: 'Inactive', joined: '01 Apr 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?indianboy' },
-    { id: 17, name: 'Anjali Joshi', email: 'anjali.joshi@sample.com', accountVerification: 'Verified', chambers: 'Dental Clinic', package: 'STANDARD', paymentStatus: 'Completed', accountStatus: 'Active', joined: '28 Feb 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?indiangirl' },
-    { id: 18, name: 'Rohan Kapoor', email: 'rohan.kapoor@email.com', accountVerification: 'Verified', chambers: 'Eye Care Clinic', package: 'PREMIUM', paymentStatus: 'Completed', accountStatus: 'Active', joined: '18 Mar 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?indianmale' },
-    { id: 19, name: 'Deepika Mehta', email: 'deepika.mehta@test.com', accountVerification: 'Pending', chambers: 'Child Clinic', package: 'BASIC', paymentStatus: 'Pending', accountStatus: 'Inactive', joined: '05 Mar 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?indianwoman' },
-    { id: 20, name: 'Kunal Verma', email: 'kunal.verma@example.com', accountVerification: 'Verified', chambers: 'Neuro Clinic', package: 'STANDARD', paymentStatus: 'Completed', accountStatus: 'Active', joined: '12 Mar 2025', avatarUrl: 'https://source.unsplash.com/random/100x100/?indianman' },
-  ];
-
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   const [sortByPackage, setSortByPackage] = useState('');
   const [sortByStatus, setSortByStatus] = useState('');
   const [searchName, setSearchName] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [entriesPerPage, setEntriesPerPage] = useState(10); // Default to 10
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
 
   // Simulated package options
-  const packageOptions = ['All', 'BASIC', 'STANDARD', 'PREMIUM'];
-  const statusOptions = ['All', 'Verified', 'Pending', 'Expired'];
+  const packageOptions = ['All', 'No plan', 'BASIC', 'STANDARD', 'PREMIUM'];
+  const statusOptions = ['All', 'Verified', 'Pending'];
 
-  // Convert accountVerification to a sortable format
-  const getVerificationStatus = (status: 'Pending' | 'Verified') => {
-    if (status === 'Verified') return 2;
-    if (status === 'Pending') return 1;
-    return 0;
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/admin/users');
+        
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setUsers(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        console.error('Error fetching users:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  // Convert verification status to a sortable format
+  const getVerificationStatus = (verified: boolean) => {
+    return verified ? 2 : 1;
   };
 
-  const filteredUsers = allUsers.filter(user =>
+  const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchName.toLowerCase())
   );
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     if (sortByPackage && sortByPackage !== 'All') {
-      const packageComparison = a.package.localeCompare(b.package);
+      const packageComparison = (a.planName || 'No plan').localeCompare(b.planName || 'No plan');
       if (packageComparison !== 0) {
         return packageComparison;
       }
     }
     if (sortByStatus && sortByStatus !== 'All') {
-      const statusComparison = getVerificationStatus(a.accountVerification) - getVerificationStatus(b.accountVerification);
+      const statusComparison = getVerificationStatus(a.verified) - getVerificationStatus(b.verified);
       if (statusComparison !== 0) {
         return statusComparison;
       }
@@ -140,6 +144,40 @@ const Users: React.FC = () => {
     }
     return pages;
   };
+
+  // Format date to a more readable format
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).format(date);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <span className="ml-2">Loading users data...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+        <h3 className="font-semibold">Error loading users</h3>
+        <p>{error}</p>
+        <Button 
+          className="mt-2 bg-red-600 hover:bg-red-700" 
+          onClick={() => window.location.reload()}
+        >
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6 bg-white rounded-lg shadow-md">
@@ -199,69 +237,77 @@ const Users: React.FC = () => {
             <TableHead className="w-[100px]">Avatar</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Account Verification</TableHead>
-            <TableHead>Chambers</TableHead>
-            <TableHead>Package</TableHead>
+            <TableHead>Phone</TableHead>
+            <TableHead>Plan</TableHead>
             <TableHead>Payment Status</TableHead>
             <TableHead>Account Status</TableHead>
             <TableHead>Joined</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {currentUsers.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell className="font-medium">{user.id}</TableCell>
-              <TableCell>
-                <Avatar>
-                  <AvatarImage src={user.avatarUrl} alt={user.name} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
+          {currentUsers.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                No users found
               </TableCell>
-              <TableCell>
-                <div>
-                  <div>{user.name}</div>
-                  <div className="text-xs text-gray-500">{user.email}</div>
-                </div>
-              </TableCell>
-              <TableCell>
-                {user.accountVerification === 'Pending' ? (
-                  <span className="text-red-500">Pending</span>
-                ) : (
-                  <span className="text-green-500 flex items-center gap-1">
-                    <CheckCircle className="h-4 w-4" /> Verified
-                  </span>
-                )}
-              </TableCell>
-              <TableCell>{user.chambers}</TableCell>
-              <TableCell>{user.package}</TableCell>
-              <TableCell>
-                {user.paymentStatus === 'Pending' ? (
-                  <span className="text-yellow-500">Pending</span>
-                ) : (
-                  <span className="text-green-500">Completed</span>
-                )}
-              </TableCell>
-              <TableCell>
-                {user.accountStatus === 'Active' ? (
-                  <span className="text-green-500">Active</span>
-                ) : (
-                  <span className="text-red-500">Inactive</span>
-                )}
-              </TableCell>
-              <TableCell>{user.joined}</TableCell>
             </TableRow>
-          ))}
+          ) : (
+            currentUsers.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell className="font-medium">{user.id}</TableCell>
+                <TableCell>
+                  <Avatar>
+                    <AvatarImage src={user.image_link || undefined} alt={user.name} />
+                    <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </TableCell>
+                <TableCell>
+                  <div>
+                    <div>{user.name}</div>
+                    <div className="text-xs text-gray-500">{user.email}</div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {user.verified ? (
+                    <span className="text-green-500 flex items-center gap-1">
+                      <CheckCircle className="h-4 w-4" /> Verified
+                    </span>
+                  ) : (
+                    <span className="text-red-500">Pending</span>
+                  )}
+                </TableCell>
+                <TableCell>{user.phone}</TableCell>
+                <TableCell>{user.planName || 'No plan'}</TableCell>
+                <TableCell>
+                  {user.paymentStatus ? (
+                    <span className="text-green-500">Completed</span>
+                  ) : (
+                    <span className="text-yellow-500">Pending</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {user.accountStatus ? (
+                    <span className="text-green-500">Active</span>
+                  ) : (
+                    <span className="text-red-500">Inactive</span>
+                  )}
+                </TableCell>
+                <TableCell>{formatDate(user.createdAt)}</TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
       {/* Pagination */}
       <div className="flex justify-between items-center mt-4">
         <div className="text-sm text-gray-500">
-          Showing {indexOfFirstEntry + 1} to {Math.min(indexOfLastEntry, sortedUsers.length)} of {sortedUsers.length} entries
+          Showing {sortedUsers.length > 0 ? indexOfFirstEntry + 1 : 0} to {Math.min(indexOfLastEntry, sortedUsers.length)} of {sortedUsers.length} entries
         </div>
         <div className="flex items-center">
           <Button
-            className="bg-gray-200 rounded-lg p-1 text-xs mr-1"
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg p-1 text-xs mr-1"
             onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || sortedUsers.length === 0}
           >
             Previous
           </Button>
@@ -271,18 +317,18 @@ const Users: React.FC = () => {
             ) : (
               <button
                 key={page}
-                className={`rounded-lg p-1 text-xs mr-1 ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+                className={`rounded-lg p-1 text-xs mr-1 ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'}`}
                 onClick={() => paginate(page as number)}
-                disabled={currentPage === page}
+                disabled={currentPage === page || sortedUsers.length === 0}
               >
                 {page}
               </button>
             )
           )}
           <Button
-            className="bg-gray-200 rounded-lg p-1 text-xs"
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg p-1 text-xs"
             onClick={() => paginate(currentPage + 1)}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || sortedUsers.length === 0}
           >
             Next
           </Button>
