@@ -58,13 +58,6 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({
     useState<Appointment | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    if (userId) {
-      fetchAppointments();
-    }
-  }, [userId, refresh]);
-
-  // Move fetchAppointments outside useEffect so it can be called after deletion or edit
   const fetchAppointments = useCallback(async () => {
     if (!userId) return;
 
@@ -91,6 +84,12 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({
       console.error("Error fetching appointments:", err);
     }
   }, [userId]);
+
+  useEffect(() => {
+    if (userId) {
+      fetchAppointments();
+    }
+  }, [userId, refresh, fetchAppointments]); 
 
   // Function to handle appointment deletion
   // const deleteAppointment = async (appointmentId: number) => {
@@ -319,7 +318,7 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({
                               <MdOutlineDateRange className="mr-1" size={16} />
                               <span>
                                 {new Date(apt.date).toLocaleDateString(
-                                  "en-US",
+                                  "en-IN",
                                   {
                                     day: "2-digit",
                                     month: "short",

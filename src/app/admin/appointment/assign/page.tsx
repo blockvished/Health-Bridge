@@ -1,7 +1,7 @@
 "use client";
 
 import Cookies from "js-cookie";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { FaPlus, FaTrash, FaSave, FaSpinner } from "react-icons/fa";
 
 import {
@@ -19,34 +19,100 @@ const AppointmentsSchedule: React.FC = () => {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [intervalInDb, setIntervalInDb] = useState<boolean>(false);
   const [interval, setInterval] = useState<number>(0);
-  const [timeOptions, setTimeOptions] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
+  const [days, setDays] = useState<DayConfig[]>([]);
+  const [openDropdown, setOpenDropdown] = useState<OpenDropdownState | null>(null);
+  
+  // Define days of week order as a memoized constant
+  const daysOfWeekOrder = useMemo(() => [
+    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+  ], []);
+  
+  // Generate time options based on interval
+  const timeOptions = useMemo(() => {
+    return interval > 0 ? generateTimeOptions(interval) : [];
+  }, [interval]);
+  
+  // Initialize validation errors state with a more structured approach
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: {
       [index: number]: { from: boolean; to: boolean; range: boolean };
     };
   }>({});
-  const [days, setDays] = useState<DayConfig[]>([]);
-  const daysOfWeekOrder = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
 
+  // Validate time ranges for all days
+  const validateTimes = useCallback(() => {
+    const errors: {
+      [key: string]: {
+        [index: number]: { from: boolean; to: boolean; range: boolean };
+      };
+    } = {};
+    
+    days.forEach(day => {
+      if (day.isActive && day.times && day.times.length > 0) {
+        day.times.forEach((time, index) => {
+          const fromTime = time.from;
+          const toTime = time.to;
+          
+          if (!errors[day.dayOfWeek]) {
+            errors[day.dayOfWeek] = {};
+          }
+          
+          if (!errors[day.dayOfWeek][index]) {
+            errors[day.dayOfWeek][index] = { from: false, to: false, range: false };
+          }
+          
+          // Validate both times are set
+          errors[day.dayOfWeek][index].from = !fromTime;
+          errors[day.dayOfWeek][index].to = !toTime;
+          
+          // Validate from time is before to time
+          if (fromTime && toTime) {
+            const [fromHours, fromMinutes] = fromTime.split(':').map(Number);
+            const [toHours, toMinutes] = toTime.split(':').map(Number);
+            const fromValue = fromHours * 60 + fromMinutes;
+            const toValue = toHours * 60 + toMinutes;
+            
+            errors[day.dayOfWeek][index].range = fromValue >= toValue;
+          }
+        });
+      }
+    });
+    
+    setValidationErrors(errors);
+    
+    // Check if there are any validation errors
+    return !Object.values(errors).some(dayErrors => 
+      Object.values(dayErrors).some(timeErrors => 
+        timeErrors.from || timeErrors.to || timeErrors.range
+      )
+    );
+  }, [days]);
+
+  // Log days changes
   useEffect(() => {
     console.log("days is changed");
     console.log(days);
   }, [days]);
 
+  // Get user ID from cookie
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
   }, []);
 
+  // Initialize default days data
+  const getDefaultDays = useCallback(() => {
+    return daysOfWeekOrder.map((day, index) => ({
+      id: index + 1,
+      doctorId: 2,
+      dayOfWeek: day,
+      isActive: false,
+      times: [],
+    }));
+  }, [daysOfWeekOrder]);
+
+  // Fetch data from API
   const fetchData = useCallback(async () => {
     if (!userId) return;
 
@@ -63,15 +129,16 @@ const AppointmentsSchedule: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
 
-        console.log("Fetched -Appointmentsfgwedrgtertg:", data.days);
+        console.log("Fetched Appointments:", data.days);
         if (data.existingSetting?.length > 0) {
           const fetchedInterval = data.existingSetting[0].intervalMinutes;
           const fetchedDaysFromApi = data.days || [];
 
           setInterval(fetchedInterval);
-
           setIntervalInDb(true);
           setInputValue(String(fetchedInterval));
+          
+          // Sort days by active status and then by order of week
           const sortedDays = [...fetchedDaysFromApi].sort((a, b) => {
             if (a.isActive && !b.isActive) {
               return -1;
@@ -83,62 +150,13 @@ const AppointmentsSchedule: React.FC = () => {
             const indexB = daysOfWeekOrder.indexOf(b.dayOfWeek);
             return indexA - indexB;
           });
+          
           setDays(sortedDays);
         } else {
           setInterval(0);
           setIntervalInDb(false);
           setInputValue("");
-          setDays([
-            {
-              id: 1,
-              doctorId: 2,
-              dayOfWeek: "Sunday",
-              isActive: false,
-              times: [],
-            },
-            {
-              id: 2,
-              doctorId: 2,
-              dayOfWeek: "Monday",
-              isActive: false,
-              times: [],
-            },
-            {
-              id: 3,
-              doctorId: 2,
-              dayOfWeek: "Tuesday",
-              isActive: false,
-              times: [],
-            },
-            {
-              id: 4,
-              doctorId: 2,
-              dayOfWeek: "Wednesday",
-              isActive: false,
-              times: [],
-            },
-            {
-              id: 5,
-              doctorId: 2,
-              dayOfWeek: "Thursday",
-              isActive: false,
-              times: [],
-            },
-            {
-              id: 6,
-              doctorId: 2,
-              dayOfWeek: "Friday",
-              isActive: false,
-              times: [],
-            },
-            {
-              id: 7,
-              doctorId: 2,
-              dayOfWeek: "Saturday",
-              isActive: false,
-              times: [],
-            },
-          ]);
+          setDays(getDefaultDays());
         }
       } else {
         console.error("Failed to fetch interval and schedule.");
@@ -148,26 +166,16 @@ const AppointmentsSchedule: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [userId]);
+  }, [userId, daysOfWeekOrder, getDefaultDays]);
 
+  // Initial data fetch when userId is available
   useEffect(() => {
     if (userId) {
       fetchData();
     }
   }, [userId, fetchData]);
 
-  useEffect(() => {
-    if (interval > 0) {
-      setTimeOptions(generateTimeOptions(interval));
-    } else {
-      setTimeOptions([]);
-    }
-  }, [interval]); // ... rest of your component
-
-  const [openDropdown, setOpenDropdown] = useState<OpenDropdownState | null>(
-    null
-  ); // Handle clicks outside dropdown
-
+  // Click outside handler to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
@@ -180,29 +188,16 @@ const AppointmentsSchedule: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openDropdown]);
 
-  // from time cant be greater than to time
+  // Toggle day active status
   const toggleDay = (dayOfWeek: string): void => {
     setDays((prevDays) => {
-      // const sortedDays = [...prevDays].sort((a, b) => {
-      //   if (a.isActive && !b.isActive) {
-      //     return -1;
-      //   }
-      //   if (!a.isActive && b.isActive) {
-      //     return 1;
-      //   }
-      //   const indexA = daysOfWeekOrder.indexOf(a.dayOfWeek);
-      //   const indexB = daysOfWeekOrder.indexOf(b.dayOfWeek);
-      //   return indexA - indexB;
-      // });
-      // return sortedDays.map((day) =>
-      //   day.dayOfWeek === dayOfWeek ? { ...day, isActive: !day.isActive } : day
-      // );
       return prevDays.map((day) =>
         day.dayOfWeek === dayOfWeek ? { ...day, isActive: !day.isActive } : day
       );
     });
   };
 
+  // Add new time slot to a day
   const addNewTime = (dayOfWeek: string): void => {
     setDays((prevDays) =>
       prevDays.map((day) =>
@@ -213,6 +208,7 @@ const AppointmentsSchedule: React.FC = () => {
     );
   };
 
+  // Remove time slot from a day
   const removeTime = (dayOfWeek: string, index: number): void => {
     setDays((prevDays) =>
       prevDays.map((day) =>
@@ -226,6 +222,7 @@ const AppointmentsSchedule: React.FC = () => {
     );
   };
 
+  // Toggle dropdown for time selection
   const toggleDropdown = (
     day: string,
     index: number,
@@ -240,6 +237,7 @@ const AppointmentsSchedule: React.FC = () => {
     );
   };
 
+  // Update time value in a time slot
   const updateTime = (
     dayOfWeek: string,
     index: number,
@@ -260,7 +258,8 @@ const AppointmentsSchedule: React.FC = () => {
     );
   };
 
-  const handleSetUpdateInterval = async () => {
+  // Handle interval update
+  const handleUpdateInterval = async () => {
     if (!userId) {
       setShowError(true);
       return;
@@ -309,10 +308,17 @@ const AppointmentsSchedule: React.FC = () => {
     }
   };
 
-  
+  // Submit day schedule
   const submitDayTimes = async () => {
     if (!userId) {
       console.error("User ID not found.");
+      return;
+    }
+    
+    // Validate time slots before submitting
+    const isValid = validateTimes();
+    if (!isValid) {
+      alert("Please fix the time slot errors before saving.");
       return;
     }
     
@@ -321,9 +327,7 @@ const AppointmentsSchedule: React.FC = () => {
     const missingTimeSlots = activeDays.some(day => !day.times || day.times.length === 0);
     
     if (missingTimeSlots) {
-      // Show error message that active days must have time slots
       alert("All active days must have at least one time slot.");
-      // You could set some state here to show an error message to the user
       return;
     }
     
@@ -341,6 +345,9 @@ const AppointmentsSchedule: React.FC = () => {
         `/api/doctor/appointments/times/${userId}`,
         {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
           credentials: "include",
           body: JSON.stringify({ schedule: scheduleData }),
         }
@@ -350,19 +357,45 @@ const AppointmentsSchedule: React.FC = () => {
       
       if (response.ok && data.success) {
         console.log("Schedule updated successfully");
-        // Optionally show a success message to the user
+        alert("Schedule updated successfully!");
       } else {
         console.error("Failed to update schedule:", data.error || response.status);
-        // Optionally show an error message to the user
+        alert("Failed to update schedule. Please try again.");
       }
     } catch (error) {
       console.error("Error updating schedule:", error);
-      // Optionally show an error message to the user
+      alert("An error occurred while updating the schedule.");
     } finally {
       setIsSaving(false);
     }
   };
 
+  // Handle interval input change
+  const handleIntervalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setInputValue(val);
+
+    const numVal = Number(val);
+    if (numVal > 0) {
+      setInterval(numVal);
+      setShowError(false);
+    } else if (val === "") {
+      setShowError(false);
+    } else {
+      setShowError(true);
+    }
+  };
+
+  // Handle interval input blur
+  const handleIntervalBlur = () => {
+    const numVal = Number(inputValue);
+    if (numVal <= 0) {
+      setShowError(true);
+      setInputValue(interval > 0 ? String(interval) : "");
+    }
+  };
+
+  // Loading state
   if (isLoading && !userId) {
     return (
       <div className="flex justify-center items-center h-60">
@@ -381,27 +414,8 @@ const AppointmentsSchedule: React.FC = () => {
         <div className="flex flex-col sm:flex-row">
           <input
             type="number"
-            onChange={(e) => {
-              const val = e.target.value;
-              setInputValue(val);
-
-              const numVal = Number(val);
-              if (numVal > 0) {
-                setInterval(numVal);
-                setShowError(false);
-              } else if (val === "") {
-                setShowError(false);
-              } else {
-                setShowError(true);
-              }
-            }}
-            onBlur={() => {
-              const numVal = Number(inputValue);
-              if (numVal <= 0) {
-                setShowError(true);
-                setInputValue(interval > 0 ? String(interval) : "");
-              }
-            }}
+            onChange={handleIntervalChange}
+            onBlur={handleIntervalBlur}
             value={inputValue}
             className={`border ${
               showError ? "border-red-300" : "border-gray-200"
@@ -424,7 +438,7 @@ const AppointmentsSchedule: React.FC = () => {
         )}
 
         <button
-          onClick={handleSetUpdateInterval}
+          onClick={handleUpdateInterval}
           disabled={isLoading || !inputValue || Number(inputValue) <= 0}
           className={`mt-4 ${
             isLoading || !inputValue || Number(inputValue) <= 0
@@ -507,6 +521,12 @@ const AppointmentsSchedule: React.FC = () => {
 
                   {isActive && (
                     <div className="space-y-4">
+                      {times?.length === 0 && (
+                        <p className="text-amber-500 text-sm italic">
+                          Please add at least one time slot for this day.
+                        </p>
+                      )}
+                      
                       {times?.map((time, index) => (
                         <div
                           key={index}
