@@ -51,9 +51,12 @@ const ClinicList = () => {
           const data = await response.json();
           console.log(data);
           setClinicsData(data);
-        } catch (err: any) {
+        } catch (err: unknown) {
+          // After
           console.error("Error fetching clinics:", err);
-          setError(err.message);
+          if (err instanceof Error) {
+            setError(err.message);
+          }
         } finally {
           setLoading(false);
         }
@@ -110,11 +113,13 @@ const ClinicList = () => {
           );
           setError(errorData.message || `Failed to delete clinic.`);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("An error occurred while deleting the clinic:", error);
-        setError(
-          error.message || "An unexpected error occurred during deletion."
-        );
+        let errorMessage = "An unexpected error occurred during deletion.";
+        if (error instanceof Error) {
+          errorMessage = error.message || errorMessage;
+        }
+        setError(errorMessage);
       }
     }
   };
@@ -134,9 +139,13 @@ const ClinicList = () => {
         const data = await response.json();
         console.log(data);
         setClinicsData(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching clinics:", err);
-        setError(err.message);
+        let errorMessage = "Failed to fetch clinics due to an unknown error.";
+        if (err instanceof Error) {
+          errorMessage = err.message || errorMessage;
+        }
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -458,9 +467,13 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
             `Failed to ${formData.id ? "update" : "submit"} clinic data.`
         );
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("An error occurred while submitting:", error);
-      setUploadError(error.message || "An unexpected error occurred.");
+      let errorMessage = "An unexpected error occurred.";
+      if (error instanceof Error) {
+        errorMessage = error.message || errorMessage;
+      }
+      setUploadError(errorMessage);
     } finally {
       setUploading(false);
     }
@@ -488,10 +501,11 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
                 className="w-full h-full object-cover rounded-lg"
               />
             ) : editClinic?.imageLink ? (
-              <img
+              <Image
                 src={editClinic.imageLink}
                 alt="Clinic Logo"
-                className="w-full h-full object-cover rounded-lg"
+                fill
+                className="object-cover rounded-lg"
               />
             ) : (
               <div className="flex flex-col items-center text-gray-500">

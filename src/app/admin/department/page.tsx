@@ -36,7 +36,6 @@ const DepartmentForm: React.FC<{
         <button
           onClick={onCancel}
           className="flex items-center gap-2 ml-3 text-gray-600 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md transition cursor-pointer"
-          
         >
           <IoArrowBack /> Back
         </button>
@@ -84,9 +83,6 @@ const DepartmentPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editDepartment, setEditDepartment] = useState<Department | null>(null);
-  const [deleteDepartmentId, setDeleteDepartmentId] = useState<number | null>(
-    null
-  );
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -120,7 +116,9 @@ const DepartmentPage: React.FC = () => {
           if (err instanceof Error) {
             setError(err.message);
           } else {
-            setError("An unexpected error occurred while fetching departments.");
+            setError(
+              "An unexpected error occurred while fetching departments."
+            );
           }
         } finally {
           setLoading(false);
@@ -171,8 +169,12 @@ const DepartmentPage: React.FC = () => {
 
       setShowForm(false);
       setEditDepartment(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred.");
+      }
     }
   };
   const handleDeleteDepartment = async (id: number) => {
@@ -196,9 +198,12 @@ const DepartmentPage: React.FC = () => {
       }
 
       setDepartments(departments.filter((dept) => dept.id !== id));
-      setDeleteDepartmentId(null);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred.");
+      }
     }
   };
 
@@ -271,7 +276,7 @@ const DepartmentPage: React.FC = () => {
                     key={dept.id}
                     className="border-b border-gray-200 hover:bg-gray-50 transition"
                   >
-                    <td className="p-3 text-gray-900">{index +1 }</td>
+                    <td className="p-3 text-gray-900">{index + 1}</td>
                     <td className="p-3 text-gray-900">{dept.name}</td>
                     <td className="p-3 flex gap-2">
                       <button
@@ -295,8 +300,11 @@ const DepartmentPage: React.FC = () => {
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                          <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
-                            <AlertDialogAction className="cursor-pointer"
+                            <AlertDialogCancel className="cursor-pointer">
+                              Cancel
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                              className="cursor-pointer"
                               onClick={() => handleDeleteDepartment(dept.id)}
                             >
                               Delete

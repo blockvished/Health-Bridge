@@ -50,16 +50,16 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
 
         if (response.ok) {
           const data = await response.json();
-          let metemeta;
-          if (data.metaTags) {
-            if (Array.isArray(data.metaTags)) {
-              const tags = data.metaTags.map(
-                (tagObj: { tag: string }) => tagObj.tag
-              );
-              metemeta = tags;
+          // let metemeta;
+          // if (data.metaTags) {
+          //   if (Array.isArray(data.metaTags)) {
+          //     const tags = data.metaTags.map(
+          //       (tagObj: { tag: string }) => tagObj.tag
+          //     );
+          //     metemeta = tags;
               
-            }
-          }
+          //   }
+          // }
           if (data.doctor) {
             setDoctorData({
               name: data.doctor.name || "",

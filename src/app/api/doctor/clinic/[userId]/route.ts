@@ -255,12 +255,15 @@ export async function POST(req: NextRequest) {
       // 7. Respond with the newly created clinic
       return NextResponse.json(newClinic[0], { status: 201 });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating clinic:", error);
-    return NextResponse.json(
-      { error: "Failed to create clinic", details: error.message },
-      { status: 500 }
-    );
+    let errorMessage = "Failed to create clinic";
+    if (error instanceof Error) {
+      errorMessage += `: ${error.message}`;
+    } else {
+      errorMessage += `: ${String(error)}`;
+    }
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 export async function DELETE(req: NextRequest) {
