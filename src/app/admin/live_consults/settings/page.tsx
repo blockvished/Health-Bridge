@@ -103,9 +103,14 @@ const LiveConsultationSettings = () => {
       const data = await res.json();
       console.log("Consultation settings saved:", data);
       // Optionally show a success message to the user
-    } catch (err: any) {
-      setError(err.message);
-      console.error("Error saving consultation settings:", err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+        console.error("Error saving consultation settings:", err);
+      } else {
+        setError("An unexpected error occurred while saving consultation settings.");
+        console.error("Error saving consultation settings:", err);
+      }
     } finally {
       setSaving(false); // Set saving back to false after completion (success or error)
     }

@@ -10,6 +10,7 @@ import {
 import { useReactToPrint } from "react-to-print";
 import { Drug } from "./DrugEntry";
 import Link from "next/link";
+import Image from "next/image";
 
 interface PrescriptionPreviewProps {
   setTogglePreview: React.Dispatch<React.SetStateAction<boolean>>;
@@ -179,10 +180,12 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
               </div>
               <div className="text-left sm:text-right flex flex-col items-start sm:items-end">
                 {activeClinic?.imageLink ? (
-                  <img
+                  <Image
                     src={activeClinic?.imageLink}
                     alt={activeClinic?.name || "Clinic Image"}
-                    className="w-24 h-16 rounded-md object-cover mb-1"
+                    width={96} // w-24 = 6rem = 96px
+                    height={64} // h-16 = 4rem = 64px
+                    className="rounded-md object-cover mb-1"
                   />
                 ) : (
                   <FaHospital className="text-green-500 text-4xl mb-1" />
@@ -239,9 +242,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                 {/* Advice Section */}
                 {advices && (
                   <div className="mb-6">
-                    <h3 className="font-bold text-sm sm:text-base">
-                      Advice:
-                    </h3>
+                    <h3 className="font-bold text-sm sm:text-base">Advice:</h3>
                     <p className="text-sm whitespace-pre-wrap">{advices}</p>
                   </div>
                 )}
@@ -249,9 +250,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                 {/* Notes Section */}
                 {notes && (
                   <div className="mb-6">
-                    <h3 className="font-bold text-sm sm:text-base">
-                      Notes:
-                    </h3>
+                    <h3 className="font-bold text-sm sm:text-base">Notes:</h3>
                     <p className="text-sm whitespace-pre-wrap">{notes}</p>
                   </div>
                 )}
@@ -318,11 +317,17 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
             <div className="mt-16 sm:mt-32 pt-8 border-t border-gray-200">
               <div className="text-right">
                 {signatureImage ? (
-                  <img
+                  <Image
                     src={signatureImage}
                     alt={`${doctorName}'s signature`}
-                    className="h-16 inline-block mb-2"
-                    style={{ maxWidth: "200px", objectFit: "contain" }}
+                    width={200}
+                    height={64} // Approx height based on h-16 (4rem = 64px)
+                    className="inline-block mb-2"
+                    style={{
+                      objectFit: "contain",
+                      height: "64px",
+                      maxWidth: "200px",
+                    }}
                   />
                 ) : (
                   <p className="text-sm">Signature</p>

@@ -1,6 +1,6 @@
 "use client";
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaPlus, FaEdit, FaTrash, FaSpinner } from "react-icons/fa";
 
 interface Experience {
@@ -35,11 +35,7 @@ const ExperienceTable = () => {
     setUserId(idFromCookie || null);
   }, []);
 
-  useEffect(() => {
-    fetchExperienceData();
-  }, [userId]);
-
-  const fetchExperienceData = async () => {
+const fetchExperienceData = useCallback(async () => {
     if (!userId) {
       setLoading(false);
       return;
@@ -62,7 +58,11 @@ const ExperienceTable = () => {
     } finally {
       setLoading(false); // Set loading to false after fetching
     }
-  };
+  }, [userId, setLoading, setExperienceData]);
+
+  useEffect(() => {
+    fetchExperienceData();
+  }, [userId, fetchExperienceData]);
 
   useEffect(() => {
     // Set default sort order for new entries
@@ -146,6 +146,7 @@ const ExperienceTable = () => {
       } else {
         const errorData = await response.json();
         // Optionally display an error message to the user
+        console.log(errorData)
       }
     } catch (error) {
       console.error("Save error:", error);
