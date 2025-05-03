@@ -1,7 +1,7 @@
 "use client"; // Ensure this is a client component
 import Cookies from "js-cookie";
 // import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react"; // Import useCallback
 import {
   FaArrowLeft,
   FaCalendarAlt,
@@ -55,16 +55,8 @@ export default function AppointmentsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  useEffect(() => {
-    const idFromCookie = Cookies.get("userId");
-    setUserId(idFromCookie || null);
-  }, []);
-
-  useEffect(() => {
-    fetchAppointments();
-  }, [userId]);
-
-  const fetchAppointments = async () => {
+  // Using useCallback to memoize fetchAppointments
+  const fetchAppointments = useCallback(async () => {
     if (userId) {
       setLoading(true);
       setError(null);
@@ -79,14 +71,23 @@ export default function AppointmentsPage() {
         const data = await response.json();
         console.log("Fetched Appointments Data:", data);
         setDatedAppointments(data.appointments || []);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching appointments:", err);
         setError("Failed to fetch appointments.");
       } finally {
         setLoading(false);
       }
     }
-  };
+  }, [userId]); // Add userId as dependency for fetchAppointments
+
+  useEffect(() => {
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  }, []);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]); // Now fetchAppointments is properly included in dependencies
 
   if (error) {
     return <div>Error: {error}</div>;
