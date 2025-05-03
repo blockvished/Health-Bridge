@@ -84,6 +84,57 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
   const originalTimeFrom = appointment.timeFrom.substring(0, 5);
   const originalTimeTo = appointment.timeTo.substring(0, 5);
 
+  // Update available times when date changes
+  const updateAvailableTimes = useCallback(
+    (date: Date, daysConfig: DayConfig[] = days) => {
+      const dayNumber = date.getDay();
+      const dayName = dayNames[dayNumber];
+
+      // Find the day configuration to get available times
+      const selectedDayConfig = daysConfig.find(
+        (day) => day.dayOfWeek === dayName
+      );
+
+      if (
+        selectedDayConfig &&
+        selectedDayConfig.isActive &&
+        selectedDayConfig.times
+      ) {
+        // Map the times from API format (from/to) to our component format
+        const mappedTimes: TimeSlot[] = selectedDayConfig.times.map(
+          (time, index) => ({
+            id: index + 1,
+            startTime: time.from || "",
+            endTime: time.to || "",
+            from: time.from,
+            to: time.to,
+          })
+        );
+        setAvailableTimes(mappedTimes);
+
+        // Try to find the original time slot or select the first available
+        const originalTimeSlot = mappedTimes.find(
+          (t) =>
+            (t.from === originalTimeFrom || t.startTime === originalTimeFrom) &&
+            (t.to === originalTimeTo || t.endTime === originalTimeTo)
+        );
+
+        if (originalTimeSlot) {
+          setSelectedTime(originalTimeSlot);
+        } else if (mappedTimes.length > 0) {
+          // If original time not found, select the first available time
+          setSelectedTime(mappedTimes[0]);
+        } else {
+          setSelectedTime(null);
+        }
+      } else {
+        setAvailableTimes([]);
+        setSelectedTime(null);
+      }
+    },
+    [days, originalTimeFrom, originalTimeTo]
+  );
+
   // Fetch available schedule and days configuration
   const fetchScheduleData = useCallback(async () => {
     if (!userId) return;
@@ -113,7 +164,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
     } catch (error) {
       console.error("Error fetching schedule data:", error);
     }
-  }, [userId, selectedDate]);
+  },  [userId, selectedDate, updateAvailableTimes]);
 
   useEffect(() => {
     if (userId) {
@@ -146,7 +197,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
   // Check if a date is selectable
   const isDateSelectable = (date: Date, daysConfig: DayConfig[]) => {
     const dayNumber = date.getDay();
-   
+
     const dayName = dayNames[dayNumber];
 
     const dayConfig = daysConfig.find((day) => day.dayOfWeek === dayName);
@@ -174,55 +225,6 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
     );
   };
 
-  // Update available times when date changes
-  const updateAvailableTimes = (date: Date, daysConfig: DayConfig[] = days) => {
-    const dayNumber = date.getDay();
-    
-    const dayName = dayNames[dayNumber];
-
-    // Find the day configuration to get available times
-    const selectedDayConfig = daysConfig.find(
-      (day) => day.dayOfWeek === dayName
-    );
-
-    if (
-      selectedDayConfig &&
-      selectedDayConfig.isActive &&
-      selectedDayConfig.times
-    ) {
-      // Map the times from API format (from/to) to our component format
-      const mappedTimes: TimeSlot[] = selectedDayConfig.times.map(
-        (time, index) => ({
-          id: index + 1,
-          startTime: time.from || "",
-          endTime: time.to || "",
-          from: time.from,
-          to: time.to,
-        })
-      );
-      setAvailableTimes(mappedTimes);
-
-      // Try to find the original time slot or select the first available
-      const originalTimeSlot = mappedTimes.find(
-        (t) =>
-          (t.from === originalTimeFrom || t.startTime === originalTimeFrom) &&
-          (t.to === originalTimeTo || t.endTime === originalTimeTo)
-      );
-
-      if (originalTimeSlot) {
-        setSelectedTime(originalTimeSlot);
-      } else if (mappedTimes.length > 0) {
-        // If original time not found, select the first available time
-        setSelectedTime(mappedTimes[0]);
-      } else {
-        setSelectedTime(null);
-      }
-    } else {
-      setAvailableTimes([]);
-      setSelectedTime(null);
-    }
-  };
-
   // Handle date change
   const handleDateChange = (date: Date | null) => {
     if (!date) return;
@@ -230,7 +232,6 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
     updateAvailableTimes(date);
   };
 
-  // Format time for display
   // Format time for display
   const formatTime = (timeString: string) => {
     if (!timeString) return "";
@@ -265,18 +266,15 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
     };
 
     try {
-      const response = await fetch(
-        `/api/doctor/appointments/edit/${userId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(updateData),
-        }
-      );
-      console.log(updateData)
+      const response = await fetch(`/api/doctor/appointments/edit/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(updateData),
+      });
+      console.log(updateData);
 
       if (response.ok) {
         onSuccess(); // Refresh appointment table
