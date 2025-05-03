@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     // Get doctor ID and file name from URL
     const pathSegments = req.nextUrl.pathname.split("/");
     const file_name = pathSegments[pathSegments.length - 1] || "unknown";
-    const userIdFromUrl = pathSegments[pathSegments.length - 2] || "unknown";
+    // const userIdFromUrl = pathSegments[pathSegments.length - 2] || "unknown";
 
     // Verify JWT token using the modularized function
     const decodedOrResponse = await verifyAuthToken();
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     const doctorData = await db
       .select()
       .from(doctor)
-      .where(eq(doctor.userId, Number(userIdFromUrl)));
+      .where(eq(doctor.userId, userId));
 
     if (doctorData.length === 0) {
       return NextResponse.json(
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
     // Define the base upload directory
     const uploadDir = path.join(process.cwd(), "private_uploads/clinics");
-    const filePath = path.join(uploadDir, userIdFromUrl, file_name);
+    const filePath = path.join(uploadDir, String(userId), file_name);
     const contentType = getContentType(file_name);
 
     try {
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
           'Content-Type': contentType,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error reading file:", error);
       return NextResponse.json(
         { error: "File not found" },
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("An unexpected error occurred:", error);
     return NextResponse.json(
       { error: "Internal server error" },

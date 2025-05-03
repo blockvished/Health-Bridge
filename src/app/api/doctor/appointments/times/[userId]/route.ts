@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const requiredDoctorId = doctorData[0].id;
+  // const requiredDoctorId = doctorData[0].id;
 
   try {
     // const existingSetting = await db

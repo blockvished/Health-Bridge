@@ -18,21 +18,28 @@ export async function DELETE(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id");
 
   if (!id) {
-    return NextResponse.json({ error: "Prescription ID is required." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Prescription ID is required." },
+      { status: 400 }
+    );
   }
 
   const prescriptionId = Number(id);
   if (isNaN(prescriptionId)) {
-    return NextResponse.json({ error: "Invalid prescription ID. Must be a number." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid prescription ID. Must be a number." },
+      { status: 400 }
+    );
   }
 
   try {
     // 1.  Find the prescription to be deleted.  Crucially, check that
     //    the doctor making the request is the one who *owns* the
     //    prescription.  This is the authorization check.
-    const doctorRecord = await db.query.doctor.findFirst({ // Changed to findFirst
+    const doctorRecord = await db.query.doctor.findFirst({
+      // Changed to findFirst
       where: eq(doctor.userId, Number(userId)),
-      columns: { id: true } // Select only the doctor.id
+      columns: { id: true }, // Select only the doctor.id
     });
 
     if (!doctorRecord) {
@@ -52,7 +59,10 @@ export async function DELETE(req: NextRequest) {
 
     if (!prescriptionToDelete) {
       return NextResponse.json(
-        { error: "Prescription not found or you are not authorized to delete it." },
+        {
+          error:
+            "Prescription not found or you are not authorized to delete it.",
+        },
         { status: 404 }
       );
     }
@@ -61,25 +71,36 @@ export async function DELETE(req: NextRequest) {
     const deletedPrescriptions = await db
       .delete(prescription)
       .where(eq(prescription.id, prescriptionId))
-      .returning();  // Get back the deleted record to confirm deletion
+      .returning(); // Get back the deleted record to confirm deletion
 
     if (deletedPrescriptions.length === 0) {
       // This *shouldn't* happen, because we already checked for existence,
       // but it's good to be defensive.
-      return NextResponse.json({ error: "Prescription not found." }, { status: 404 });
+      return NextResponse.json(
+        { error: "Prescription not found." },
+        { status: 404 }
+      );
     }
 
     // 3.  Return a success response.  It's good practice to return the
     //    deleted object, in case the client wants to do anything with that
     //    data.
     return NextResponse.json(
-      { message: "Prescription deleted successfully.", deleted: deletedPrescriptions[0] },
+      {
+        message: "Prescription deleted successfully.",
+        deleted: deletedPrescriptions[0],
+      },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Handle database errors (and other errors)
     console.error("Error deleting prescription:", error);
-    return NextResponse.json({ error: "Failed to delete prescription: " + error.message }, { status: 500 });
+    let errorMessage = "Failed to delete prescription";
+    if (error instanceof Error) {
+      errorMessage += `: ${error.message}`;
+    } else {
+      errorMessage += `: ${String(error)}`;
+    }
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
-

@@ -1,10 +1,6 @@
 // LeftPopup.tsx - Modified to handle clinic changes
 
-import {
-  FaClinicMedical,
-  FaTimes,
-  FaHospital,
-} from "react-icons/fa";
+import { FaClinicMedical, FaTimes, FaHospital } from "react-icons/fa";
 import { FaCheck } from "react-icons/fa6";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
@@ -28,10 +24,10 @@ interface Clinic {
   address?: string;
 }
 
-const LeftPopup: React.FC<LeftPopupProps> = ({ 
-  onClose, 
+const LeftPopup: React.FC<LeftPopupProps> = ({
+  onClose,
   onClinicChange,
-  isMobile = false 
+  isMobile = false,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -63,18 +59,22 @@ const LeftPopup: React.FC<LeftPopupProps> = ({
           } else if (data.length > 0) {
             // If no cookie, default to the first clinic
             setActiveClinicId(data[0].id);
-            
+
             // Set cookies and update parent component
             Cookies.set("currentClinicId", String(data[0].id));
             Cookies.set("currentClinicName", data[0].name);
             Cookies.set("currentClinicThumb", data[0].imageLink || "");
-            
+
             // Notify parent component about the clinic change
             onClinicChange(data[0].name, data[0].imageLink || "");
           }
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error("Error fetching clinics:", err);
-          setError(err.message);
+          if (err instanceof Error) {
+            setError(err.message);
+          } else {
+            setError("An unexpected error occurred while fetching clinics.");
+          }
         } finally {
           setLoading(false);
         }
@@ -136,16 +136,16 @@ const LeftPopup: React.FC<LeftPopupProps> = ({
 
   const handleClinicClick = (clinic: Clinic) => {
     setActiveClinicId(clinic.id);
-    
+
     // Update cookies
     Cookies.set("currentClinicId", String(clinic.id));
     Cookies.set("currentClinicName", clinic.name);
     const clinicThumb = clinic.imageLink || "";
     Cookies.set("currentClinicThumb", clinicThumb);
-    
+
     // Notify parent component about the clinic change
     onClinicChange(clinic.name, clinicThumb);
-    
+
     console.log("Active clinic ID set to:", clinic.id);
   };
 
@@ -189,12 +189,18 @@ const LeftPopup: React.FC<LeftPopupProps> = ({
           <div
             key={clinic.id}
             className={`p-3 rounded-md flex items-center justify-between mb-2 cursor-pointer
-              ${activeClinicId === clinic.id ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600 opacity-70"}
+              ${
+                activeClinicId === clinic.id
+                  ? "bg-blue-100 text-blue-600"
+                  : "bg-gray-100 text-gray-600 opacity-70"
+              }
             `}
             onClick={() => handleClinicClick(clinic)}
           >
             <span className="text-base font-medium">{clinic.name}</span>
-            {activeClinicId === clinic.id && <FaCheck className="text-blue-600 w-5 h-5" />}
+            {activeClinicId === clinic.id && (
+              <FaCheck className="text-blue-600 w-5 h-5" />
+            )}
           </div>
         ))
       )}

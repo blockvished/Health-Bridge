@@ -100,7 +100,7 @@ const DashboardSummaryCards: React.FC = () => {
             const errorData = await res.json();
             console.log(errorData);
           }
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error("Fetch Catch Error:", err);
         }
       };

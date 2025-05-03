@@ -15,8 +15,8 @@ export async function GET(req: NextRequest) {
   const documentNameFromUrl = pathParts.pop() || "unknown";
   const patientIdFromUrl = pathParts[pathParts.length - 1] || "unknown"; // Get patient ID
 
-  console.log(documentNameFromUrl)
-  console.log(patientIdFromUrl)
+  console.log(documentNameFromUrl);
+  console.log(patientIdFromUrl);
 
   // Verify JWT token using the modularized function
   const decodedOrResponse = await verifyAuthToken();
@@ -82,16 +82,27 @@ export async function GET(req: NextRequest) {
       },
       status: 200,
     });
-  } catch (error: any) {
-    if (error.code === "ENOENT") {
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "ENOENT"
+    ) {
       // Handle file not found error
       return NextResponse.json({ error: "File not found." }, { status: 404 });
     }
     // Handle other errors
     console.error("Error:", error);
+    let errorMessage = "Failed to process request";
+    if (error instanceof Error) {
+      errorMessage += `: ${error.message}`;
+    } else {
+      errorMessage += `: ${String(error)}`;
+    }
     return NextResponse.json(
       {
-        error: `Failed to process request: ${error.message || "Unknown error"}`,
+        error: `${errorMessage}`,
       },
       { status: 500 }
     );
