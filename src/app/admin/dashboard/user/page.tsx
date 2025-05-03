@@ -82,8 +82,6 @@ const DashboardSummaryCards: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -93,8 +91,6 @@ const DashboardSummaryCards: React.FC = () => {
   useEffect(() => {
     if (userId) {
       const fetchDashboardData = async () => {
-        setLoading(true);
-        setError(null);
         try {
           const res = await fetch(`/api/doctor/dashboard/${userId}`);
           if (res.ok) {
@@ -102,18 +98,10 @@ const DashboardSummaryCards: React.FC = () => {
             setDashboardData(data);
           } else {
             const errorData = await res.json();
-            setError(
-              errorData?.error ||
-                `Failed to fetch dashboard data (status: ${res.status})`
-            );
+            console.log(errorData);
           }
         } catch (err: any) {
           console.error("Fetch Catch Error:", err);
-          setError(
-            "An unexpected error occurred while fetching dashboard data."
-          );
-        } finally {
-          setLoading(false);
         }
       };
 

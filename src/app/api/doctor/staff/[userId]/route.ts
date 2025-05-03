@@ -214,12 +214,12 @@ export async function POST(req: NextRequest) {
 
     const permissionsString = formData.get("permissions") as string;
 
-    const imageFile = formData.get("image") as Blob | null;
+    const imageFile = formData.get("image") as File | null;
     let imageLink: string | null = null;
 
     if (imageFile) {
       // Safely get the filename
-      const originalFileName = (imageFile as any).name;
+      const originalFileName = imageFile.name;
       const fileExtension = extname(originalFileName || "") || ".png";
       const safeName = slugify(name);
       const uniqueFilename = `${safeName}${fileExtension}`;

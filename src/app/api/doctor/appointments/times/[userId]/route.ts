@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import {
   doctor,
-  appointmentSettings,
   appointmentDays,
   appointmentTimeRanges,
 } from "../../../../../../db/schema";

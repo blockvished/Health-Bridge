@@ -72,7 +72,7 @@ export async function PUT(req: NextRequest) {
     const role = formData.get("role") as string;
     const password = formData.get("password") as string | null; // Password is optional for update
     const permissionsString = formData.get("permissions") as string;
-    const imageFile = formData.get("image") as Blob | null;
+    const imageFile = formData.get("image") as File | null;
     let imageLink: string | null = null;
 
     // Fetch the existing staff member to preserve the image link if no new image is uploaded
@@ -117,7 +117,7 @@ export async function PUT(req: NextRequest) {
         }
       }
 
-      const originalFileName = (imageFile as any).name;
+      const originalFileName = imageFile.name;
       const fileExtension = extname(originalFileName || "") || ".png";
       const safeName = slugify(name);
       const uniqueFilename = `${safeName}-${Date.now()}${fileExtension}`; // Add timestamp for uniqueness
