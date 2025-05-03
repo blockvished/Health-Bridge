@@ -138,7 +138,7 @@ const Appointments = () => {
     }, 30000);
 
     return () => clearInterval(intervalId);
-  }, [userId, allClinics]);
+  }, [userId, allClinics, activeClinic?.id]);
 
   useEffect(() => {
     if (!userId || allClinics.length === 0) return;
@@ -171,9 +171,33 @@ const Appointments = () => {
     setUserId(idFromCookie || null);
   }, []);
 
+  const fetchPatients = useCallback(async () => {
+    if (!userId) return;
+
+    try {
+      const response = await fetch(`/api/doctor/patients/${userId}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.Patients) {
+          setPatients(data.Patients);
+        } else {
+          setPatients([]);
+        }
+      } else {
+        console.error("Failed to fetch patients data");
+      }
+    } catch (err) {
+      console.error("Error fetching patients data:", err);
+    }
+  }, [userId]);
+
   useEffect(() => {
     fetchPatients();
-  }, [userId]);
+  }, [userId, fetchPatients]);
 
   const fetchData = useCallback(async () => {
     if (!userId) return;
@@ -258,30 +282,6 @@ const Appointments = () => {
       fetchData();
     }
   }, [userId, fetchData]);
-
-  const fetchPatients = async () => {
-    if (!userId) return;
-
-    try {
-      const response = await fetch(`/api/doctor/patients/${userId}`, {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.Patients) {
-          setPatients(data.Patients);
-        } else {
-          setPatients([]);
-        }
-      } else {
-        console.error("Failed to fetch patients data");
-      }
-    } catch (err) {
-      console.error("Error fetching patients data:", err);
-    }
-  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -476,7 +476,7 @@ const Appointments = () => {
       });
 
       console.log("FormData contents:");
-      for (let pair of formData.entries()) {
+      for (const pair of formData.entries()) {
         console.log(
           pair[0] + ": " + (pair[1] instanceof File ? pair[1].name : pair[1])
         );
@@ -506,7 +506,7 @@ const Appointments = () => {
           weight: "",
           gender: "Male",
         });
-        setUploadedFiles([]); 
+        setUploadedFiles([]);
         setSubmitSuccess(true);
         setRefreshAppointments((prev) => !prev);
         // Optionally refresh appointment table if implemented
@@ -515,8 +515,8 @@ const Appointments = () => {
         const errorData = await response.json();
         setSubmitError(errorData.message || "Failed to create appointment");
       }
-    } catch (error) {
-      setSubmitError("An unexpected error occurred. Please try again.");
+    } catch (error: unknown) {
+      console.error("Error creating appointment:", error);
     } finally {
       setIsSubmitting(false);
     }

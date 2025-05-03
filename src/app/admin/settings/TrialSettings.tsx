@@ -6,21 +6,12 @@ export default function TrialSettings() {
   const [trialDays, setTrialDays] = useState(30);
   const [emailBeforePlanEnds, setEmailBeforePlanEnds] = useState(7);
   const [currency, setCurrency] = useState("USD");
-  const [keywords, setKeywords] = useState([
-    "appointment",
-    "doctors",
-    "clinic",
-    "practice management",
-    "chamber",
-  ]);
-
   const currencies = ["USD", "EUR", "GBP", "INR", "JPY"];
 
   const handleSubmit = () => {
     console.log("Trial Days:", trialDays);
     console.log("Email Before Plan Ends:", emailBeforePlanEnds);
     console.log("Currency:", currency);
-    console.log("Keywords:", keywords);
   };
 
   return (

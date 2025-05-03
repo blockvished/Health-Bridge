@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
         }
       }
     } catch (error) {
-      console.log("lol");
+      console.log(error); 
     }
 
     // console.log("Received files:");

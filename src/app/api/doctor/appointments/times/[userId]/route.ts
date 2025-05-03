@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import {
   doctor,
-  appointmentSettings,
   appointmentDays,
   appointmentTimeRanges,
 } from "../../../../../../db/schema";
@@ -59,7 +58,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const requiredDoctorId = doctorData[0].id;
+  // const requiredDoctorId = doctorData[0].id;
 
   try {
     // const existingSetting = await db

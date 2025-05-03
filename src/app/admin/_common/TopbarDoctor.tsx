@@ -15,6 +15,7 @@ import { MdAddCircle } from "react-icons/md";
 import { FaCaretDown } from "react-icons/fa";
 import { live_doctors_icon } from "./global_variables";
 import Cookies from "js-cookie";
+import Image from "next/image";
 
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   onToggleSidebar,
@@ -49,15 +50,16 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
 
         if (response.ok) {
           const data = await response.json();
-          let metemeta;
-          if (data.metaTags) {
-            if (Array.isArray(data.metaTags)) {
-              const tags = data.metaTags.map(
-                (tagObj: { tag: string }) => tagObj.tag
-              );
-              metemeta = tags;
-            }
-          }
+          // let metemeta;
+          // if (data.metaTags) {
+          //   if (Array.isArray(data.metaTags)) {
+          //     const tags = data.metaTags.map(
+          //       (tagObj: { tag: string }) => tagObj.tag
+          //     );
+          //     metemeta = tags;
+              
+          //   }
+          // }
           if (data.doctor) {
             setDoctorData({
               name: data.doctor.name || "",
@@ -191,10 +193,12 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full shadow-sm bg-white hover:bg-gray-100 transition cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
-              <img
+              <Image
                 src={live_doctors_icon}
                 alt="Profile"
-                className="w-6 h-6 rounded-full"
+                width={24} // w-6 = 24px
+                height={24} // h-6 = 24px
+                className="rounded-full"
               />
               <span className="text-gray-800 font-medium hidden sm:inline">
                 {doctorData?.name?.slice(0, 7)}...
@@ -212,10 +216,12 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
             >
               {/* Profile Info Section */}
               <div className="flex items-center gap-3 p-4 border-b border-gray-200">
-                <img
+                <Image
                   src={live_doctors_icon}
                   alt="Profile"
-                  className="w-12 h-12 rounded-full"
+                  width={48} // w-12 = 48px
+                  height={48} // h-12 = 48px
+                  className="rounded-full"
                 />
                 <div>
                   <h4 className="text-gray-800 font-semibold text-sm">

@@ -1,6 +1,6 @@
 "use client";
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaPlus, FaEdit, FaTrash, FaSpinner } from "react-icons/fa";
 
 interface Experience {
@@ -35,11 +35,7 @@ const ExperienceTable = () => {
     setUserId(idFromCookie || null);
   }, []);
 
-  useEffect(() => {
-    fetchExperienceData();
-  }, [userId]);
-
-  const fetchExperienceData = async () => {
+const fetchExperienceData = useCallback(async () => {
     if (!userId) {
       setLoading(false);
       return;
@@ -62,7 +58,11 @@ const ExperienceTable = () => {
     } finally {
       setLoading(false); // Set loading to false after fetching
     }
-  };
+  }, [userId, setLoading, setExperienceData]);
+
+  useEffect(() => {
+    fetchExperienceData();
+  }, [userId, fetchExperienceData]);
 
   useEffect(() => {
     // Set default sort order for new entries
@@ -146,6 +146,7 @@ const ExperienceTable = () => {
       } else {
         const errorData = await response.json();
         // Optionally display an error message to the user
+        console.log(errorData)
       }
     } catch (error) {
       console.error("Save error:", error);
@@ -191,7 +192,9 @@ const ExperienceTable = () => {
           }}
           className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md cursor-pointer"
         >
-          {showForm ? "Cancel" : (
+          {showForm ? (
+            "Cancel"
+          ) : (
             <>
               <FaPlus /> Create New
             </>
@@ -296,7 +299,7 @@ const ExperienceTable = () => {
               ) : experienceData.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-4 text-center text-gray-500">
-                    No experience records found. Click "Create New" to add one.
+                    {` No experience records found. Click "Create New" to add one.`}
                   </td>
                 </tr>
               ) : (
@@ -324,7 +327,7 @@ const ExperienceTable = () => {
                       <button
                         onClick={() => handleDelete(exp.id)}
                         className="bg-red-100 hover:bg-red-200 text-red-500 px-2 py-1 rounded cursor-pointer"
-                      > 
+                      >
                         <FaTrash />
                       </button>
                     </td>

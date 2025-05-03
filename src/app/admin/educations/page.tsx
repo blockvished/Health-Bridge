@@ -1,6 +1,6 @@
 "use client";
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 import { FaSpinner } from "react-icons/fa"; // Import spinner icon
 
@@ -36,38 +36,37 @@ const EducationTable = () => {
     setUserId(idFromCookie || null);
   }, []);
 
-  useEffect(() => {
-    fetchEducationData();
-  }, [userId]);
-
-  const fetchEducationData = async () => {
+  const fetchEducationData = useCallback(async () => {
     if (!userId) {
       setLoading(false);
       return;
     }
-    setLoading(true); // Set loading to true before fetching
+    setLoading(true);
     try {
       const response = await fetch(`/api/doctor/profile/education/${userId}`, {
         method: "GET",
         credentials: "include",
       });
-
+  
       if (!response.ok) {
         throw new Error(`Failed to fetch education data: ${response.status}`);
       }
-
+  
       const result = await response.json();
       console.log("API Response (GET):", result);
       setEducationData(Array.isArray(result?.Educations) ? result.Educations : []);
     } catch (error) {
       console.error("Error fetching education data:", error);
-      // Optionally set educationData to an empty array to represent no data
       setEducationData([]);
     } finally {
-      setLoading(false); // Set loading to false after fetching (success or error)
+      setLoading(false);
     }
-  };
-
+  }, [userId]);
+  
+  useEffect(() => {
+    fetchEducationData();
+  }, [fetchEducationData]);
+  
   useEffect(() => {
     // Set default sort order to next available number for new entries
     if (showForm && !editMode) {
@@ -303,7 +302,7 @@ const EducationTable = () => {
               ) : educationData.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-4 text-center text-gray-500">
-                    No education records found. Click "Create New" to add one.
+                    {`No education records found. Click "Create New" to add one.`}
                   </td>
                 </tr>
               ) : (

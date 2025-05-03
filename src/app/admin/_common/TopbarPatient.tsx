@@ -14,9 +14,7 @@ import MobileTitle from "./MobileTitlePatientNAdmin";
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   onToggleSidebar,
 }) => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
   interface Patient {
@@ -74,15 +72,9 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
     }
   };
 
-  // Close dropdowns when clicking outside
+  // Close profile dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setDropdownOpen(false);
-      }
       if (
         profileRef.current &&
         !profileRef.current.contains(event.target as Node)
@@ -107,7 +99,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
           <FiMenu className="w-6 h-6" />
         </button>
 
-        {/* Right Section: Create as New Button & Profile */}
+        {/* Right Section */}
         <div className="flex items-center gap-4 md:gap-4">
           {/* Profile Section */}
           <div className="relative" ref={profileRef}>

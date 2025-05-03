@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import { FaTimes, FaDownload, FaSpinner } from "react-icons/fa";
 
@@ -25,17 +26,17 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
       setPreviewError(false);
 
       // Determine file type based on extension
-      const extension = filename.split('.').pop()?.toLowerCase();
+      const extension = filename.split(".").pop()?.toLowerCase();
       if (extension) {
-        if (['jpg', 'jpeg', 'png', 'gif', 'svg'].includes(extension)) {
-          setFileType('image');
-        } else if (extension === 'pdf') {
-          setFileType('pdf');
+        if (["jpg", "jpeg", "png", "gif", "svg"].includes(extension)) {
+          setFileType("image");
+        } else if (extension === "pdf") {
+          setFileType("pdf");
         } else {
-          setFileType('other');
+          setFileType("other");
         }
       } else {
-        setFileType('other');
+        setFileType("other");
       }
     }
   }, [isOpen, filename]);
@@ -50,7 +51,7 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
   };
 
   const handleDownload = () => {
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = documentUrl;
     link.download = filename;
     document.body.appendChild(link);
@@ -94,19 +95,20 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
             </div>
           )}
 
-          {fileType === 'image' && (
+          {fileType === "image" && (
             <div className="flex items-center justify-center h-full">
-              <img
+              <Image
                 src={documentUrl}
                 alt={filename}
-                className="max-w-full max-h-full object-contain"
+                fill
+                className="object-contain"
                 onLoad={handleImageLoad}
                 onError={handleImageError}
               />
             </div>
           )}
 
-          {fileType === 'pdf' && (
+          {fileType === "pdf" && (
             <div className="h-full w-full">
               <iframe
                 src={`${documentUrl}#toolbar=0`}
@@ -118,12 +120,12 @@ const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({
             </div>
           )}
 
-          {(fileType === 'other' || previewError) && (
+          {(fileType === "other" || previewError) && (
             <div className="flex flex-col items-center justify-center h-full">
               <div className="text-center p-6 bg-gray-50 rounded-lg">
                 <p className="text-gray-600 mb-4">
-                  {previewError 
-                    ? "Unable to preview this file type" 
+                  {previewError
+                    ? "Unable to preview this file type"
                     : "This file type cannot be previewed directly"}
                 </p>
                 <button

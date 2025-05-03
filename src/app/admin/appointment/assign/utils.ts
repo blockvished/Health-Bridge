@@ -5,7 +5,6 @@ export interface TimeSlot {
   to: string;
 }
 
-
 export interface DaySchedule {
   active: boolean;
   times: TimeSlot[];
@@ -48,10 +47,9 @@ export interface ExistingSetting {
   id: number;
 }
 
-
 export const generateTimeOptions = (interval: number = 10): string[] => {
   if (interval <= 0) return [];
-  
+
   const options: string[] = [];
   for (let hour = 0; hour < 24; hour++) {
     for (let minute = 0; minute < 60; minute += interval) {
@@ -66,17 +64,20 @@ export const generateTimeOptions = (interval: number = 10): string[] => {
 
 export const isTimeRangeValid = (from: string, to: string): boolean => {
   if (!from || !to) return false;
-  
+
   // Parse times for comparison
   const parseTime = (timeStr: string): number => {
-    const [time, period] = timeStr.split(' ');
-    let [hours, minutes] = time.split(':').map(Number);
-    
-    if (period === 'PM' && hours !== 12) hours += 12;
-    if (period === 'AM' && hours === 12) hours = 0;
-    
+    const [time, period] = timeStr.split(" ");
+
+    /* eslint-disable prefer-const */
+    let [hours, minutes] = time.split(":").map(Number);
+    /* eslint-enable prefer-const */
+
+    if (period === "PM" && hours !== 12) hours += 12;
+    if (period === "AM" && hours === 12) hours = 0;
+
     return hours * 60 + minutes;
   };
-  
+
   return parseTime(from) < parseTime(to);
 };

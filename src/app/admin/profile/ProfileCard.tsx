@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 
 interface ProfileCardProps {
@@ -34,16 +35,16 @@ export default function ProfileCard({
   return (
     <div className="w-full max-w-xs bg-white text-gray-900 rounded-2xl shadow-lg p-6 flex flex-col items-center text-center max-h-[380px]">
       {/* Rounded Image with Shadow */}
-      <div className="w-40 h-40 rounded-full shadow-lg mb-6 overflow-hidden">
+      <div className="w-40 h-40 rounded-full shadow-lg mb-6 overflow-hidden relative">
         {image ? (
-          <img
+          <Image
             src={image}
             alt={name || "Profile Image"}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
           />
         ) : null}
       </div>
-
       <h2 className="text-2xl font-semibold leading-tight mb-2">{name}</h2>
       <p className="text-gray-600 text-lg mb-1">{specialization}</p>
       <p className="text-gray-500 text-lg mb-4">{degree}</p>

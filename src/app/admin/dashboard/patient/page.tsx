@@ -58,9 +58,9 @@ export default function UpcomingAppointments() {
         );
         
         setAppointments(upcomingAppointments);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error fetching appointments:', err);
-        setError(err.message);
+        setError(err instanceof Error ? err.message : String(err));    
       } finally {
         setLoading(false);
       }
@@ -81,6 +81,7 @@ export default function UpcomingAppointments() {
         year: 'numeric' 
       });
     } catch (err) {
+      console.log(err)
       return 'Invalid Date';
     }
   };
@@ -97,6 +98,7 @@ export default function UpcomingAppointments() {
         const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
         return `${formattedHour}:${minutes} ${ampm}`;
       } catch (err) {
+        console.log(err)
         return time; // Return original if parsing fails
       }
     };
