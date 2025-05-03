@@ -2,7 +2,7 @@
 import Cookies from "js-cookie";
 import React, { useState, useRef, useEffect } from "react";
 import { FiArrowLeft, FiCamera, FiEdit, FiTrash2 } from "react-icons/fi";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 
 type StaffMember = {
   id: number;

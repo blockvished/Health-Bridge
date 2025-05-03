@@ -354,8 +354,8 @@ function slugify(str: string) {
 }
 
 async function blobToBuffer(blob: Blob): Promise<Buffer> {
-  if (typeof (blob as any).arrayBuffer === "function") {
-    const arrayBuffer = await (blob as any).arrayBuffer();
+  if (blob && typeof blob.arrayBuffer === "function") {
+    const arrayBuffer = await blob.arrayBuffer();
     return Buffer.from(arrayBuffer);
   } else {
     // Fallback for environments where arrayBuffer is not available (e.g., older Node.js)

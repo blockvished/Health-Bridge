@@ -482,7 +482,7 @@ const PatientsTable: React.FC<{
   if (patients.length === 0) {
     return (
       <div className="p-8 text-center text-gray-500">
-        No patients found. Add your first patient by clicking "Add New Patient".
+        {`No patients found. Add your first patient by clicking "Add New Patient".`}
       </div>
     );
   }

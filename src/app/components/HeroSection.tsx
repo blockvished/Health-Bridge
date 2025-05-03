@@ -40,10 +40,10 @@ const HeroSection: React.FC = () => {
           </div>
 
           <p className="mt-4 text-xs text-gray-600 max-w-lg animate-fadeIn delay-400">
-            By entering your info, you'll become an MF Insider — with FREE
+            {`By entering your info, you'll become an MF Insider — with FREE
             access to exclusive insights, private Q+As, and inspiring episodes
             of MarieTV, delivered with love to your inbox. (Unsub anytime in a
-            click.) You also agree to our
+            click.) You also agree to our`}
             <a href="#" className="underline hover:text-teal-600 transition">
               Terms of Use
             </a>

@@ -58,16 +58,16 @@ export async function GET(req: NextRequest) {
           'Content-Type': contentType,
         },
       });
-    } catch (error: any) {
-      console.error("Error reading file:", error);
+    } catch (error: unknown) {
+      console.error("Error reading file:", error);  
       return NextResponse.json(
         { error: "File not found" },
         { status: 404 }
       );
     }
 
-  } catch (error: any) {
-    console.error("An unexpected error occurred:", error);
+  } catch (error: unknown) {
+    console.error("Error reading file:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

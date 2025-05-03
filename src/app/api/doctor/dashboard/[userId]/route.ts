@@ -1,7 +1,7 @@
 // Create and Get Patients for a Doctor
 
 import { NextRequest, NextResponse } from "next/server";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { doctor, patient, staff, appointments } from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
@@ -68,11 +68,11 @@ export async function GET(req: NextRequest) {
     // Create a Date object for tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowDateString = tomorrow.toISOString().slice(0, 10);
+    // const tomorrowDateString = tomorrow.toISOString().slice(0, 10);
 
-    const futureAppointments = allAppointments.filter(
-      (appointment) => appointment.date >= tomorrowDateString
-    );
+    // const futureAppointments = allAppointments.filter(
+    //   (appointment) => appointment.date >= tomorrowDateString
+    // );
     
     const staffss = await db
     .select()

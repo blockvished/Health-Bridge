@@ -43,7 +43,7 @@ export async function PUT(req: NextRequest) {
     );
   }
 
-  const requiredDoctorId = doctorData[0].id;
+  // const requiredDoctorId = doctorData[0].id;
 
   try {
     const reqBody = await req.json();

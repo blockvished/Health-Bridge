@@ -62,18 +62,18 @@ export async function POST(req: NextRequest) {
   const requiredDoctorId = doctorData[0].id;
 
   try {
-    const existingSetting = await db
-      .select({
-        intervalMinutes: appointmentSettings.intervalMinutes,
-        id: appointmentSettings.id,
-      })
-      .from(appointmentSettings)
-      .where(eq(appointmentSettings.doctorId, requiredDoctorId));
+    // const existingSetting = await db
+    //   .select({
+    //     intervalMinutes: appointmentSettings.intervalMinutes,
+    //     id: appointmentSettings.id,
+    //   })
+    //   .from(appointmentSettings)
+    //   .where(eq(appointmentSettings.doctorId, requiredDoctorId));
 
-    const days = await db
-      .select()
-      .from(appointmentDays)
-      .where(eq(appointmentDays.doctorId, requiredDoctorId));
+    // const days = await db
+    //   .select()
+    //   .from(appointmentDays)
+    //   .where(eq(appointmentDays.doctorId, requiredDoctorId));
 
     ///////////////
     // const result = await Promise.all(
