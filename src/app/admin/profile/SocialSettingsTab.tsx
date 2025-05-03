@@ -70,7 +70,8 @@ const SocialSettingsTab = ({
       }
 
       const data = await response.json();
-    } catch (err: any) {
+      console.log(data)
+    } catch (err: unknown) {
       console.error("Error updating doctor info:", err);
     } finally {
       setIsSaving(false);

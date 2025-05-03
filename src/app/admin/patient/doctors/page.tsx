@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 
@@ -153,7 +154,9 @@ export default function DoctorList() {
           type="button"
           onClick={() => handleStarClick(doctorId, starValue)}
           className={
-            starValue <= currentRating ? "text-orange-500 cursor-pointer" : "text-gray-300 cursor-pointer"
+            starValue <= currentRating
+              ? "text-orange-500 cursor-pointer"
+              : "text-gray-300 cursor-pointer"
           }
         >
           {starValue <= currentRating ? <AiFillStar /> : <AiOutlineStar />}
@@ -196,7 +199,7 @@ export default function DoctorList() {
                 <tr key={doctor.email} className="border-b last:border-none">
                   <td className="p-4">{index + 1}</td>
                   <td className="p-4">
-                    <img
+                    <Image
                       src={doctor.thumb}
                       alt={doctor.name}
                       width={50}

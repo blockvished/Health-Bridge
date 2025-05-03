@@ -51,9 +51,14 @@ const LiveConsultationSettings = () => {
             setMeetingLink("");
             setLiveConsultation(false);
           }
-        } catch (err: any) {
-          setError(err.message);
-          console.error("Error fetching consultation settings:", err);
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            setError(err.message);
+            console.error("Error fetching consultation settings:", err);
+          } else {
+            setError("An unknown error occurred");
+            console.error("Unknown error:", err);
+          }        
         } finally {
           setLoading(false);
         }

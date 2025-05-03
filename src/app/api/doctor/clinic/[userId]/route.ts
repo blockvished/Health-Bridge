@@ -68,12 +68,15 @@ export async function GET(req: NextRequest) {
 
     // Return the clinic data.
     return NextResponse.json(clinicsData, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching clinics:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch clinics", details: error.message },
-      { status: 500 }
-    );
+    let errorMessage = "Failed to fetch clinics";
+    if (error instanceof Error) {
+      errorMessage += `: ${error.message}`;
+    } else {
+      errorMessage += `: ${String(error)}`;
+    }
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
@@ -139,11 +142,11 @@ export async function POST(req: NextRequest) {
     // 2. Extract fields
     const id = formData.get("id") as string | null;
     const name = formData.get("name") as string;
-    
+
     // Fix for active field - properly convert string to boolean
     const activeValue = formData.get("active");
     const active = activeValue === null ? null : activeValue === "true";
-    
+
     const department = formData.get("department") as string;
     const appointmentLimitStr = formData.get("appointmentLimit") as string;
     const address = formData.get("address") as string;
@@ -195,7 +198,7 @@ export async function POST(req: NextRequest) {
       const numericId = parseInt(id, 10);
 
       let updatedClinic;
-      
+
       if (imageLink == null) {
         updatedClinic = await db
           .update(clinic)
@@ -323,11 +326,14 @@ export async function DELETE(req: NextRequest) {
       { message: `Clinic with ID ${clinicIdToDelete} deleted successfully.` },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error deleting clinic:", error);
-    return NextResponse.json(
-      { error: "Failed to delete clinic", details: error.message },
-      { status: 500 }
-    );
+    let errorMessage = "Failed to delete clinic";
+    if (error instanceof Error) {
+      errorMessage += `: ${error.message}`;
+    } else {
+      errorMessage += `: ${String(error)}`;
+    }
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

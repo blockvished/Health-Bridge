@@ -4,6 +4,7 @@ import { FiEdit, FiTrash } from "react-icons/fi";
 import { FiUploadCloud } from "react-icons/fi";
 import { BsCheckCircle } from "react-icons/bs";
 import Cookies from "js-cookie";
+import Image from "next/image";
 
 interface Clinic {
   id: number;
@@ -266,10 +267,12 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
                 <td className="p-4 text-gray-700">
                   {clinic.imageLink ? (
                     <div className="w-16 h-16 flex items-center justify-center rounded-md border border-gray-300 shadow-sm">
-                      <img
+                      <Image
                         src={clinic.imageLink}
                         alt={`${clinic.name} thumbnail`}
-                        className="max-w-16 max-h-16 object-cover rounded-md"
+                        width={64} // 16 * 4 (Tailwind's `w-16` = 64px)
+                        height={64}
+                        className="object-cover rounded-md"
                       />
                     </div>
                   ) : (
@@ -476,9 +479,12 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
               onChange={handleFileChange}
             />
             {formData.logo ? (
-              <img
+              <Image
                 src={URL.createObjectURL(formData.logo)}
                 alt="Clinic Logo"
+                width={300} // or your desired size
+                height={300}
+                unoptimized
                 className="w-full h-full object-cover rounded-lg"
               />
             ) : editClinic?.imageLink ? (

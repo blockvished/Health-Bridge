@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React from "react";
 import { FaShareAlt, FaDownload } from "react-icons/fa";
 
@@ -26,11 +27,14 @@ const QRCodePage: React.FC = () => {
         </div>
 
         <div className="flex flex-col p-4">
-          <img
+          <Image
             src={qrSrc}
             alt="QR Code"
-            className="w-77 h-77 p-6 border border-gray-300"
+            width={308} // 77 * 4 (Next.js Image requires explicit width & height)
+            height={308}
+            className="p-6 border border-gray-300"
           />
+
           <button
             onClick={handleDownload}
             className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center w-fit"

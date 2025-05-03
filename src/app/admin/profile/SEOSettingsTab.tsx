@@ -46,6 +46,7 @@ const SEOSettingsTab: React.FC<SeoSettingsTabProps> = ({ doctor, setDoctorData }
       }
 
       const data = await response.json();
+      console.log(data)
       // Update the parent component state as well
       if (doctor) {
         setDoctorData({
@@ -55,7 +56,7 @@ const SEOSettingsTab: React.FC<SeoSettingsTabProps> = ({ doctor, setDoctorData }
         });
       }
       // Optionally toast here
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error updating doctor info:", err);
     } finally {
       setIsSaving(false);
