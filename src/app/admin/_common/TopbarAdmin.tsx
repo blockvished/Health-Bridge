@@ -5,11 +5,12 @@ import Link from "next/link";
 import { FiLock, FiLogOut, FiMenu, FiChevronDown } from "react-icons/fi";
 import MobileTitle from "./MobileTitlePatientNAdmin";
 import { live_doctors_icon } from "./global_variables";
+import Image from "next/image";
 
 const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
   onToggleSidebar,
 }) => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  // const [dropdownOpen, setDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -39,7 +40,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setDropdownOpen(false);
+        // setDropdownOpen(false);
       }
       if (
         profileRef.current &&
@@ -73,9 +74,11 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full shadow-sm bg-white hover:bg-gray-100 transition cursor-pointer"
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             >
-              <img
+              <Image
                 src={live_doctors_icon}
                 alt="live doctors"
+                width={24} // Adjust based on the actual rendered size
+                height={24} // Adjust based on the actual rendered size
                 className="w-6 h-6 rounded-full"
               />
 
@@ -92,7 +95,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
               {/* Profile Info Section */}
               <Link href="/">
                 <div className="flex items-center gap-3 p-4 border-b border-gray-200 cursor-pointer">
-                  <img
+                  <Image
                     src={live_doctors_icon}
                     alt="live doctors"
                     width={48}

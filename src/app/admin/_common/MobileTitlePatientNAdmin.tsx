@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { live_doctors_icon } from "./global_variables"; // Assuming this path is correct
+import Image from "next/image";
 
 const MobileTitle = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -57,7 +58,12 @@ const MobileTitle = () => {
         onClick={handleTitleClick} // Added onClick handler
       >
         <div className="flex items-center gap-3 rounded-full px-3 py-1">
-          <img src={live_doctors_icon} alt="Live Doctors" className="w-8 h-8"/>
+          <Image
+            src={live_doctors_icon}
+            alt="Live Doctors"
+            width={32} // w-8 = 32px
+            height={32} // h-8 = 32px
+          />
         </div>
       </div>
     </>
