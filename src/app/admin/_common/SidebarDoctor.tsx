@@ -6,8 +6,12 @@ import { usePathname } from "next/navigation";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa";
 import { menuItemsDoctor } from "./menuItems";
 import LeftPopup from "./LeftPopup";
-import { live_doctors_icon, temp } from "./global_variables";
+import {
+  //  live_doctors_icon,
+  temp,
+} from "./global_variables";
 import Cookies from "js-cookie";
+import Image from "next/image";
 
 interface Clinic {
   id: number;
@@ -84,12 +88,12 @@ const Sidebar: React.FC<SidebarProps> = ({
             ) {
               Cookies.set("currentClinicId", firstClinicId);
               console.log("Clinic ID stored in cookie:", firstClinicId);
-              
+
               // Also update the clinic name and thumb
               const firstClinic = data[0];
               Cookies.set("currentClinicName", firstClinic.name);
               Cookies.set("currentClinicThumb", firstClinic.imageLink || temp);
-              
+
               // Update the state to reflect these changes
               setActiveClinicName(firstClinic.name);
               setActiveClinicThumb(firstClinic.imageLink || temp);
@@ -219,9 +223,19 @@ const Sidebar: React.FC<SidebarProps> = ({
             {isMounted && (!isCollapsed || (isMobile && sidebarOpen)) ? (
               <div className="flex items-center space-x-2">
                 {activeClinicName ? (
-                  <img src={activeClinicThumb} alt="Logo" className="h-6 w-6" />
+                  <Image
+                    src={activeClinicThumb}
+                    alt="Logo"
+                    width={24} // w-6 = 24px
+                    height={24} // h-6 = 24px
+                  />
                 ) : (
-                  <img src={temp} alt="Logo" className="h-6 w-6" />
+                  <Image
+                    src={temp}
+                    alt="Logo"
+                    width={24} // w-6 = 24px
+                    height={24} // h-6 = 24px
+                  />
                 )}
                 <span
                   className={`font-bold truncate ${isMobile ? "text-sm" : ""}`}
@@ -232,9 +246,19 @@ const Sidebar: React.FC<SidebarProps> = ({
             ) : (
               <div className="flex items-center space-x-2">
                 {activeClinicName ? (
-                  <img src={activeClinicThumb} alt="Logo" className="h-6 w-6" />
+                  <Image
+                    src={activeClinicThumb}
+                    alt="Logo"
+                    width={24} // w-6 = 24px
+                    height={24} // h-6 = 24px
+                  />
                 ) : (
-                  <img src={temp} alt="Logo" className="h-6 w-6" />
+                  <Image
+                    src={temp}
+                    alt="Logo"
+                    width={24} // w-6 = 24px
+                    height={24} // h-6 = 24px
+                  />
                 )}
               </div>
             )}
@@ -356,10 +380,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
       {showPopup && (
-        <LeftPopup 
-          onClose={closePopup} 
-          onClinicChange={handleClinicChange} 
-        />
+        <LeftPopup onClose={closePopup} onClinicChange={handleClinicChange} />
       )}
     </>
   );

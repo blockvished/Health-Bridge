@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa";
 import { menuItemsAdmin } from "./menuItems";
-import LeftPopup from "./LeftPopup";
 import { live_doctors_icon } from "./global_variables";
+import Image from "next/image";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -121,7 +121,12 @@ const Sidebar: React.FC<SidebarProps> = ({
             >
               {isMounted && (!isCollapsed || (isMobile && sidebarOpen)) ? (
                 <div className="flex items-center space-x-2">
-                  <img src={live_doctors_icon} alt="Logo" className="h-6 w-6" />
+                  <Image
+                    src={live_doctors_icon}
+                    alt="Logo"
+                    width={24} // Tailwind w-6 = 24px
+                    height={24} // Tailwind h-6 = 24px
+                  />
                   <span
                     className={`font-bold truncate ${
                       isMobile ? "text-sm" : ""
@@ -132,7 +137,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               ) : (
                 <div className="flex justify-center">
-                  <img src={live_doctors_icon} alt="Logo" className="h-6 w-6" />
+                  <Image
+                    src={live_doctors_icon}
+                    alt="Logo"
+                    width={24} // Tailwind w-6 = 24px
+                    height={24} // Tailwind h-6 = 24px
+                  />
                 </div>
               )}
             </div>
@@ -253,7 +263,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           </ul>
         </nav>
       </div>
-      {showPopup && <LeftPopup onClose={closePopup} />}
     </>
   );
 };
