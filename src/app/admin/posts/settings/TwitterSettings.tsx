@@ -89,9 +89,9 @@ const TwitterSettings: NextPage = () => {
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
   
-  const handleAuthTypeChange = (type: "app" | "graph") => {
-    setSettings((prev) => ({ ...prev, authType: type }));
-  };
+  // const handleAuthTypeChange = (type: "app" | "graph") => {
+  //   setSettings((prev) => ({ ...prev, authType: type }));
+  // };
 
 
   return (

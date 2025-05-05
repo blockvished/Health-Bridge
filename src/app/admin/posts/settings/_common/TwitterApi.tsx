@@ -30,11 +30,11 @@ const TwitterApi: React.FC = () => {
     setApiKeys(updatedKeys);
   };
 
-  const handleAccessTokenSecretChange = (index: number, value: string) => {
-    const updatedKeys = [...apiKeys];
-    updatedKeys[index].accessTokenSecret = value;
-    setApiKeys(updatedKeys);
-  };
+  // const handleAccessTokenSecretChange = (index: number, value: string) => {
+  //   const updatedKeys = [...apiKeys];
+  //   updatedKeys[index].accessTokenSecret = value;
+  //   setApiKeys(updatedKeys);
+  // };
 
   const removeApiKey = (index: number) => {
     const updatedKeys = apiKeys.filter((_, i) => i !== index);
