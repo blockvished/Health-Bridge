@@ -62,9 +62,15 @@ export default function AppointmentsList() {
         }
 
         setAppointments(data.appointments || []);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching appointments:", err);
-        setError(err.message);
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          // Handle cases where the error is not an Error object
+          console.error("An unexpected error occurred:", err);
+          setError("An unexpected error occurred."); // Provide a generic error message
+        }
       } finally {
         setLoading(false);
       }
@@ -82,9 +88,7 @@ export default function AppointmentsList() {
         ) {
           if (appointment.mode?.toLowerCase() === "online") {
             try {
-              const response = await fetch(
-                `/api/patient/consultation`
-              );
+              const response = await fetch(`/api/patient/consultation`);
               if (response.ok) {
                 const data: ConsultationLinkResponse = await response.json();
                 setConsultationLinks((prevLinks) => ({
@@ -159,6 +163,7 @@ export default function AppointmentsList() {
         const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
         return `${formattedHour}:${minutes} ${ampm}`;
       } catch (err) {
+        console.log(err);
         return time; // Return original if parsing fails
       }
     };
@@ -178,6 +183,7 @@ export default function AppointmentsList() {
       if (normalizedStatus === "cancelled") return "bg-gray-100 text-gray-600";
       return "bg-yellow-100 text-yellow-800";
     } catch (err) {
+      console.log(err);
       return "bg-gray-100 text-gray-600"; // Default styling if toLowerCase fails
     }
   };
@@ -300,7 +306,9 @@ export default function AppointmentsList() {
                       >
                         <button
                           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-md text-xs flex items-center gap-1"
-                          disabled={!consultationLinks[appointment.appointmentId]}
+                          disabled={
+                            !consultationLinks[appointment.appointmentId]
+                          }
                         >
                           <Video size={14} className="mr-1" /> Join
                         </button>
