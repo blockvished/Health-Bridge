@@ -31,14 +31,12 @@ const PayoutForm = () => {
               setLoading(false);
               return null;
             }
-            throw new Error(
-              `Failed to fetch bank details: ${response.status}`
-            );
+            throw new Error(`Failed to fetch bank details: ${response.status}`);
           }
           return response.json();
         })
         .then((data) => {
-          console.log(data)
+          console.log(data);
           setLoading(false);
           if (data) {
             setFullName(data.fullName);
@@ -140,9 +138,17 @@ const PayoutForm = () => {
 
       console.log("Bank details saved successfully!");
       // Optionally, show a success message to the user
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
       console.error("Error saving bank details:", err);
+      let errorMessage =
+        "An unexpected error occurred while saving bank details.";
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (typeof err === "string") {
+        errorMessage = err;
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 "use client";
 import Cookies from "js-cookie";
+import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
 import { FiArrowLeft, FiCamera, FiEdit, FiTrash2 } from "react-icons/fi";
 // import { useRouter } from "next/navigation";
@@ -73,7 +74,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         password: "", // Always reset password field
         clinicId: initialStaffData.clinicId || "",
       });
-      console.log(initialStaffData)
+      console.log(initialStaffData);
       setPermissions(initialStaffData.permissionIds || []);
       setImagePreview(initialStaffData.imageLink || null);
     }
@@ -135,7 +136,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
 
       const method = initialStaffData?.id ? "PUT" : "POST";
       console.log("staffdit", initialStaffData?.id);
-      const apiUrl = initialStaffData?.id?  `/api/doctor/staff/put/${userId}`:  `/api/doctor/staff/${userId}` 
+      const apiUrl = initialStaffData?.id
+        ? `/api/doctor/staff/put/${userId}`
+        : `/api/doctor/staff/${userId}`;
 
       let response;
 
@@ -457,7 +460,7 @@ const StaffPage: React.FC = () => {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data: StaffMember[] = await res.json();
-      console.log(data)
+      console.log(data);
       setStaffMembers(data);
     } catch (error) {
       console.error("Error fetching staff:", error);
@@ -566,12 +569,12 @@ const StaffPage: React.FC = () => {
                       <td className="p-3 text-gray-700">{index + 1}</td>
                       <td className="p-3">
                         {staff.imageLink ? (
-                          <img
+                          <Image
                             src={staff.imageLink}
                             alt={staff.name}
-                            width={40}
-                            height={40}
-                            className="w-10 h-10 rounded-full object-cover"
+                            width={40} // w-10 = 40px
+                            height={40} // h-10 = 40px
+                            className="rounded-full object-cover"
                           />
                         ) : (
                           <div className="w-10 h-10 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full font-semibold text-lg">

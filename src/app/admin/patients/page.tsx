@@ -338,12 +338,13 @@ interface ConfirmModalProps {
   message: string;
 }
 
-const ConfirmModal: React.FC<ConfirmModalProps> = ({
+const ConfirmModal: React.FC<ConfirmModalProps & { isDeleting: boolean }> = ({
   isOpen,
   onClose,
   onConfirm,
   title,
   message,
+  isDeleting, // Receive isDeleting as a prop
 }) => {
   if (!isOpen) return null;
 
@@ -368,6 +369,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300 cursor-pointer"
+            disabled={isDeleting} // Disable cancel button during deletion if you want
           >
             Cancel
           </button>
@@ -376,9 +378,14 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
               onConfirm();
               onClose();
             }}
-            className="px-4 py-2 bg-red-600 rounded-md text-white hover:bg-red-700 cursor-pointer"
+            className={`px-4 py-2 rounded-md text-white cursor-pointer ${
+              isDeleting
+                ? "bg-red-400 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700"
+            }`}
+            disabled={isDeleting} // Disable delete button during deletion
           >
-            Delete
+            {isDeleting ? "Deleting..." : "Delete"}
           </button>
         </div>
       </div>
@@ -407,7 +414,43 @@ const PatientsTable: React.FC<{
   }, []);
 
   useEffect(() => {
-    fetchPatients();
+    const idFromCookie = Cookies.get("userId");
+    setUserId(idFromCookie || null);
+  
+    const fetchPatients = async () => {
+      if (!userId) return;
+  
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/doctor/patients/${userId}`, {
+          method: "GET",
+          credentials: "include",
+        });
+  
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.Patients) {
+            setPatients(data.Patients);
+            setError(null);
+          } else {
+            setPatients([]);
+            setError("No patients found for this doctor.");
+          }
+        } else {
+          console.error("Failed to fetch patients data");
+          setError("Failed to fetch patients data.");
+        }
+      } catch (err) {
+        console.error("Error fetching patients data:", err);
+        setError("Error fetching patients data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    if (userId) {
+      fetchPatients();
+    }
   }, [userId]);
 
   const fetchPatients = async () => {
@@ -555,6 +598,7 @@ const PatientsTable: React.FC<{
         onConfirm={handleDeleteConfirm}
         title="Delete Patient"
         message={`Are you sure you want to delete ${patientToDelete?.name}? This action cannot be undone.`}
+        isDeleting={isDeleting} // Pass the isDeleting state
       />
     </div>
   );

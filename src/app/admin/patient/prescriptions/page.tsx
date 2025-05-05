@@ -2,15 +2,12 @@
 
 import React, { useState, useEffect, useRef } from "react";
 // import { useRouter } from "next/navigation";
-import {
-  FaEye,
-  FaPrint,
-  FaHospital,
-} from "react-icons/fa";
+import { FaEye, FaPrint, FaHospital } from "react-icons/fa";
 import { format, parseISO } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { useReactToPrint } from "react-to-print";
 import Cookies from "js-cookie";
+import Image from "next/image";
 
 interface User {
   id: number;
@@ -200,10 +197,12 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                 </div>
                 <div className="text-left sm:text-right flex flex-col items-start sm:items-end">
                   {clinic?.imageLink ? (
-                    <img
+                    <Image
                       src={clinic.imageLink}
                       alt={clinic.name || "Clinic Image"}
-                      className="w-24 h-16 rounded-md object-cover mb-1"
+                      width={96} // w-24 = 96px
+                      height={64} // h-16 = 64px
+                      className="rounded-md object-cover mb-1"
                     />
                   ) : (
                     <FaHospital className="text-green-500 text-4xl mb-1" />
@@ -341,11 +340,17 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
               <div className="mt-16 sm:mt-32 pt-8 border-t border-gray-200">
                 <div className="text-right">
                   {doctor.signatureImage ? (
-                    <img
+                    <Image
                       src={doctor.signatureImage}
                       alt={`${"doctorName"}'s signature`}
-                      className="h-16 inline-block mb-2"
-                      style={{ maxWidth: "200px", objectFit: "contain" }}
+                      width={200}
+                      height={64} // h-16 = 64px
+                      className="inline-block mb-2"
+                      style={{
+                        objectFit: "contain",
+                        maxWidth: "200px",
+                        height: "64px",
+                      }}
                     />
                   ) : (
                     <p className="text-sm">Signature</p>

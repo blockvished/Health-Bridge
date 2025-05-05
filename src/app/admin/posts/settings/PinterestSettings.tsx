@@ -89,12 +89,12 @@ const PinterestSettings: NextPage = () => {
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleLinkPostingChange = (value: string) => {
-    setSettings((prev) => ({
-      ...prev,
-      linkPosting: value as "link" | "image",
-    }));
-  };
+  // const handleLinkPostingChange = (value: string) => {
+  //   setSettings((prev) => ({
+  //     ...prev,
+  //     linkPosting: value as "link" | "image",
+  //   }));
+  // };
 
   const handleUrlShortenerChange = (value: string) => {
     setSettings((prev) => ({
@@ -103,12 +103,12 @@ const PinterestSettings: NextPage = () => {
     }));
   };
 
-  const handleDisableImagePostingToggle = () => {
-    setSettings((prev) => ({
-      ...prev,
-      disableImagePosting: !prev.disableImagePosting,
-    }));
-  };
+  // const handleDisableImagePostingToggle = () => {
+  //   setSettings((prev) => ({
+  //     ...prev,
+  //     disableImagePosting: !prev.disableImagePosting,
+  //   }));
+  // };
 
   return (
     <div className="p-6 space-y-6">
