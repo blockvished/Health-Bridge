@@ -44,7 +44,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    const roleFromCookie = Cookies.get("userRole");
+    // const roleFromCookie = Cookies.get("userRole");
     const idFromCookie = Cookies.get("userId");
 
     // setRole(roleFromCookie || null);

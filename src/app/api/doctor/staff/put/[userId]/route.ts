@@ -135,7 +135,13 @@ export async function PUT(req: NextRequest) {
       imageLink = originalImageLink; // Keep the existing image link if no new one is uploaded
     }
 
-    const updateValues: Record<string, any> = {
+    const updateValues: {
+      name: string;
+      email: string;
+      clinicId: number | null;
+      role: string;
+      imageLink: string | null;
+    } = {
       name: name,
       email: email,
       clinicId: clinicId ? Number(clinicId) : null,
@@ -206,8 +212,8 @@ export async function PUT(req: NextRequest) {
 }
 
 async function blobToBuffer(blob: Blob): Promise<Buffer> {
-  if (typeof (blob as any).arrayBuffer === "function") {
-    const arrayBuffer = await (blob as any).arrayBuffer();
+  if (typeof blob.arrayBuffer === "function") {
+    const arrayBuffer = await blob.arrayBuffer();
     return Buffer.from(arrayBuffer);
   } else {
     // Fallback for environments where arrayBuffer is not available

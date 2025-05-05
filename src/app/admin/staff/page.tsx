@@ -41,13 +41,11 @@ const StaffForm: React.FC<StaffFormProps> = ({
     initialStaffData?.imageLink || null
   );
   const [userId, setUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [permissions, setPermissions] = useState<number[]>(
     initialStaffData?.permissionIds || []
   );
-  const [loadingPermissions, setLoadingPermissions] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form data state
@@ -251,9 +249,6 @@ const StaffForm: React.FC<StaffFormProps> = ({
               </option>
             ))}
           </select>
-          {loading && (
-            <p className="text-sm text-gray-500 mt-1">Loading clinics...</p>
-          )}
         </div>
 
         <div>
@@ -319,30 +314,23 @@ const StaffForm: React.FC<StaffFormProps> = ({
         {/* Role Permissions */}
         <div className="mt-8">
           <h2 className="text-lg font-semibold mb-3">Role Permissions</h2>
-          {loadingPermissions ? (
-            <p className="text-sm text-gray-500">Loading permissions...</p>
-          ) : error && loadingPermissions ? (
-            <p className="text-red-500 text-sm">{error}</p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {rolePermissions.map((permission) => (
-                <label
-                  key={permission.id}
-                  className="flex items-center space-x-2"
-                >
-                  <input
-                    type="checkbox"
-                    checked={permissions.includes(permission.id)}
-                    onChange={() => handlePermissionChange(permission.id)}
-                    className="form-checkbox h-4 w-4 text-blue-600"
-                  />
-                  <span className="text-sm text-gray-700">
-                    {permission.name}
-                  </span>
-                </label>
-              ))}
-            </div>
-          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {rolePermissions.map((permission) => (
+              <label
+                key={permission.id}
+                className="flex items-center space-x-2"
+              >
+                <input
+                  type="checkbox"
+                  checked={permissions.includes(permission.id)}
+                  onChange={() => handlePermissionChange(permission.id)}
+                  className="form-checkbox h-4 w-4 text-blue-600"
+                />
+                <span className="text-sm text-gray-700">{permission.name}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
         {/* Error message */}
@@ -393,9 +381,13 @@ const StaffPage: React.FC = () => {
         }
         const data = await response.json();
         setClinicsData(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching clinics:", err);
-        setError(err.message);
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError(String(err)); // Fallback if it's not an Error
+        }
       } finally {
         setLoading(false);
       }
@@ -436,9 +428,13 @@ const StaffPage: React.FC = () => {
       }
       const data = await response.json();
       setRolePermissions(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching role permissions:", err);
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(String(err)); // Fallback if it's not an Error
+      }
     } finally {
     }
   };
@@ -487,9 +483,13 @@ const StaffPage: React.FC = () => {
       }
       fetchStaff();
       handleCloseDeleteModal();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error deleting staff:", err);
-      setError(err.message);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(String(err)); // Fallback if it's not an Error
+      }
     } finally {
       setLoading(false);
     }

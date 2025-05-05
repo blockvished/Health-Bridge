@@ -9,7 +9,7 @@ import db from "../../../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../../../lib/verify";
 
 export async function GET(req: NextRequest) {
-  let sql: postgres.Sql<{}> | undefined; // 
+  let sql: postgres.Sql<Record<string, unknown>> | undefined; // Fixed type constraint
   try {
     // Get doctor ID from URL
     const pathSegments = req.nextUrl.pathname.split("/");
@@ -23,9 +23,6 @@ export async function GET(req: NextRequest) {
     if (decodedOrResponse instanceof NextResponse) {
       return decodedOrResponse;
     }
-
-    const decoded = decodedOrResponse;
-    const userId = Number(decoded.userId);
 
     // Query for doctor information
     const doctorData = await db

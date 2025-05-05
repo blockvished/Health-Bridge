@@ -90,11 +90,11 @@ function slugify(str: string) {
 
 // Helper function to convert Blob to Buffer
 async function blobToBuffer(blob: Blob): Promise<Buffer> {
-  if (typeof (blob as any).arrayBuffer === "function") {
-    const arrayBuffer = await (blob as any).arrayBuffer();
+  if (typeof blob.arrayBuffer === "function") {
+    const arrayBuffer = await blob.arrayBuffer();
     return Buffer.from(arrayBuffer);
   } else {
-    // Fallback for environments where arrayBuffer is not available (e.g., older Node.js)
+    // Fallback for environments where arrayBuffer is not available
     const text = await blob.text();
     return Buffer.from(text);
   }
