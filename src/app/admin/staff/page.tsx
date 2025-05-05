@@ -202,12 +202,12 @@ const StaffForm: React.FC<StaffFormProps> = ({
             onClick={triggerFileInput}
           >
             {imagePreview ? (
-              <img
+              <Image
                 src={imagePreview}
                 alt="Profile Preview"
-                width={96}
-                height={96}
-                className="w-full h-full object-cover"
+                width={96} // Equivalent to w-24 (96px)
+                height={96} // Equivalent to h-24 (96px)
+                className="object-cover"
               />
             ) : (
               <div className="w-full h-full bg-gray-200 rounded-full flex items-center justify-center">

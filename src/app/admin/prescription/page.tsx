@@ -8,6 +8,7 @@ import DrugEntry from "./DrugEntry";
 import { Drug } from "./DrugEntry";
 import PrescriptionPreview from "./Preview";
 import DocumentPreviewModal from "./DocumentPreviewModal";
+import Image from "next/image";
 
 export interface Doctor {
   name: string;
@@ -69,7 +70,7 @@ export default function CreatePrescription() {
   const [documentFilenames, setDocumentFilenames] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
   const [isDocumentDropdownOpen, setIsDocumentDropdownOpen] = useState(false);
-  
+
   // Added state for document preview modal
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [previewDocumentUrl, setPreviewDocumentUrl] = useState("");
@@ -370,7 +371,7 @@ export default function CreatePrescription() {
       // Set the selected document as the clinical diagnosis
       handleInputChange("clinicalDiagnosis", filename);
       setIsDocumentDropdownOpen(false);
-      
+
       // Set up the preview modal
       const documentUrl = `/api/doctor/patients/documents/document/${selectedPatient.id}/${filename}`;
       setPreviewDocumentUrl(documentUrl);
@@ -430,10 +431,12 @@ export default function CreatePrescription() {
           </div>
           <div className="text-right flex flex-col items-end">
             {activeClinic?.imageLink ? (
-              <img
-                src={activeClinic?.imageLink}
+              <Image
+                src={activeClinic?.imageLink || "/path/to/default-image.jpg"} // Fallback image if no imageLink
                 alt={activeClinic?.name || "Clinic Image"}
-                className="w-24 h-16 rounded-md object-cover mb-1" // Changed to rectangular dimensions with rounded corners
+                width={96} // w-24 = 96px
+                height={64} // h-16 = 64px
+                className="rounded-md object-cover mb-1"
               />
             ) : (
               <FaHospital className="text-green-500 text-4xl mb-1" />

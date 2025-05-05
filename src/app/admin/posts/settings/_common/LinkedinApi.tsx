@@ -2,44 +2,44 @@ import React, { useState } from "react";
 import AlertBanner from "./AlertBanner";
 import LinkedinApi2 from "./LinkedinApi2";
 
-interface ApiKeyPair {
-  apiKey: string;
-  apiSecret: string;
-  redirectUrl: string;
-}
+// interface ApiKeyPair {
+//   apiKey: string;
+//   apiSecret: string;
+//   redirectUrl: string;
+// }
 
 const LinkedinApi: React.FC = () => {
-  const [apiKeys, setApiKeys] = useState<ApiKeyPair[]>([
-    { apiKey: "", apiSecret: "", redirectUrl: "" },
-  ]);
+  // const [apiKeys, setApiKeys] = useState<ApiKeyPair[]>([
+  //   { apiKey: "", apiSecret: "", redirectUrl: "" },
+  // ]);
   const [authType, setAuthType] = useState("appMethod");
 
-  const handleApiKeyChange = (index: number, value: string) => {
-    const updatedKeys = [...apiKeys];
-    updatedKeys[index].apiKey = value;
-    setApiKeys(updatedKeys);
-  };
+  // const handleApiKeyChange = (index: number, value: string) => {
+  //   const updatedKeys = [...apiKeys];
+  //   updatedKeys[index].apiKey = value;
+  //   setApiKeys(updatedKeys);
+  // };
 
-  const handleApiSecretChange = (index: number, value: string) => {
-    const updatedKeys = [...apiKeys];
-    updatedKeys[index].apiSecret = value;
-    setApiKeys(updatedKeys);
-  };
+  // const handleApiSecretChange = (index: number, value: string) => {
+  //   const updatedKeys = [...apiKeys];
+  //   updatedKeys[index].apiSecret = value;
+  //   setApiKeys(updatedKeys);
+  // };
 
-  const handleRedirectUrlChange = (index: number, value: string) => {
-    const updatedKeys = [...apiKeys];
-    updatedKeys[index].redirectUrl = value;
-    setApiKeys(updatedKeys);
-  };
+  // const handleRedirectUrlChange = (index: number, value: string) => {
+  //   const updatedKeys = [...apiKeys];
+  //   updatedKeys[index].redirectUrl = value;
+  //   setApiKeys(updatedKeys);
+  // };
 
-  const removeApiKey = (index: number) => {
-    const updatedKeys = apiKeys.filter((_, i) => i !== index);
-    setApiKeys(updatedKeys);
-  };
+  // const removeApiKey = (index: number) => {
+  //   const updatedKeys = apiKeys.filter((_, i) => i !== index);
+  //   setApiKeys(updatedKeys);
+  // };
 
-  const addMore = () => {
-    setApiKeys([...apiKeys, { apiKey: "", apiSecret: "", redirectUrl: "" }]);
-  };
+  // const addMore = () => {
+  //   setApiKeys([...apiKeys, { apiKey: "", apiSecret: "", redirectUrl: "" }]);
+  // };
 
   return (
     <div className="w-full space-y-6"> {/* Added padding and space-y for overall spacing */}
