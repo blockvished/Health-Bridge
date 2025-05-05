@@ -2,7 +2,8 @@ import Cookies from "js-cookie";
 import { Upload } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { FaCheck } from "react-icons/fa";
-import { Doctor } from "./page"; 
+import { Doctor } from "./page";
+import Image from "next/image";
 
 interface UpdateInfoTabProps {
   doctor: Doctor | null;
@@ -222,11 +223,14 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
         <div className="flex flex-col items-center">
           <div className="w-32 h-32 bg-gray-100 rounded-md flex items-center justify-center mb-2 overflow-hidden cursor-pointer">
             {doctorrData.profilePreview ? (
-              <img
-                src={doctorrData.profilePreview}
-                alt="Profile Preview"
-                className="w-full h-full object-cover"
-              />
+              <div className="relative w-full h-full">
+                <Image
+                  src={doctorrData.profilePreview}
+                  alt="Profile Preview"
+                  fill
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <span className="text-sm text-gray-400">No image</span>
             )}
@@ -252,9 +256,11 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
         <div className="flex flex-col items-center">
           <div className="w-48 h-32 bg-gray-100 rounded-md flex items-center justify-center mb-2 cursor-pointer overflow-hidden">
             {doctorrData.signaturePreview ? (
-              <img
+              <Image
                 src={doctorrData.signaturePreview}
                 alt="Signature Preview"
+                width={600} // Estimated width for w-3/4 (relative widths need actual pixels for Next.js)
+                height={0} // h-auto means height should adjust automatically, so you can omit or dynamically calculate
                 className="w-3/4 h-auto object-contain"
               />
             ) : (
