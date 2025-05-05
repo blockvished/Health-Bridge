@@ -39,7 +39,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
   const profileInputRef = useRef<HTMLInputElement>(null);
   const signatureInputRef = useRef<HTMLInputElement>(null);
 
-  const [role, setRole] = useState<string | null>(null);
+  // const [role, setRole] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -47,7 +47,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
     const roleFromCookie = Cookies.get("userRole");
     const idFromCookie = Cookies.get("userId");
 
-    setRole(roleFromCookie || null);
+    // setRole(roleFromCookie || null);
     setUserId(idFromCookie || null);
   }, []);
 
@@ -207,7 +207,7 @@ const UpdateInfoTab: React.FC<UpdateInfoTabProps> = ({
 
       if (!response.ok) throw new Error("Failed to update doctor info");
 
-      const data = await response.json();
+      // const data = await response.json();
     } catch (error) {
       console.error("Error updating doctor info:", error);
     } finally {

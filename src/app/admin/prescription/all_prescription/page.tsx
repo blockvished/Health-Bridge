@@ -96,44 +96,8 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
   signatureImage,
 }) => {
   const prescriptionRef = useRef<HTMLDivElement>(null);
-
-  if (!prescription) return null;
-
-  // Set default clinic info if none provided
-  const clinicInfo = activeClinic || {
-    name: "Medical Clinic",
-    address: "Address not available",
-    imageLink: "",
-  };
-
-  const formatMedicationDosage = (dosage: MedicationDosage) => {
-    return {
-      morning: dosage.morning || "0",
-      afternoon: dosage.afternoon || "0",
-      evening: dosage.evening || "0",
-      night: dosage.night || "0",
-      mealTime: dosage.whenToTake || "After meals",
-      durationValue: dosage.howManyDaysToTakeMedication || 0,
-      durationUnit: dosage.medicationFrequecyType || "days",
-      note: dosage.note || "",
-    };
-  };
-
-  const formatMedications = (medications: Medication[]) => {
-    return medications.map((med) => ({
-      type: med.drugType || "",
-      name: med.drugName,
-      dosages: med.medicationDosage.map(formatMedicationDosage),
-    }));
-  };
-
-  const drugs = formatMedications(prescription.medication);
-  const diagnosticTests = prescription.diagnosisTests || "";
-  const advices = prescription.advice || "";
-  const notes = prescription.prescriptionNotes || "";
-  const nextFollowUp = prescription.nextFollowUp || "";
-  const followUpDuration = prescription.nextFollowUpType || "days";
-
+  
+  // Move hook to top level - always call it regardless of prescription value
   const handlePrint = useReactToPrint({
     documentTitle: "Prescription",
     onBeforePrint: async () => {
@@ -173,6 +137,43 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
     },
     contentRef: prescriptionRef,
   });
+
+  if (!prescription) return null;
+
+  // Set default clinic info if none provided
+  const clinicInfo = activeClinic || {
+    name: "Medical Clinic",
+    address: "Address not available",
+    imageLink: "",
+  };
+
+  const formatMedicationDosage = (dosage: MedicationDosage) => {
+    return {
+      morning: dosage.morning || "0",
+      afternoon: dosage.afternoon || "0",
+      evening: dosage.evening || "0",
+      night: dosage.night || "0",
+      mealTime: dosage.whenToTake || "After meals",
+      durationValue: dosage.howManyDaysToTakeMedication || 0,
+      durationUnit: dosage.medicationFrequecyType || "days",
+      note: dosage.note || "",
+    };
+  };
+
+  const formatMedications = (medications: Medication[]) => {
+    return medications.map((med) => ({
+      type: med.drugType || "",
+      name: med.drugName,
+      dosages: med.medicationDosage.map(formatMedicationDosage),
+    }));
+  };
+
+  const drugs = formatMedications(prescription.medication);
+  const diagnosticTests = prescription.diagnosisTests || "";
+  const advices = prescription.advice || "";
+  const notes = prescription.prescriptionNotes || "";
+  const nextFollowUp = prescription.nextFollowUp || "";
+  const followUpDuration = prescription.nextFollowUpType || "days";
 
   return (
     <div className="bg-opacity-50 bg-gray-100 flex justify-center items-start z-50 overflow-y-auto min-h-screen w-full">
@@ -421,15 +422,6 @@ export default function Prescriptions() {
 
         if (response.ok) {
           const data = await response.json();
-          let metemeta;
-          if (data.metaTags) {
-            if (Array.isArray(data.metaTags)) {
-              const tags = data.metaTags.map(
-                (tagObj: { tag: string }) => tagObj.tag
-              );
-              metemeta = tags;
-            }
-          }
           if (data.doctor) {
             setDoctorData({
               name: data.doctor.name || "",
@@ -491,21 +483,15 @@ export default function Prescriptions() {
 
         if (matchedClinic) {
           setActiveClinic(matchedClinic);
-          console.log("Active clinic updated:", matchedClinic.name);
         } else {
           // If stored clinic ID doesn't match any clinic, fallback to first one
           setActiveClinic(allClinics[0]);
           Cookies.set("currentClinicId", String(allClinics[0].id));
-          console.log(
-            "Stored clinic not found, using default:",
-            allClinics[0].name
-          );
         }
       } else if (allClinics.length > 0) {
         // No stored clinic ID, use first one
         setActiveClinic(allClinics[0]);
         Cookies.set("currentClinicId", String(allClinics[0].id));
-        console.log("No stored clinic, using default:", allClinics[0].name);
       }
     };
 
@@ -527,10 +513,14 @@ export default function Prescriptions() {
         } else {
           setError("Invalid data format received from the API.");
         }
-      } catch (err: any) {
-        setError(
-          err.message || "An error occurred while fetching prescriptions."
-        );
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(
+            err.message || "An error occurred while fetching prescriptions."
+          );
+        } else {
+          setError("An unknown error occurred while fetching prescriptions.");
+        }
       } finally {
         setLoading(false);
       }
@@ -560,10 +550,14 @@ export default function Prescriptions() {
           prevPrescriptions.filter((prescription) => prescription.id !== id)
         );
         alert(`Prescription with ID ${id} deleted successfully.`);
-      } catch (err: any) {
-        setError(
-          err.message || "An error occurred while deleting the prescription."
-        );
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(
+            err.message || "An error occurred while deleting the prescription."
+          );
+        } else {
+          setError("An unknown error occurred while fetching prescriptions.");
+        }
       }
     }
   };

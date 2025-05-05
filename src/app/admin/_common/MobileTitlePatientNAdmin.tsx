@@ -12,9 +12,9 @@ const MobileTitle = () => {
   const router = useRouter();
 
   // Toggle popup function
-  const togglePopup = () => {
-    setShowPopup((prev) => !prev);
-  };
+  // const togglePopup = () => {
+  //   setShowPopup((prev) => !prev);
+  // };
 
   // Close popup function
   const closePopup = () => {

@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const pathname = usePathname();
 
   const [userId, setUserId] = useState<string | null>(null);
-  const [clinicsData, setClinicsData] = useState<Clinic[]>([]);
+  // const [clinicsData, setClinicsData] = useState<Clinic[]>([]);
   const [activeClinicName, setActiveClinicName] = useState<string | null>(null);
   const [activeClinicThumb, setActiveClinicThumb] = useState<string>(temp);
 
@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           }
           const data = await response.json();
           console.log("Fetched clinics:", data);
-          setClinicsData(data);
+          // setClinicsData(data);
 
           // If clinics exist, check and potentially update the stored clinic ID
           if (data && data.length > 0) {
@@ -101,8 +101,13 @@ const Sidebar: React.FC<SidebarProps> = ({
               console.log("Current clinic ID is valid:", currentClinicId);
             }
           }
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error("Error fetching clinics:", err);
+          if (err instanceof Error) {
+            console.error("Error message:", err.message);
+          } else {
+            console.error("An unknown error occurred.");
+          }
         }
       }
     };
