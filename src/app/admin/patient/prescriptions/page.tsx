@@ -6,7 +6,7 @@ import { FaEye, FaPrint, FaHospital } from "react-icons/fa";
 import { format, parseISO } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { useReactToPrint } from "react-to-print";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 import Image from "next/image";
 
 interface User {
@@ -77,6 +77,15 @@ interface PrescriptionPreviewProps {
   clinic: Clinic;
 }
 
+export interface Doctor {
+  name: string;
+  email: string;
+  phone: string;
+  specialization: string;
+  degree: string;
+  signatureImage: string;
+}
+
 // Preview Modal Component
 const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
   prescription,
@@ -85,37 +94,8 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
   clinic,
 }) => {
   const prescriptionRef = useRef<HTMLDivElement>(null);
-
-  if (!prescription) return null;
-
-  const formatMedicationDosage = (dosage: MedicationDosage) => {
-    return {
-      morning: dosage.morning || "0",
-      afternoon: dosage.afternoon || "0",
-      evening: dosage.evening || "0",
-      night: dosage.night || "0",
-      mealTime: dosage.whenToTake || "After meals",
-      durationValue: dosage.howManyDaysToTakeMedication || 0,
-      durationUnit: dosage.medicationFrequecyType || "days",
-      note: dosage.note || "",
-    };
-  };
-
-  const formatMedications = (medications: Medication[]) => {
-    return medications.map((med) => ({
-      type: med.drugType || "",
-      name: med.drugName,
-      dosages: med.medicationDosage.map(formatMedicationDosage),
-    }));
-  };
-
-  const drugs = formatMedications(prescription.medication);
-  const diagnosticTests = prescription.diagnosisTests || "";
-  const advices = prescription.advice || "";
-  const notes = prescription.prescriptionNotes || "";
-  const nextFollowUp = prescription.nextFollowUp || "";
-  const followUpDuration = prescription.nextFollowUpType || "days";
-
+  
+  // Move the useReactToPrint hook to the top level, before any conditionals
   const handlePrint = useReactToPrint({
     documentTitle: "Prescription",
     onBeforePrint: async () => {
@@ -155,6 +135,36 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
     },
     contentRef: prescriptionRef,
   });
+
+  if (!prescription) return null;
+
+  const formatMedicationDosage = (dosage: MedicationDosage) => {
+    return {
+      morning: dosage.morning || "0",
+      afternoon: dosage.afternoon || "0",
+      evening: dosage.evening || "0",
+      night: dosage.night || "0",
+      mealTime: dosage.whenToTake || "After meals",
+      durationValue: dosage.howManyDaysToTakeMedication || 0,
+      durationUnit: dosage.medicationFrequecyType || "days",
+      note: dosage.note || "",
+    };
+  };
+
+  const formatMedications = (medications: Medication[]) => {
+    return medications.map((med) => ({
+      type: med.drugType || "",
+      name: med.drugName,
+      dosages: med.medicationDosage.map(formatMedicationDosage),
+    }));
+  };
+
+  const drugs = formatMedications(prescription.medication);
+  const diagnosticTests = prescription.diagnosisTests || "";
+  const advices = prescription.advice || "";
+  const notes = prescription.prescriptionNotes || "";
+  const nextFollowUp = prescription.nextFollowUp || "";
+  const followUpDuration = prescription.nextFollowUpType || "days";
 
   return (
     <div className="bg-opacity-50 bg-gray-100 flex justify-center items-start z-50 overflow-y-auto min-h-screen w-full">
@@ -342,7 +352,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
                   {doctor.signatureImage ? (
                     <Image
                       src={doctor.signatureImage}
-                      alt={`${"doctorName"}'s signature`}
+                      alt={`${doctor.name}'s signature`}
                       width={200}
                       height={64} // h-16 = 64px
                       className="inline-block mb-2"
@@ -366,65 +376,19 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
   );
 };
 
-export interface Doctor {
-  name: string;
-  email: string;
-  phone: string;
-  specialization: string;
-  degree: string;
-  signatureImage: string;
-}
-
 export default function Prescriptions() {
   // const router = useRouter();
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPrescription, setSelectedPrescription] =
-    useState<Prescription | null>(null);
+  const [selectedPrescription, setSelectedPrescription] = useState<Prescription | null>(null);
   const [showPreview, setShowPreview] = useState(false);
-  const [doctorData, setDoctorData] = useState<Doctor | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  // const [userId, setUserId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const idFromCookie = Cookies.get("userId");
-    setUserId(idFromCookie || null);
-  }, []);
-
-  // Doctor info fetch
-  useEffect(() => {
-    const fetchDoctorData = async () => {
-      if (!userId) return;
-
-      try {
-        const response = await fetch(`/api/patient/prescriptions`, {
-          method: "GET",
-          credentials: "include",
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-
-          if (data.doctor) {
-            setDoctorData({
-              name: data.doctor.name || "",
-              email: data.doctor.email || "",
-              phone: data.doctor.phone || "",
-              specialization: data.doctor.specialization || "",
-              degree: data.doctor.degree || "",
-              signatureImage: data.doctor.signature_link || "",
-            });
-          }
-        } else {
-          console.error("Failed to fetch doctor data");
-        }
-      } catch (error) {
-        console.error("Error fetching doctor data:", error);
-      }
-    };
-
-    fetchDoctorData();
-  }, [userId]);
+  // useEffect(() => {
+  //   const idFromCookie = Cookies.get("userId");
+  //   setUserId(idFromCookie || null);
+  // }, []);
 
   useEffect(() => {
     const fetchPrescriptions = async () => {
@@ -439,10 +403,9 @@ export default function Prescriptions() {
         } else {
           setError("Invalid data format received from the API.");
         }
-      } catch (err: any) {
-        setError(
-          err.message || "An error occurred while fetching prescriptions."
-        );
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "An error occurred while fetching prescriptions.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

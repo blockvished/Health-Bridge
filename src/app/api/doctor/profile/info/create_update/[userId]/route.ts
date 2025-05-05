@@ -7,6 +7,7 @@ import { Readable } from "stream";
 import { eq, and, inArray } from "drizzle-orm";
 import db from "../../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../../lib/verify";
+import { IncomingMessage } from "http"; // Import the correct type
 
 import {
   doctor,
@@ -19,7 +20,7 @@ export const config = {
   },
 };
 
-function createNodeRequest(req: NextRequest): Promise<any> {
+function createNodeRequest(req: NextRequest): Promise<IncomingMessage> {
   return new Promise(async (resolve) => {
     const arrayBuffer = await req.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -30,7 +31,7 @@ function createNodeRequest(req: NextRequest): Promise<any> {
     readable.push(null);
 
     // Build a mock IncomingMessage
-    const nodeReq: any = readable;
+    const nodeReq = readable as IncomingMessage;
     nodeReq.headers = Object.fromEntries(req.headers.entries());
     nodeReq.method = req.method;
 

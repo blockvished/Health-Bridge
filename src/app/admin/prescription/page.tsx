@@ -1,13 +1,14 @@
 "use client";
 
 import Cookies from "js-cookie";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { FaHospital, FaPlus, FaPrint } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
 import DrugEntry from "./DrugEntry";
 import { Drug } from "./DrugEntry";
 import PrescriptionPreview from "./Preview";
 import DocumentPreviewModal from "./DocumentPreviewModal";
+import Image from "next/image";
 
 export interface Doctor {
   name: string;
@@ -49,11 +50,10 @@ interface Clinic {
   location: string;
   appointmentLimit: number;
   active: boolean;
-  // Assuming your API response includes these fields
   imageLink?: string;
-  department?: string; // Add department here if it's in your API response
-  title?: string; // Add title here if it's in your API response
-  address?: string; // Add address here if it's in your API response
+  department?: string;
+  title?: string;
+  address?: string;
 }
 
 export default function CreatePrescription() {
@@ -69,108 +69,11 @@ export default function CreatePrescription() {
   const [documentFilenames, setDocumentFilenames] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
   const [isDocumentDropdownOpen, setIsDocumentDropdownOpen] = useState(false);
-  
+
   // Added state for document preview modal
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [previewDocumentUrl, setPreviewDocumentUrl] = useState("");
   const [previewFilename, setPreviewFilename] = useState("");
-
-  // if selectedPatient?.id is not null in useeffect make a get request to /api/doctor/patients/documents/[selectedPatient.id]/ which will send the list of filenames for that patient
-  useEffect(() => {
-    const fetchPatientDocuments = async () => {
-      if (selectedPatient?.id) {
-        try {
-          const response = await fetch(
-            `/api/doctor/patients/documents/${selectedPatient.id}`
-          );
-          if (!response.ok) {
-            throw new Error(`Failed to fetch documents: ${response.status}`);
-          }
-          const data: string[] = await response.json(); // Assuming the API returns an array of strings
-          setDocumentFilenames(data);
-        } catch (err: any) {
-          console.log(err);
-        }
-      } else {
-        // Clear the document list if no patient is selected
-        setDocumentFilenames([]);
-      }
-    };
-    fetchPatientDocuments();
-  }, [selectedPatient?.id]); // Dependency array: only re-run when selectedPatient.id changes
-
-  useEffect(() => {
-    const fetchClinic = async () => {
-      try {
-        if (!userId) return;
-
-        const response = await fetch(`/api/doctor/clinic/${userId}`);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.message || `Failed to fetch clinics: ${response.status}`
-          );
-        }
-
-        const data: Clinic[] = await response.json();
-        setAllClinics(data);
-      } catch (error) {
-        console.error("Error fetching clinics:", error);
-        // Optional: set an error state to display to the user
-        // setClinicError(error instanceof Error ? error.message : "Failed to fetch clinics");
-      }
-    };
-
-    fetchClinic();
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId || allClinics.length === 0) return;
-
-    const updateActiveClinic = (clinics: Clinic[] = allClinics) => {
-      const storedClinicId = Cookies.get("currentClinicId");
-
-      if (storedClinicId) {
-        const currentId = parseInt(storedClinicId, 10);
-        const matchedClinic = clinics.find((clinic) => clinic.id === currentId);
-
-        if (matchedClinic) {
-          setActiveClinic(matchedClinic);
-          console.log("Active clinic updated:", matchedClinic.name);
-        } else {
-          // If stored clinic ID doesn't match any clinic, fallback to first one
-          setActiveClinic(clinics[0]);
-          Cookies.set("currentClinicId", String(clinics[0].id));
-          console.log(
-            "Stored clinic not found, using default:",
-            clinics[0].name
-          );
-        }
-      } else if (clinics.length > 0) {
-        // No stored clinic ID, use first one
-        setActiveClinic(clinics[0]);
-        Cookies.set("currentClinicId", String(clinics[0].id));
-        console.log("No stored clinic, using default:", clinics[0].name);
-      }
-    };
-
-    // Initial update
-    updateActiveClinic();
-
-    // Set up polling for changes
-    const intervalId = setInterval(() => {
-      const storedClinicId = Cookies.get("currentClinicId");
-      const currentActiveId = activeClinic?.id;
-
-      // Only update if the cookie value changed
-      if (storedClinicId && parseInt(storedClinicId, 10) !== currentActiveId) {
-        updateActiveClinic();
-      }
-    }, 30000);
-
-    return () => clearInterval(intervalId);
-  }, [userId, allClinics]);
 
   const [prescription, setPrescription] = useState<PrescriptionState>({
     patient: "",
@@ -207,30 +110,8 @@ export default function CreatePrescription() {
     setUserId(idFromCookie || null);
   }, []);
 
-  useEffect(() => {
-    fetchPatients();
-  }, [userId]);
-
-  useEffect(() => {
-    console.log(prescription.drugs);
-  }, [prescription]);
-
-  useEffect(() => {
-    // Handle clicks outside of the patient dropdown
-    const handleOutsideClick = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (searchRef.current && !searchRef.current.contains(target)) {
-        setIsPatientDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
-  }, []);
-
-  const fetchPatients = async () => {
+  // Use useCallback to memoize the fetchPatients function
+  const fetchPatients = useCallback(async () => {
     if (!userId) return;
 
     try {
@@ -252,7 +133,127 @@ export default function CreatePrescription() {
     } catch (err) {
       console.error("Error fetching patients data:", err);
     }
-  };
+  }, [userId]); // Only recreate when userId changes
+
+  // Now fetchPatients is stable between renders as long as userId doesn't change
+  useEffect(() => {
+    fetchPatients();
+  }, [fetchPatients]); // This dependency is now stable
+
+  // Fetch patient documents when selectedPatient changes
+  useEffect(() => {
+    const fetchPatientDocuments = async () => {
+      if (selectedPatient?.id) {
+        try {
+          const response = await fetch(
+            `/api/doctor/patients/documents/${selectedPatient.id}`
+          );
+          if (!response.ok) {
+            throw new Error(`Failed to fetch documents: ${response.status}`);
+          }
+          const data: string[] = await response.json();
+          setDocumentFilenames(data);
+        } catch (err: unknown) {
+          console.log(err);
+        }
+      } else {
+        setDocumentFilenames([]);
+      }
+    };
+    fetchPatientDocuments();
+  }, [selectedPatient?.id]);
+
+  // Fetch clinics when userId changes
+  useEffect(() => {
+    const fetchClinic = async () => {
+      try {
+        if (!userId) return;
+
+        const response = await fetch(`/api/doctor/clinic/${userId}`);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.message || `Failed to fetch clinics: ${response.status}`
+          );
+        }
+
+        const data: Clinic[] = await response.json();
+        setAllClinics(data);
+      } catch (error) {
+        console.error("Error fetching clinics:", error);
+      }
+    };
+
+    fetchClinic();
+  }, [userId]);
+
+  // Update active clinic when allClinics or userId changes
+  useEffect(() => {
+    if (!userId || allClinics.length === 0) return;
+
+    const updateActiveClinic = () => {
+      const storedClinicId = Cookies.get("currentClinicId");
+
+      if (storedClinicId) {
+        const currentId = parseInt(storedClinicId, 10);
+        const matchedClinic = allClinics.find((clinic) => clinic.id === currentId);
+
+        if (matchedClinic) {
+          setActiveClinic(matchedClinic);
+          console.log("Active clinic updated:", matchedClinic.name);
+        } else {
+          // If stored clinic ID doesn't match any clinic, fallback to first one
+          setActiveClinic(allClinics[0]);
+          Cookies.set("currentClinicId", String(allClinics[0].id));
+          console.log(
+            "Stored clinic not found, using default:",
+            allClinics[0].name
+          );
+        }
+      } else if (allClinics.length > 0) {
+        // No stored clinic ID, use first one
+        setActiveClinic(allClinics[0]);
+        Cookies.set("currentClinicId", String(allClinics[0].id));
+        console.log("No stored clinic, using default:", allClinics[0].name);
+      }
+    };
+
+    // Initial update
+    updateActiveClinic();
+
+    // Set up polling for changes
+    const intervalId = setInterval(() => {
+      const storedClinicId = Cookies.get("currentClinicId");
+      const currentActiveId = activeClinic?.id;
+
+      // Only update if the cookie value changed
+      if (storedClinicId && parseInt(storedClinicId, 10) !== currentActiveId) {
+        updateActiveClinic();
+      }
+    }, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [userId, allClinics, activeClinic?.id]);
+
+  useEffect(() => {
+    console.log(prescription.drugs);
+  }, [prescription]);
+
+  useEffect(() => {
+    // Handle clicks outside of the patient dropdown
+    const handleOutsideClick = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (searchRef.current && !searchRef.current.contains(target)) {
+        setIsPatientDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchDoctorData = async () => {
@@ -266,15 +267,6 @@ export default function CreatePrescription() {
 
         if (response.ok) {
           const data = await response.json();
-          let metemeta;
-          if (data.metaTags) {
-            if (Array.isArray(data.metaTags)) {
-              const tags = data.metaTags.map(
-                (tagObj: { tag: string }) => tagObj.tag
-              );
-              metemeta = tags;
-            }
-          }
           if (data.doctor) {
             setDoctorData({
               name: data.doctor.name || "",
@@ -370,7 +362,7 @@ export default function CreatePrescription() {
       // Set the selected document as the clinical diagnosis
       handleInputChange("clinicalDiagnosis", filename);
       setIsDocumentDropdownOpen(false);
-      
+
       // Set up the preview modal
       const documentUrl = `/api/doctor/patients/documents/document/${selectedPatient.id}/${filename}`;
       setPreviewDocumentUrl(documentUrl);
@@ -430,10 +422,12 @@ export default function CreatePrescription() {
           </div>
           <div className="text-right flex flex-col items-end">
             {activeClinic?.imageLink ? (
-              <img
-                src={activeClinic?.imageLink}
-                alt={activeClinic?.name || "Clinic Image"}
-                className="w-24 h-16 rounded-md object-cover mb-1" // Changed to rectangular dimensions with rounded corners
+              <Image
+                src={activeClinic.imageLink || "/path/to/default-image.jpg"} 
+                alt={activeClinic.name || "Clinic Image"}
+                width={96}
+                height={64}
+                className="rounded-md object-cover mb-1"
               />
             ) : (
               <FaHospital className="text-green-500 text-4xl mb-1" />
@@ -455,10 +449,10 @@ export default function CreatePrescription() {
                   <input
                     className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
                     value={prescription.clinicalDiagnosis}
-                    readOnly // Make input read-only
+                    readOnly
                     onClick={() =>
                       setIsDocumentDropdownOpen(!isDocumentDropdownOpen)
-                    } // Open dropdown on click
+                    }
                   />
                   {isDocumentDropdownOpen && (
                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
