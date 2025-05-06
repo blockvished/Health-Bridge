@@ -22,11 +22,17 @@ type PermissionType = {
   description: string | null;
 };
 
+type ClinicData = {
+  id: string;
+  name: string;
+  // Add other properties as needed
+};
+
 interface StaffFormProps {
   onBack: () => void;
   onStaffUpdated?: () => void;
   rolePermissions: PermissionType[];
-  clinicsData: any[];
+  clinicsData: ClinicData[];
   initialStaffData?: StaffMember | null;
 }
 
@@ -361,13 +367,10 @@ const StaffPage: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [clinicsData, setClinicsData] = useState<any[]>([]);
+  const [clinicsData, setClinicsData] = useState<ClinicData[]>([]);
 
-  useEffect(() => {
-    fetchClinics();
-  }, [userId]);
-
-  const fetchClinics = async () => {
+  // Fetch clinics data - using useCallback to prevent recreation on each render
+  const fetchClinics = React.useCallback(async () => {
     if (userId) {
       setLoading(true);
       setError(null);
@@ -392,25 +395,46 @@ const StaffPage: React.FC = () => {
         setLoading(false);
       }
     }
-  };
+  }, [userId]);
+
+  // Fetch staff data - using useCallback to prevent recreation on each render
+  const fetchStaff = React.useCallback(async () => {
+    if (!userId) return;
+    
+    try {
+      const res = await fetch(`/api/doctor/staff/${userId}`);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data: StaffMember[] = await res.json();
+      console.log(data);
+      setStaffMembers(data);
+    } catch (error) {
+      console.error("Error fetching staff:", error);
+    }
+  }, [userId]);
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
   }, []);
 
+  // Effect to fetch clinics when userId changes
   useEffect(() => {
     if (userId) {
       fetchClinics();
       fetchRolePermissions();
     }
-  }, [userId]);
+  }, [userId, fetchClinics]);
 
+  // Effect to fetch staff when relevant states change
   useEffect(() => {
     if (userId) {
       fetchStaff();
     }
-  }, [userId, showAddStaff, showEditStaff]); // Re-fetch on state changes
+    // We intentionally don't include fetchStaff in the dependency array
+    // as it would cause an infinite loop
+  }, [userId, fetchStaff, showAddStaff, showEditStaff]);
 
   const fetchRolePermissions = async () => {
     setError(null);
@@ -435,7 +459,6 @@ const StaffPage: React.FC = () => {
       } else {
         setError(String(err)); // Fallback if it's not an Error
       }
-    } finally {
     }
   };
 
@@ -447,20 +470,6 @@ const StaffPage: React.FC = () => {
   const handleCloseDeleteModal = () => {
     setDeleteStaffId(null);
     setIsDeleteModalOpen(false);
-  };
-
-  const fetchStaff = async () => {
-    try {
-      const res = await fetch(`/api/doctor/staff/${userId}`);
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      const data: StaffMember[] = await res.json();
-      console.log(data);
-      setStaffMembers(data);
-    } catch (error) {
-      console.error("Error fetching staff:", error);
-    }
   };
 
   const handleDeleteStaff = async () => {

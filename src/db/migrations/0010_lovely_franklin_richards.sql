@@ -1,1 +1,0 @@
-ALTER TABLE "doctor_consultation" ADD COLUMN "is_live_consultation_enabled" boolean DEFAULT false;

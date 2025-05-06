@@ -49,3 +49,8 @@ select * from permission_types;
 
 / contact of doctor is remaining and etc
 / strong password validation in confirm password as well
+
+
+psql -U <username> -d <dbname> -W
+-d postgres: connect to the postgres database (or another DB you specify)
+-W: forces password prompt

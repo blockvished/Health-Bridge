@@ -136,8 +136,8 @@ const DashboardSummaryCards: React.FC = () => {
       />
       <SummaryCard
         title="Total Appointments"
-        // count={dashboardData?.allAppointmentsCount}
-        count={154}
+        count={dashboardData?.allAppointmentsCount}
+        // count={154}
         icon={
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -183,8 +183,8 @@ const DashboardSummaryCards: React.FC = () => {
       />
       <SummaryCard
         title="Patients"
-        // count={dashboardData?.patientsCount}
-        count={298}
+        count={dashboardData?.patientsCount}
+        // count={298}
         icon={
           <svg
             xmlns="http://www.w3.org/2000/svg"

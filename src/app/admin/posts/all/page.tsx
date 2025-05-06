@@ -2,12 +2,12 @@
 
 import React from 'react';
 import AllPosts from '../all/AllPosts';
-import Layout from '../layout';
+import PageWrapper from "../PageWrapper";  // Update import path as needed
 import Link from 'next/link'; // Import Link
 
 export default function ReportsPage() {
   return (
-    <Layout
+    <PageWrapper
       title="Multi Posting"
       button={
         <Link href="/admin/posts/add-new" className="bg-blue-500 text-white p-2 rounded">
@@ -16,6 +16,6 @@ export default function ReportsPage() {
       }
     >
       <AllPosts />
-    </Layout>
+    </PageWrapper>
   );
 }
