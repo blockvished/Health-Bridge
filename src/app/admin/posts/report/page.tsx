@@ -2,12 +2,13 @@
 
 import React from 'react';
 import Report from '../report/Report';
-import Layout from '../layout';
+import PageWrapper from "../PageWrapper";  // Update import path as needed
+
 
 export default function ReportsPage() {
   return (
-    <Layout title="Reports"> {/* Pass title to Layout */}
+    <PageWrapper title="Reports"> {/* Pass title to Layout */}
       <Report /> {/* No extra div here */}
-    </Layout>
+    </PageWrapper>
   );
 }

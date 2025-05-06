@@ -1,12 +1,14 @@
+// page.tsx
+
 import React from "react";
 import Link from "next/link";
 import AddNew from "../add-new/AddNew";
-import Layout from "../layout";
+import PageWrapper from "../PageWrapper";  // Update import path as needed
 
 export default function AddNewPage() {
   return (
-    <Layout
-      pageTitle="Multi Posting" 
+    <PageWrapper
+      title="Multi Posting"
       button={
         <Link
           href="/admin/posts/all"
@@ -17,6 +19,6 @@ export default function AddNewPage() {
       }
     >
       <AddNew />
-    </Layout>
+    </PageWrapper>
   );
 }

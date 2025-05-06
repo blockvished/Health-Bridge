@@ -2,12 +2,13 @@
 
 import React from 'react';
 import Main from '../settings/main';
-import Layout from '../layout';
+import PageWrapper from "../PageWrapper";  // Update import path as needed
+
 
 export default function ReportsPage() {
   return (
-    <Layout title="Settings"> {/* Pass title to Layout */}
+    <PageWrapper title="Settings"> {/* Pass title to Layout */}
       <Main /> {/* No extra div here */}
-    </Layout>
+    </PageWrapper>
   );
 }
