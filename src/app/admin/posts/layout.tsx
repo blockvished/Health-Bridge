@@ -1,20 +1,18 @@
-// layout.tsx
-
-import React, { ReactNode, ReactElement } from 'react';
+import React, { ReactNode } from 'react';
 
 interface LayoutProps {
   children: ReactNode;
-  title?: string;
-  button?: ReactElement;
+  pageTitle?: string;
+  button?: ReactNode;
 }
 
-export default function Layout({ children, title, button }: LayoutProps) {
+export default function Layout({ children, pageTitle, button }: LayoutProps) {
   return (
     <div className="flex flex-col min-h-screen">
-      {title && (
-        <header className="bg-white-500 text-blue p-4 mt-0 flex items-center justify-between"> 
-          <h1 className="text-xl font-semibold">{title}</h1>
-          {button && button} 
+      {pageTitle && (
+        <header className="flex justify-between items-center p-4 bg-white shadow">
+          <h1 className="text-2xl font-bold">{pageTitle}</h1>
+          {button && <div>{button}</div>}
         </header>
       )}
       <main className="flex-grow">

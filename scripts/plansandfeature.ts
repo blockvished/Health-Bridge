@@ -1,5 +1,5 @@
-import { plans, planFeatures } from "./src/db/schema";
-import { db } from "./src/db/db";
+import { plans, planFeatures } from "../src/db/schema";
+import { db } from "../src/db/db";
 
 const basicFeaturesList = [
   "Online Appointment Booking",

@@ -6,7 +6,7 @@ import Layout from "../layout";
 export default function AddNewPage() {
   return (
     <Layout
-      title="Multi Posting"
+      pageTitle="Multi Posting" 
       button={
         <Link
           href="/admin/posts/all"

@@ -19,6 +19,13 @@ const MobileTitle = () => {
     setShowPopup(false);
   };
 
+  // Handle clinic change
+  const handleClinicChange = (clinicId: string) => {
+    // Implement your clinic change logic here
+    console.log("Clinic changed to:", clinicId);
+    closePopup(); // Usually you'd want to close the popup after selection
+  };
+
   // Handle clicks outside the popup
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -81,7 +88,11 @@ const MobileTitle = () => {
       </div>
       {showPopup && (
         <div ref={popupRef}>
-          <LeftPopup onClose={closePopup} isMobile={true} />
+          <LeftPopup 
+            onClose={closePopup} 
+            isMobile={true} 
+            onClinicChange={handleClinicChange}
+          />
         </div>
       )}
     </>

@@ -100,7 +100,7 @@ interface PatientFormProps {
   editingPatient?: Patient | null;
 }
 
-export const PatientForm: React.FC<PatientFormProps> = ({
+const PatientForm: React.FC<PatientFormProps> = ({
   onBack,
   onPatientAdded,
   editingPatient = null,
@@ -607,6 +607,7 @@ const PatientsTable: React.FC<{
 const Patients: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [refreshCounter, setRefreshCounter] = useState(0);
+  // cons
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
 
   const handleRefresh = () => {

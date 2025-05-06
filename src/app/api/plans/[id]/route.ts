@@ -22,9 +22,10 @@ interface PlanUpdateData {
 // PUT handler for updating a plan
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
 ) {
-  const planId = parseInt(params.id, 10);
+  // Extract ID from the URL path
+  const id = request.nextUrl.pathname.split('/').pop();
+  const planId = parseInt(id || '', 10);
 
   if (isNaN(planId)) {
     return NextResponse.json(
@@ -120,9 +121,10 @@ export async function PUT(
 // PATCH handler for updating plan status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
 ) {
-  const planId = parseInt(params.id, 10);
+  // Extract ID from the URL path
+  const id = request.nextUrl.pathname.split('/').pop();
+  const planId = parseInt(id || '', 10);
 
   if (isNaN(planId)) {
     return NextResponse.json(
