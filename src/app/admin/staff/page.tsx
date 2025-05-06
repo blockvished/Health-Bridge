@@ -434,7 +434,7 @@ const StaffPage: React.FC = () => {
     }
     // We intentionally don't include fetchStaff in the dependency array
     // as it would cause an infinite loop
-  }, [userId, showAddStaff, showEditStaff]);
+  }, [userId, fetchStaff, showAddStaff, showEditStaff]);
 
   const fetchRolePermissions = async () => {
     setError(null);

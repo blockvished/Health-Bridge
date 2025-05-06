@@ -1,6 +1,6 @@
 import { extname } from "path";
 import { NextRequest, NextResponse } from "next/server";
-import * as fs from "fs"; // Use the standard 'fs' import
+import * as fs from "fs"; 
 import path from "path";
 import { eq } from "drizzle-orm";
 import db from "../../../../../db/db";
@@ -59,10 +59,6 @@ export async function GET(req: NextRequest) {
     console.log(clinicsData);
 
     if (!clinicsData.length) {
-      //   return NextResponse.json(
-      //     { error: "No clinics found for this doctor." },
-      //     { status: 404 }
-      //   );
       return NextResponse.json([], { status: 200 });
     }
 
@@ -98,6 +94,11 @@ async function blobToBuffer(blob: Blob): Promise<Buffer> {
     const text = await blob.text();
     return Buffer.from(text);
   }
+}
+
+// Interface for File-like objects to replace 'any'
+interface FormDataFile extends Blob {
+  name?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -150,7 +151,7 @@ export async function POST(req: NextRequest) {
     const department = formData.get("department") as string;
     const appointmentLimitStr = formData.get("appointmentLimit") as string;
     const address = formData.get("address") as string;
-    const imageFile = formData.get("logo") as Blob | null;
+    const imageFile = formData.get("logo") as FormDataFile | null;
 
     // 3. Validation
     if (!name || !address) {
@@ -164,8 +165,8 @@ export async function POST(req: NextRequest) {
 
     if (imageFile) {
       // Safely get the filename
-      const originalFileName = (imageFile as any).name;
-      const fileExtension = extname(originalFileName || "") || ".png";
+      const originalFileName = imageFile.name || "";
+      const fileExtension = extname(originalFileName) || ".png";
       const safeName = slugify(name);
       const uniqueFilename = `${safeName}${fileExtension}`;
       const uploadDir = path.join(
@@ -266,6 +267,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
+
 export async function DELETE(req: NextRequest) {
   // Get ID from URL
   const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
