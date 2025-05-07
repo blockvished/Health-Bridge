@@ -6,6 +6,7 @@
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
+    "start:prod": "next start -p 3000",
     "lint": "next lint",
     "db:gen": "drizzle-kit generate",
     "db:migrate": "node -r dotenv/config src/db/migrate.js",

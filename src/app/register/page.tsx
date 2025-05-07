@@ -97,7 +97,7 @@ const Signup = () => {
         );
         // Optionally redirect the user after a short delay
         setTimeout(() => {
-          window.location.href = "/login"; // Replace with your login page URL
+          window.location.href = "/"; // Replace with your login page URL
         }, 1000);
       } else {
         setError(data.message || "Registration failed. Please try again.");
@@ -299,7 +299,7 @@ const Signup = () => {
             </button>
             <p className="mt-2 text-center text-sm text-gray-600">
               Already have an account?{" "}
-              <Link href="/login" className="text-blue-500 font-medium">
+              <Link href="/" className="text-blue-500 font-medium">
                 Sign In
               </Link>
             </p>
