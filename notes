@@ -54,3 +54,7 @@ select * from permission_types;
 psql -U <username> -d <dbname> -W
 -d postgres: connect to the postgres database (or another DB you specify)
 -W: forces password prompt
+
+
+// after signup it should also create a doctor
+// middleware and logout
