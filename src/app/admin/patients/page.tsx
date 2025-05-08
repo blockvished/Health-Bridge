@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { FiEdit, FiEye, FiSave, FiTrash2, FiX } from "react-icons/fi";
+import { FiEdit, FiSave, FiTrash2, FiX } from "react-icons/fi";
 import { LuMenu, LuPlus } from "react-icons/lu";
 import Cookies from "js-cookie";
 
