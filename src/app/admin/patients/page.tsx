@@ -550,7 +550,7 @@ const PatientsTable: React.FC<{
             <th className="p-3 font-medium text-left">Age</th>
             <th className="p-3 font-medium text-left">Phone</th>
             <th className="p-3 font-medium text-left">Abha Id</th>
-            <th className="p-3 font-medium text-left">Prescriptions</th>
+            {/* <th className="p-3 font-medium text-left">Prescriptions</th> */}
             <th className="p-3 font-medium text-left">Actions</th>
           </tr>
         </thead>
@@ -566,11 +566,11 @@ const PatientsTable: React.FC<{
               <td className="p-3 text-gray-700">{patient.age}</td>
               <td className="p-3 text-gray-700">{patient.phone}</td>
               <td className="p-3 text-gray-700">{patient.abha_id || "-"}</td>
-              <td className="p-3">
+              {/* <td className="p-3">
                 <button className="bg-blue-100 text-blue-600 px-3 py-1 rounded-md text-sm flex items-center gap-1 cursor-pointer">
                   <FiEye /> View
                 </button>
-              </td>
+              </td> */}
               <td className="p-3 flex gap-2">
                 <button
                   className="p-2 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8 cursor-pointer"
