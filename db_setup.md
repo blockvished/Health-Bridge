@@ -47,3 +47,20 @@ sudo ufw allow from 69.62.79.66 to any port 5432
 npm run db:gen
 npm run db:migrate
 
+# to expose the db
+sudo nano /etc/postgresql/16/main/postgresql.conf # listen_addresses = '*'
+sudo ufw allow 5432/tcp or sudo ufw allow from 69.62.79.66 to any port 5432
+
+add
+hostssl all all 69.62.79.66/32 scram-sha-256
+in
+sudo nano /etc/postgresql/16/main/pg_hba.conf
+
+and restart postgres with ip address change in .env
+sudo systemctl restart postgresql
+
+# misc
+
+host    live_db         livedoctor        69.62.79.66/32        scram-sha-256
+hostssl live_db         livedoctor        69.62.79.66/32        scram-sha-256
+hostssl live_db         livedoctor        182.48.224.12/32      scram-sha-256
