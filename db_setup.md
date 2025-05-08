@@ -27,8 +27,8 @@ npm run  build # should be done after entering .env
 # install pm2 and run the nextjs project
 sudo npm install -g pm2
 pm2 start npm --name "live_doctor" -- run start:prod
-sudo pm2 startup
-sudo pm2 save
+pm2 startup
+pm2 save
 
 # next step is nginx, and ssl is preconfigured as i was told
 sudo nano /etc/nginx/sites-available/app.livedoctors24.com
@@ -64,3 +64,6 @@ sudo systemctl restart postgresql
 host    live_db         livedoctor        69.62.79.66/32        scram-sha-256
 hostssl live_db         livedoctor        69.62.79.66/32        scram-sha-256
 hostssl live_db         livedoctor        182.48.224.12/32      scram-sha-256
+
+# very important
+npx ts-node ./scripts/plansandfeature.ts
