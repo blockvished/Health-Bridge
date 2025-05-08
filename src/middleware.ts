@@ -76,7 +76,7 @@ export async function middleware(req: NextRequest) {
 
   if (!JWT_SECRET) {
     console.error("JWT_SECRET is not defined");
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/register", req.url));
   }
 
   if (!token) {
@@ -115,7 +115,7 @@ export async function middleware(req: NextRequest) {
     const isPatientRoute = PATIENT_ONLY_ROUTES.includes(pathname);
 
     // If a logged-in user accesses login/register, redirect to default route
-    if (pathname === "/" || pathname === "/register") {
+    if (pathname === "/register") {
       const redirectTo = DEFAULT_REDIRECT[role];
       return NextResponse.redirect(new URL(redirectTo, req.url));
     }
@@ -132,10 +132,10 @@ export async function middleware(req: NextRequest) {
     return res;
   } catch (err) {
     console.error("JWT verification failed:", err);
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/register", req.url));
   }
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/", "/register"],
+  matcher: ["/admin/:path*", "/register"],
 };
