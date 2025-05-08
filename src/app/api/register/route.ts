@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { registerUser } from "../../lib/auth"; // Adjust the import path
-import { userRoleEnum } from "../../../db/schema";
+import { userRoleEnum, doctor } from "../../../db/schema";
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { InferInsertModel } from "drizzle-orm";
+
+// Define the type for the doctor insert
+type NewDoctor = InferInsertModel<typeof doctor>;
 
 export async function POST(request: Request) {
   try {
@@ -21,8 +27,39 @@ export async function POST(request: Request) {
     );
 
     if (registrationResult.success) {
+      // If user registration was successful and role is doctor, create doctor entry
+      if (role === "doctor" && registrationResult.user && registrationResult.user.id) {
+        const connectionString = process.env.DATABASE_URL;
+        if (!connectionString) {
+          throw new Error("DATABASE_URL is not set in environment variables.");
+        }
+        
+        const sql = postgres(connectionString, { max: 1 });
+        const db = drizzle(sql);
+        
+        // Create new doctor entry with user ID
+        const newDoctor: NewDoctor = {
+          userId: registrationResult.user.id,
+          name: name,
+          email: email,
+          phone: phone || null,
+        };
+        
+        try {
+          await db.insert(doctor).values(newDoctor);
+          console.log("Doctor record created successfully");
+        } catch (error) {
+          console.error("Error creating doctor record:", error);
+          // Note: We still return success even if doctor creation fails
+          // You could change this behavior if needed
+        }
+      }
+      
       return NextResponse.json(
-        { message: registrationResult.message },
+        { 
+          message: registrationResult.message,
+          user: registrationResult.user // Return the user data including ID
+        },
         { status: 201 }
       );
     } else {
@@ -40,9 +77,9 @@ export async function POST(request: Request) {
       errorMessage = error;
     }
   
-    console.error("Registration error details:", errorMessage); // It's good to log the detailed message
+    console.error("Registration error details:", errorMessage);
     return NextResponse.json(
-      { error: errorMessage }, // Use the specific errorMessage
+      { error: errorMessage },
       { status: 500 }
     );
   }

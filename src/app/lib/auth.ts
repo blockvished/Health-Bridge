@@ -2,8 +2,9 @@ import { hash } from "argon2";
 import crypto from "crypto";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { users, UserRole } from "../../db/schema"; // Import the enum
+import { users, UserRole } from "../../db/schema";
 import { InferInsertModel } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 // Define the expected type for the insert values
 type NewUser = InferInsertModel<typeof users>;
@@ -35,12 +36,43 @@ async function registerUser(
       phone,
       password_hash: passwordHash,
       salt,
-      role: role, // 'role' is now correctly typed
+      role: role,
     };
 
-    await db.insert(users).values(newUser);
+    // Insert the user and get the ID
+    const result = await db
+      .insert(users)
+      .values(newUser)
+      .returning({ insertedId: users.id });
 
-    return { success: true, message: "User registered successfully" };
+    if (result && result.length > 0) {
+      const insertedId = result[0].insertedId;
+
+      // Fetch the newly inserted user to return all details
+      const insertedUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, insertedId));
+        
+      if (insertedUser && insertedUser.length > 0) {
+        return {
+          success: true,
+          message: "User registered successfully",
+          user: insertedUser[0],
+        };
+      } else {
+        return {
+          success: true,
+          message: "User registered successfully",
+          user: { id: insertedId },
+        };
+      }
+    } else {
+      return {
+        success: false,
+        message: "Failed to register user: No ID returned.",
+      };
+    }
   } catch (error) {
     console.error("Error registering user:", error);
     return { success: false, message: "Failed to register user" };
