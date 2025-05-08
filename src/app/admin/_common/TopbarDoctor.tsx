@@ -107,7 +107,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
         setDoctorData(null);
 
         // Redirect to login or landing page
-        window.location.href = "/login";
+        window.location.href = "/";
       } else {
         console.error("Logout failed");
       }
