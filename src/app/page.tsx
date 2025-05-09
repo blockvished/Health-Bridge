@@ -34,6 +34,8 @@ const Login = () => {
       if (!response.ok) {
         // throw new Error(data.message || "Login failed");
         console.log(data.message || "Login failed")
+        setError(data.message)
+        return
       }
 
       // Redirect based on user role
@@ -110,7 +112,7 @@ const Login = () => {
           <form onSubmit={handleSubmit}>
             <div className="mt-6 space-y-3 mx-4">
               <div>
-                <label className="block text-gray-600 font-medium">Mobile / Email </label>
+                <label className="block text-gray-600 font-medium">Mobile / Email: </label>
                 <input
                   type="text"
                   placeholder="Please enter your registered Mobile Number or E-Mail"
@@ -122,7 +124,7 @@ const Login = () => {
               </div>
               <div>
                 <label className="block text-gray-600 font-medium">
-                  Password
+                  Password:
                 </label>
 
                 <div className="relative flex items-center">

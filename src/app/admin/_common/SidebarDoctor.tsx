@@ -46,7 +46,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const pathname = usePathname();
 
   const [userId, setUserId] = useState<string | null>(null);
-  // const [clinicsData, setClinicsData] = useState<Clinic[]>([]);
   const [activeClinicName, setActiveClinicName] = useState<string | null>(null);
   const [activeClinicThumb, setActiveClinicThumb] = useState<string>(temp);
 
@@ -71,7 +70,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           }
           const data = await response.json();
           console.log("Fetched clinics:", data);
-          // setClinicsData(data);
 
           // If clinics exist, check and potentially update the stored clinic ID
           if (data && data.length > 0) {
