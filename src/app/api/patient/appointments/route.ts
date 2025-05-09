@@ -47,6 +47,7 @@ export async function GET() {
         reason: appointments.reason,
         visitStatus: appointments.visitStatus,
         paymentStatus: appointments.paymentStatus,
+        amount: appointments.amount,
 
         patientId:appointments.patientId,
         patientName: users.name,
