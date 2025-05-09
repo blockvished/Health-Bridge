@@ -7,7 +7,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Image from "next/image";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,7 +26,7 @@ const Login = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ login, password }),
       });
 
       const data = await response.json();
@@ -62,8 +62,8 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value.toLowerCase());
+  const handleLoginChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setLogin(e.target.value.toLowerCase());
   };
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -114,8 +114,8 @@ const Login = () => {
                 <input
                   type="text"
                   placeholder="Please enter your registered Mobile Number or E-Mail"
-                  value={email}
-                  onChange={handleEmailChange}
+                  value={login}
+                  onChange={handleLoginChange}
                   required
                   className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 />
