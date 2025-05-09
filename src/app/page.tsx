@@ -32,7 +32,8 @@ const Login = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+        // throw new Error(data.message || "Login failed");
+        console.log(data.message || "Login failed")
       }
 
       // Redirect based on user role
@@ -109,10 +110,10 @@ const Login = () => {
           <form onSubmit={handleSubmit}>
             <div className="mt-6 space-y-3 mx-4">
               <div>
-                <label className="block text-gray-600 font-medium">Email</label>
+                <label className="block text-gray-600 font-medium">Mobile / Email </label>
                 <input
                   type="text"
-                  placeholder="Enter your email"
+                  placeholder="Please enter your registered Mobile Number or E-Mail"
                   value={email}
                   onChange={handleEmailChange}
                   required
