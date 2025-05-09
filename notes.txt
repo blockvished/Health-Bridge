@@ -47,10 +47,10 @@ patient email when created in lowercase and price set in appointment db
 lowercase and non email allow in signin, lowercase for signup, and staff
 created te staffpermissions so staff creation will show that too
 fixed appointment price based on api and frontend
+added the eye button on staff create page for password view
 
 // strong password validation in confirm password as well
-// clinics and staff creation count based on plan w/ limit 1 if no plan
-
+// clinics 1 and staff 3 creation count based on plan w/ limit 1 if no plan
 // and if plan is inactive or etc... cant create new patient or new appointments
 // auth fixing salting
 // patient is allowed login using phone
@@ -58,3 +58,4 @@ fixed appointment price based on api and frontend
 
 / contact of doctor is remaining and etc
 / throughout staff
+/ etc
