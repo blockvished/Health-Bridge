@@ -14,6 +14,7 @@ interface Appointment {
   reason: string;
   visitStatus: string;
   paymentStatus: string | boolean | null; // Updated to handle boolean values
+  amount: number;
   patientId: string | number;
   patientName: string;
   patientEmail: string;
@@ -24,7 +25,6 @@ interface Appointment {
   clinicAddress: string;
   isCancelled: boolean;
   cancelReason: string | null;
-  price?: string;
 }
 
 interface ApiResponse {
@@ -276,7 +276,7 @@ export default function AppointmentsList() {
                   </td>
                   <td className="p-3 text-gray-900 font-semibold">
                     <div className="flex flex-col">
-                      <span>₹ {appointment.price || "1000.00"}</span>
+                      <span>₹ {appointment.amount}</span>
                       <span
                         className={`mt-1 px-3 py-1 ${getStatusClass(
                           appointment.paymentStatus === true ||
