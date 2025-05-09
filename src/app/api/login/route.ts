@@ -3,18 +3,21 @@ import { verify } from "argon2";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { users } from "../../../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { sign } from "jsonwebtoken";
 import { serialize } from "cookie"; // Needed for manual cookie setting
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const { login, password } = await request.json();
 
     // Validate inputs
-    if (!email || !password) {
+    if (!login || !password) {
       return NextResponse.json(
-        { success: false, message: "Email and password are required" },
+        {
+          success: false,
+          message: "Login credentials and password are required",
+        },
         { status: 400 }
       );
     }
@@ -31,12 +34,12 @@ export async function POST(request: Request) {
     const userResult = await db
       .select()
       .from(users)
-      .where(eq(users.email, email))
+      .where(or(eq(users.email, login), eq(users.phone, login)))
       .limit(1);
 
     if (userResult.length === 0) {
       return NextResponse.json(
-        { success: false, message: "Invalid email or password" },
+        { success: false, message: "Invalid credentials" },
         { status: 401 }
       );
     }
@@ -50,11 +53,10 @@ export async function POST(request: Request) {
 
     if (!passwordValid) {
       return NextResponse.json(
-        { success: false, message: "Invalid email or password" },
+        { success: false, message: "Invalid credentials" },
         { status: 401 }
       );
     }
-
     // Generate JWT token
     const JWT_SECRET = process.env.JWT_SECRET;
     if (!JWT_SECRET) {
