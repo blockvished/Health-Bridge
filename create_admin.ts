@@ -6,7 +6,7 @@ import { db } from "./src/db/db";
 
 const SERVER_PEPPER = process.env.SERVER_PEPPER;
                                   
-const role: UserRole = "admin"; // user
+const role: UserRole = "admin"; // user testing
 const passwd = "Admin123321@gmail.com"; //password
 const email = "admin@gmail.com";
 
