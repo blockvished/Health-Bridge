@@ -48,14 +48,14 @@ lowercase and non email allow in signin, lowercase for signup, and staff
 created te staffpermissions
 
 // admin/patient/appointments price should db appointments
-// clinics and staff creation count based on plan w/ limit 1 if no plan
-// and if plan is inactive or etc... cant create new patient or new appointments
 // strong password validation in confirm password as well
-// then change password should also enforce the password
+// clinics and staff creation count based on plan w/ limit 1 if no plan
+// staff should have the i button to see password toggle when creating and finally the dropdown for staff features
+
+// and if plan is inactive or etc... cant create new patient or new appointments
 // auth fixing salting
 // patient is allowed login using phone
 // from and to time validations
-// staff should have the i button to see password toggle when creating and finally the dropdown for staff features
 
 / contact of doctor is remaining and etc
 / throughout staff
