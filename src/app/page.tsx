@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -12,8 +12,71 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const router = useRouter();
+
+  // Validate form inputs and update button state
+  useEffect(() => {
+    validateForm();
+  }, [login, password]);
+
+  const validateForm = () => {
+    // Validate login (mobile or email)
+    if (login) {
+      const isMobile = /^\d+$/.test(login); // Check if login contains only digits
+      
+      if (isMobile) {
+        // Mobile validation - exactly 10 digits
+        if (login.length !== 10) {
+          setLoginError("Mobile number must be exactly 10 digits");
+          setIsFormValid(false);
+        } else {
+          setLoginError("");
+          // Check if password is also valid
+          setIsFormValid(password.length >= 8);
+        }
+      } else {
+        // Email validation
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(login)) {
+          setLoginError("Please enter a valid email address");
+          setIsFormValid(false);
+        } else {
+          setLoginError("");
+          // Check if password is also valid
+          setIsFormValid(password.length >= 8);
+        }
+      }
+    } else {
+      setLoginError("");
+      setIsFormValid(false);
+    }
+
+    // Validate password
+    if (password) {
+      if (password.length < 8) {
+        setPasswordError("Password must be at least 8 characters");
+        setIsFormValid(false);
+      } else {
+        setPasswordError("");
+        // Only set form valid if login is also valid
+        if (login) {
+          const isMobile = /^\d+$/.test(login);
+          if (isMobile && login.length === 10) {
+            setIsFormValid(true);
+          } else if (!isMobile && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(login)) {
+            setIsFormValid(true);
+          }
+        }
+      }
+    } else {
+      setPasswordError("");
+      setIsFormValid(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +95,6 @@ const Login = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        // throw new Error(data.message || "Login failed");
         console.log(data.message || "Login failed")
         setError(data.message)
         return
@@ -119,8 +181,11 @@ const Login = () => {
                   value={login}
                   onChange={handleLoginChange}
                   required
-                  className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                  className={`w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none`}
                 />
+                {loginError && (
+                  <p className="text-red-500 text-xs mt-1">{loginError}</p>
+                )}
               </div>
               <div>
                 <label className="block text-gray-600 font-medium">
@@ -131,7 +196,7 @@ const Login = () => {
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm`}
                     value={password}
                     onChange={handlePasswordChange}
                     required
@@ -148,6 +213,9 @@ const Login = () => {
                     )}
                   </button>
                 </div>
+                {passwordError && (
+                  <p className="text-red-500 text-xs mt-1">{passwordError}</p>
+                )}
               </div>
             </div>
 
@@ -159,8 +227,12 @@ const Login = () => {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg text-lg font-semibold hover:bg-blue-600 transition mx-4 disabled:bg-blue-300 cursor-pointer"
+              disabled={loading || !isFormValid}
+              className={`w-full py-2 mt-4 rounded-lg text-lg font-semibold transition mx-4 ${
+                isFormValid && !loading
+                  ? "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                  : "bg-blue-300 text-white cursor-not-allowed"
+              }`}
             >
               {loading ? "Signing In..." : "Sign In"}
             </button>
