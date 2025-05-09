@@ -1,0 +1,1 @@
+ALTER TABLE "appointments" ADD COLUMN "amount" integer DEFAULT 0;
