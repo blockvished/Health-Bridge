@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { or, eq } from "drizzle-orm";
+import { or, eq, and } from "drizzle-orm";
 import {
   doctor,
   appointments,
@@ -7,6 +7,7 @@ import {
   users,
   patient,
   genderEnum,
+  doctorConsultation,
 } from "../../../../../../db/schema";
 import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
@@ -55,6 +56,14 @@ export async function POST(req: NextRequest) {
   }
 
   const requiredDoctorId = doctorData[0].id;
+
+  const [doctorConsultationDetails] = await db
+    .select({ consultationFees: doctorConsultation.consultationFees })
+    .from(doctorConsultation)
+    .where(and(eq(doctorConsultation.doctorId, requiredDoctorId)));
+
+  const consultationFee = doctorConsultationDetails?.consultationFees || 0;
+
   try {
     const formData = await req.formData();
 
@@ -110,7 +119,7 @@ export async function POST(req: NextRequest) {
         }
       }
     } catch (error) {
-      console.log(error); 
+      console.log(error);
     }
 
     // console.log("Received files:");
@@ -214,6 +223,7 @@ export async function POST(req: NextRequest) {
         patientId: parseInt(String(newPatientId), 10),
         doctorId: parseInt(String(requiredDoctorId), 10),
         clinicId: reqBody.clinic_id,
+        amount: consultationFee,
         reason: reqBody.reason,
         paymentStatus: false,
         visitStatus: false,
@@ -243,6 +253,7 @@ export async function POST(req: NextRequest) {
         patientId: parseInt(String(newPatientId), 10),
         doctorId: parseInt(String(requiredDoctorId), 10),
         clinicId: reqBody.clinic_id,
+        amount: consultationFee,
         reason: reqBody.reason,
         paymentStatus: false,
         visitStatus: false,
