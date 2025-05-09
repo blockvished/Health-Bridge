@@ -441,6 +441,7 @@ export const appointments = pgTable("appointments", {
   clinicId: integer("clinic_id")
     .notNull()
     .references(() => clinic.id, { onDelete: "cascade" }),
+  amount: integer("amount").default(0),
   paymentStatus: boolean("payment_status").default(false).notNull(),
   visitStatus: boolean("visit_status").default(false).notNull(),
   reason: text("reason"),
