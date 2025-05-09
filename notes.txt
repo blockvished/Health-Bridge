@@ -1,7 +1,3 @@
-- <domain/ip>/admin/dashboard/user for dashboard 
-- <domain/ip>/register 
-- <domain/ip>/login
-
 - .env
 > DATABASE_URL=postgres://username:password@host:port/dbname
 
@@ -41,20 +37,21 @@ select * from staff;
 select * from staff_permissions;
 select * from permission_types;
 
-
-// auth fixing salting
-// education and experience fixing when doctorid is not created as userid is not created
-// from and to time validations
-// fix needed when creating patient (like patient shouldnt require all fields for api or even submit)
-
-/ contact of doctor is remaining and etc
-/ strong password validation in confirm password as well
-
-
 psql -U <username> -d <dbname> -W
 -d postgres: connect to the postgres database (or another DB you specify)
 -W: forces password prompt
 
 
-// after signup it should also create a doctor
-// middleware and logout
+// admin/patient/appointments price should be from db of that doctor also should be saved firsthand when user creates the appointment 
+// clinics and staff creation count based on plan w/ limit 1 if no plan
+// and if plan is inactive or etc... cant create new patient or new appointments
+// strong password validation in confirm password as well
+// email lowercasing on client side
+// then change password should also enforce the password
+// auth fixing salting
+// patient is allowed login using phone
+// from and to time validations
+// fix needed when creating patient (like patient shouldnt require all fields for api or even submit)
+
+/ contact of doctor is remaining and etc
+/ throughout staff
