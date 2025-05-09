@@ -45,12 +45,11 @@ psql -U <username> -d <dbname> -W
 did ->
 patient email when created in lowercase and price set in appointment db
 lowercase and non email allow in signin, lowercase for signup, and staff
-created te staffpermissions
+created te staffpermissions so staff creation will show that too
+fixed appointment price based on api and frontend
 
-// admin/patient/appointments price should db appointments
 // strong password validation in confirm password as well
 // clinics and staff creation count based on plan w/ limit 1 if no plan
-// staff should have the i button to see password toggle when creating and finally the dropdown for staff features
 
 // and if plan is inactive or etc... cant create new patient or new appointments
 // auth fixing salting

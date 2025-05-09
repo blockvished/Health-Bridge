@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
 import { FiArrowLeft, FiCamera, FiEdit, FiTrash2 } from "react-icons/fi";
-// import { useRouter } from "next/navigation";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 type StaffMember = {
   id: number;
@@ -53,6 +53,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
     initialStaffData?.permissionIds || []
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -101,8 +102,8 @@ const StaffForm: React.FC<StaffFormProps> = ({
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === 'email' ? value.toLowerCase() : value,
-    });  
+      [name]: name === "email" ? value.toLowerCase() : value,
+    });
   };
 
   // Handle checkbox changes
@@ -182,6 +183,10 @@ const StaffForm: React.FC<StaffFormProps> = ({
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -299,22 +304,27 @@ const StaffForm: React.FC<StaffFormProps> = ({
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Password{" "}
-            {!initialStaffData?.id && <span className="text-red-500">*</span>}
-            <span className="text-gray-500">
-              (Leave blank to keep current password)
-            </span>
-          </label>
+        <div className="relative flex items-center">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             name="password"
             value={formData.password}
             onChange={handleInputChange}
             className="w-full p-3 border border-gray-300 rounded-lg"
             {...(!initialStaffData?.id && { required: true })}
           />
+          <button
+            type="button"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer"
+            onClick={togglePasswordVisibility}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? (
+              <FaEyeSlash className="h-5 w-5" />
+            ) : (
+              <FaEye className="h-5 w-5" />
+            )}
+          </button>
         </div>
 
         {/* Role Permissions */}
@@ -400,7 +410,7 @@ const StaffPage: React.FC = () => {
   // Fetch staff data - using useCallback to prevent recreation on each render
   const fetchStaff = React.useCallback(async () => {
     if (!userId) return;
-    
+
     try {
       const res = await fetch(`/api/doctor/staff/${userId}`);
       if (!res.ok) {
