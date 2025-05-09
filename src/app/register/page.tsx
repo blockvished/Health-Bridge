@@ -118,6 +118,10 @@ const Signup = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value.toLowerCase());
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-100 to-cyan-200 justify-center items-center p-3">
       <div className="bg-white shadow-lg rounded-2xl w-full max-w-4xl flex overflow-hidden">
@@ -193,7 +197,7 @@ const Signup = () => {
                   placeholder="Your email"
                   className="w-full px-4 py-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                 />
               </div>
               <div>
