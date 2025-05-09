@@ -40,7 +40,7 @@ const Login = () => {
         router.push("/admin/dashboard/user");
       } else if (data.user.role === "admin") {
         router.push("/admin/dashboard");
-      } else if ((data.user.role = "patient")) {
+      } else if (data.user.role === "patient") {
         router.push("/admin/dashboard/patient");
       }
     } catch (err: unknown) {
@@ -61,6 +61,14 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value.toLowerCase());
+  };
+
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value); // Keep original case for password
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-100 to-cyan-200 justify-center items-center p-4">
       <div className="bg-white shadow-lg rounded-2xl w-full max-w-4xl flex overflow-hidden">
@@ -73,17 +81,6 @@ const Login = () => {
               to simplify and optimize your clinical operations while enhancing
               your marketing and promotional efforts.
             </p>
-            <div className="absolute bottom-10 text-xs text-white">
-              <p>Copyright © 2024. Live Doctors. All Rights Reserved.</p>
-              <p>
-                <Link href="#" className="underline">
-                  Privacy
-                </Link>
-                <Link href="#" className="underline">
-                  Terms
-                </Link>
-              </p>
-            </div>
           </div>
         </div>
 
@@ -93,9 +90,9 @@ const Login = () => {
             <Image
               src="/logo_live_doctors.png"
               alt="Live Doctors Logo"
-              className="mx-auto mb-4" // Removed h-12 as we'll use the height prop
-              width={150} // Replace with the actual width in pixels
-              height={48} // 12 * 4px = 48px (Tailwind's default scale)
+              className="mx-auto mb-4"
+              width={150}
+              height={48}
             />
             <h2 className="text-3xl font-bold text-gray-800">
               Sign in to Live Doctors
@@ -114,10 +111,10 @@ const Login = () => {
               <div>
                 <label className="block text-gray-600 font-medium">Email</label>
                 <input
-                  type="email"
+                  type="text"
                   placeholder="Enter your email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
                   required
                   className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                 />
@@ -130,12 +127,11 @@ const Login = () => {
                 <div className="relative flex items-center">
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Create a password"
+                    placeholder="Enter your password"
                     className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
                     value={password}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      setPassword(e.target.value)
-                    }
+                    onChange={handlePasswordChange}
+                    required
                   />
                   <button
                     type="button"
@@ -168,7 +164,7 @@ const Login = () => {
           </form>
 
           <p className="mt-4 text-center text-gray-600 text-sm mx-4">
-          Don&apos;t have an account?
+            Don&apos;t have an account?{" "}
             <Link href="/register" className="text-blue-500 font-medium">
               Register
             </Link>
