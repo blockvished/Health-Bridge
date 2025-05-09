@@ -42,16 +42,18 @@ psql -U <username> -d <dbname> -W
 -W: forces password prompt
 
 
-// admin/patient/appointments price should be from db of that doctor also should be saved firsthand when user creates the appointment 
+did ->
+patient email when created in lowercase and price set in appointment db
+lowercase and non email allow in signin, lowercase for signup, and staff
+
+// admin/patient/appointments price should db appointments
 // clinics and staff creation count based on plan w/ limit 1 if no plan
 // and if plan is inactive or etc... cant create new patient or new appointments
 // strong password validation in confirm password as well
-// email lowercasing on client side
 // then change password should also enforce the password
 // auth fixing salting
 // patient is allowed login using phone
 // from and to time validations
-// fix needed when creating patient (like patient shouldnt require all fields for api or even submit)
 
 / contact of doctor is remaining and etc
 / throughout staff
