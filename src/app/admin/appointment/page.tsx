@@ -299,7 +299,12 @@ const Appointments = () => {
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "email") {
+      setFormData((prev) => ({ ...prev, [name]: value.toLowerCase() }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handlePatientSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
