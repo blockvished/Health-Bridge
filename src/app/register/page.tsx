@@ -1,22 +1,88 @@
 "use client";
-import React, { useState, FormEvent, ChangeEvent } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import React, { useState, FormEvent, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { specialities, practiceTypes, PlanFeature, Plan } from "./constants";
+
+import Step1BasicInfo from "./Step1BasicInfo";
+import Step2ProfessionalDetails from "./Step2ProfessionalDetails";
+import Step3Subscription from "./Step3Subscription";
+// import Step4Security from "./components/Step4Security";
 
 const Signup = () => {
-  const [name, setName] = useState("");
+  // Step management
+  const [currentStep, setCurrentStep] = useState(1);
+  const [mobileVerified, setMobileVerified] = useState(true); // default should be false but true for testing
+
+  // Step 1 - Basic Info
+  const [fullName, setFullName] = useState("");
+  const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [clinicName, setClinicName] = useState("");
+
+  // OTP verification
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [verificationId, setVerificationId] = useState("");
+
+  // Step 2 - Professional Details
+  const [speciality, setSpeciality] = useState("");
+  const [practiceType, setPracticeType] = useState("");
+  const [yearsOfExperience, setYearsOfExperience] = useState("");
+  const [city, setCity] = useState("");
+  const [pincode, setPincode] = useState("");
+
+  // Step 3 - Subscription
+  const [subscriptionPlan, setSubscriptionPlan] = useState(0);
+  const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
+
+  // Step 4 - Password
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [agreeTerms, setAgreeTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
 
+  // General state
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Subscription plans // TODO: get from db
+  useEffect(() => {
+    const fetchPlans = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch("/api/plans");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData?.error || "Failed to fetch plans");
+        }
+        const data = await response.json();
+        if (data?.success && data?.data) {
+          // Structure the data to match your previous format if needed
+          const formattedPlans = data.data.map((plan: Plan) => ({
+            id: plan.name.toLowerCase(), // Use a lowercase version of the name as ID
+            name: plan.name,
+            price: `₹${plan.monthlyPrice}/month`, // You might want to handle yearly price as well
+            features: plan.features
+              .filter((feature) => feature.enabled)
+              .map((feature) => feature.featureName),
+          }));
+          setAvailablePlans(formattedPlans);
+        } else {
+          setError(data?.error || "Failed to fetch plans");
+        }
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlans();
+  }, []);
 
   const validatePassword = (password: string): string | null => {
     if (password.length < 8) {
@@ -34,31 +100,194 @@ const Signup = () => {
     return null;
   };
 
+  const handleSendOTP = async () => {
+    setError(null);
+    setLoading(true);
+
+    if (!mobile || mobile.length < 10) {
+      setError("Please enter a valid mobile number");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mobile }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setOtpSent(true);
+        setVerificationId(data.verificationId);
+        setSuccessMessage("OTP sent to your mobile number");
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        setError(data.message || "Failed to send OTP");
+      }
+    } catch (error) {
+      console.error("OTP send error:", error);
+      setError("An error occurred while sending OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    setError(null);
+    setLoading(true);
+
+    if (!otp || otp.length < 4) {
+      setError("Please enter a valid OTP");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ verificationId, otp }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMobileVerified(true);
+        setSuccessMessage("Mobile number verified successfully!");
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } else {
+        setError(data.message || "Invalid OTP");
+      }
+    } catch (error) {
+      console.error("OTP verification error:", error);
+      setError("An error occurred during verification");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendDataToBackend = async (finalStep = false) => {
+    setError(null);
+    setLoading(true);
+
+    const userData = {
+      fullName,
+      mobile,
+      email,
+      clinicName,
+      speciality,
+      practiceType,
+      yearsOfExperience,
+      city,
+      pincode,
+      subscriptionPlan,
+      // payment stuff and email stuff
+      password: finalStep ? password : "",
+      role: "doctor",
+    };
+
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (finalStep) {
+          setSuccessMessage(
+            data.message || "Registration successful! Redirecting..."
+          );
+          // Redirect after a short delay
+          setTimeout(() => {
+            window.location.href = "/"; // Replace with your login page URL
+          }, 2000);
+        }
+        return true;
+      } else {
+        setError(data.message || "Registration failed. Please try again.");
+        return false;
+      }
+    } catch (error) {
+      console.error("API error:", error);
+      setError("An unexpected error occurred. Please try again later.");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNextStep = async () => {
+    setError(null);
+
+    // Validate Step 1
+    if (currentStep === 1) {
+      if (!fullName.trim()) {
+        return setError("Full name is required");
+      }
+      if (!mobileVerified) {
+        return setError("Please verify your mobile number");
+      }
+
+      // Send data to backend at Step 1
+      await sendDataToBackend();
+    }
+
+    // Validate Step 2
+    if (currentStep === 2) {
+      if (!speciality) {
+        return setError("Please select your speciality");
+      }
+      if (!yearsOfExperience) {
+        return setError("Years of experience is required");
+      }
+      if (!city.trim()) {
+        return setError("City is required");
+      }
+      if (!pincode.trim() || pincode.length !== 6) {
+        return setError("Please enter a valid 6-digit pincode");
+      }
+
+      // Send data to backend at Step 2
+      await sendDataToBackend();
+    }
+
+    // Validate Step 3
+    if (currentStep === 3) {
+      if (!subscriptionPlan) {
+        return setError("Please select a subscription plan");
+      }
+
+      // Send data to backend at Step 3
+      await sendDataToBackend();
+    }
+
+    setCurrentStep(currentStep + 1);
+  };
+
+  const handlePrevStep = () => {
+    setCurrentStep(currentStep - 1);
+    setError(null);
+  };
+
   const handleSignup = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
     setLoading(true);
 
-    if (!name) {
-      setError("Please enter your name.");
-      setLoading(false);
-      return;
-    }
-
-    if (!email) {
-      setError("Please enter your email.");
-      setLoading(false);
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address.");
-      setLoading(false);
-      return;
-    }
-
+    // Validate passwords
     const passwordError = validatePassword(password);
     if (passwordError) {
       setError(passwordError);
@@ -67,38 +296,52 @@ const Signup = () => {
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Passwords do not match");
       setLoading(false);
       return;
     }
 
     if (!agreeTerms) {
-      setError("Please agree to terms and conditions to proceed.");
+      setError("Please agree to terms and conditions to proceed");
       setLoading(false);
       return;
     }
 
     try {
-      const role = "doctor"; // Default role for new users
+      const role = "doctor"; // Default role
+      const userData = {
+        fullName,
+        mobile,
+        email,
+        clinicName,
+        speciality,
+        practiceType,
+        yearsOfExperience,
+        city,
+        pincode,
+        subscriptionPlan,
+        role,
+        password,
+      };
+
       const response = await fetch("/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, phone, role, password }),
+        body: JSON.stringify(userData),
       });
 
       const data = await response.json();
-      console.log("Response data:", response);
 
       if (response.status === 201 && response.ok) {
         setSuccessMessage(
           data.message || "Registration successful! Redirecting..."
         );
-        // Optionally redirect the user after a short delay
+        // Redirect after a short delay
         setTimeout(() => {
           window.location.href = "/"; // Replace with your login page URL
-        }, 1000);
+        }, 2000);
       } else {
         setError(data.message || "Registration failed. Please try again.");
       }
@@ -118,8 +361,42 @@ const Signup = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
-  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value.toLowerCase());
+  const renderStepIndicator = () => {
+    const steps = [
+      "Basic Information",
+      "Professional Details",
+      "Subscription Plan",
+      "Security",
+    ];
+
+    return (
+      <div className="w-full flex mb-6">
+        {steps.map((step, index) => (
+          <div key={index} className="flex-1 flex flex-col items-center">
+            <div
+              className={`w-8 h-8 flex items-center justify-center rounded-full ${
+                currentStep > index + 1
+                  ? "bg-green-500 text-white"
+                  : currentStep === index + 1
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-600"
+              }`}
+            >
+              {currentStep > index + 1 ? "✓" : index + 1}
+            </div>
+            <div className="text-xs mt-1 text-center">{step}</div>
+            {index < steps.length - 1 && (
+              <div
+                className={`hidden md:block h-0.5 w-full ${
+                  currentStep > index + 1 ? "bg-green-500" : "bg-gray-200"
+                }`}
+                style={{ margin: "0.5rem 0" }}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -147,167 +424,109 @@ const Signup = () => {
             </div>
           </div>
         </div>
-        <div className="w-full md:w-2/3 p-8 flex flex-col justify-center items-center">
-          <div className="text-center w-full max-w-md">
+        <div className="w-full md:w-2/3 p-6 flex flex-col justify-center items-center">
+          <div className="text-center w-full max-w-md mb-4">
             <Image
               src="/logo_live_doctors.png"
               alt="Live Doctors Logo"
-              className="mx-auto mb-2" // Removed h-12 as we'll use the height prop
-              width={48} // h-12 in Tailwind corresponds to a height of 3rem, which is typically 48px
-              height={48} // Assuming you want a square logo with the same height
+              className="mx-auto mb-2"
+              width={48}
+              height={48}
             />
             <h2 className="text-2xl font-bold text-gray-800">
               Create Your Account
             </h2>
             <p className="text-gray-500 mt-1">Sign up to get started</p>
           </div>
+
+          {renderStepIndicator()}
+
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mt-4">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded w-full max-w-md mb-4">
               {error}
             </div>
           )}
           {successMessage && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mt-4">
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded w-full max-w-md mb-4">
               {successMessage}
             </div>
           )}
-          <form
-            onSubmit={handleSignup}
-            className="w-full max-w-md p-4 flex flex-col justify-center"
-          >
-            <div className="mt-2 space-y-1">
-              <div>
-                <label className="block text-gray-600 text-sm font-medium">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Your full name"
-                  className="w-full px-4 py-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 text-sm font-medium">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="w-full px-4 py-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
-                  value={email}
-                  onChange={handleEmailChange}
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 text-sm font-medium">
-                  Phone
-                </label>
-                <div>
-                  <style jsx>{`
-                    input[type="number"]::-webkit-outer-spin-button,
-                    input[type="number"]::-webkit-inner-spin-button {
-                      -webkit-appearance: none;
-                      margin: 0;
-                    }
-                  `}</style>
-                  <input
-                    type="number"
-                    placeholder="Your phone number"
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    style={{
-                      MozAppearance: "textfield",
-                    }}
-                  />
-                </div>
-              </div>
 
-              <label className="block text-gray-600 text-sm font-medium">
-                Password
-              </label>
-              <div className="relative flex items-center">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Create a password"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
-                  value={password}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setPassword(e.target.value)
-                  }
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer"
-                  onClick={togglePasswordVisibility}
-                >
-                  {showPassword ? (
-                    <FaEyeSlash className="h-5 w-5" />
-                  ) : (
-                    <FaEye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-              <label className="block text-gray-600 text-sm font-medium">
-                Confirm Password
-              </label>
-              <div className="relative flex items-center">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your password"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
-                  value={confirmPassword}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setConfirmPassword(e.target.value)
-                  }
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer"
-                  onClick={toggleConfirmPasswordVisibility}
-                >
-                  {showConfirmPassword ? (
-                    <FaEyeSlash className="h-5 w-5" />
-                  ) : (
-                    <FaEye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-            <div className="mt-2 flex items-center text-sm">
-              <input
-                type="checkbox"
-                className="mr-2 cursor-pointer"
-                checked={agreeTerms}
-                onChange={(e) => setAgreeTerms(e.target.checked)}
+          <form onSubmit={handleSignup} className="w-full max-w-md">
+            {currentStep === 1 && (
+              <Step1BasicInfo
+                fullName={fullName}
+                setFullName={setFullName}
+                mobile={mobile}
+                setMobile={setMobile}
+                email={email}
+                setEmail={setEmail}
+                clinicName={clinicName}
+                setClinicName={setClinicName}
+                otpSent={otpSent}
+                mobileVerified={mobileVerified}
+                otp={otp}
+                setOtp={setOtp}
+                loading={loading}
+                handleSendOTP={handleSendOTP}
+                handleVerifyOTP={handleVerifyOTP}
+                handleNextStep={handleNextStep}
               />
-              <span className="text-gray-600">
-                I agree to the{" "}
-                <Link href="#" className="text-blue-500">
-                  Terms & Conditions
-                </Link>{" "}
-                and{" "}
-                <Link href="#" className="text-blue-500">
-                  Privacy Policy
-                </Link>
-                .
-              </span>
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg text-sm font-semibold hover:bg-blue-600 transition cursor-pointer"
-            >
-              {loading ? "Registering..." : "Register"}
-            </button>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Already have an account?{" "}
-              <Link href="/" className="text-blue-500 font-medium">
-                Sign In
-              </Link>
-            </p>
+            )}
+            {currentStep === 2 && (
+              <Step2ProfessionalDetails
+                speciality={speciality}
+                setSpeciality={setSpeciality}
+                practiceType={practiceType}
+                setPracticeType={setPracticeType}
+                yearsOfExperience={yearsOfExperience}
+                setYearsOfExperience={setYearsOfExperience}
+                city={city}
+                setCity={setCity}
+                pincode={pincode}
+                setPincode={setPincode}
+                handlePrevStep={handlePrevStep}
+                handleNextStep={handleNextStep}
+                specialities={specialities}
+                practiceTypes={practiceTypes}
+              />
+            )}
+            {currentStep === 3 && (
+              <Step3Subscription
+                availablePlans={availablePlans}
+                subscriptionPlan={subscriptionPlan}
+                setSubscriptionPlan={setSubscriptionPlan}
+                handlePrevStep={handlePrevStep}
+                handleNextStep={handleNextStep}
+              />
+            )}
+            {/* {currentStep === 4 && (
+              <Step4Security
+                password={password}
+                setPassword={setPassword}
+                confirmPassword={confirmPassword}
+                setConfirmPassword={setConfirmPassword}
+                showPassword={showPassword}
+                showConfirmPassword={showConfirmPassword}
+                togglePasswordVisibility={togglePasswordVisibility}
+                toggleConfirmPasswordVisibility={toggleConfirmPasswordVisibility}
+                agreeTerms={agreeTerms}
+                setAgreeTerms={setAgreeTerms}
+                handlePrevStep={handlePrevStep}
+                loading={loading}
+              />
+            )} */}
           </form>
+
+          <p className="mt-6 text-center text-sm text-gray-600">
+            Already have an account?{" "}
+            <Link
+              href="/"
+              className="text-blue-500 font-medium hover:underline"
+            >
+              Sign In
+            </Link>
+          </p>
         </div>
       </div>
     </div>
