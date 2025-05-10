@@ -18,6 +18,22 @@ export async function POST(request: Request) {
       );
     }
 
+    // const userData = {
+    //   fullName,
+    //   mobile,
+    //   email,
+    //   clinicName,
+    //   speciality,
+    //   practiceType,
+    //   yearsOfExperience,
+    //   city,
+    //   pincode,
+    //   subscriptionPlan,
+    //   // payment stuff and email stuff
+    //   password: finalStep ? password : "",
+    //   role: "doctor",
+    // };
+
     const registrationResult = await registerUser(
       name,
       email,
