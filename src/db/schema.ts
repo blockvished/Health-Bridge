@@ -13,6 +13,7 @@ import { uniqueIndex } from "drizzle-orm/pg-core";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { time } from "drizzle-orm/pg-core";
 import { date } from "drizzle-orm/pg-core";
+import { Pin } from "lucide-react";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -86,13 +87,13 @@ export const DrugType = pgEnum("drug_type", ["cap", "tab", "syp", "oin"]);
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
+  email: varchar("email", { length: 255 }),
   email_verified: boolean("email_verified").default(false),
-  phone: varchar("phone", { length: 20 }),
+  phone: varchar("phone", { length: 20 }).notNull().unique(),
   phone_verified: boolean("phone_verified").default(false),
-  password_hash: text("password").notNull(),
-  salt: text("salt").notNull(),
-  role: userRoleEnum("role").default("patient").notNull(),
+  password_hash: text("password"),
+  salt: text("salt"),
+  role: userRoleEnum("role").default("doctor").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -155,6 +156,7 @@ export const doctor = pgTable("doctor", {
   email: varchar("email", { length: 255 }),
   phone: varchar("phone", { length: 20 }),
   city: text("city"),
+  pincode: varchar("pincode", { length: 10 }),
   specialization: text("specialization"),
   degree: text("degree"),
   experience: integer("experience"),

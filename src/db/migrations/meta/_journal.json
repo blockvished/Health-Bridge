@@ -15,6 +15,20 @@
       "when": 1746768634570,
       "tag": "0001_overconfident_amphibian",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1746866314674,
+      "tag": "0002_kind_doorman",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1746870375615,
+      "tag": "0003_grey_serpent_society",
+      "breakpoints": true
     }
   ]
 }
