@@ -131,18 +131,18 @@ async function seed() {
     }
 
     // Insert "No plan" option
-    await db
-      .insert(plans)
-      .values({
-        id: 0,
-        name: "No plan",
-        monthlyPrice: 0,
-        yearlyPrice: 0,
-        staffLimit: 0,
-        chamberLimit: 0,
-        isActive: false,
-      })
-      .returning();
+    // await db
+    //   .insert(plans)
+    //   .values({
+    //     id: 0,
+    //     name: "No plan",
+    //     monthlyPrice: 0,
+    //     yearlyPrice: 0,
+    //     staffLimit: 0,
+    //     chamberLimit: 0,
+    //     isActive: false,
+    //   })
+    //   .returning();
 
     // Seed permission types
     for (const permission of permissionData) {
