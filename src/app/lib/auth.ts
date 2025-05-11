@@ -9,6 +9,9 @@ import { eq } from "drizzle-orm";
 // Define the expected type for the insert values
 type NewUser = InferInsertModel<typeof users>;
 
+/**
+ * Register a new user
+ */
 async function registerUser(
   name: string,
   email: string,
@@ -23,21 +26,39 @@ async function registerUser(
   const sql = postgres(connectionString, { max: 1 });
   const db = drizzle(sql);
 
+  // Check if user with this phone number already exists
+  const existingUser = await db
+    .select()
+    .from(users)
+    .where(eq(users.phone, phone));
+
+  if (existingUser && existingUser.length > 0) {
+    return {
+      success: false,
+      message: "User with this mobile number already exists",
+    };
+  }
+
   const SERVER_PEPPER = process.env.SERVER_PEPPER || "default_pepper";
   try {
     const salt = crypto.randomBytes(16).toString("hex");
-    // applied salt = salt + password
-    const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
-    const passwordHash = await hash(saltedPassword);
-
+    
+    // Create user object
     const newUser: NewUser = {
       name,
-      email,
+      email: email || null,
       phone,
-      password_hash: passwordHash,
-      salt,
       role: role,
     };
+
+    // Only hash and store password if one is provided
+    if (password) {
+      // applied salt = salt + password
+      const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
+      const passwordHash = await hash(saltedPassword);
+      newUser.password_hash = passwordHash;
+      newUser.salt = salt;
+    }
 
     // Insert the user and get the ID
     const result = await db
@@ -79,4 +100,76 @@ async function registerUser(
   }
 }
 
-export { registerUser };
+/**
+ * Update an existing user
+ */
+async function updateUser(
+  userId: number,
+  name: string,
+  email: string,
+  password: string,
+  phone: string,
+  role: UserRole
+) {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not set in environment variables.");
+  }
+  const sql = postgres(connectionString, { max: 1 });
+  const db = drizzle(sql);
+
+  const SERVER_PEPPER = process.env.SERVER_PEPPER || "default_pepper";
+  try {
+    // Create update object
+    const updateData: Partial<NewUser> = {
+      name,
+      phone,
+      role,
+    };
+
+    // Only update email if provided
+    if (email) {
+      updateData.email = email;
+    }
+    
+    // Only update password if provided
+    if (password) {
+      const salt = crypto.randomBytes(16).toString("hex");
+      const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
+      const passwordHash = await hash(saltedPassword);
+      
+      updateData.password_hash = passwordHash;
+      updateData.salt = salt;
+    }
+
+    // Update the user
+    await db
+      .update(users)
+      .set(updateData)
+      .where(eq(users.id, userId));
+      
+    // Fetch the updated user to return
+    const updatedUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId));
+      
+    if (updatedUser && updatedUser.length > 0) {
+      return {
+        success: true,
+        message: "User updated successfully",
+        user: updatedUser[0],
+      };
+    } else {
+      return {
+        success: false,
+        message: "User not found after update",
+      };
+    }
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return { success: false, message: "Failed to update user" };
+  }
+}
+
+export { registerUser, updateUser };
