@@ -16,7 +16,7 @@ const Signup = () => {
 
   // Step 1 - Basic Info
   const [fullName, setFullName] = useState("");
-  const [mobile, setMobile] = useState("");
+  const [mobile, setMobile] = useState("8356870659");
   const [email, setEmail] = useState("");
   const [clinicName, setClinicName] = useState("");
 
@@ -49,40 +49,43 @@ const Signup = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Subscription plans // TODO: get from db
-  useEffect(() => {
-    const fetchPlans = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch("/api/plans");
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData?.error || "Failed to fetch plans");
-        }
-        const data = await response.json();
-        if (data?.success && data?.data) {
-          // Structure the data to match your previous format if needed
-          const formattedPlans = data.data.map((plan: Plan) => ({
-            id: plan.name.toLowerCase(), // Use a lowercase version of the name as ID
-            name: plan.name,
-            price: `₹${plan.monthlyPrice}/month`, // You might want to handle yearly price as well
-            features: plan.features
-              .filter((feature) => feature.enabled)
-              .map((feature) => feature.featureName),
-          }));
-          setAvailablePlans(formattedPlans);
-        } else {
-          setError(data?.error || "Failed to fetch plans");
-        }
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+// Replace your existing useEffect with this improved version
+useEffect(() => {
+  const fetchPlans = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      console.log("Fetching plans...");
+      const response = await fetch("/api/plans");
+      
+      // Log the raw response for debugging
+      console.log("Response status:", response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.error || "Failed to fetch plans");
       }
-    };
+      
+      const data = await response.json();
+      console.log("Plans API response:", data);
+      
+      if (data?.success && data?.data && Array.isArray(data.data)) {
+        console.log("Setting available plans:", data.data);
+        // Just use the data directly without reformatting
+        setAvailablePlans(data.data);
+      } else {
+        setError(data?.error || "Failed to fetch plans");
+      }
+    } catch (err) {
+      console.error("Error fetching plans:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch plans");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchPlans();
-  }, []);
+  fetchPlans();
+}, []);
 
   const validatePassword = (password: string): string | null => {
     if (password.length < 8) {
@@ -401,30 +404,9 @@ const Signup = () => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-100 to-cyan-200 justify-center items-center p-3">
-      <div className="bg-white shadow-lg rounded-2xl w-full max-w-4xl flex overflow-hidden">
-        <div className="w-1/3 hidden md:flex items-center justify-center bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-400">
-          <div className="md:flex flex-col items-center justify-center text-white p-6 text-center">
-            <h2 className="text-2xl font-bold">Live Doctors</h2>
-            <p className="mt-2 text-sm">
-              Our all-in-one healthcare practice management system is designed
-              to simplify and optimize your clinical operations while enhancing
-              your marketing and promotional efforts.
-            </p>
-            <div className="absolute bottom-10 text-xs text-white">
-              <p>Copyright © 2024. Live Doctors. All Rights Reserved.</p>
-              <p>
-                <Link href="#" className="underline">
-                  Privacy
-                </Link>{" "}
-                |{" "}
-                <Link href="#" className="underline">
-                  Terms
-                </Link>
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="w-full md:w-2/3 p-6 flex flex-col justify-center items-center">
+      <div className="bg-white shadow-lg rounded-2xl w-full max-w-4xl flex items-center justify-center overflow-hidden">
+
+        <div className="w-full md:w-2/3 p-6 flex items-center flex-col justify-center items-center">
           <div className="text-center w-full max-w-md mb-4">
             <Image
               src="/logo_live_doctors.png"
@@ -518,6 +500,8 @@ const Signup = () => {
             )} */}
           </form>
 
+          {currentStep === 1 && (
+              
           <p className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{" "}
             <Link
@@ -527,6 +511,8 @@ const Signup = () => {
               Sign In
             </Link>
           </p>
+            )}
+
         </div>
       </div>
     </div>
