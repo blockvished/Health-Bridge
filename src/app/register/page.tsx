@@ -16,7 +16,7 @@ const Signup = () => {
 
   // Step 1 - Basic Info
   const [fullName, setFullName] = useState("");
-  const [mobile, setMobile] = useState("8356870659");
+  const [mobile, setMobile] = useState("5396800659");
   const [email, setEmail] = useState("");
   const [clinicName, setClinicName] = useState("");
 

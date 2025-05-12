@@ -173,9 +173,7 @@ export const doctor = pgTable("doctor", {
   linkedin_link: text("linkedin_link"),
   seo_description: text("seo_description"),
 
-  planId: integer("plan_id") // Changed from planid to planId to follow convention
-    .default(0) // Corrected default value to 0
-    .references(() => plans.id), // Foreign key to plans table
+  planId: integer("plan_id").references(() => plans.id), // Foreign key to plans table
   accountVerified: boolean("account_verified").default(false).notNull(),
   paymentStatus: boolean("payment_status").default(false).notNull(),
   accountStatus: boolean("account_status").default(false).notNull(),

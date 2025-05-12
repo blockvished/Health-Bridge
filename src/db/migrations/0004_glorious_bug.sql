@@ -1,0 +1,1 @@
+ALTER TABLE "doctor" ALTER COLUMN "plan_id" DROP DEFAULT;
