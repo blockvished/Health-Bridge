@@ -16,7 +16,7 @@ const Signup = () => {
 
   // Step 1 - Basic Info
   const [fullName, setFullName] = useState("");
-  const [mobile, setMobile] = useState("5396800659");
+  const [mobile, setMobile] = useState("5356800659");
   const [email, setEmail] = useState("");
   const [clinicName, setClinicName] = useState("");
 
@@ -33,75 +33,57 @@ const Signup = () => {
   const [pincode, setPincode] = useState("");
 
   // Step 3 - Subscription
-  const [subscriptionPlan, setSubscriptionPlan] = useState(0);
+  const [subscriptionPlan, setSubscriptionPlan] = useState<number | null>(null);
+  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">(
+    "monthly"
+  ); // Add billing period state
   const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
-
-  // Step 4 - Password
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false); // Add payment processing state
 
   // General state
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [userid, setUserid] = useState<number | null>(null);
 
-  // Subscription plans // TODO: get from db
-// Replace your existing useEffect with this improved version
-useEffect(() => {
-  const fetchPlans = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      console.log("Fetching plans...");
-      const response = await fetch("/api/plans");
-      
-      // Log the raw response for debugging
-      console.log("Response status:", response.status);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData?.error || "Failed to fetch plans");
+  // Subscription plans
+  useEffect(() => {
+    const fetchPlans = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        console.log("Fetching plans...");
+        const response = await fetch("/api/plans");
+
+        // Log the raw response for debugging
+        console.log("Response status:", response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData?.error || "Failed to fetch plans");
+        }
+
+        const data = await response.json();
+        console.log("Plans API response:", data);
+
+        if (data?.success && data?.data && Array.isArray(data.data)) {
+          console.log("Setting available plans:", data.data);
+          // Just use the data directly without reformatting
+          setAvailablePlans(data.data);
+        } else {
+          setError(data?.error || "Failed to fetch plans");
+        }
+      } catch (err: any) {
+        console.error("Error fetching plans:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch plans");
+      } finally {
+        setLoading(false);
       }
-      
-      const data = await response.json();
-      console.log("Plans API response:", data);
-      
-      if (data?.success && data?.data && Array.isArray(data.data)) {
-        console.log("Setting available plans:", data.data);
-        // Just use the data directly without reformatting
-        setAvailablePlans(data.data);
-      } else {
-        setError(data?.error || "Failed to fetch plans");
-      }
-    } catch (err) {
-      console.error("Error fetching plans:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch plans");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchPlans();
-}, []);
+    fetchPlans();
+  }, []);
 
-  const validatePassword = (password: string): string | null => {
-    if (password.length < 8) {
-      return "Password must be at least 8 characters long.";
-    }
-    if (!/[0-9]/.test(password)) {
-      return "Password must contain at least one number.";
-    }
-    if (!/[^a-zA-Z0-9\s]/.test(password)) {
-      return "Password must contain at least one special character.";
-    }
-    if (!/[A-Z]/.test(password)) {
-      return "Password must contain at least one uppercase letter.";
-    }
-    return null;
-  };
 
   const handleSendOTP = async () => {
     setError(null);
@@ -132,7 +114,7 @@ useEffect(() => {
       } else {
         setError(data.message || "Failed to send OTP");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("OTP send error:", error);
       setError("An error occurred while sending OTP");
     } finally {
@@ -168,7 +150,7 @@ useEffect(() => {
       } else {
         setError(data.message || "Invalid OTP");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("OTP verification error:", error);
       setError("An error occurred during verification");
     } finally {
@@ -191,8 +173,9 @@ useEffect(() => {
       city,
       pincode,
       subscriptionPlan,
+      billingPeriod, // Include billing period
       // payment stuff and email stuff
-      password: finalStep ? password : "",
+      password: "",
       role: "doctor",
     };
 
@@ -205,7 +188,10 @@ useEffect(() => {
         body: JSON.stringify(userData),
       });
 
+      console.log("dsfgkasfgioadsoifgadsoipgeag#$$%#^$&^$%^&%&*%&*");
+
       const data = await response.json();
+      setUserid(data.user.id);
 
       if (response.ok) {
         if (finalStep) {
@@ -222,7 +208,7 @@ useEffect(() => {
         setError(data.message || "Registration failed. Please try again.");
         return false;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("API error:", error);
       setError("An unexpected error occurred. Please try again later.");
       return false;
@@ -241,6 +227,9 @@ useEffect(() => {
       }
       if (!mobileVerified) {
         return setError("Please verify your mobile number");
+      }
+      if (!email) {
+        return setError("");
       }
 
       // Send data to backend at Step 1
@@ -265,103 +254,12 @@ useEffect(() => {
       // Send data to backend at Step 2
       await sendDataToBackend();
     }
-
-    // Validate Step 3
-    if (currentStep === 3) {
-      if (!subscriptionPlan) {
-        return setError("Please select a subscription plan");
-      }
-
-      // Send data to backend at Step 3
-      await sendDataToBackend();
-    }
-
     setCurrentStep(currentStep + 1);
   };
 
   const handlePrevStep = () => {
     setCurrentStep(currentStep - 1);
     setError(null);
-  };
-
-  const handleSignup = async (e: FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccessMessage(null);
-    setLoading(true);
-
-    // Validate passwords
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setError(passwordError);
-      setLoading(false);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-
-    if (!agreeTerms) {
-      setError("Please agree to terms and conditions to proceed");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const role = "doctor"; // Default role
-      const userData = {
-        fullName,
-        mobile,
-        email,
-        clinicName,
-        speciality,
-        practiceType,
-        yearsOfExperience,
-        city,
-        pincode,
-        subscriptionPlan,
-        role,
-        password,
-      };
-
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-
-      const data = await response.json();
-
-      if (response.status === 201 && response.ok) {
-        setSuccessMessage(
-          data.message || "Registration successful! Redirecting..."
-        );
-        // Redirect after a short delay
-        setTimeout(() => {
-          window.location.href = "/"; // Replace with your login page URL
-        }, 2000);
-      } else {
-        setError(data.message || "Registration failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Signup error:", error);
-      setError("An unexpected error occurred. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
   };
 
   const renderStepIndicator = () => {
@@ -405,8 +303,7 @@ useEffect(() => {
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-100 to-cyan-200 justify-center items-center p-3">
       <div className="bg-white shadow-lg rounded-2xl w-full max-w-4xl flex items-center justify-center overflow-hidden">
-
-        <div className="w-full md:w-2/3 p-6 flex items-center flex-col justify-center items-center">
+        <div className="w-full p-6 flex items-center flex-col justify-center items-center">
           <div className="text-center w-full max-w-md mb-4">
             <Image
               src="/logo_live_doctors.png"
@@ -434,7 +331,7 @@ useEffect(() => {
             </div>
           )}
 
-          <form onSubmit={handleSignup} className="w-full max-w-md">
+
             {currentStep === 1 && (
               <Step1BasicInfo
                 fullName={fullName}
@@ -478,41 +375,28 @@ useEffect(() => {
                 availablePlans={availablePlans}
                 subscriptionPlan={subscriptionPlan}
                 setSubscriptionPlan={setSubscriptionPlan}
+                billingPeriod={billingPeriod} // Pass the billing period
+                setBillingPeriod={setBillingPeriod} // Pass the setter
                 handlePrevStep={handlePrevStep}
                 handleNextStep={handleNextStep}
+                isProcessingPayment={isProcessingPayment}
+                userId={userid}
+                handleSendDataToBackend={sendDataToBackend}
               />
             )}
-            {/* {currentStep === 4 && (
-              <Step4Security
-                password={password}
-                setPassword={setPassword}
-                confirmPassword={confirmPassword}
-                setConfirmPassword={setConfirmPassword}
-                showPassword={showPassword}
-                showConfirmPassword={showConfirmPassword}
-                togglePasswordVisibility={togglePasswordVisibility}
-                toggleConfirmPasswordVisibility={toggleConfirmPasswordVisibility}
-                agreeTerms={agreeTerms}
-                setAgreeTerms={setAgreeTerms}
-                handlePrevStep={handlePrevStep}
-                loading={loading}
-              />
-            )} */}
-          </form>
+
 
           {currentStep === 1 && (
-              
-          <p className="mt-6 text-center text-sm text-gray-600">
-            Already have an account?{" "}
-            <Link
-              href="/"
-              className="text-blue-500 font-medium hover:underline"
-            >
-              Sign In
-            </Link>
-          </p>
-            )}
-
+            <p className="mt-6 text-center text-sm text-gray-600">
+              Already have an account?{" "}
+              <Link
+                href="/"
+                className="text-blue-500 font-medium hover:underline"
+              >
+                Sign In
+              </Link>
+            </p>
+          )}
         </div>
       </div>
     </div>

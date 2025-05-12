@@ -1,38 +1,29 @@
-import React, { useEffect, useState } from "react";
-import { FaArrowRight, FaArrowLeft, FaCheck } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaArrowRight, FaArrowLeft, FaCheck, FaSpinner } from "react-icons/fa";
 
 const Step3Subscription = ({
   availablePlans,
   subscriptionPlan,
   setSubscriptionPlan,
+  billingPeriod,
+  setBillingPeriod,
   handlePrevStep,
   handleNextStep,
+  isProcessingPayment,
+  userId,
+  handleSendDataToBackend, // Add this prop to receive the signup function from parent
 }) => {
-  // Add state to track billing period (monthly/yearly)
-  const [billingPeriods, setBillingPeriods] = useState({});
-
-  useEffect(() => {
-    console.log("Available plans:", availablePlans);
-    
-    // Initialize all plans to monthly billing by default
-    if (availablePlans && availablePlans.length > 0) {
-      const initialBillingPeriods = {};
-      availablePlans.forEach(plan => {
-        initialBillingPeriods[plan.id] = 'monthly';
-      });
-      setBillingPeriods(initialBillingPeriods);
-    }
-  }, [availablePlans]);
+  const [loading, setLoading] = useState(false);
 
   // If no plans are available yet, show loading state
   if (!availablePlans || availablePlans.length === 0) {
     return (
-      <div className="w-full">
-        <h3 className="text-lg font-medium text-gray-800 mb-4">
+      <div className="w-full py-8">
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">
           Loading Subscription Plans...
         </h3>
-        <div className="flex justify-center py-10">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
         </div>
       </div>
     );
@@ -40,32 +31,22 @@ const Step3Subscription = ({
 
   const renderFeatures = (plan) => {
     if (!Array.isArray(plan.features)) return null;
-    
+
     // Get all enabled features
-    const enabledFeatures = plan.features.filter(f => f.enabled);
-    
-    // Show all features without arbitrary limit
+    const enabledFeatures = plan.features.filter((f) => f.enabled);
+
     return (
-      <ul className="text-sm text-gray-600 space-y-2">
+      <ul className="text-sm text-gray-600 space-y-3">
         {enabledFeatures.map((feature, idx) => (
           <li key={idx} className="flex items-start">
-            <span className="text-green-500 mr-2 mt-0.5">
-              <FaCheck size={12} />
+            <span className="text-green-500 mr-3 mt-0.5 flex-shrink-0">
+              <FaCheck size={14} />
             </span>
-            <span className="text-sm">{feature.featureName}</span>
+            <span>{feature.featureName}</span>
           </li>
         ))}
       </ul>
     );
-  };
-
-  // Toggle billing period for a specific plan
-  const toggleBillingPeriod = (e, planId) => {
-    e.stopPropagation(); // Prevent card selection when clicking toggle
-    setBillingPeriods(prev => ({
-      ...prev,
-      [planId]: prev[planId] === 'monthly' ? 'yearly' : 'monthly'
-    }));
   };
 
   // Calculate savings percentage for yearly billing
@@ -76,133 +57,258 @@ const Step3Subscription = ({
     return Math.round(savingsPercentage);
   };
 
+  // Get the selected plan
+  const selectedPlan = availablePlans.find(plan => plan.id === subscriptionPlan);
+
+  // Determine the amount based on selected plan and billing period
+  const getSelectedAmount = () => {
+    if (!selectedPlan) return 0;
+    return billingPeriod === "monthly" ? selectedPlan.monthlyPrice : selectedPlan.yearlyPrice;
+  };
+
+  const handlePayment = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // First, call handleSignup to ensure subscription details are set
+      const signupResult = await handleSendDataToBackend(e);
+      
+      // If signup was not successful, stop payment process
+      if (!signupResult) {
+        setLoading(false);
+        return;
+      }
+
+      // Get the amount based on the selected plan and billing period
+      const amount = getSelectedAmount();
+
+      // Prepare the data
+      const data = {
+        name: "name",
+        amount: amount,
+        mobile: 2398745093,
+        transactionId: "T" + Date.now(),
+      };
+
+      console.log("Payment data:", data);
+
+      // Initiate payment
+      const response = await fetch(`/api/order/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const responseData = await response.json();
+      console.log(responseData.data.instrumentResponse.redirectInfo.url);
+
+      // Redirect user to PhonePe payment page
+      if (
+        responseData.data &&
+        responseData.data.instrumentResponse.redirectInfo.url
+      ) {
+        window.location.href =
+          responseData.data.instrumentResponse.redirectInfo.url;
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error initiating payment. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="w-full">
-      <h3 className="text-xl font-semibold text-gray-800 mb-2">
+    <div className="w-full py-4">
+      <h3 className="text-2xl font-semibold text-gray-800 mb-3">
         Choose Your Subscription
       </h3>
-      <p className="text-gray-500 mb-6">Select the plan that best fits your practice needs</p>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <p className="text-gray-600 mb-8 text-lg">
+        Select the plan that best fits your practice needs
+      </p>
+
+      {/* Global billing toggle */}
+      <div className="flex justify-center mb-8">
+        <div className="inline-flex bg-gray-100 p-1 rounded-xl">
+          <button
+            type="button"
+            onClick={() => setBillingPeriod("monthly")}
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition ${
+              billingPeriod === "monthly"
+                ? "bg-blue-500 text-white shadow-md"
+                : "text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            Monthly Billing
+          </button>
+          <button
+            type="button"
+            onClick={() => setBillingPeriod("yearly")}
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition ml-1 ${
+              billingPeriod === "yearly"
+                ? "bg-blue-500 text-white shadow-md"
+                : "text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            Yearly Billing
+            <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+              Save up to 20%
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Subscription plans cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
         {availablePlans.map((plan) => {
-          const isMonthly = billingPeriods[plan.id] === 'monthly';
+          const isMonthly = billingPeriod === "monthly";
           const activePrice = isMonthly ? plan.monthlyPrice : plan.yearlyPrice;
-          const savingsPercentage = calculateSavings(plan.monthlyPrice, plan.yearlyPrice);
-          
+          const savingsPercentage = calculateSavings(
+            plan.monthlyPrice,
+            plan.yearlyPrice
+          );
+
           return (
             <div
               key={plan.id}
               onClick={() => setSubscriptionPlan(plan.id)}
-              className={`relative border-2 rounded-xl overflow-hidden transition-all hover:shadow-lg ${
+              className={`relative border-2 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl cursor-pointer ${
                 subscriptionPlan === plan.id
-                  ? "border-blue-500 bg-blue-50 shadow-md"
+                  ? "border-blue-500 bg-blue-50 shadow-lg transform scale-105"
                   : "border-gray-200 hover:border-blue-300"
               }`}
             >
-              {/* Plan header with background */}
-              <div className="p-4 bg-gray-50">
-                <h4 className="font-bold text-lg uppercase tracking-wide">{plan.name}</h4>
-                
-                {/* Billing toggle */}
-                <div className="mt-3 flex items-center justify-center bg-gray-100 rounded-lg p-1">
-                  <button
-                    onClick={(e) => toggleBillingPeriod(e, plan.id)}
-                    className={`text-xs font-medium py-1.5 px-3 rounded ${
-                      isMonthly 
-                        ? "bg-blue-500 text-white" 
-                        : "text-gray-600 hover:bg-gray-200"
-                    } transition`}
-                  >
-                    Monthly
-                  </button>
-                  <button
-                    onClick={(e) => toggleBillingPeriod(e, plan.id)}
-                    className={`text-xs font-medium py-1.5 px-3 rounded ${
-                      !isMonthly 
-                        ? "bg-blue-500 text-white" 
-                        : "text-gray-600 hover:bg-gray-200"
-                    } transition`}
-                  >
-                    Yearly
-                    {savingsPercentage > 0 && (
-                      <span className="ml-1 text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
-                        Save {savingsPercentage}%
-                      </span>
-                    )}
-                  </button>
-                </div>
-                
+              {/* Plan header */}
+              <div className="p-6 bg-gradient-to-b from-gray-50 to-white">
+                <h4 className="font-bold text-xl tracking-wide text-gray-800">
+                  {plan.name}
+                </h4>
+
                 {/* Price */}
-                <div className="mt-3 text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    ₹{activePrice}
-                    <span className="text-sm font-normal ml-1 text-gray-500">
-                      / {isMonthly ? 'month' : 'year'}
+                <div className="mt-4">
+                  <div className="flex items-baseline">
+                    <span className="text-3xl font-bold text-blue-600">
+                      ₹{activePrice}
+                    </span>
+                    <span className="text-sm ml-2 text-gray-500">
+                      / {isMonthly ? "month" : "year"}
                     </span>
                   </div>
+
                   {!isMonthly && (
-                    <div className="text-xs text-gray-500 mt-1">
-                      That's just ₹{Math.round(plan.yearlyPrice / 12)} per month
+                    <div className="text-sm text-green-600 mt-1 font-medium">
+                      Save {savingsPercentage}% with yearly billing
                     </div>
                   )}
                 </div>
+
+                {/* Individual plan billing toggle */}
+                <div className="mt-4">
+                  <div className="inline-flex bg-gray-100 p-1 rounded-lg">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setBillingPeriod("monthly");
+                      }}
+                      className={`px-3 py-1.5 text-xs font-medium rounded ${
+                        isMonthly
+                          ? "bg-blue-500 text-white"
+                          : "text-gray-600 hover:bg-gray-200"
+                      } transition`}
+                    >
+                      Monthly
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setBillingPeriod("yearly");
+                      }}
+                      className={`px-3 py-1.5 text-xs font-medium rounded ${
+                        !isMonthly
+                          ? "bg-blue-500 text-white"
+                          : "text-gray-600 hover:bg-gray-200"
+                      } transition`}
+                    >
+                      Yearly
+                    </button>
+                  </div>
+                </div>
               </div>
-              
+
               {/* Features section */}
-              <div className="p-4">
-                <div className="mb-3 font-medium text-gray-700">What's included:</div>
-                <div className="overflow-y-auto max-h-60 pr-1">
+              <div className="p-6 border-t border-gray-100">
+                <h5 className="font-semibold text-gray-700 mb-4">
+                  What's included:
+                </h5>
+                <div className="overflow-y-auto max-h-64 pr-1">
                   {renderFeatures(plan)}
                 </div>
               </div>
-              
-              {/* Button section with background */}
-              <div className="p-4 bg-gray-50 mt-2">
+
+              {/* Button section */}
+              <div className="p-6 bg-gray-50 mt-4">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSubscriptionPlan(plan.id);
                   }}
-                  className={`w-full py-2.5 rounded-lg text-center transition-colors font-medium ${
+                  className={`w-full py-3 rounded-xl text-center transition-colors font-semibold ${
                     subscriptionPlan === plan.id
-                      ? "bg-blue-500 text-white"
-                      : "border border-blue-500 text-blue-500 hover:bg-blue-50"
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      : "border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
                   }`}
                 >
                   {subscriptionPlan === plan.id ? "Selected" : "Select Plan"}
                 </button>
               </div>
-              
+
               {/* Selected indicator */}
               {subscriptionPlan === plan.id && (
-                <div className="absolute top-4 right-4 bg-white rounded-full w-6 h-6 flex items-center justify-center shadow-md">
-                  <FaCheck size={12} className="text-blue-500" />
+                <div className="absolute top-4 right-4 bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg">
+                  <FaCheck size={14} />
                 </div>
               )}
             </div>
           );
         })}
       </div>
-      
-      {/* Navigation buttons with improved styling */}
-      <div className="flex justify-between pt-4 border-t border-gray-200">
+
+      {/* Navigation buttons */}
+      <div className="flex justify-between pt-6 border-t border-gray-200">
         <button
           type="button"
           onClick={handlePrevStep}
-          className="flex items-center px-6 py-2.5 rounded-lg text-blue-500 border border-blue-500 hover:bg-blue-50 transition font-medium"
+          className="flex items-center px-8 py-3 rounded-xl text-blue-600 border-2 border-blue-500 hover:bg-blue-50 transition font-medium"
+          disabled={loading || isProcessingPayment}
         >
-          <FaArrowLeft className="mr-2" /> Previous
+          <FaArrowLeft className="mr-2" size={16} /> Previous
         </button>
         <button
           type="button"
-          onClick={handleNextStep}
-          disabled={!subscriptionPlan}
-          className={`flex items-center px-6 py-2.5 rounded-lg text-white font-medium ${
-            !subscriptionPlan ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
-          } transition`}
+          onClick={handlePayment}
+          disabled={!subscriptionPlan || loading || isProcessingPayment}
+          className={`flex items-center px-8 py-3 rounded-xl text-white font-medium ${
+            !subscriptionPlan || loading || isProcessingPayment
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          } transition shadow-md`}
         >
-          Continue <FaArrowRight className="ml-2" />
+          {loading || isProcessingPayment ? (
+            <>
+              <FaSpinner className="mr-2 animate-spin" size={16} />
+              Processing...
+            </>
+          ) : (
+            <>
+              Proceed to Payment <FaArrowRight className="ml-2" size={16} />
+            </>
+          )}
         </button>
       </div>
     </div>

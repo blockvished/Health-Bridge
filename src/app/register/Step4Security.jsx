@@ -12,7 +12,6 @@ const Step4Security = ({
   toggleConfirmPasswordVisibility,
   agreeTerms,
   setAgreeTerms,
-  handlePrevStep,
   loading
 }) => {
   return (
@@ -89,13 +88,6 @@ const Step4Security = ({
       </div>
 
       <div className="flex justify-between pt-4">
-        <button
-          type="button"
-          onClick={handlePrevStep}
-          className="flex items-center px-6 py-2 rounded-lg text-blue-500 border border-blue-500 hover:bg-blue-50 transition"
-        >
-          <FaArrowLeft className="mr-2" /> Back
-        </button>
         <button
           type="submit"
           disabled={!password || !confirmPassword || !agreeTerms || loading}

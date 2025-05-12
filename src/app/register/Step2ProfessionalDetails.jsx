@@ -91,7 +91,7 @@ const Step2ProfessionalDetails = ({
             Pincode <span className="text-red-500">*</span>
           </label>
           <input
-            type="text"
+            type="number"
             placeholder="6-digit pincode"
             className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
             value={pincode}

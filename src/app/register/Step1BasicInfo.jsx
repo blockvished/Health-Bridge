@@ -80,6 +80,7 @@ const Step1BasicInfo = ({
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
               maxLength={6}
+
             />
             <button
               type="button"
@@ -105,7 +106,7 @@ const Step1BasicInfo = ({
 
       <div>
         <label className="block text-gray-600 text-sm font-medium mb-1">
-          Email <span className="text-gray-400">(optional)</span>
+          Email <span className="text-red-500">*</span>
         </label>
         <input
           type="email"
@@ -113,6 +114,7 @@ const Step1BasicInfo = ({
           className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
           value={email}
           onChange={(e) => setEmail(e.target.value.toLowerCase())}
+          required
         />
       </div>
 
@@ -135,7 +137,7 @@ const Step1BasicInfo = ({
           onClick={handleNextStep}
           disabled={!mobileVerified || !fullName.trim()}
           className={`flex items-center px-6 py-2 rounded-lg text-white ${
-            !mobileVerified || !fullName.trim()
+            !mobileVerified || !fullName.trim() | !email
               ? "bg-gray-400"
               : "bg-blue-500 hover:bg-blue-600"
           } transition`}
