@@ -2,8 +2,7 @@
 
 when use requests otp, check if his phone is in db or not, 
 if present then check if he is verified or not, if he is verified then display that he already has a verified account, so use that for login
-
-if not then verify his phone and allow next button for step 2
+if not then verify his phone and allow next button for step 2 
 
 after he clicks next button and data is passed to the backend, there is a check if user/doctor exist or not if not then is created else updated
 
@@ -12,3 +11,4 @@ similarly step 3, but will validate the email after payment and save the data an
 
 
 // type of practice
+// clinic name

@@ -9,10 +9,11 @@ import { eq } from "drizzle-orm";
 // Define the types for the inserts
 type NewDoctor = InferInsertModel<typeof doctor>;
 
+// TODO: should also pass monthly or yearly
 export async function POST(request: Request) {
   try {
     const userData = await request.json();
-    
+
     // Extract all potential fields from userData
     const {
       fullName,
@@ -26,8 +27,10 @@ export async function POST(request: Request) {
       pincode,
       subscriptionPlan,
       password,
-      role
+      role,
     } = userData;
+
+    console.log(subscriptionPlan, "subscriptionPlan");
 
     // Validate required fields
     if (!fullName || !mobile) {
@@ -60,7 +63,7 @@ export async function POST(request: Request) {
       .where(eq(users.phone, mobile));
 
     let registrationResult;
-    
+
     // If user exists, update the user record
     if (existingUser && existingUser.length > 0) {
       registrationResult = await updateUser(
@@ -85,13 +88,13 @@ export async function POST(request: Request) {
     if (registrationResult.success && registrationResult.user) {
       // If user registration/update was successful and role is doctor, create/update doctor entry
       const userId = registrationResult.user.id;
-      
+
       // Check if doctor record already exists
       const existingDoctor = await db
         .select()
         .from(doctor)
         .where(eq(doctor.userId, userId));
-      
+
       // Prepare doctor data
       const doctorData: Partial<NewDoctor> = {
         userId: userId,
@@ -103,6 +106,7 @@ export async function POST(request: Request) {
         specialization: speciality || null,
         experience: yearsOfExperience ? parseInt(yearsOfExperience) : null,
         aboutClinic: clinicName || null,
+        planId: subscriptionPlan || null, // Foreign key to plans table
       };
 
       // If subscriptionPlan is provided, try to find the plan ID
@@ -112,7 +116,7 @@ export async function POST(request: Request) {
             .select({ id: plans.id })
             .from(plans)
             .where(eq(plans.name, subscriptionPlan));
-          
+
           if (planResult && planResult.length > 0) {
             doctorData.planId = planResult[0].id;
           }
@@ -120,7 +124,7 @@ export async function POST(request: Request) {
           console.error("Error finding subscription plan:", error);
         }
       }
-      
+
       try {
         if (existingDoctor && existingDoctor.length > 0) {
           // Update existing doctor record
@@ -137,13 +141,14 @@ export async function POST(request: Request) {
       } catch (error) {
         console.error("Error creating/updating doctor record:", error);
       }
-      
+
       return NextResponse.json(
-        { 
-          message: existingUser && existingUser.length > 0 
-            ? "User updated successfully" 
-            : "Registration successful",
-          user: registrationResult.user
+        {
+          message:
+            existingUser && existingUser.length > 0
+              ? "User updated successfully"
+              : "Registration successful",
+          user: registrationResult.user,
         },
         { status: existingUser && existingUser.length > 0 ? 200 : 201 }
       );
@@ -161,11 +166,8 @@ export async function POST(request: Request) {
     } else if (typeof error === "string") {
       errorMessage = error;
     }
-  
+
     console.error("Registration error details:", errorMessage);
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
