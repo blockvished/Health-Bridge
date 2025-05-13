@@ -2,6 +2,8 @@ import crypto from "crypto";
 import axios from "axios";
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
+import { serialize } from "cookie";
+import { sign } from "jsonwebtoken";
 
 let saltKey = "96434309-7796-489d-8924-ab56988a6076";
 let merchantId = "PGTESTPAYUAT86";
@@ -32,13 +34,52 @@ export async function POST(req) {
 
     const response = await axios(options);
 
+    let redirectUrl;
+
     if (response.data.success === true) {
-      // TODO:mark payment as successful in db
-      return NextResponse.redirect(`https://localhost:3000/success/${userId}`, {
+      const JWT_SECRET = process.env.JWT_SECRET;
+      if (!JWT_SECRET) {
+        throw new Error("JWT_SECRET is not set in environment variables.");
+      }
+
+      const token = sign(
+        {
+          userId: userId,
+          // Include any other data you need in the token payload
+          paymentSuccess: true,
+          transactionId: merchantTransactionId,
+        },
+        JWT_SECRET,
+        { expiresIn: "10m" }
+      );
+
+      // Create redirect response and set cookie
+      redirectUrl = `http://localhost:3000/success/${userId}`;
+
+      const response = NextResponse.redirect(redirectUrl, {
         status: 301,
       });
+
+      // Set JWT token in cookie
+      response.headers.set(
+        "Set-Cookie",
+        serialize("authToken", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 10 * 60, // 10 minutes in seconds
+        })
+      );
+
+      return response;
+
+      // TODO:mark payment as successful in db
+      // return NextResponse.redirect(`http://localhost:3000/success/${userId}`, {
+      //   status: 301,
+      // });
     } else {
-      return NextResponse.redirect("https://localhost:3000/failed", {
+      return NextResponse.redirect("http://localhost:3000/failed", {
         status: 301,
       });
     }
