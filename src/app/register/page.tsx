@@ -16,7 +16,7 @@ const Signup = () => {
 
   // Step 1 - Basic Info
   const [fullName, setFullName] = useState("");
-  const [mobile, setMobile] = useState("5356800659");
+  const [mobile, setMobile] = useState("8484884848");
   const [email, setEmail] = useState("");
   const [clinicName, setClinicName] = useState("");
 
@@ -83,7 +83,6 @@ const Signup = () => {
 
     fetchPlans();
   }, []);
-
 
   const handleSendOTP = async () => {
     setError(null);
@@ -331,60 +330,58 @@ const Signup = () => {
             </div>
           )}
 
-
-            {currentStep === 1 && (
-              <Step1BasicInfo
-                fullName={fullName}
-                setFullName={setFullName}
-                mobile={mobile}
-                setMobile={setMobile}
-                email={email}
-                setEmail={setEmail}
-                clinicName={clinicName}
-                setClinicName={setClinicName}
-                otpSent={otpSent}
-                mobileVerified={mobileVerified}
-                otp={otp}
-                setOtp={setOtp}
-                loading={loading}
-                handleSendOTP={handleSendOTP}
-                handleVerifyOTP={handleVerifyOTP}
-                handleNextStep={handleNextStep}
-              />
-            )}
-            {currentStep === 2 && (
-              <Step2ProfessionalDetails
-                speciality={speciality}
-                setSpeciality={setSpeciality}
-                practiceType={practiceType}
-                setPracticeType={setPracticeType}
-                yearsOfExperience={yearsOfExperience}
-                setYearsOfExperience={setYearsOfExperience}
-                city={city}
-                setCity={setCity}
-                pincode={pincode}
-                setPincode={setPincode}
-                handlePrevStep={handlePrevStep}
-                handleNextStep={handleNextStep}
-                specialities={specialities}
-                practiceTypes={practiceTypes}
-              />
-            )}
-            {currentStep === 3 && (
-              <Step3Subscription
-                availablePlans={availablePlans}
-                subscriptionPlan={subscriptionPlan}
-                setSubscriptionPlan={setSubscriptionPlan}
-                billingPeriod={billingPeriod} // Pass the billing period
-                setBillingPeriod={setBillingPeriod} // Pass the setter
-                handlePrevStep={handlePrevStep}
-                handleNextStep={handleNextStep}
-                isProcessingPayment={isProcessingPayment}
-                userId={userid}
-                handleSendDataToBackend={sendDataToBackend}
-              />
-            )}
-
+          {currentStep === 1 && (
+            <Step1BasicInfo
+              fullName={fullName}
+              setFullName={setFullName}
+              mobile={mobile}
+              setMobile={setMobile}
+              email={email}
+              setEmail={setEmail}
+              clinicName={clinicName}
+              setClinicName={setClinicName}
+              otpSent={otpSent}
+              mobileVerified={mobileVerified}
+              otp={otp}
+              setOtp={setOtp}
+              loading={loading}
+              handleSendOTP={handleSendOTP}
+              handleVerifyOTP={handleVerifyOTP}
+              handleNextStep={handleNextStep}
+            />
+          )}
+          {currentStep === 2 && (
+            <Step2ProfessionalDetails
+              speciality={speciality}
+              setSpeciality={setSpeciality}
+              practiceType={practiceType}
+              setPracticeType={setPracticeType}
+              yearsOfExperience={yearsOfExperience}
+              setYearsOfExperience={setYearsOfExperience}
+              city={city}
+              setCity={setCity}
+              pincode={pincode}
+              setPincode={setPincode}
+              handlePrevStep={handlePrevStep}
+              handleNextStep={handleNextStep}
+              specialities={specialities}
+              practiceTypes={practiceTypes}
+            />
+          )}
+          {currentStep === 3 && (
+            <Step3Subscription
+              availablePlans={availablePlans}
+              subscriptionPlan={subscriptionPlan}
+              setSubscriptionPlan={setSubscriptionPlan}
+              billingPeriod={billingPeriod} // Pass the billing period
+              setBillingPeriod={setBillingPeriod} // Pass the setter
+              handlePrevStep={handlePrevStep}
+              handleNextStep={handleNextStep}
+              isProcessingPayment={isProcessingPayment}
+              userId={userid}
+              handleSendDataToBackend={sendDataToBackend}
+            />
+          )}
 
           {currentStep === 1 && (
             <p className="mt-6 text-center text-sm text-gray-600">
