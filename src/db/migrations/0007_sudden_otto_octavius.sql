@@ -1,0 +1,1 @@
+ALTER TABLE "doctor" ADD COLUMN "expire_at" timestamp DEFAULT now();

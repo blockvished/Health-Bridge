@@ -30,13 +30,28 @@ const Step4Security = ({
     setPasswordMatchError(false);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
+      const response = await fetch("/api/change_password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ newPassword: password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Registration failed:", errorData);
+        setErrorMessage(
+          errorData.message || "Registration failed. Please try again."
+        );
+        return;
+      }
 
       console.log("Registration successful");
       setRegistrationSuccess(true);
 
       setTimeout(() => {
-        router.push("/"); // App Router's push
+        router.push("/");
       }, 2000);
     } catch (error) {
       console.error("Unexpected error during registration:", error);
@@ -47,17 +62,21 @@ const Step4Security = ({
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-3">
       {registrationSuccess && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+        <div
+          className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
           <strong className="font-bold">Success!</strong>
-          <span className="block sm:inline"> Registration completed successfully. Redirecting...</span>
+          <span className="block sm:inline">
+            {" "}
+            Registration completed successfully. Redirecting...
+          </span>
         </div>
       )}
       {passwordMatchError && (
         <p className="text-red-500 text-sm">Passwords do not match.</p>
       )}
-      {errorMessage && (
-        <p className="text-red-500 text-sm">{errorMessage}</p>
-      )}
+      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
       <div>
         <label className="block text-gray-600 text-sm font-medium mb-1">
           Create Password <span className="text-red-500">*</span>
@@ -80,7 +99,8 @@ const Step4Security = ({
           </button>
         </div>
         <p className="text-xs text-gray-500 mt-1">
-          Password must be at least 8 characters with number, special character & capital letter
+          Password must be at least 8 characters with number, special character
+          & capital letter
         </p>
       </div>
       <div>

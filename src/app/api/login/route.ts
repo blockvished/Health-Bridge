@@ -45,8 +45,15 @@ export async function POST(request: Request) {
     }
 
     const user = userResult[0];
-    const SERVER_PEPPER = process.env.SERVER_PEPPER;
-    const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
+    const salt = user.salt || "";
+    const saltedPassword = salt + password
+
+    if (!user.password_hash) {
+      return NextResponse.json(
+        { success: false, message: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
 
     // Verify password
     const passwordValid = await verify(user.password_hash, saltedPassword);

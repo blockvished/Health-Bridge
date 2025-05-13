@@ -81,6 +81,8 @@ export const DosageType = pgEnum("dosage_type", [
 
 export const DrugType = pgEnum("drug_type", ["cap", "tab", "syp", "oin"]);
 
+export const planTypeEnum = pgEnum("plan_type", ["monthly", "yearly"]);
+
 ///
 // Users
 ///
@@ -174,9 +176,11 @@ export const doctor = pgTable("doctor", {
   seo_description: text("seo_description"),
 
   planId: integer("plan_id").references(() => plans.id), // Foreign key to plans table
-  accountVerified: boolean("account_verified").default(false).notNull(),
+  planType: planTypeEnum("plan_type"), 
   paymentStatus: boolean("payment_status").default(false).notNull(),
-  accountStatus: boolean("account_status").default(false).notNull(),
+  paymentAt: timestamp("payment_at").defaultNow(),
+  expireAt: timestamp("expire_at").defaultNow(),
+  accountVerified: boolean("account_verified").default(false).notNull(),
 });
 
 export const doctorRelations = relations(doctor, ({ one, many }) => ({

@@ -7,18 +7,17 @@ import { specialities, practiceTypes, PlanFeature, Plan } from "./constants";
 import Step1BasicInfo from "./Step1BasicInfo";
 import Step2ProfessionalDetails from "./Step2ProfessionalDetails";
 import Step3Subscription from "./Step3Subscription";
-// import Step4Security from "./components/Step4Security";
 
 const Signup = () => {
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
   const [mobileVerified, setMobileVerified] = useState(true); // default should be false but true for testing
-  const [emailVerified, setEmailVerified] = useState(false); // default should be false but true for testing
+  const [emailVerified, setEmailVerified] = useState(true); // default should be false but true for testing
 
   // Step 1 - Basic Info
   const [fullName, setFullName] = useState("");
-  const [mobile, setMobile] = useState("8484884848");
-  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("2452434324");
+  const [email, setEmail] = useState("jv@sfd.fg");
   const [clinicName, setClinicName] = useState("");
 
   // OTP verification
@@ -42,7 +41,7 @@ const Signup = () => {
 
   // General state
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [userid, setUserid] = useState<number | null>(null);
 
@@ -84,14 +83,24 @@ const Signup = () => {
     fetchPlans();
   }, []);
 
-  const handleSendOTP = async () => {
+  // TypeScript version of the handleSendOTP function in Signup component
+
+  interface OTPResponse {
+    success: boolean;
+    message: string;
+    verificationId?: string;
+    userExists?: boolean;
+    verified?: boolean;
+  }
+
+  const handleSendOTP = async (): Promise<OTPResponse | null> => {
     setError(null);
     setLoading(true);
 
     if (!mobile || mobile.length < 10) {
       setError("Please enter a valid mobile number");
-      setLoading(false);
-      return;
+      setLoading(true);
+      return null;
     }
 
     try {
@@ -103,19 +112,28 @@ const Signup = () => {
         body: JSON.stringify({ mobile }),
       });
 
-      const data = await response.json();
+      const data: OTPResponse = await response.json();
 
       if (response.ok) {
-        setOtpSent(true);
-        setVerificationId(data.verificationId);
-        setSuccessMessage("OTP sent to your mobile number");
-        setTimeout(() => setSuccessMessage(null), 3000);
+        // Handle account already verified
+        if (data.userExists && data.verified) {
+          setSuccessMessage("Account already exists with this mobile number");
+          setTimeout(() => setSuccessMessage(null), 3000);
+        } else {
+          setOtpSent(true);
+          setVerificationId(data.verificationId || "");
+          setSuccessMessage("OTP sent to your mobile number");
+          setTimeout(() => setSuccessMessage(null), 3000);
+        }
+        return data; // Return the data to pass to Step1BasicInfo
       } else {
         setError(data.message || "Failed to send OTP");
+        return null;
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("OTP send error:", error);
       setError("An error occurred while sending OTP");
+      return null;
     } finally {
       setLoading(false);
     }
@@ -172,8 +190,7 @@ const Signup = () => {
       city,
       pincode,
       subscriptionPlan,
-      billingPeriod, // Include billing period
-      // payment stuff and email stuff
+      billingPeriod,
       password: "",
       role: "doctor",
     };
@@ -186,8 +203,6 @@ const Signup = () => {
         },
         body: JSON.stringify(userData),
       });
-
-      console.log("dsfgkasfgioadsoifgadsoipgeag#$$%#^$&^$%^&%&*%&*");
 
       const data = await response.json();
       setUserid(data.user.id);

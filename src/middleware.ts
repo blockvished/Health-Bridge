@@ -70,9 +70,17 @@ function getKey() {
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname.replace(/\/$/, "");
+  
+  console.log({
+    path: pathname,
+    url: req.url,
+    headers: Object.fromEntries(req.headers.entries())
+  });
+  
   const token = req.cookies.get("authToken")?.value;
 
   console.log("Middleware running on:", pathname);
+
 
   if (!JWT_SECRET) {
     console.error("JWT_SECRET is not defined");

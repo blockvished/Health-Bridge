@@ -4,6 +4,8 @@ import { users } from "../../../db/schema";
 import db from "../../../db/db";
 import { verifyAuthToken } from "../../lib/verify";
 import { verify, hash } from "argon2";
+import { serialize } from "cookie";
+import { randomBytes } from "crypto";
 
 // =======================
 // PUT - Update - Password
@@ -36,6 +38,7 @@ export async function PUT(req: NextRequest) {
       .select({
         id: users.id,
         password_hash: users.password_hash,
+        salt: users.salt,
       })
       .from(users)
       .where(eq(users.id, userId))
@@ -46,29 +49,51 @@ export async function PUT(req: NextRequest) {
     }
 
     const existingUser = existingUserResult[0];
-    const SERVER_PEPPER = process.env.SERVER_PEPPER;
 
     // Handle the case where the user's password_hash is null (e.g., initial setup)
     if (existingUser.password_hash === null) {
       // Hash the new password
-      const saltedNewPassword = SERVER_PEPPER + newPassword + SERVER_PEPPER;
+      const salt = randomBytes(16).toString('hex');
+      const saltedNewPassword = salt + newPassword;
       const hashedPassword = await hash(saltedNewPassword);
 
       // Update the user's password in the database
       await db
         .update(users)
-        .set({ password_hash: hashedPassword })
+        .set({ password_hash: hashedPassword, salt: salt })
         .where(eq(users.id, userId));
 
-      return NextResponse.json(
-        { message: "Password set successfully." },
-        { status: 200 }
+      let redirectUrl = `http://localhost:3000/success/${userId}`;
+      if (process.env.NODE_ENV === "production") {
+        redirectUrl = `https://app.livedoctors24.com/`;
+      }
+
+      const res = NextResponse.redirect(redirectUrl, {
+        status: 301, // Use 302 for temporary redirect
+      });
+
+      // Set JWT token in cookie
+      res.headers.set(
+        "Set-Cookie",
+        serialize("authToken", "", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 0,
+        })
       );
+
+      return res;
+
+      //
     } else {
       // If password_hash exists, verify the old password
       if (!oldPassword) {
         return NextResponse.json(
-          { error: "Old password is required to change the existing password." },
+          {
+            error: "Old password is required to change the existing password.",
+          },
           { status: 400 }
         );
       }
@@ -79,13 +104,14 @@ export async function PUT(req: NextRequest) {
           { status: 400 }
         );
       }
-
-      const saltedOldPassword = SERVER_PEPPER + oldPassword + SERVER_PEPPER;
+      const existintSalt = existingUser.salt
+      const saltedOldPassword = existintSalt + oldPassword;
+      const hashedOldPassword = await hash(saltedOldPassword);
 
       // Verify old password
       const isOldPasswordCorrect = await verify(
         existingUser.password_hash,
-        saltedOldPassword
+        hashedOldPassword
       );
 
       if (!isOldPasswordCorrect) {
@@ -96,13 +122,15 @@ export async function PUT(req: NextRequest) {
       }
 
       // Hash the new password
-      const saltedNewPassword = SERVER_PEPPER + newPassword + SERVER_PEPPER;
+      const salt = randomBytes(16).toString('hex');
+      const saltedNewPassword = salt + newPassword;
+
       const hashedPassword = await hash(saltedNewPassword);
 
       // Update the user's password in the database
       await db
         .update(users)
-        .set({ password_hash: hashedPassword })
+        .set({ password_hash: hashedPassword, salt: salt })
         .where(eq(users.id, userId));
 
       return NextResponse.json(

@@ -7,7 +7,7 @@ const Signup = () => {
   // Step 4 - Password
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [currentStep, setCurrentStep] = useState(4);
+  const currentStep = 4;
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);

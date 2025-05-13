@@ -70,7 +70,7 @@ const Step3Subscription = ({
 
     try {
       // First, call handleSignup to ensure subscription details are set
-      const signupResult = await handleSendDataToBackend(e);
+      const signupResult = await handleSendDataToBackend(true);
       
       // If signup was not successful, stop payment process
       if (!signupResult) {

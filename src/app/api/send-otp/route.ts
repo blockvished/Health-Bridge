@@ -1,6 +1,9 @@
 // /app/api/send-otp/route.ts
 import { NextResponse } from "next/server";
 import twilio from "twilio";
+import db from "../../../db/db";
+import { users } from "../../../db/schema";
+import { eq } from "drizzle-orm";
 
 export async function POST(request: Request) {
   try {
@@ -11,6 +14,28 @@ export async function POST(request: Request) {
         { success: false, message: "Invalid mobile number" },
         { status: 400 }
       );
+    }
+
+    const existingUserResult = await db
+      .select()
+      .from(users)
+      .where(eq(users.phone, mobile))
+      .limit(1);
+
+    const existingUser = existingUserResult[0];
+
+    if (existingUser) {
+      if (existingUser.phone_verified) {
+        return NextResponse.json(
+          { 
+            success: true, 
+            message: "Account already exists", 
+            userExists: true,
+            verified: true 
+          },
+          { status: 200 }
+        );
+      }
     }
 
     const formattedMobile = mobile.startsWith("+") ? mobile : `+91${mobile}`;

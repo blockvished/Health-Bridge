@@ -56,12 +56,12 @@ export async function POST(req) {
       // Create redirect response and set cookie
       redirectUrl = `http://localhost:3000/success/${userId}`;
 
-      const response = NextResponse.redirect(redirectUrl, {
-        status: 301,
+      const res = NextResponse.redirect(redirectUrl, {
+        status: 302, // Use 302 for temporary redirect
       });
 
       // Set JWT token in cookie
-      response.headers.set(
+      res.headers.set(
         "Set-Cookie",
         serialize("authToken", token, {
           httpOnly: true,
@@ -72,7 +72,8 @@ export async function POST(req) {
         })
       );
 
-      return response;
+      return res;
+
 
       // TODO:mark payment as successful in db
       // return NextResponse.redirect(`http://localhost:3000/success/${userId}`, {

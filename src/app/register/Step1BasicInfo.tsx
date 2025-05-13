@@ -1,7 +1,34 @@
+"use client";
 import { ArrowRight } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 
-const Step1BasicInfo = ({
+interface Step1BasicInfoProps {
+  fullName: string;
+  setFullName: (name: string) => void;
+  clinicName: string;
+  setClinicName: (name: string) => void;
+  handleNextStep: () => void;
+
+  mobile: string;
+  setMobile: (mobile: string) => void;
+  otpSent: boolean;
+  mobileVerified: boolean;
+  otp: string;
+  setOtp: (otp: string) => void;
+  loading: boolean;
+  handleSendOTP: () => Promise<{
+    userExists?: boolean;
+    verified?: boolean;
+  } | null>;
+  handleVerifyOTP: () => Promise<void>;
+
+  email: string;
+  setEmail: (email: string) => void;
+  emailVerified: boolean;
+  setEmailVerified: (verified: boolean) => void;
+}
+
+const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   fullName,
   setFullName,
   clinicName,
@@ -21,16 +48,18 @@ const Step1BasicInfo = ({
   email,
   setEmail,
   emailVerified,
-  setEmailVerified
+  setEmailVerified,
 }) => {
   // State for email verification
-  const [emailOtp, setEmailOtp] = useState("");
-  const [emailOtpSent, setEmailOtpSent] = useState(false);
-  const [loadingEmailOTP, setLoadingEmailOTP] = useState(false);
-  const [isEmailValid, setIsEmailValid] = useState(false);
+  const [emailOtp, setEmailOtp] = useState<string>("");
+  const [emailOtpSent, setEmailOtpSent] = useState<boolean>(false);
+  const [loadingEmailOTP, setLoadingEmailOTP] = useState<boolean>(false);
+  const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
+  const [existingAccount, setExistingAccount] = useState<boolean>(false);
 
   // Email validation function
-  const validateEmail = (email) => {
+  const validateEmail = (email: string): boolean => {
+    if (!email) return false;
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
   };
@@ -40,7 +69,8 @@ const Step1BasicInfo = ({
     setIsEmailValid(validateEmail(email));
   }, [email]);
 
-  const formatMobileNumber = (value) => {
+  const formatMobileNumber = (value: string): string => {
+    if (!value) return "";
     const digitsOnly = value.replace(/\D/g, "");
     if (digitsOnly.length > 5) {
       return `${digitsOnly.slice(0, 5)} ${digitsOnly.slice(5)}`;
@@ -48,11 +78,24 @@ const Step1BasicInfo = ({
     return digitsOnly;
   };
 
-  const handleMobileChange = (e) => {
+  const handleMobileChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    // Set the raw, unformatted mobile number in the parent component's state
     setMobile(e.target.value.replace(/\D/g, ""));
+    // Reset existing account message when user changes mobile number
+    setExistingAccount(false);
   };
 
-  const handleSendEmailOTP = async () => {
+  // Modified Send OTP function to handle existing accounts
+  const onSendOTP = async (): Promise<void> => {
+    const result = await handleSendOTP();
+    if (result && result.userExists && result.verified) {
+      setExistingAccount(true);
+    } else {
+      setExistingAccount(false);
+    }
+  };
+
+  const handleSendEmailOTP = async (): Promise<void> => {
     if (!isEmailValid) return;
 
     setLoadingEmailOTP(true);
@@ -63,7 +106,7 @@ const Step1BasicInfo = ({
     console.log("Simulated email OTP sent to:", email);
   };
 
-  const handleVerifyEmailOTP = async () => {
+  const handleVerifyEmailOTP = async (): Promise<void> => {
     setLoadingEmailOTP(true);
     // Simulate verifying OTP - replace with your actual API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -75,6 +118,9 @@ const Step1BasicInfo = ({
     }
     setLoadingEmailOTP(false);
   };
+
+  // Check if mobile number is valid for OTP sending
+  const isMobileValid = mobile && mobile.length === 10;
 
   return (
     <div className="w-full max-w-lg mx-auto space-y-4 p-4">
@@ -108,7 +154,7 @@ const Step1BasicInfo = ({
               className="px-4 py-2 rounded-r-lg focus:ring-0 focus:outline-none w-full"
               value={formatMobileNumber(mobile)}
               onChange={handleMobileChange}
-              maxLength={10}
+              maxLength={11} // 10 digits + 1 space
               disabled={mobileVerified}
               required
             />
@@ -116,12 +162,10 @@ const Step1BasicInfo = ({
           <div className="w-24">
             <button
               type="button"
-              onClick={handleSendOTP}
-              disabled={
-                otpSent || mobileVerified || loading || mobile.length < 10
-              }
+              onClick={onSendOTP}
+              disabled={otpSent || mobileVerified || loading || !isMobileValid}
               className={`w-full h-full px-2 py-2 rounded-lg text-white ${
-                otpSent || mobileVerified || loading || mobile.length < 10
+                !isMobileValid || otpSent || mobileVerified || loading
                   ? "bg-gray-400"
                   : "bg-blue-500 hover:bg-blue-600"
               } transition whitespace-nowrap`}
@@ -130,9 +174,52 @@ const Step1BasicInfo = ({
             </button>
           </div>
         </div>
+        {mobile && mobile.length > 0 && mobile.length < 10 && (
+          <div className="text-red-500 text-xs mt-1">
+            Please enter a 10-digit mobile number
+          </div>
+        )}
       </div>
 
-      {otpSent && !mobileVerified && (
+      {existingAccount && (
+        <div className="w-full px-4 py-3 bg-yellow-50 border border-yellow-100 rounded-lg">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg
+                className="h-5 w-5 text-yellow-400"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-yellow-800">
+                Account Already Exists
+              </h3>
+              <div className="mt-2 text-sm text-yellow-700">
+                <p>
+                  You already have a verified account with this mobile number.
+                  Please{" "}
+                  <a
+                    href="/"
+                    className="font-medium text-yellow-800 underline hover:text-yellow-900"
+                  >
+                    sign in
+                  </a>{" "}
+                  instead.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {otpSent && !mobileVerified && !existingAccount && (
         <div className="w-full">
           <label className="block text-gray-600 text-sm font-medium mb-1">
             OTP Verification <span className="text-red-500">*</span>
@@ -164,7 +251,7 @@ const Step1BasicInfo = ({
         </div>
       )}
 
-      {mobileVerified && (
+      {mobileVerified && !existingAccount && (
         <div className="text-green-600 text-sm font-medium">
           Mobile number verified successfully! ✓
         </div>
@@ -198,10 +285,18 @@ const Step1BasicInfo = ({
               type="button"
               onClick={handleSendEmailOTP}
               disabled={
-                emailOtpSent || emailVerified || loadingEmailOTP || !isEmailValid
+                emailOtpSent ||
+                emailVerified ||
+                loadingEmailOTP ||
+                !isEmailValid ||
+                existingAccount
               }
               className={`w-full h-10 px-2 py-2 rounded-lg text-white ${
-                emailOtpSent || emailVerified || loadingEmailOTP || !isEmailValid
+                emailOtpSent ||
+                emailVerified ||
+                loadingEmailOTP ||
+                !isEmailValid ||
+                existingAccount
                   ? "bg-gray-400"
                   : "bg-blue-500 hover:bg-blue-600"
               } transition whitespace-nowrap`}
@@ -212,7 +307,7 @@ const Step1BasicInfo = ({
         </div>
       </div>
 
-      {emailOtpSent && !emailVerified && (
+      {emailOtpSent && !emailVerified && !existingAccount && (
         <div className="w-full">
           <label className="block text-gray-600 text-sm font-medium mb-1">
             Email OTP Verification <span className="text-red-500">*</span>
@@ -244,7 +339,7 @@ const Step1BasicInfo = ({
         </div>
       )}
 
-      {emailVerified && (
+      {emailVerified && !existingAccount && (
         <div className="text-green-600 text-sm font-medium rounded-lg">
           Email verified successfully! ✓
         </div>
@@ -260,6 +355,7 @@ const Step1BasicInfo = ({
           className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
           value={clinicName}
           onChange={(e) => setClinicName(e.target.value)}
+          disabled={existingAccount}
         />
       </div>
 
@@ -268,10 +364,20 @@ const Step1BasicInfo = ({
           type="button"
           onClick={handleNextStep}
           disabled={
-            !mobileVerified || !fullName.trim() || !email || !isEmailValid || !emailVerified
+            !mobileVerified ||
+            !fullName.trim() ||
+            !email ||
+            !isEmailValid ||
+            !emailVerified ||
+            existingAccount
           }
           className={`flex items-center px-6 py-2 rounded-lg text-white ${
-            !mobileVerified || !fullName.trim() || !email || !isEmailValid || !emailVerified
+            !mobileVerified ||
+            !fullName.trim() ||
+            !email ||
+            !isEmailValid ||
+            !emailVerified ||
+            existingAccount
               ? "bg-gray-400"
               : "bg-blue-500 hover:bg-blue-600"
           } transition`}

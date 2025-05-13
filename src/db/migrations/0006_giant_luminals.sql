@@ -1,0 +1,1 @@
+ALTER TABLE "doctor" DROP COLUMN "account_status";

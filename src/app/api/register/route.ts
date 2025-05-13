@@ -1,6 +1,3 @@
-// TODO: should create a jwt token with 5 min expiration and send it back to the client
-// TODO: should also pass monthly or yearly
-
 import { NextResponse } from "next/server";
 import { registerUser, updateUser } from "../../lib/auth";
 import { users, userRoleEnum, doctor, plans } from "../../../db/schema";
@@ -28,11 +25,12 @@ export async function POST(request: Request) {
       city,
       pincode,
       subscriptionPlan,
+      billingPeriod,
       password,
       role,
     } = userData;
 
-    console.log(subscriptionPlan, "subscriptionPlan");
+    console.log("billing period", billingPeriod);
 
     // Validate required fields
     if (!fullName || !mobile) {
@@ -46,6 +44,14 @@ export async function POST(request: Request) {
     if (role && !userRoleEnum.enumValues.includes(role)) {
       return NextResponse.json(
         { error: "Invalid role provided" },
+        { status: 400 }
+      );
+    }
+    
+    // Validate billing period if provided
+    if (billingPeriod && !["monthly", "yearly"].includes(billingPeriod)) {
+      return NextResponse.json(
+        { error: "Invalid billing period. Must be 'monthly' or 'yearly'" },
         { status: 400 }
       );
     }
@@ -97,6 +103,16 @@ export async function POST(request: Request) {
         .from(doctor)
         .where(eq(doctor.userId, userId));
 
+      // Calculate expiration date based on billing period
+      const currentDate = new Date();
+      let expirationDate = new Date();
+      if (billingPeriod === "yearly") {
+        expirationDate.setFullYear(currentDate.getFullYear() + 1);
+      } else {
+        // Default to monthly if not specified or if specified as monthly
+        expirationDate.setMonth(currentDate.getMonth() + 1);
+      }
+
       // Prepare doctor data
       const doctorData: Partial<NewDoctor> = {
         userId: userId,
@@ -109,6 +125,9 @@ export async function POST(request: Request) {
         experience: yearsOfExperience ? parseInt(yearsOfExperience) : null,
         aboutClinic: clinicName || null,
         planId: subscriptionPlan || null, // Foreign key to plans table
+        planType: billingPeriod || null,  // Store the billing period
+        paymentAt: currentDate,
+        expireAt: expirationDate,
       };
 
       // If subscriptionPlan is provided, try to find the plan ID
@@ -144,6 +163,8 @@ export async function POST(request: Request) {
         console.error("Error creating/updating doctor record:", error);
       }
 
+      // TODO: Create a JWT token with 5 min expiration and send it back to the client
+      
       return NextResponse.json(
         {
           message:
