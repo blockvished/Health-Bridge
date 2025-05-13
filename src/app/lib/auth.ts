@@ -39,7 +39,6 @@ async function registerUser(
     };
   }
 
-  const SERVER_PEPPER = process.env.SERVER_PEPPER || "default_pepper";
   try {
     const salt = crypto.randomBytes(16).toString("hex");
     
@@ -54,7 +53,7 @@ async function registerUser(
     // Only hash and store password if one is provided
     if (password) {
       // applied salt = salt + password
-      const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
+      const saltedPassword = salt + password
       const passwordHash = await hash(saltedPassword);
       newUser.password_hash = passwordHash;
       newUser.salt = salt;
@@ -118,7 +117,6 @@ async function updateUser(
   const sql = postgres(connectionString, { max: 1 });
   const db = drizzle(sql);
 
-  const SERVER_PEPPER = process.env.SERVER_PEPPER || "default_pepper";
   try {
     // Create update object
     const updateData: Partial<NewUser> = {
@@ -135,7 +133,7 @@ async function updateUser(
     // Only update password if provided
     if (password) {
       const salt = crypto.randomBytes(16).toString("hex");
-      const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
+      const saltedPassword = salt + password
       const passwordHash = await hash(saltedPassword);
       
       updateData.password_hash = passwordHash;

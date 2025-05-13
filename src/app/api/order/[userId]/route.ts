@@ -71,8 +71,8 @@ export async function POST(req: NextRequest) {
       name: reqData.name,
       mobileNumber: reqData.mobile,
       amount: reqData.amount * 100, // Convert to paise (smallest currency unit)
-      redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/status/${userId}?id=${merchantTransactionId}`,
-      callbackUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/status/${userId}?id=${merchantTransactionId}`,
+      redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'app.livedoctors24.com'}/api/status/${userId}?id=${merchantTransactionId}`,
+      callbackUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'app.livedoctors24.com'}/api/status/${userId}?id=${merchantTransactionId}`,
       redirectMode: "POST",
       paymentInstrument: {
         type: "PAY_PAGE",

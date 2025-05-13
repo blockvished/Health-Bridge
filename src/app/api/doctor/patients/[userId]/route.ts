@@ -166,8 +166,7 @@ export async function POST(req: NextRequest) {
 
     // Hash the default password using argon2
     const password = email // Better default password
-    const SERVER_PEPPER = process.env.SERVER_PEPPER;
-    const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
+    const saltedPassword = salt + password
     const passwordHash = await hash(saltedPassword);
 
     // Create the new user

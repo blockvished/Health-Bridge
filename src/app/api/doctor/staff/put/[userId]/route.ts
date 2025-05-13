@@ -12,6 +12,7 @@ import {
 import db from "../../../../../../db/db";
 import { verifyAuthToken } from "../../../../../lib/verify";
 import { hash } from "argon2";
+import { randomBytes } from "crypto";
 // import { randomBytes } from "crypto";
 
 // =======================
@@ -166,9 +167,12 @@ export async function PUT(req: NextRequest) {
     // if password is provided then hash and save the pass in user else ignore
     if (password && password.length > 0) {
       // Hash the default password using argon2
-      const SERVER_PEPPER = process.env.SERVER_PEPPER;
-      const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
-      const passwordHash = await hash(saltedPassword);
+    const salt = randomBytes(16).toString("hex");
+
+    // Hash the default password using argon2
+    const password = email // Better default password
+    const saltedPassword = salt + password
+    const passwordHash = await hash(saltedPassword);
 
       await db
         .update(users)
