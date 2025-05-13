@@ -1,1 +1,0 @@
-ALTER TABLE "doctor" ADD COLUMN "payment_at" timestamp DEFAULT now();

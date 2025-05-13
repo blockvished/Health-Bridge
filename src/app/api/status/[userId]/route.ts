@@ -1,14 +1,13 @@
 import crypto from "crypto";
 import axios from "axios";
-import { NextResponse } from "next/server";
-import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 import { serialize } from "cookie";
 import { sign } from "jsonwebtoken";
 
-let saltKey = "96434309-7796-489d-8924-ab56988a6076";
-let merchantId = "PGTESTPAYUAT86";
+const saltKey = "96434309-7796-489d-8924-ab56988a6076";
+const merchantId = "PGTESTPAYUAT86";
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
   try {
     const userId = req.nextUrl.pathname.split("/").pop();
     const searchParams = req.nextUrl.searchParams;
@@ -74,7 +73,6 @@ export async function POST(req) {
 
       return res;
 
-
       // TODO:mark payment as successful in db
       // return NextResponse.redirect(`http://localhost:3000/success/${userId}`, {
       //   status: 301,
@@ -86,9 +84,13 @@ export async function POST(req) {
     }
   } catch (error) {
     console.error(error);
+    let errorMessage = "An unknown error occurred";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
     // Return error response
     return NextResponse.json(
-      { error: "Payment check failed", details: error.message },
+      { error: "Payment check failed", details: errorMessage },
       { status: 500 }
     );
   }

@@ -5,64 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1746617206144,
-      "tag": "0000_redundant_havok",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1746768634570,
-      "tag": "0001_overconfident_amphibian",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1746866314674,
-      "tag": "0002_kind_doorman",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1746870375615,
-      "tag": "0003_grey_serpent_society",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1747037354397,
-      "tag": "0004_glorious_bug",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1747126016889,
-      "tag": "0005_parallel_blue_shield",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1747126093084,
-      "tag": "0006_giant_luminals",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1747128589350,
-      "tag": "0007_sudden_otto_octavius",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1747128677159,
-      "tag": "0008_high_giant_man",
+      "when": 1747133794821,
+      "tag": "0000_aberrant_yellowjacket",
       "breakpoints": true
     }
   ]

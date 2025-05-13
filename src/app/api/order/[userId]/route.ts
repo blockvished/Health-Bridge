@@ -5,6 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 const SALT_KEY = "96434309-7796-489d-8924-ab56988a6076";
 const MERCHANT_ID = "PGTESTPAYUAT86";
 
+// Type guard to check if an error is an instance of Error
+function isError(error: unknown): error is Error {
+  return error instanceof Error;
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Extract userId from URL path
@@ -37,10 +42,15 @@ export async function POST(req: NextRequest) {
       reqData = JSON.parse(bodyText);
     } catch (parseError) {
       console.error("Error parsing JSON:", parseError);
+      let details = "Unknown parsing error";
+      if (isError(parseError)) {
+        details = parseError.message;
+      }
       return NextResponse.json(
-        { error: "Invalid JSON in request body", details: parseError.message },
+        { error: "Invalid JSON in request body", details: details },
         { status: 400 }
       );
+
     }
 
     // Validate required fields
@@ -131,10 +141,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(responseData);
   } catch (error) {
     console.error("Error during payment initiation:", error);
-    
+
+    let details = "Unknown error during payment initiation";
+    if (error instanceof Error) {
+      details = error.message;
+    }
+
     // Handle errors with appropriate status code
     return NextResponse.json(
-      { error: "Payment initiation failed", details: error.message },
+      { error: "Payment initiation failed", details: details },
       { status: 500 }
     );
   }

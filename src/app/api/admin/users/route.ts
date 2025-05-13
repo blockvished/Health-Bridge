@@ -47,8 +47,8 @@ export async function GET() {
           email: users.email,
           phone: users.phone,
           verified: doctor.accountVerified, // doctor verification
+          accountStatus: doctor.accountStatus, // doctor account status
           paymentStatus: doctor.paymentStatus, // paid subscription
-          accountStatus: doctor.accountStatus, // his account active for live doctors
           image_link: doctor.image_link, // doctor image link if present
           planId: doctor.planId, // plan ID
           planName: plans.name, // Added plan name

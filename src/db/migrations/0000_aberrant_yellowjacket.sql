@@ -6,6 +6,7 @@ CREATE TYPE "public"."appointment_mode" AS ENUM('online', 'offline');--> stateme
 CREATE TYPE "public"."consultation_platform" AS ENUM('google', 'zoom', 'teams');--> statement-breakpoint
 CREATE TYPE "public"."day_of_week" AS ENUM('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');--> statement-breakpoint
 CREATE TYPE "public"."gender" AS ENUM('male', 'female', 'other');--> statement-breakpoint
+CREATE TYPE "public"."plan_type" AS ENUM('monthly', 'yearly');--> statement-breakpoint
 CREATE TYPE "public"."user_role" AS ENUM('superadmin', 'admin', 'doctor', 'staff', 'patient');--> statement-breakpoint
 CREATE TABLE "appointment_days" (
 	"id" serial PRIMARY KEY NOT NULL,
@@ -36,6 +37,7 @@ CREATE TABLE "appointments" (
 	"patient_id" integer NOT NULL,
 	"doctor_id" integer NOT NULL,
 	"clinic_id" integer NOT NULL,
+	"amount" integer DEFAULT 0,
 	"payment_status" boolean DEFAULT false NOT NULL,
 	"visit_status" boolean DEFAULT false NOT NULL,
 	"reason" text,
@@ -65,6 +67,7 @@ CREATE TABLE "doctor" (
 	"email" varchar(255),
 	"phone" varchar(20),
 	"city" text,
+	"pincode" varchar(10),
 	"specialization" text,
 	"degree" text,
 	"experience" integer,
@@ -79,10 +82,13 @@ CREATE TABLE "doctor" (
 	"twitter_link" text,
 	"linkedin_link" text,
 	"seo_description" text,
-	"plan_id" integer DEFAULT 0,
-	"account_verified" boolean DEFAULT false NOT NULL,
+	"plan_id" integer,
+	"plan_type" "plan_type",
 	"payment_status" boolean DEFAULT false NOT NULL,
-	"account_status" boolean DEFAULT false NOT NULL
+	"payment_at" timestamp DEFAULT now(),
+	"expire_at" timestamp DEFAULT now(),
+	"account_status" boolean DEFAULT false NOT NULL,
+	"account_verified" boolean DEFAULT false NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "doctor_bank_detail" (
@@ -264,16 +270,16 @@ CREATE TABLE "staff_permissions" (
 CREATE TABLE "users" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(255) NOT NULL,
-	"email" varchar(255) NOT NULL,
+	"email" varchar(255),
 	"email_verified" boolean DEFAULT false,
-	"phone" varchar(20),
+	"phone" varchar(20) NOT NULL,
 	"phone_verified" boolean DEFAULT false,
-	"password" text NOT NULL,
-	"salt" text NOT NULL,
-	"role" "user_role" DEFAULT 'patient' NOT NULL,
+	"password" text,
+	"salt" text,
+	"role" "user_role" DEFAULT 'doctor' NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
-	CONSTRAINT "users_email_unique" UNIQUE("email")
+	CONSTRAINT "users_phone_unique" UNIQUE("phone")
 );
 --> statement-breakpoint
 ALTER TABLE "appointment_days" ADD CONSTRAINT "appointment_days_doctor_id_doctor_id_fk" FOREIGN KEY ("doctor_id") REFERENCES "public"."doctor"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

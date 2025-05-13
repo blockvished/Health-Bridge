@@ -1,8 +1,8 @@
 "use client";
-import React, { useState, FormEvent, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { specialities, practiceTypes, PlanFeature, Plan } from "./constants";
+import { specialities, practiceTypes, Plan } from "./constants";
 
 import Step1BasicInfo from "./Step1BasicInfo";
 import Step2ProfessionalDetails from "./Step2ProfessionalDetails";
@@ -72,9 +72,13 @@ const Signup = () => {
         } else {
           setError(data?.error || "Failed to fetch plans");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching plans:", err);
-        setError(err instanceof Error ? err.message : "Failed to fetch plans");
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("An unknown error occurred");
+        }
       } finally {
         setLoading(false);
       }
@@ -167,9 +171,13 @@ const Signup = () => {
       } else {
         setError(data.message || "Invalid OTP");
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
       console.error("OTP verification error:", error);
-      setError("An error occurred during verification");
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An error occurred during verification");
+      }
     } finally {
       setLoading(false);
     }
@@ -222,9 +230,13 @@ const Signup = () => {
         setError(data.message || "Registration failed. Please try again.");
         return false;
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
       console.error("API error:", error);
-      setError("An unexpected error occurred. Please try again later.");
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred. Please try again later.");
+      }
       return false;
     } finally {
       setLoading(false);

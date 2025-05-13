@@ -119,7 +119,7 @@ export async function GET(req: NextRequest) {
 
   const requiredDoctorId = doctorData[0].id;
   try {
-      const staffsWithPermissions = await db
+    const staffsWithPermissions = await db
       .select({
         id: staff.id,
         name: staff.name,
@@ -128,7 +128,9 @@ export async function GET(req: NextRequest) {
         imageLink: staff.imageLink,
         clinicId: clinic.id,
         clinicName: clinic.name,
-        permissionIds: sql<number[]>`COALESCE(JSON_AGG(${permissionTypes.id}), '[]')`.as('permissionIds'),
+        permissionIds: sql<
+          number[]
+        >`COALESCE(JSON_AGG(${permissionTypes.id}), '[]')`.as("permissionIds"),
       })
       .from(staff)
       .leftJoin(clinic, eq(staff.clinicId, clinic.id))
@@ -149,7 +151,6 @@ export async function GET(req: NextRequest) {
       );
 
     console.log(staffsWithPermissions);
-
 
     return NextResponse.json(staffsWithPermissions, { status: 200 });
   } catch (error) {
@@ -265,9 +266,10 @@ export async function POST(req: NextRequest) {
     const salt = randomBytes(16).toString("hex");
 
     // Hash the default password using argon2
-    const SERVER_PEPPER = process.env.SERVER_PEPPER;
-    const saltedPassword = SERVER_PEPPER + password + SERVER_PEPPER;
+    const saltedPassword = salt + password;
     const passwordHash = await hash(saltedPassword);
+
+    const phone = randomBytes(16).toString("hex"); // fix in future
 
     // Create the new user
     const [newUser] = await db
@@ -275,8 +277,9 @@ export async function POST(req: NextRequest) {
       .values({
         name,
         email,
+        phone: phone,
         password_hash: passwordHash,
-        salt,
+        salt: salt,
         role: "staff",
       })
       .returning({ id: users.id });

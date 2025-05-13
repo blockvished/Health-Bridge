@@ -13,7 +13,6 @@ import { uniqueIndex } from "drizzle-orm/pg-core";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { time } from "drizzle-orm/pg-core";
 import { date } from "drizzle-orm/pg-core";
-import { Pin } from "lucide-react";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -180,6 +179,7 @@ export const doctor = pgTable("doctor", {
   paymentStatus: boolean("payment_status").default(false).notNull(),
   paymentAt: timestamp("payment_at").defaultNow(),
   expireAt: timestamp("expire_at").defaultNow(),
+  accountStatus: boolean("account_status").default(false).notNull(),
   accountVerified: boolean("account_verified").default(false).notNull(),
 });
 

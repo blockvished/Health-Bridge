@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       email,
       clinicName,
       speciality,
-      practiceType,
+      // practiceType,
       yearsOfExperience,
       city,
       pincode,
@@ -105,7 +105,7 @@ export async function POST(request: Request) {
 
       // Calculate expiration date based on billing period
       const currentDate = new Date();
-      let expirationDate = new Date();
+      const expirationDate = new Date();
       if (billingPeriod === "yearly") {
         expirationDate.setFullYear(currentDate.getFullYear() + 1);
       } else {

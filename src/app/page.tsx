@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, ChangeEvent, useEffect } from "react";
+import React, { useState, ChangeEvent, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -18,16 +18,11 @@ const Login = () => {
 
   const router = useRouter();
 
-  // Validate form inputs and update button state
-  useEffect(() => {
-    validateForm();
-  }, [login, password]);
-
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     // Validate login (mobile or email)
     if (login) {
       const isMobile = /^\d+$/.test(login); // Check if login contains only digits
-      
+
       if (isMobile) {
         // Mobile validation - exactly 10 digits
         if (login.length !== 10) {
@@ -76,7 +71,12 @@ const Login = () => {
       setPasswordError("");
       setIsFormValid(false);
     }
-  };
+  }, [login, password, setLoginError, setIsFormValid, setPasswordError]);
+
+  // Validate form inputs and update button state
+  useEffect(() => {
+    validateForm();
+  }, [login, password, validateForm]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,9 +95,9 @@ const Login = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        console.log(data.message || "Login failed")
-        setError(data.message)
-        return
+        console.log(data.message || "Login failed");
+        setError(data.message);
+        return;
       }
 
       // Redirect based on user role
@@ -174,7 +174,9 @@ const Login = () => {
           <form onSubmit={handleSubmit}>
             <div className="mt-6 space-y-3 mx-4">
               <div>
-                <label className="block text-gray-600 font-medium">Mobile / Email: </label>
+                <label className="block text-gray-600 font-medium">
+                  Mobile / Email:{" "}
+                </label>
                 <input
                   type="text"
                   placeholder="Please enter your registered Mobile Number or E-Mail"

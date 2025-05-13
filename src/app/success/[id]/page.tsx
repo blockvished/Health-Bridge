@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, FormEvent, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Step4Security from "../../register/Step4Security";
 

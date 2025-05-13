@@ -1,1 +1,0 @@
-ALTER TABLE "doctor" ADD COLUMN "pincode" varchar(10);

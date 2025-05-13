@@ -1,5 +1,5 @@
 {
-  "id": "d7c185d7-a9ae-41e5-9f18-9b81f56846ed",
+  "id": "febd3f69-3e65-4349-b266-6c62eb077489",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -205,6 +205,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
         },
         "payment_status": {
           "name": "payment_status",
@@ -432,6 +439,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "pincode": {
+          "name": "pincode",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "specialization": {
           "name": "specialization",
           "type": "text",
@@ -522,15 +535,14 @@
           "name": "plan_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
-          "default": 0
+          "notNull": false
         },
-        "account_verified": {
-          "name": "account_verified",
-          "type": "boolean",
+        "plan_type": {
+          "name": "plan_type",
+          "type": "plan_type",
+          "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
-          "default": false
+          "notNull": false
         },
         "payment_status": {
           "name": "payment_status",
@@ -539,8 +551,29 @@
           "notNull": true,
           "default": false
         },
+        "payment_at": {
+          "name": "payment_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "expire_at": {
+          "name": "expire_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
         "account_status": {
           "name": "account_status",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "account_verified": {
+          "name": "account_verified",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -1955,7 +1988,7 @@
           "name": "email",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "email_verified": {
           "name": "email_verified",
@@ -1968,7 +2001,7 @@
           "name": "phone",
           "type": "varchar(20)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "phone_verified": {
           "name": "phone_verified",
@@ -1981,13 +2014,13 @@
           "name": "password",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "salt": {
           "name": "salt",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "role": {
           "name": "role",
@@ -1995,7 +2028,7 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'patient'"
+          "default": "'doctor'"
         },
         "created_at": {
           "name": "created_at",
@@ -2016,11 +2049,11 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_email_unique": {
-          "name": "users_email_unique",
+        "users_phone_unique": {
+          "name": "users_phone_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "email"
+            "phone"
           ]
         }
       },
@@ -2114,6 +2147,14 @@
         "male",
         "female",
         "other"
+      ]
+    },
+    "public.plan_type": {
+      "name": "plan_type",
+      "schema": "public",
+      "values": [
+        "monthly",
+        "yearly"
       ]
     },
     "public.user_role": {

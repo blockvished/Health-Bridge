@@ -1,5 +1,6 @@
 "use client";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import React, { useState, useEffect, ChangeEvent } from "react";
 
 interface Step1BasicInfoProps {
@@ -204,13 +205,13 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
               <div className="mt-2 text-sm text-yellow-700">
                 <p>
                   You already have a verified account with this mobile number.
-                  Please{" "}
-                  <a
+                  Please
+                  <Link
                     href="/"
                     className="font-medium text-yellow-800 underline hover:text-yellow-900"
                   >
                     sign in
-                  </a>{" "}
+                  </Link>
                   instead.
                 </p>
               </div>
