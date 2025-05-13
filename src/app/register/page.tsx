@@ -8,16 +8,26 @@ import Step1BasicInfo from "./Step1BasicInfo";
 import Step2ProfessionalDetails from "./Step2ProfessionalDetails";
 import Step3Subscription from "./Step3Subscription";
 
+let testing = true;
+let testMobile = "2452434324";
+let testEmail = "jcm@skjdf.com";
+
+if (process.env.NODE_ENV === "production") {
+  testing = false;
+  testEmail = "";
+  testMobile = "";
+}
+
 const Signup = () => {
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
-  const [mobileVerified, setMobileVerified] = useState(true); // default should be false but true for testing
-  const [emailVerified, setEmailVerified] = useState(true); // default should be false but true for testing
+  const [mobileVerified, setMobileVerified] = useState(testing); // default should be false but true for testing
+  const [emailVerified, setEmailVerified] = useState(testing); // default should be false but true for testing
 
   // Step 1 - Basic Info
   const [fullName, setFullName] = useState("");
-  const [mobile, setMobile] = useState("2452434324");
-  const [email, setEmail] = useState("jv@sfd.fg");
+  const [mobile, setMobile] = useState(testMobile);
+  const [email, setEmail] = useState(testEmail);
   const [clinicName, setClinicName] = useState("");
 
   // OTP verification
