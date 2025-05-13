@@ -4,6 +4,7 @@ import { users } from "../../../db/schema";
 import db from "../../../db/db";
 import { verifyAuthToken } from "../../lib/verify";
 import { verify, hash } from "argon2";
+
 // =======================
 // PUT - Update - Password
 // =======================
@@ -23,16 +24,9 @@ export async function PUT(req: NextRequest) {
     const reqBody = await req.json();
     const { oldPassword, newPassword } = reqBody;
 
-    if (!oldPassword || !newPassword) {
+    if (!newPassword) {
       return NextResponse.json(
-        { error: "Old and new passwords are required." },
-        { status: 400 }
-      );
-    }
-
-    if (oldPassword === newPassword) {
-      return NextResponse.json(
-        { error: "New password cannot be the same as the old password." },
+        { error: "New password is required." },
         { status: 400 }
       );
     }
@@ -54,42 +48,70 @@ export async function PUT(req: NextRequest) {
     const existingUser = existingUserResult[0];
     const SERVER_PEPPER = process.env.SERVER_PEPPER;
 
-    const saltedOldPassword = SERVER_PEPPER + oldPassword + SERVER_PEPPER;
+    // Handle the case where the user's password_hash is null (e.g., initial setup)
+    if (existingUser.password_hash === null) {
+      // Hash the new password
+      const saltedNewPassword = SERVER_PEPPER + newPassword + SERVER_PEPPER;
+      const hashedPassword = await hash(saltedNewPassword);
 
-    // Verify old password
-    const isOldPasswordCorrect = await verify(
-      existingUser.password_hash,
-      saltedOldPassword
-    );
+      // Update the user's password in the database
+      await db
+        .update(users)
+        .set({ password_hash: hashedPassword })
+        .where(eq(users.id, userId));
 
-    if (!isOldPasswordCorrect) {
       return NextResponse.json(
-        { error: "Incorrect old password." },
-        { status: 401 }
+        { message: "Password set successfully." },
+        { status: 200 }
+      );
+    } else {
+      // If password_hash exists, verify the old password
+      if (!oldPassword) {
+        return NextResponse.json(
+          { error: "Old password is required to change the existing password." },
+          { status: 400 }
+        );
+      }
+
+      if (oldPassword === newPassword) {
+        return NextResponse.json(
+          { error: "New password cannot be the same as the old password." },
+          { status: 400 }
+        );
+      }
+
+      const saltedOldPassword = SERVER_PEPPER + oldPassword + SERVER_PEPPER;
+
+      // Verify old password
+      const isOldPasswordCorrect = await verify(
+        existingUser.password_hash,
+        saltedOldPassword
+      );
+
+      if (!isOldPasswordCorrect) {
+        return NextResponse.json(
+          { error: "Incorrect old password." },
+          { status: 401 }
+        );
+      }
+
+      // Hash the new password
+      const saltedNewPassword = SERVER_PEPPER + newPassword + SERVER_PEPPER;
+      const hashedPassword = await hash(saltedNewPassword);
+
+      // Update the user's password in the database
+      await db
+        .update(users)
+        .set({ password_hash: hashedPassword })
+        .where(eq(users.id, userId));
+
+      return NextResponse.json(
+        { message: "Password changed successfully." },
+        { status: 200 }
       );
     }
-
-    // Hash the new password
-    const saltedNewPassword = SERVER_PEPPER + newPassword + SERVER_PEPPER;
-    const hashedPassword = await hash(saltedNewPassword);
-
-    // Update the user's password in the database
-    await db
-      .update(users)
-      .set({ password_hash: hashedPassword })
-      .where(eq(users.id, userId));
-
-    // hash old password
-    // match with hash in db
-    // if old password is not correct, return error
-    // else hash new password and update in db
-
-    return NextResponse.json(
-      { message: "Password changed successfully." },
-      { status: 200 }
-    );
   } catch (error) {
-    console.error("Error changing password:", error);
+    console.error("Error changing/setting password:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
