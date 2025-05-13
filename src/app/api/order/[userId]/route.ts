@@ -64,6 +64,14 @@ export async function POST(req: NextRequest) {
     // Extract transaction details
     const merchantTransactionId = reqData.transactionId;
 
+    let redirectUrl = `http://localhost:3000`;
+    let callbackUrl = `http://localhost:3000`;
+
+      if (process.env.NODE_ENV === "production") {
+        redirectUrl = `app.livedoctors24.com`;
+        callbackUrl = `app.livedoctors24.com`
+      }
+
     // Prepare the payload for PhonePe
     const data = {
       merchantId: MERCHANT_ID,
