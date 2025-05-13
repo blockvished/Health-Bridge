@@ -1,3 +1,6 @@
+// TODO: should create a jwt token with 5 min expiration and send it back to the client
+// TODO: should also pass monthly or yearly
+
 import { NextResponse } from "next/server";
 import { registerUser, updateUser } from "../../lib/auth";
 import { users, userRoleEnum, doctor, plans } from "../../../db/schema";
@@ -9,7 +12,6 @@ import { eq } from "drizzle-orm";
 // Define the types for the inserts
 type NewDoctor = InferInsertModel<typeof doctor>;
 
-// TODO: should also pass monthly or yearly
 export async function POST(request: Request) {
   try {
     const userData = await request.json();
