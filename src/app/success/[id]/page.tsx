@@ -1,13 +1,6 @@
 "use client";
 import React, { useState, FormEvent, useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
-import {
-  specialities,
-  practiceTypes,
-  PlanFeature,
-  Plan,
-} from "../../register/constants";
 import Step4Security from "../../register/Step4Security";
 
 const Signup = () => {
@@ -18,172 +11,6 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
-
-  // General state
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  const validatePassword = (password: string): string | null => {
-    if (password.length < 8) {
-      return "Password must be at least 8 characters long.";
-    }
-    if (!/[0-9]/.test(password)) {
-      return "Password must contain at least one number.";
-    }
-    if (!/[^a-zA-Z0-9\s]/.test(password)) {
-      return "Password must contain at least one special character.";
-    }
-    if (!/[A-Z]/.test(password)) {
-      return "Password must contain at least one uppercase letter.";
-    }
-    return null;
-  };
-
-  const sendDataToBackend = async (finalStep = false) => {
-    setError(null);
-    setLoading(true);
-
-    // const userData = {
-    //   fullName,
-    //   mobile,
-    //   email,
-    //   clinicName,
-    //   speciality,
-    //   practiceType,
-    //   yearsOfExperience,
-    //   city,
-    //   pincode,
-    //   subscriptionPlan,
-    //   billingPeriod, // Include billing period
-    //   // payment stuff and email stuff
-    //   password: finalStep ? password : "",
-    //   role: "doctor",
-    // };
-
-    // try {
-    //   const response = await fetch("/api/register", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(userData),
-    //   });
-
-    //   const data = await response.json();
-
-    //   if (response.ok) {
-    //     if (finalStep) {
-    //       setSuccessMessage(
-    //         data.message || "Registration successful! Redirecting..."
-    //       );
-    //       // Redirect after a short delay
-    //       setTimeout(() => {
-    //         window.location.href = "/"; // Replace with your login page URL
-    //       }, 2000);
-    //     }
-    //     return true;
-    //   } else {
-    //     setError(data.message || "Registration failed. Please try again.");
-    //     return false;
-    //   }
-    // } catch (error: any) {
-    //   console.error("API error:", error);
-    //   setError("An unexpected error occurred. Please try again later.");
-    //   return false;
-    // } finally {
-    //   setLoading(false);
-    // }
-  };
-
-  const handleNextStep = async () => {
-    setError(null);
-
-    // // Validate Step 3
-    // if (currentStep === 3) {
-    //   if (!subscriptionPlan) {
-    //     return setError("Please select a subscription plan");
-    //   }
-
-    //   // Instead of going to the next step, initiate payment
-    //   return handlePaymentInitiation();
-    // }
-
-    // setCurrentStep(currentStep + 1);
-  };
-
-  // const handleSignup = async (e: FormEvent) => {
-  //   e.preventDefault();
-  //   setError(null);
-  //   setSuccessMessage(null);
-  //   setLoading(true);
-
-  //   // Validate passwords
-  //   const passwordError = validatePassword(password);
-  //   if (passwordError) {
-  //     setError(passwordError);
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   if (password !== confirmPassword) {
-  //     setError("Passwords do not match");
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   if (!agreeTerms) {
-  //     setError("Please agree to terms and conditions to proceed");
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   try {
-  //     const role = "doctor"; // Default role
-  //     const userData = {
-  //       fullName,
-  //       mobile,
-  //       email,
-  //       clinicName,
-  //       speciality,
-  //       practiceType,
-  //       yearsOfExperience,
-  //       city,
-  //       pincode,
-  //       subscriptionPlan,
-  //       billingPeriod,
-  //       role,
-  //       password,
-  //     };
-
-  //     const response = await fetch("/api/register", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(userData),
-  //     });
-
-  //     const data = await response.json();
-
-  //     if (response.status === 201 && response.ok) {
-  //       setSuccessMessage(
-  //         data.message || "Registration successful! Redirecting..."
-  //       );
-  //       // Redirect after a short delay
-  //       setTimeout(() => {
-  //         window.location.href = "/"; // Replace with your login page URL
-  //       }, 2000);
-  //     } else {
-  //       setError(data.message || "Registration failed. Please try again.");
-  //     }
-  //   } catch (error: any) {
-  //     console.error("Signup error:", error);
-  //     setError("An unexpected error occurred. Please try again later.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -251,17 +78,6 @@ const Signup = () => {
 
           {renderStepIndicator()}
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded w-full max-w-md mb-4">
-              {error}
-            </div>
-          )}
-          {successMessage && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded w-full max-w-md mb-4">
-              {successMessage}
-            </div>
-          )}
-
           <Step4Security
             password={password}
             setPassword={setPassword}
@@ -273,7 +89,6 @@ const Signup = () => {
             toggleConfirmPasswordVisibility={toggleConfirmPasswordVisibility}
             agreeTerms={agreeTerms}
             setAgreeTerms={setAgreeTerms}
-            loading={loading}
           />
         </div>
       </div>

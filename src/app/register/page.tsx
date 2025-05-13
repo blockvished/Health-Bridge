@@ -13,6 +13,7 @@ const Signup = () => {
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
   const [mobileVerified, setMobileVerified] = useState(true); // default should be false but true for testing
+  const [emailVerified, setEmailVerified] = useState(false); // default should be false but true for testing
 
   // Step 1 - Basic Info
   const [fullName, setFullName] = useState("");
@@ -38,7 +39,6 @@ const Signup = () => {
     "monthly"
   ); // Add billing period state
   const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false); // Add payment processing state
 
   // General state
   const [error, setError] = useState<string | null>(null);
@@ -227,10 +227,9 @@ const Signup = () => {
       if (!mobileVerified) {
         return setError("Please verify your mobile number");
       }
-      if (!email) {
+      if (!emailVerified) {
         return setError("");
       }
-
       // Send data to backend at Step 1
       await sendDataToBackend();
     }
@@ -338,6 +337,8 @@ const Signup = () => {
               setMobile={setMobile}
               email={email}
               setEmail={setEmail}
+              emailVerified={emailVerified}
+              setEmailVerified={setEmailVerified}
               clinicName={clinicName}
               setClinicName={setClinicName}
               otpSent={otpSent}
@@ -376,8 +377,6 @@ const Signup = () => {
               billingPeriod={billingPeriod} // Pass the billing period
               setBillingPeriod={setBillingPeriod} // Pass the setter
               handlePrevStep={handlePrevStep}
-              handleNextStep={handleNextStep}
-              isProcessingPayment={isProcessingPayment}
               userId={userid}
               handleSendDataToBackend={sendDataToBackend}
             />

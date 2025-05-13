@@ -8,8 +8,6 @@ const Step3Subscription = ({
   billingPeriod,
   setBillingPeriod,
   handlePrevStep,
-  handleNextStep,
-  isProcessingPayment,
   userId,
   handleSendDataToBackend, // Add this prop to receive the signup function from parent
 }) => {
@@ -285,21 +283,21 @@ const Step3Subscription = ({
           type="button"
           onClick={handlePrevStep}
           className="flex items-center px-8 py-3 rounded-xl text-blue-600 border-2 border-blue-500 hover:bg-blue-50 transition font-medium"
-          disabled={loading || isProcessingPayment}
+          disabled={loading}
         >
           <FaArrowLeft className="mr-2" size={16} /> Previous
         </button>
         <button
           type="button"
           onClick={handlePayment}
-          disabled={!subscriptionPlan || loading || isProcessingPayment}
+          disabled={!subscriptionPlan || loading}
           className={`flex items-center px-8 py-3 rounded-xl text-white font-medium ${
-            !subscriptionPlan || loading || isProcessingPayment
+            !subscriptionPlan || loading
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
           } transition shadow-md`}
         >
-          {loading || isProcessingPayment ? (
+          {loading ? (
             <>
               <FaSpinner className="mr-2 animate-spin" size={16} />
               Processing...

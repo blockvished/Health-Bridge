@@ -1,6 +1,8 @@
+"use client";
+
 import React, { FormEvent, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation"; // Changed import
 
 const Step4Security = ({
   password,
@@ -13,13 +15,11 @@ const Step4Security = ({
   toggleConfirmPasswordVisibility,
   agreeTerms,
   setAgreeTerms,
-  loading,
-  onRegistrationComplete,
 }) => {
   const [passwordMatchError, setPasswordMatchError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
-  const router = useRouter();
+  const router = useRouter(); // App Router's navigation
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,31 +29,18 @@ const Step4Security = ({
     }
     setPasswordMatchError(false);
 
-    // Simulate sending registration data to the backend
     try {
-      // In a real scenario, you would send the registration data here
-      // For this example, we'll just simulate a successful response after a delay
-      setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
 
-      // Simulate a successful registration
       console.log("Registration successful");
       setRegistrationSuccess(true);
-      setLoading(false);
 
-      // Optionally call a parent component's callback
-      if (onRegistrationComplete) {
-        onRegistrationComplete();
-      }
-
-      // Redirect after a delay
       setTimeout(() => {
-        router.push("/");
+        router.push("/"); // App Router's push
       }, 2000);
     } catch (error) {
       console.error("Unexpected error during registration:", error);
       setErrorMessage("An unexpected error occurred during registration.");
-      setLoading(false);
     }
   };
 
@@ -93,8 +80,7 @@ const Step4Security = ({
           </button>
         </div>
         <p className="text-xs text-gray-500 mt-1">
-          Password must be at least 8 characters with number, special character
-          & capital letter
+          Password must be at least 8 characters with number, special character & capital letter
         </p>
       </div>
       <div>
@@ -143,14 +129,14 @@ const Step4Security = ({
       <div className="flex justify-between pt-4">
         <button
           type="submit"
-          disabled={!password || !confirmPassword || !agreeTerms || loading}
+          disabled={!password || !confirmPassword || !agreeTerms}
           className={`px-6 py-2 rounded-lg text-white ${
-            !password || !confirmPassword || !agreeTerms || loading
+            !password || !confirmPassword || !agreeTerms
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
           } transition`}
         >
-          {loading ? "Processing..." : "Complete Registration"}
+          {"Complete Registration"}
         </button>
       </div>
     </form>

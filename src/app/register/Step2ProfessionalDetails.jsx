@@ -17,8 +17,19 @@ const Step2ProfessionalDetails = ({
   specialities,
   practiceTypes,
 }) => {
+  // Validate pincode input to only allow 6 digits
+  const handlePincodeChange = (e) => {
+    const value = e.target.value;
+    // Only allow digits and limit to 6 characters
+    const sanitizedValue = value.replace(/\D/g, '').slice(0, 6);
+    setPincode(sanitizedValue);
+  };
+
+  // Check if pincode is valid (exactly 6 digits)
+  const isPincodeValid = pincode.length === 6;
+
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full max-w-lg mx-auto space-y-4">
       <div>
         <label className="block text-gray-600 text-sm font-medium mb-1">
           Speciality <span className="text-red-500">*</span>
@@ -91,13 +102,11 @@ const Step2ProfessionalDetails = ({
             Pincode <span className="text-red-500">*</span>
           </label>
           <input
-            type="number"
+            type="text"
             placeholder="6-digit pincode"
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none`}
             value={pincode}
-            onChange={(e) => setPincode(e.target.value)}
-            pattern="[0-9]{6}"
-            maxLength={6}
+            onChange={handlePincodeChange}
             required
           />
         </div>
@@ -114,9 +123,15 @@ const Step2ProfessionalDetails = ({
         <button
           type="button"
           onClick={handleNextStep}
-          disabled={!speciality || !yearsOfExperience || !city.trim() || !pincode.trim()}
+          disabled={
+            !speciality || 
+            !yearsOfExperience || 
+            !city.trim() || 
+            !pincode.trim() || 
+            !isPincodeValid
+          }
           className={`flex items-center px-6 py-2 rounded-lg text-white ${
-            !speciality || !yearsOfExperience || !city.trim() || !pincode.trim()
+            !speciality || !yearsOfExperience || !city.trim() || !pincode.trim() || !isPincodeValid
               ? "bg-gray-400"
               : "bg-blue-500 hover:bg-blue-600"
           } transition`}
