@@ -1,11 +1,11 @@
-'use client'; // Make it a client component to use hooks
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { FaCheckCircle, FaTimesCircle, FaSpinner } from "react-icons/fa";
 
-const CheckPaymentStatus = () => {
-  // Use Next.js router for redirection
+// This is a client component that safely uses useSearchParams
+function PaymentStatusChecker() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("userId");
@@ -33,7 +33,7 @@ const CheckPaymentStatus = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({merchantOrderId, userId}), // You might need to send a body depending on your API
+          body: JSON.stringify({merchantOrderId, userId}),
         });
 
         const data = await response.json();
@@ -98,6 +98,26 @@ const CheckPaymentStatus = () => {
       </div>
     </div>
   );
-};
+}
 
-export default CheckPaymentStatus;
+// Loading fallback to show while the client component is being hydrated
+function PaymentStatusLoadingFallback() {
+  return (
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded-lg shadow-md text-center">
+        <FaSpinner className="animate-spin text-blue-500 text-4xl mb-4" />
+        <h2 className="text-xl font-semibold text-gray-700 mb-2">Loading Payment Status...</h2>
+        <p className="text-gray-600">Please wait a moment.</p>
+      </div>
+    </div>
+  );
+}
+
+// The main component that wraps the client component with Suspense
+export default function CheckPaymentStatus() {
+  return (
+    <Suspense fallback={<PaymentStatusLoadingFallback />}>
+      <PaymentStatusChecker />
+    </Suspense>
+  );
+}
