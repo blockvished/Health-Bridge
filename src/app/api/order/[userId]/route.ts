@@ -1,164 +1,145 @@
-import crypto from "crypto";
+import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import {
+    StandardCheckoutClient,
+    Env,
+    StandardCheckoutPayRequest,
+} from "pg-sdk-node";
 
 // Constants
-const SALT_KEY = "96434309-7796-489d-8924-ab56988a6076";
-const MERCHANT_ID = "PGTESTPAYUAT86";
+// const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID;
+const MERCHANT_ID = randomUUID(); // Use a constant for testing
 
-// Type guard to check if an error is an instance of Error
+const clientIdFromEnv  = process.env.PHONEPE_CLIENTID;
+const clientSecretFromEnv = process.env.PHONEPE_CLIENT_SECRET;
+const client_version = 1;
+const env = Env.SANDBOX; // Use Env enum
+// const env = Env.PRODUCTION; // Use Env enum
+
+// Type guard for Error
 function isError(error: unknown): error is Error {
-  return error instanceof Error;
+    return error instanceof Error;
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    // Extract userId from URL path
-    const userId = req.nextUrl.pathname.split("/").pop();
-    console.log("Order ID:", userId); // Log the order ID for debugging
-    
-    // Check if request body exists
-    const contentType = req.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      return NextResponse.json(
-        { error: "Content-Type must be application/json" },
-        { status: 400 }
-      );
-    }
-    
-    // Parse request body with error handling
-    let reqData;
-    try {
-      // Clone the request before reading the body
-      const clonedReq = req.clone();
-      const bodyText = await clonedReq.text();
-      
-      if (!bodyText || bodyText.trim() === "") {
+    // Ensure clientId is defined
+    if (!clientIdFromEnv) {
+        console.error("PHONEPE_CLIENTID environment variable is not set.");
         return NextResponse.json(
-          { error: "Request body is empty" },
-          { status: 400 }
+            { error: "Configuration error: PHONEPE_CLIENTID is missing" },
+            { status: 500 }
         );
-      }
-      
-      reqData = JSON.parse(bodyText);
-    } catch (parseError) {
-      console.error("Error parsing JSON:", parseError);
-      let details = "Unknown parsing error";
-      if (isError(parseError)) {
-        details = parseError.message;
-      }
-      return NextResponse.json(
-        { error: "Invalid JSON in request body", details: details },
-        { status: 400 }
-      );
-
-    }
-
-    // Validate required fields
-    if (!reqData.transactionId || !reqData.amount || !reqData.name || !reqData.mobile) {
-      return NextResponse.json(
-        { error: "Missing required fields. Required: transactionId, amount, name, mobile" },
-        { status: 400 }
-      );
-    }
-
-    let redirectUrl = `http://localhost:3000`;
-    let callbackUrl = `http://localhost:3000`;
-
-      if (process.env.NODE_ENV === "production") {
-        redirectUrl = `app.livedoctors24.com`;
-        callbackUrl = `app.livedoctors24.com`
-      }
-
-    // Extract transaction details
-    const merchantTransactionId = reqData.transactionId;
-
-    // Prepare the payload for PhonePe
-    const data = {
-      merchantId: MERCHANT_ID,
-      merchantTransactionId: merchantTransactionId,
-      name: reqData.name,
-      mobileNumber: reqData.mobile,
-      amount: reqData.amount * 100, // Convert to paise (smallest currency unit)
-      redirectUrl: `${redirectUrl} || 'http://localhost:3000'}/api/status/${userId}?id=${merchantTransactionId}`,
-      callbackUrl: `${callbackUrl} || 'http://localhost:3000'}/api/status/${userId}?id=${merchantTransactionId}`,
-      redirectMode: "POST",
-      paymentInstrument: {
-        type: "PAY_PAGE",
-      },
-    };
-
-    // Encode payload as Base64
-    const payload = JSON.stringify(data);
-    const payloadMain = Buffer.from(payload).toString("base64");
-
-    // Generate checksum
-    const keyIndex = 1;
-    const string = payloadMain + "/pg/v1/pay" + SALT_KEY;
-    const sha256 = crypto.createHash("sha256").update(string).digest("hex");
-    const checksum = `${sha256}###${keyIndex}`;
-
-    // Define PhonePe API URL - using sandbox URL for preprod
-    const API_URL = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay";
-
-    // API call options
-    const headers = {
-      accept: "application/json",
-      "Content-Type": "application/json",
-      "X-VERIFY": checksum,
-    };
-    const body = JSON.stringify({ request: payloadMain });
-
-    console.log("Sending request to PhonePe:", {
-      url: API_URL,
-      headers: { ...headers, body: "..." }, // Don't log the full body for security
-      merchantTransactionId,
-      amount: reqData.amount,
-    });
-
-    // Make the API call using fetch
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: headers,
-      body: body,
-    });
-
-    // Log response status
-    console.log(`PhonePe API response status: ${response.status}`);
-
-    if (!response.ok) {
-      // Handle HTTP errors
-      const errorText = await response.text();
-      console.error(`PhonePe API error: ${response.status} - ${errorText}`);
-      return NextResponse.json(
-        { 
-          error: "Payment initiation failed", 
-          details: `HTTP error! status: ${response.status}`, 
-          response: errorText 
-        },
-        { status: response.status }
-      );
     }
     
-    const responseData = await response.json();
-    console.log("PhonePe API success response:", responseData);
-
-    // Store transaction details in database (optional)
-    // await storeTransactionDetails(userId, merchantTransactionId, reqData.amount);
-
-    // Return the response from PhonePe
-    return NextResponse.json(responseData);
-  } catch (error) {
-    console.error("Error during payment initiation:", error);
-
-    let details = "Unknown error during payment initiation";
-    if (error instanceof Error) {
-      details = error.message;
+    // Ensure client_secret is defined
+    if (!clientSecretFromEnv) {
+      console.error("PHONEPE_CLIENT_SECRET environment variable is not set.");
+      return NextResponse.json(
+        { error: "Configuration error: PHONEPE_CLIENT_SECRET is missing" },
+        { status: 500 }
+      );
     }
+    const clientId: string = clientIdFromEnv;
+    const client_secret: string = clientSecretFromEnv;
 
-    // Handle errors with appropriate status code
-    return NextResponse.json(
-      { error: "Payment initiation failed", details: details },
-      { status: 500 }
-    );
-  }
+    try {
+        // Extract userId from URL path (if needed)
+        const userId = req.nextUrl.pathname.split("/").pop();
+        console.log("User ID:", userId);
+
+        // Check for valid content type
+        const contentType = req.headers.get("content-type");
+        if (!contentType?.includes("application/json")) {
+            return NextResponse.json(
+                { error: "Content-Type must be application/json" },
+                { status: 400 }
+            );
+        }
+
+        // Parse JSON body with error handling
+        let reqData;
+        try {
+          const clonedReq = req.clone();
+          const bodyText = await clonedReq.text();
+          
+          if (!bodyText || bodyText.trim() === "") {
+            return NextResponse.json(
+              { error: "Request body is empty" },
+              { status: 400 }
+            );
+          }
+          
+          reqData = JSON.parse(bodyText);
+        } catch (error) {
+            let errorMessage = "Failed to parse JSON: Unknown error";
+            if (isError(error)) {
+                errorMessage = `Failed to parse JSON: ${error.message}`;
+            }
+            console.error(errorMessage);
+            return NextResponse.json({ error: errorMessage }, { status: 400 });
+        }
+
+        // Validate required fields
+        if (!reqData.amount) {
+            return NextResponse.json(
+                {
+                    error: "Missing required fields: amount, name, mobile",
+                },
+                { status: 400 }
+            );
+        }
+
+        // Initialize redirectUrl and callbackUrl.  Use environment variables.
+        // const redirectUrl = `http://localhost:3000/api/status/${userId}` // Generate a unique merchantOrderId for each transaction.
+        const redirectUrl = `http://localhost:3000/check-status/?merchantOrderId=${MERCHANT_ID}&userId=${userId}`; // Generate a unique merchantOrderId for each transaction.
+
+        const request = StandardCheckoutPayRequest.builder()
+            .merchantOrderId(MERCHANT_ID)
+            .amount(reqData.amount * 100) // Convert amount to paise
+            .redirectUrl(redirectUrl)
+            .build();
+
+        const client = StandardCheckoutClient.getInstance(
+            clientId,
+            client_secret,
+            client_version,
+            env
+        );
+
+        // Initiate payment
+        try {
+            const response = await client.pay(request);
+
+            if (!response) {
+                return NextResponse.json({error: "Payment initiation failed: Empty response from client.pay"}, {status: 500})
+            }
+
+            // Log the entire response for debugging
+            console.log("PhonePe API Response:", response);
+
+            if (!response.redirectUrl) {
+                return NextResponse.json({ error: "Payment initiation failed: No redirect URL" }, { status: 500 });
+            }
+            // Return the redirect URL
+            return NextResponse.json({ checkoutPageUrl: response.redirectUrl });
+
+        } catch (error) {
+            let errorMessage = "Payment initiation failed: Unknown error";
+            if (isError(error)) {
+                errorMessage = `Payment initiation failed: ${error.message}`;
+            }
+            console.error(errorMessage, error);
+            return NextResponse.json({ error: errorMessage }, { status: 500 });
+        }
+
+
+    } catch (error) {
+        // Handle any errors that occur outside of the API call
+        let errorMessage = "Internal server error: Unknown error";
+        if (isError(error)) {
+            errorMessage = `Internal server error: ${error.message}`;
+        }
+        console.error(errorMessage, error);
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
+    }
 }

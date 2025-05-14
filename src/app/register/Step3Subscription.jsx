@@ -79,19 +79,14 @@ const Step3Subscription = ({
       }
 
       // Get the amount based on the selected plan and billing period
-      const amount = getSelectedAmount();
+      const amount = getSelectedAmount()
 
-      // Prepare the data
       const data = {
-        name: "name",
         amount: amount,
-        mobile: 2398745093,
-        transactionId: "T" + Date.now(),
       };
 
       console.log("Payment data:", data);
 
-      // Initiate payment
       const response = await fetch(`/api/order/${userId}`, {
         method: "POST",
         headers: {
@@ -101,15 +96,15 @@ const Step3Subscription = ({
       });
 
       const responseData = await response.json();
-      console.log(responseData.data.instrumentResponse.redirectInfo.url);
+      console.log(responseData);
 
       // Redirect user to PhonePe payment page
       if (
-        responseData.data &&
-        responseData.data.instrumentResponse.redirectInfo.url
+        responseData &&
+        responseData.checkoutPageUrl
       ) {
         window.location.href =
-          responseData.data.instrumentResponse.redirectInfo.url;
+          responseData.checkoutPageUrl;
       }
     } catch (err) {
       console.error(err);

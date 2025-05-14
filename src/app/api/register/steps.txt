@@ -10,3 +10,5 @@ similarly step 3, but will validate the email after payment and save the data an
 
 // type of practice
 // clinic name
+// email validation before savign
+// transaction save

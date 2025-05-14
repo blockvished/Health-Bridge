@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Step4Security from "../../register/Step4Security";
 
-const Signup = () => {
+const Success = () => {
   // Step 4 - Password
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -96,4 +96,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Success;
