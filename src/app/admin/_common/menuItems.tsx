@@ -1,7 +1,7 @@
 import { AiFillSetting } from "react-icons/ai";
 import { RiFileListFill } from "react-icons/ri";
-import { FaListUl, FaCog } from 'react-icons/fa';
-import { FiBarChart2 } from 'react-icons/fi';
+import { FaListUl, FaCog } from "react-icons/fa";
+import { FiBarChart2 } from "react-icons/fi";
 
 import {
   FaUserMd,
@@ -58,7 +58,11 @@ export const menuItemsDoctor: MenuItem[] = [
       { name: "QR Code", link: "/admin/profile/qr_code", svg: <FaQrcode /> },
     ],
   },
-  { name: "Patient Transactions", link: "/admin/payment/lists", svg: <MdPayment /> },
+  {
+    name: "Patient Transactions",
+    link: "/admin/payment/lists",
+    svg: <MdPayment />,
+  },
   { name: "Custom Domain", link: "/admin/domain", svg: <MdDomain /> },
   {
     name: "Payouts",
@@ -72,17 +76,17 @@ export const menuItemsDoctor: MenuItem[] = [
     name: "Social Channels",
     svg: <FaListUl />,
     dropdown: [
-      { name: "Post Settings", link: "/admin/posts/settings", svg: <FaCog /> },
-      {
-        name: "Post Report",
-        link: "/admin/posts/report",
-        svg: <FaSlidersH />,
-      },
       {
         name: "All Posts",
         link: "/admin/posts/all",
         svg: <FiBarChart2  />,
       },
+      {
+        name: "Post Report",
+        link: "/admin/posts/report",
+        svg: <FaSlidersH />,
+      },
+      { name: "Connections", link: "/admin/posts/connections",svg: <FaCog /> },
     ],
   },
   { name: "Staff", link: "/admin/staff", svg: <FaUsers /> },
@@ -162,7 +166,11 @@ export const menuItemsAdmin: MenuItem[] = [
     ],
   },
   { name: "Plans", link: "/admin/package", svg: <RiFileListFill /> },
-  { name: "Transactions", link: "/admin/payment/transactions", svg: <MdAttachMoney /> },
+  {
+    name: "Transactions",
+    link: "/admin/payment/transactions",
+    svg: <MdAttachMoney />,
+  },
   { name: "Users", link: "/admin/users", svg: <FaUsers /> },
   { name: "Contact", link: "/admin/contact", svg: <FaEnvelope /> },
 ];
