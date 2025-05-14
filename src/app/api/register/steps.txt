@@ -10,5 +10,8 @@ similarly step 3, but will validate the email after payment and save the data an
 
 // type of practice
 // clinic name
-// email validation before savign
+// email duplication validation before saving, email verification, email_verified true and phone_verified true after transaction
 // transaction save
+
+// put limits on create etc
+// show active plan on doctor dashboard based on..
