@@ -9,7 +9,7 @@ import {
   Instagram,
   Building2,
   UserCircle,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 // import { toast } from "react-hot-toast";
 
@@ -18,7 +18,7 @@ export default function ConnectionsPage() {
   const [providers, setProviders] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [connectionError, setConnectionError] = useState(null);
-  
+
   const [socialConnections, setSocialConnections] = useState({
     facebook: { connected: false, account: "", autoposting: false },
     twitter: { connected: false, account: "", autoposting: false },
@@ -38,19 +38,8 @@ export default function ConnectionsPage() {
         console.error("Failed to load providers:", error);
       }
     };
-    
-    loadProviders();
-  }, []);
 
-  // Check for authentication error in URL
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    const error = url.searchParams.get("error");
-    
-    if (error) {
-      setConnectionError(error);
-      // toast.error(`Authentication failed: ${error}`);
-    }
+    loadProviders();
   }, []);
 
   const toggleConnection = async (platform) => {
@@ -58,14 +47,17 @@ export default function ConnectionsPage() {
     if (socialConnections[platform].connected) {
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/admin/posts/disconnect/${platform}`, {
-          method: 'POST',
-        });
-        
+        const response = await fetch(
+          `/api/admin/posts/disconnect/${platform}`,
+          {
+            method: "POST",
+          }
+        );
+
         if (!response.ok) {
           throw new Error(`Failed to disconnect: ${response.statusText}`);
         }
-        
+
         // Update local state after successful disconnection
         setSocialConnections({
           ...socialConnections,
@@ -75,7 +67,7 @@ export default function ConnectionsPage() {
             autoposting: false,
           },
         });
-        
+
         // toast.success(`Successfully disconnected ${getPlatformName(platform)}`);
       } catch (error) {
         console.error(`Failed to disconnect ${platform}:`, error);
@@ -85,44 +77,44 @@ export default function ConnectionsPage() {
       }
       return;
     }
-    
+
     // If not connected, initiate connection
     try {
       setIsLoading(true);
-      
+
       // Map platform to provider name
       let provider;
-      let options = { callbackUrl: '/admin/posts/connections' };
-      
+      let options = { callbackUrl: "/admin/posts/connections" };
+
       switch (platform) {
-        case 'facebook':
-          provider = 'facebook';
+        case "facebook":
+          provider = "facebook";
           break;
-        case 'twitter':
-          provider = 'twitter';
+        case "twitter":
+          provider = "twitter";
           break;
-        case 'linkedin':
-          provider = 'linkedin';
+        case "linkedin":
+          provider = "linkedin";
           break;
-        case 'linkedinCompany':
-          provider = 'linkedin';
+        case "linkedinCompany":
+          provider = "linkedin";
           options.isCompany = true;
           break;
-        case 'instagram':
-          provider = 'instagram';
+        case "instagram":
+          provider = "instagram";
           break;
-        case 'googleBusiness':
-          provider = 'google';
+        case "googleBusiness":
+          provider = "google";
           break;
         default:
           provider = platform;
       }
-      
+
       // Check if provider exists before signing in
       if (!providers || !providers[provider]) {
         throw new Error(`Provider ${provider} is not configured`);
       }
-      
+
       // Redirect to the provider's OAuth flow
       await signIn(provider, options);
     } catch (error) {
@@ -136,19 +128,19 @@ export default function ConnectionsPage() {
     try {
       setIsLoading(true);
       const response = await fetch(`/api/admin/posts/autoposting/${platform}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           enabled: !socialConnections[platform].autoposting,
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to update autoposting: ${response.statusText}`);
       }
-      
+
       setSocialConnections({
         ...socialConnections,
         [platform]: {
@@ -156,8 +148,12 @@ export default function ConnectionsPage() {
           autoposting: !socialConnections[platform].autoposting,
         },
       });
-      
-      toast.success(`${socialConnections[platform].autoposting ? 'Disabled' : 'Enabled'} autoposting for ${getPlatformName(platform)}`);
+
+      toast.success(
+        `${
+          socialConnections[platform].autoposting ? "Disabled" : "Enabled"
+        } autoposting for ${getPlatformName(platform)}`
+      );
     } catch (error) {
       console.error(`Failed to toggle autoposting for ${platform}:`, error);
       toast.error(`Failed to update autoposting: ${error.message}`);
@@ -174,7 +170,7 @@ export default function ConnectionsPage() {
       linkedin: "LinkedIn Profile",
       linkedinCompany: "LinkedIn Company Page",
       instagram: "Instagram Profile",
-      googleBusiness: "Google Business Profile"
+      googleBusiness: "Google Business Profile",
     };
     return names[platform] || platform;
   };
@@ -217,7 +213,8 @@ export default function ConnectionsPage() {
               Social Media Channels
             </h1>
             <p className="text-sm text-gray-600 mt-1">
-              Connect your social media accounts to publish content directly from your dashboard.
+              Connect your social media accounts to publish content directly
+              from your dashboard.
             </p>
           </div>
 
@@ -231,17 +228,19 @@ export default function ConnectionsPage() {
               isLoading={isLoading}
               isConfigured={providers && !!providers.facebook}
             />
-                <main className="p-4">
-      {!session ? (
-        <button onClick={() => signIn("twitter")}>Connect Twitter</button>
-      ) : (
-        <>
-          <p>Connected as {session?.user?.name}</p>
-          <p>Access Token: {session?.accessToken}</p>
-          <button onClick={() => signOut()}>Disconnect</button>
-        </>
-      )}
-    </main>
+            <main className="p-4">
+              {!session ? (
+                <button onClick={() => signIn("twitter")}>
+                  Connect Twitter
+                </button>
+              ) : (
+                <>
+                  <p>Connected as {session?.user?.name}</p>
+                  <p>Access Token: {session?.accessToken}</p>
+                  <button onClick={() => signOut()}>Disconnect</button>
+                </>
+              )}
+            </main>
             <SocialChannel
               name="LinkedIn Profile"
               platform="linkedin"
@@ -292,7 +291,7 @@ function SocialChannel({
   onToggleConnection,
   onToggleAutoposting,
   isLoading,
-  isConfigured = true
+  isConfigured = true,
 }) {
   const iconMap = {
     facebook: <Facebook className="w-6 h-6 text-blue-600" />,
@@ -312,9 +311,7 @@ function SocialChannel({
         <div>
           <div className="font-medium">{name}</div>
           {!isConfigured && (
-            <div className="text-xs text-red-500">
-              Provider not configured
-            </div>
+            <div className="text-xs text-red-500">Provider not configured</div>
           )}
         </div>
       </div>
@@ -361,10 +358,11 @@ function SocialChannel({
                 : "text-green-600 hover:text-green-700"
             }`}
           >
-            {isLoading ? "Updating..." : 
-              connection.autoposting
-                ? "Disable Autoposting"
-                : "Enable Autoposting"}
+            {isLoading
+              ? "Updating..."
+              : connection.autoposting
+              ? "Disable Autoposting"
+              : "Enable Autoposting"}
           </button>
         )}
       </div>
