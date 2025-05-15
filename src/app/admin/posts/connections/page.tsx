@@ -3,12 +3,13 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function SocialConnections() {
   // Initial state for social connections
   const [socialConnections, setSocialConnections] = useState({
     facebook: { connected: true, account: 'fff', autoposting: true },
-    twitter: { connected: true, account: 'fff', autoposting: true },
+    twitter: { connected: false, account: '', autoposting: false },
     linkedin: { connected: false, account: '', autoposting: false },
     linkedinCompany: { connected: true, account: 'fff', autoposting: true },
     instagram: { connected: true, account: 'fff', autoposting: true },
@@ -17,6 +18,12 @@ export default function SocialConnections() {
 
   // Handle connection/disconnection
   const toggleConnection = (platform) => {
+    if (platform === 'twitter' && !socialConnections.twitter.connected) {
+      // Redirect to the Twitter API authentication link
+      window.location.href = '/api/auth/twitter';
+      return; // Stop the toggle logic here
+    }
+
     setSocialConnections({
       ...socialConnections,
       [platform]: {
@@ -126,8 +133,8 @@ function SocialChannel({ icon, name, platform, connection, onToggleConnection, o
       <div className="flex items-center space-x-4">
         <div className="w-10 h-10 flex-shrink-0">
           <div className="h-full w-full rounded-full overflow-hidden relative">
-            <Image 
-              src={icon} 
+            <Image
+              src={icon}
               alt={`${name} icon`}
               width={40}
               height={40}
@@ -143,8 +150,8 @@ function SocialChannel({ icon, name, platform, connection, onToggleConnection, o
           <div className="flex items-center">
             <div className="bg-gray-100 rounded-full px-4 py-2 flex items-center text-sm">
               <div className="w-6 h-6 rounded-full overflow-hidden mr-2 bg-blue-100 flex-shrink-0">
-                <Image 
-                  src="/avatar-placeholder.svg" 
+                <Image
+                  src="/avatar-placeholder.svg"
                   alt="Profile"
                   width={24}
                   height={24}
@@ -153,7 +160,7 @@ function SocialChannel({ icon, name, platform, connection, onToggleConnection, o
               </div>
               <div className="flex flex-col">
                 <span>Connected as <span className="text-blue-600">{connection.account}</span></span>
-                <button 
+                <button
                   onClick={onToggleConnection}
                   className="text-blue-600 text-left hover:underline"
                 >
@@ -163,7 +170,7 @@ function SocialChannel({ icon, name, platform, connection, onToggleConnection, o
             </div>
           </div>
         ) : (
-          <button 
+          <button
             onClick={onToggleConnection}
             className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50"
           >
