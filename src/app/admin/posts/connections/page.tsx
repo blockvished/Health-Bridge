@@ -14,11 +14,12 @@ import {
 // import { toast } from "react-hot-toast";
 
 export default function ConnectionsPage() {
-  // const { data: session, status } = useSession();
-  const [providers, setProviders] = useState(null);
+  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [connectionError, setConnectionError] = useState(null);
+  const [processingPlatform, setProcessingPlatform] = useState(null);
 
+  // Track connections for each platform separately
   const [socialConnections, setSocialConnections] = useState({
     facebook: { connected: false, account: "", autoposting: false },
     twitter: { connected: false, account: "", autoposting: false },
@@ -28,139 +29,22 @@ export default function ConnectionsPage() {
     googleBusiness: { connected: false, account: "", autoposting: false },
   });
 
-  // Load OAuth providers
+  // Update connections status when session changes
   useEffect(() => {
-    const loadProviders = async () => {
-      try {
-        const availableProviders = await getProviders();
-        setProviders(availableProviders);
-      } catch (error) {
-        console.error("Failed to load providers:", error);
-      }
-    };
-
-    loadProviders();
-  }, []);
-
-  const toggleConnection = async (platform) => {
-    // If already connected, disconnect
-    if (socialConnections[platform].connected) {
-      try {
-        setIsLoading(true);
-        const response = await fetch(
-          `/api/admin/posts/disconnect/${platform}`,
-          {
-            method: "POST",
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`Failed to disconnect: ${response.statusText}`);
+    if (session) {
+      // Check which provider the session is for
+      const provider = session.provider || "twitter"; // Default to twitter if not specified
+      
+      setSocialConnections(prev => ({
+        ...prev,
+        [provider]: {
+          connected: true,
+          account: session.user?.name || "Connected Account",
+          autoposting: prev[provider]?.autoposting || false
         }
-
-        // Update local state after successful disconnection
-        setSocialConnections({
-          ...socialConnections,
-          [platform]: {
-            connected: false,
-            account: "",
-            autoposting: false,
-          },
-        });
-
-        // toast.success(`Successfully disconnected ${getPlatformName(platform)}`);
-      } catch (error) {
-        console.error(`Failed to disconnect ${platform}:`, error);
-        toast.error(`Failed to disconnect: ${error.message}`);
-      } finally {
-        setIsLoading(false);
-      }
-      return;
+      }));
     }
-
-    // If not connected, initiate connection
-    try {
-      setIsLoading(true);
-
-      // Map platform to provider name
-      let provider;
-      let options = { callbackUrl: "/admin/posts/connections" };
-
-      switch (platform) {
-        case "facebook":
-          provider = "facebook";
-          break;
-        case "twitter":
-          provider = "twitter";
-          break;
-        case "linkedin":
-          provider = "linkedin";
-          break;
-        case "linkedinCompany":
-          provider = "linkedin";
-          options.isCompany = true;
-          break;
-        case "instagram":
-          provider = "instagram";
-          break;
-        case "googleBusiness":
-          provider = "google";
-          break;
-        default:
-          provider = platform;
-      }
-
-      // Check if provider exists before signing in
-      if (!providers || !providers[provider]) {
-        throw new Error(`Provider ${provider} is not configured`);
-      }
-
-      // Redirect to the provider's OAuth flow
-      await signIn(provider, options);
-    } catch (error) {
-      console.error(`Failed to connect ${platform}:`, error);
-      toast.error(`Failed to connect: ${error.message}`);
-      setIsLoading(false);
-    }
-  };
-
-  const toggleAutoposting = async (platform) => {
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/admin/posts/autoposting/${platform}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          enabled: !socialConnections[platform].autoposting,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update autoposting: ${response.statusText}`);
-      }
-
-      setSocialConnections({
-        ...socialConnections,
-        [platform]: {
-          ...socialConnections[platform],
-          autoposting: !socialConnections[platform].autoposting,
-        },
-      });
-
-      toast.success(
-        `${
-          socialConnections[platform].autoposting ? "Disabled" : "Enabled"
-        } autoposting for ${getPlatformName(platform)}`
-      );
-    } catch (error) {
-      console.error(`Failed to toggle autoposting for ${platform}:`, error);
-      toast.error(`Failed to update autoposting: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [session]);
 
   // Helper function to get platform display name
   const getPlatformName = (platform) => {
@@ -175,6 +59,99 @@ export default function ConnectionsPage() {
     return names[platform] || platform;
   };
 
+  const handleToggleConnection = (platform) => {
+    setProcessingPlatform(platform);
+    setIsLoading(true);
+    
+    if (socialConnections[platform].connected) {
+      // Disconnect specific platform
+      if (platform === 'twitter' || platform === 'linkedin') {
+        // For OAuth providers, we need to handle sign out differently
+        // In a real app, you'd want to revoke just that specific connection
+        // Here we're simulating platform-specific sign out
+        
+        // For demo purposes, just disconnect that platform
+        setTimeout(() => {
+          setSocialConnections(prev => ({
+            ...prev,
+            [platform]: {
+              ...prev[platform],
+              connected: false,
+              account: ""
+            }
+          }));
+          setIsLoading(false);
+          setProcessingPlatform(null);
+        }, 500);
+      } else {
+        // Handle other platforms disconnection
+        setTimeout(() => {
+          setSocialConnections(prev => ({
+            ...prev,
+            [platform]: {
+              ...prev[platform],
+              connected: false,
+              account: ""
+            }
+          }));
+          setIsLoading(false);
+          setProcessingPlatform(null);
+        }, 500);
+      }
+    } else {
+      // Connect to platform
+      if (platform === 'twitter') {
+        signIn("twitter", { 
+          callbackUrl: window.location.href,
+        })
+        .catch(error => {
+          setConnectionError(`Failed to connect to ${getPlatformName(platform)}: ${error.message}`);
+          setIsLoading(false);
+          setProcessingPlatform(null);
+        });
+      } else if (platform === 'linkedin') {
+        signIn("linkedin", { 
+          callbackUrl: window.location.href,
+        })
+        .catch(error => {
+          setConnectionError(`Failed to connect to ${getPlatformName(platform)}: ${error.message}`);
+          setIsLoading(false);
+          setProcessingPlatform(null);
+        });
+      } else {
+        // Handle other platforms connection (mock)
+        setTimeout(() => {
+          setSocialConnections(prev => ({
+            ...prev,
+            [platform]: {
+              ...prev[platform],
+              connected: true,
+              account: `Demo ${getPlatformName(platform)} Account`
+            }
+          }));
+          setIsLoading(false);
+          setProcessingPlatform(null);
+        }, 500);
+      }
+    }
+  };
+
+  const handleToggleAutoposting = (platform) => {
+    setProcessingPlatform(platform);
+    setIsLoading(true);
+    setTimeout(() => {
+      setSocialConnections(prev => ({
+        ...prev,
+        [platform]: {
+          ...prev[platform],
+          autoposting: !prev[platform].autoposting
+        }
+      }));
+      setIsLoading(false);
+      setProcessingPlatform(null);
+    }, 300);
+  };
+
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -185,10 +162,6 @@ export default function ConnectionsPage() {
       </div>
     );
   }
-
-  //
-  const { data: session } = useSession();
-  //
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -219,64 +192,18 @@ export default function ConnectionsPage() {
           </div>
 
           <div className="divide-y divide-gray-200">
-            <SocialChannel
-              name="Facebook Page"
-              platform="facebook"
-              connection={socialConnections.facebook}
-              onToggleConnection={() => toggleConnection("facebook")}
-              onToggleAutoposting={() => toggleAutoposting("facebook")}
-              isLoading={isLoading}
-              isConfigured={providers && !!providers.facebook}
-            />
-            <main className="p-4">
-              {!session ? (
-                <button onClick={() => signIn("twitter")}>
-                  Connect Twitter
-                </button>
-              ) : (
-                <>
-                  <p>Connected as {session?.user?.name}</p>
-                  <p>Access Token: {session?.accessToken}</p>
-                  <button onClick={() => signOut()}>Disconnect</button>
-                </>
-              )}
-            </main>
-            <SocialChannel
-              name="LinkedIn Profile"
-              platform="linkedin"
-              connection={socialConnections.linkedin}
-              onToggleConnection={() => toggleConnection("linkedin")}
-              onToggleAutoposting={() => toggleAutoposting("linkedin")}
-              isLoading={isLoading}
-              isConfigured={providers && !!providers.linkedin}
-            />
-            <SocialChannel
-              name="LinkedIn Company Page"
-              platform="linkedinCompany"
-              connection={socialConnections.linkedinCompany}
-              onToggleConnection={() => toggleConnection("linkedinCompany")}
-              onToggleAutoposting={() => toggleAutoposting("linkedinCompany")}
-              isLoading={isLoading}
-              isConfigured={providers && !!providers.linkedin}
-            />
-            <SocialChannel
-              name="Instagram Profile"
-              platform="instagram"
-              connection={socialConnections.instagram}
-              onToggleConnection={() => toggleConnection("instagram")}
-              onToggleAutoposting={() => toggleAutoposting("instagram")}
-              isLoading={isLoading}
-              isConfigured={providers && !!providers.instagram}
-            />
-            <SocialChannel
-              name="Google Business Profile"
-              platform="googleBusiness"
-              connection={socialConnections.googleBusiness}
-              onToggleConnection={() => toggleConnection("googleBusiness")}
-              onToggleAutoposting={() => toggleAutoposting("googleBusiness")}
-              isLoading={isLoading}
-              isConfigured={providers && !!providers.google}
-            />
+            {Object.keys(socialConnections).map((platform) => (
+              <SocialChannel
+                key={platform}
+                platform={platform}
+                name={getPlatformName(platform)}
+                connection={socialConnections[platform]}
+                onToggleConnection={() => handleToggleConnection(platform)}
+                onToggleAutoposting={() => handleToggleAutoposting(platform)}
+                isLoading={isLoading && processingPlatform === platform}
+                isConfigured={platform === 'twitter' || platform === 'linkedin' ? true : true} // Set based on your provider configuration
+              />
+            ))}
           </div>
         </div>
       </main>
@@ -285,13 +212,13 @@ export default function ConnectionsPage() {
 }
 
 function SocialChannel({
-  name,
   platform,
+  name,
   connection,
   onToggleConnection,
   onToggleAutoposting,
   isLoading,
-  isConfigured = true,
+  isConfigured = true
 }) {
   const iconMap = {
     facebook: <Facebook className="w-6 h-6 text-blue-600" />,

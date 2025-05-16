@@ -7,12 +7,14 @@ import {
   boolean,
   timestamp,
   pgEnum,
+  unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { uniqueIndex } from "drizzle-orm/pg-core";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { time } from "drizzle-orm/pg-core";
 import { date } from "drizzle-orm/pg-core";
+import { serialize } from "cookie";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -99,6 +101,21 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const socialConnections = pgTable(
+  "social_connections",
+  {
+    id: serial("id").primaryKey(),
+    doctorId: text("doctor_id").notNull(),
+    platform: varchar("platform", { length: 50 }).notNull(), // e.g., 'twitter'
+    account: varchar("account", { length: 255 }).notNull(),
+    autoposting: boolean("autoposting").default(false),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    doctorPlatformUnique: unique().on(table.doctorId, table.platform), // <-- Enforce one per platform
+  })
+);
+
 export const plans = pgTable("plans", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(), // BASIC, CLASSIC, PREMIUM
@@ -175,7 +192,7 @@ export const doctor = pgTable("doctor", {
   seo_description: text("seo_description"),
 
   planId: integer("plan_id").references(() => plans.id), // Foreign key to plans table
-  planType: planTypeEnum("plan_type"), 
+  planType: planTypeEnum("plan_type"),
   paymentStatus: boolean("payment_status").default(false).notNull(),
   paymentAt: timestamp("payment_at").defaultNow(),
   expireAt: timestamp("expire_at").defaultNow(),
