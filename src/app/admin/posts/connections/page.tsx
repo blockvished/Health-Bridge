@@ -59,82 +59,59 @@ export default function ConnectionsPage() {
     return names[platform] || platform;
   };
 
-  const handleToggleConnection = (platform) => {
-    setProcessingPlatform(platform);
+  const handleConnect = async (provider: string) => {
+  try {
+    setProcessingPlatform(provider);
     setIsLoading(true);
-    
-    if (socialConnections[platform].connected) {
-      // Disconnect specific platform
-      if (platform === 'twitter' || platform === 'linkedin') {
-        // For OAuth providers, we need to handle sign out differently
-        // In a real app, you'd want to revoke just that specific connection
-        // Here we're simulating platform-specific sign out
-        
-        // For demo purposes, just disconnect that platform
-        setTimeout(() => {
-          setSocialConnections(prev => ({
-            ...prev,
-            [platform]: {
-              ...prev[platform],
-              connected: false,
-              account: ""
-            }
-          }));
-          setIsLoading(false);
-          setProcessingPlatform(null);
-        }, 500);
-      } else {
-        // Handle other platforms disconnection
-        setTimeout(() => {
-          setSocialConnections(prev => ({
-            ...prev,
-            [platform]: {
-              ...prev[platform],
-              connected: false,
-              account: ""
-            }
-          }));
-          setIsLoading(false);
-          setProcessingPlatform(null);
-        }, 500);
-      }
+    await signIn(provider, { callbackUrl: `/connections?linked=${provider}` });
+  } catch (error: any) {
+    setConnectionError(`Failed to connect to ${getPlatformName(provider)}: ${error.message}`);
+    setIsLoading(false);
+    setProcessingPlatform(null);
+  }
+};
+
+
+  const handleToggleConnection = (platform: string) => {
+  setProcessingPlatform(platform);
+  setIsLoading(true);
+
+  if (socialConnections[platform].connected) {
+    // Disconnect platform (mock)
+    setTimeout(() => {
+      setSocialConnections(prev => ({
+        ...prev,
+        [platform]: {
+          ...prev[platform],
+          connected: false,
+          account: ""
+        }
+      }));
+      setIsLoading(false);
+      setProcessingPlatform(null);
+    }, 500);
+  } else {
+    // Use shared handleConnect for OAuth providers
+    if (["twitter", "linkedin"].includes(platform)) {
+      handleConnect(platform);
     } else {
-      // Connect to platform
-      if (platform === 'twitter') {
-        signIn("twitter", { 
-          callbackUrl: window.location.href,
-        })
-        .catch(error => {
-          setConnectionError(`Failed to connect to ${getPlatformName(platform)}: ${error.message}`);
-          setIsLoading(false);
-          setProcessingPlatform(null);
-        });
-      } else if (platform === 'linkedin') {
-        signIn("linkedin", { 
-          callbackUrl: window.location.href,
-        })
-        .catch(error => {
-          setConnectionError(`Failed to connect to ${getPlatformName(platform)}: ${error.message}`);
-          setIsLoading(false);
-          setProcessingPlatform(null);
-        });
-      } else {
-        // Handle other platforms connection (mock)
-        setTimeout(() => {
-          setSocialConnections(prev => ({
-            ...prev,
-            [platform]: {
-              ...prev[platform],
-              connected: true,
-              account: `Demo ${getPlatformName(platform)} Account`
-            }
-          }));
-          setIsLoading(false);
-          setProcessingPlatform(null);
-        }, 500);
-      }
+      // Mock connection for non-OAuth platforms
+      setTimeout(() => {
+        setSocialConnections(prev => ({
+          ...prev,
+          [platform]: {
+            ...prev[platform],
+            connected: true,
+            account: `Demo ${getPlatformName(platform)} Account`
+          }
+        }));
+        setIsLoading(false);
+        setProcessingPlatform(null);
+      }, 500);
     }
-  };
+  }
+};
+
 
   const handleToggleAutoposting = (platform) => {
     setProcessingPlatform(platform);
