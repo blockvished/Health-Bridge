@@ -24,27 +24,60 @@ export default function ConnectionsPage() {
     facebook: { connected: false, account: "", autoposting: false },
     twitter: { connected: false, account: "", autoposting: false },
     linkedin: { connected: false, account: "", autoposting: false },
-    linkedinCompany: { connected: false, account: "", autoposting: false },
-    instagram: { connected: false, account: "", autoposting: false },
-    googleBusiness: { connected: false, account: "", autoposting: false },
   });
 
-  // Update connections status when session changes
   useEffect(() => {
     if (session) {
-      // Check which provider the session is for
-      const provider = session.provider || "twitter"; // Default to twitter if not specified
-      
-      setSocialConnections(prev => ({
+      const provider = session.provider || "twitter";
+      console.log("Session data:", session);
+
+      const saveDataToBackend = async () => {
+        try {
+          const response = await fetch("/api/auth/connections/save", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              accessToken: session.accessToken,
+              expires: session.expires,
+              expiresAt: session.expiresAt,
+              provider: session.provider,
+              user: {
+                email: session.user?.email,
+                image: session.user?.image,
+                name: session.user?.name,
+              },
+            }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log("Backend response:", data);
+            // Optionally, you can update your local state based on the backend response
+          } else {
+            console.error("Failed to save connection data to backend");
+            // Optionally, handle the error in your UI
+          }
+        } catch (error) {
+          console.error("Error sending data to backend:", error);
+          // Optionally, handle the error in your UI
+        }
+      };
+
+      saveDataToBackend();
+
+      setSocialConnections((prev) => ({
         ...prev,
         [provider]: {
           connected: true,
           account: session.user?.name || "Connected Account",
-          autoposting: prev[provider]?.autoposting || false
-        }
+          autoposting: prev[provider]?.autoposting || false,
+        },
       }));
     }
-  }, [session]);
+  }, [session, setSocialConnections]); // Ensure setSocialConnections is in the dependency array if it's defined outside
 
   // Helper function to get platform display name
   const getPlatformName = (platform) => {
@@ -59,70 +92,59 @@ export default function ConnectionsPage() {
     return names[platform] || platform;
   };
 
-  const handleConnect = async (provider: string) => {
-  try {
-    setProcessingPlatform(provider);
+  const handleToggleConnection = async (platform) => {
+    setProcessingPlatform(platform);
     setIsLoading(true);
-    await signIn(provider, { callbackUrl: `/connections?linked=${provider}` });
-  } catch (error: any) {
-    setConnectionError(`Failed to connect to ${getPlatformName(provider)}: ${error.message}`);
-    setIsLoading(false);
-    setProcessingPlatform(null);
-  }
-};
 
-
-  const handleToggleConnection = (platform: string) => {
-  setProcessingPlatform(platform);
-  setIsLoading(true);
-
-  if (socialConnections[platform].connected) {
-    // Disconnect platform (mock)
-    setTimeout(() => {
-      setSocialConnections(prev => ({
-        ...prev,
-        [platform]: {
-          ...prev[platform],
-          connected: false,
-          account: ""
-        }
-      }));
-      setIsLoading(false);
-      setProcessingPlatform(null);
-    }, 500);
-  } else {
-    // Use shared handleConnect for OAuth providers
-    if (["twitter", "linkedin"].includes(platform)) {
-      handleConnect(platform);
-    } else {
-      // Mock connection for non-OAuth platforms
+    if (socialConnections[platform].connected) {
+      // Disconnect platform (mock)
       setTimeout(() => {
-        setSocialConnections(prev => ({
+        setSocialConnections((prev) => ({
           ...prev,
           [platform]: {
             ...prev[platform],
-            connected: true,
-            account: `Demo ${getPlatformName(platform)} Account`
-          }
+            connected: false,
+            account: "",
+          },
         }));
         setIsLoading(false);
         setProcessingPlatform(null);
       }, 500);
+    } else {
+      // Use shared handleConnect for OAuth providers
+      if (["twitter", "linkedin"].includes(platform)) {
+        // handleConnect(platform);
+        setProcessingPlatform(platform);
+        setIsLoading(true);
+        await signIn(platform);
+      } else {
+        // Mock connection for non-OAuth platforms
+        setTimeout(() => {
+          setSocialConnections((prev) => ({
+            ...prev,
+            [platform]: {
+              ...prev[platform],
+              connected: true,
+              account: `Demo ${getPlatformName(platform)} Account`,
+            },
+          }));
+          setIsLoading(false);
+          setProcessingPlatform(null);
+        }, 500);
+      }
     }
-  }
-};
-
+  };
 
   const handleToggleAutoposting = (platform) => {
     setProcessingPlatform(platform);
     setIsLoading(true);
     setTimeout(() => {
-      setSocialConnections(prev => ({
+      setSocialConnections((prev) => ({
         ...prev,
         [platform]: {
           ...prev[platform],
-          autoposting: !prev[platform].autoposting
-        }
+          autoposting: !prev[platform].autoposting,
+        },
       }));
       setIsLoading(false);
       setProcessingPlatform(null);
@@ -178,7 +200,11 @@ export default function ConnectionsPage() {
                 onToggleConnection={() => handleToggleConnection(platform)}
                 onToggleAutoposting={() => handleToggleAutoposting(platform)}
                 isLoading={isLoading && processingPlatform === platform}
-                isConfigured={platform === 'twitter' || platform === 'linkedin' ? true : true} // Set based on your provider configuration
+                isConfigured={
+                  platform === "twitter" || platform === "linkedin"
+                    ? true
+                    : true
+                } // Set based on your provider configuration
               />
             ))}
           </div>
@@ -195,7 +221,7 @@ function SocialChannel({
   onToggleConnection,
   onToggleAutoposting,
   isLoading,
-  isConfigured = true
+  isConfigured = true,
 }) {
   const iconMap = {
     facebook: <Facebook className="w-6 h-6 text-blue-600" />,

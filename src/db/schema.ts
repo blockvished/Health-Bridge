@@ -8,6 +8,7 @@ import {
   timestamp,
   pgEnum,
   unique,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { uniqueIndex } from "drizzle-orm/pg-core";
@@ -101,20 +102,20 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const socialConnections = pgTable(
-  "social_connections",
-  {
-    id: serial("id").primaryKey(),
-    doctorId: text("doctor_id").notNull(),
-    platform: varchar("platform", { length: 50 }).notNull(), // e.g., 'twitter'
-    account: varchar("account", { length: 255 }).notNull(),
-    autoposting: boolean("autoposting").default(false),
-    createdAt: timestamp("created_at").defaultNow(),
-  },
-  (table) => ({
-    doctorPlatformUnique: unique().on(table.doctorId, table.platform), // <-- Enforce one per platform
-  })
-);
+export const socialConnections = pgTable("social_connections", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  provider: text("provider").notNull().unique(), // e.g., "twitter"
+  accountName: text("account_name"),
+  accessToken: text("access_token").notNull(),
+  refreshToken: text("refresh_token"),
+  expiresAt: timestamp("expires_at", { mode: "date" }),
+  autoposting: boolean("autoposting").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 
 export const plans = pgTable("plans", {
   id: serial("id").primaryKey(),
