@@ -7,15 +7,14 @@ import {
   boolean,
   timestamp,
   pgEnum,
-  unique,
-  uuid,
+  doublePrecision,
+  time,
+  date,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { uniqueIndex } from "drizzle-orm/pg-core";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { time } from "drizzle-orm/pg-core";
-import { date } from "drizzle-orm/pg-core";
-import { serialize } from "cookie";
+import { uniqueIndex } from "drizzle-orm/pg-core";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -85,6 +84,12 @@ export const DrugType = pgEnum("drug_type", ["cap", "tab", "syp", "oin"]);
 
 export const planTypeEnum = pgEnum("plan_type", ["monthly", "yearly"]);
 
+export const postStatusEnum = pgEnum("post_status", [
+  "scheduled",
+  "posted",
+  "failed",
+]);
+
 ///
 // Users
 ///
@@ -116,7 +121,6 @@ export const socialConnections = pgTable("social_connections", {
   disconnected: boolean("disconnected").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
-
 
 export const plans = pgTable("plans", {
   id: serial("id").primaryKey(),
@@ -202,6 +206,76 @@ export const doctor = pgTable("doctor", {
   accountVerified: boolean("account_verified").default(false).notNull(),
 });
 
+export const social_platforms = pgTable("social_platforms", {
+  id: serial("id").primaryKey(), // Use serial for auto-increment
+  name: varchar("name", { length: 255 }).notNull(), // e.g., 'Facebook', 'Twitter'
+});
+
+// Posts table
+export const posts = pgTable("posts", {
+  id: serial("id").primaryKey(),
+  doctorId: integer("doctor_id") // changed to doctor_id
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }), // changed to doctor
+  content: text("content").notNull(),
+  imageLocation: text("image_location"),
+  status: postStatusEnum("status").default("scheduled").notNull(), // 'scheduled', 'posted', 'failed'
+  interactions: integer("interactions").default(0),
+  publishedBy: varchar("published_by", { length: 255 }),
+  scheduledTime: timestamp("scheduled_time"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// New table to link posts and social platforms
+export const post_social_platform = pgTable(
+  "post_social_platform",
+  {
+    id: serial("id").primaryKey(),
+    postId: integer("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    socialPlatformId: integer("social_platform_id")
+      .notNull()
+      .references(() => social_platforms.id, { onDelete: "cascade" }),
+    // Add any additional fields relevant to the relationship
+    // e.g., a timestamp for when the post was published on the platform
+    publishedAt: timestamp("published_at"),
+    // You might also want to track the status of the post on each platform
+    status: postStatusEnum("status").default("scheduled").notNull(),
+  },
+  (table) => ({
+    // Composite primary key (optional, if you want to enforce unique pairs)
+    // You might not need this if 'id' is already a primary key
+    // primaryKey: [table.postId, table.socialPlatformId],
+
+    //  indexes (optional, but recommended for performance)
+    postSocialPlatformIdIdx: index("post_social_platform_id_idx").on(
+      table.postId,
+      table.socialPlatformId
+    ),
+  })
+);
+
+export const doctor_social_media_analytics = pgTable(
+  "doctor_social_media_analytics",
+  {
+    id: serial("id").primaryKey(),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctor.id, { onDelete: "cascade" }),
+    socialPlatformId: integer("social_platform_id")
+      .notNull()
+      .references(() => social_platforms.id, { onDelete: "cascade" }),
+    totalFollowers: integer("total_followers").notNull(),
+    newFollowers: integer("new_followers").notNull(),
+    numberOfPosts: integer("number_of_posts").notNull(),
+    reach: doublePrecision("reach").notNull(), // Use double for percentage
+    engagement: doublePrecision("engagement").notNull(), // Use double for percentage
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  }
+);
+
 export const doctorRelations = relations(doctor, ({ one, many }) => ({
   user: one(users, {
     fields: [doctor.userId],
@@ -211,6 +285,8 @@ export const doctorRelations = relations(doctor, ({ one, many }) => ({
   metaTags: many(doctorMetaTags),
   educations: many(doctorEducation),
   experiences: many(doctorExperience),
+  socialConnections: many(socialConnections),
+  posts: many(posts),
 }));
 
 //

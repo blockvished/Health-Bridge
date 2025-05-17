@@ -21,6 +21,7 @@ function AddPostForm() {
     { id: "linkedin", label: "LinkedIn", isSelected: false },
   ]);
   const [scheduleTime, setScheduleTime] = useState("");
+  const [postOption, setPostOption] = useState<"now" | "schedule">("now");
   const [error, setError] = useState("");
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -48,7 +49,12 @@ function AddPostForm() {
     setScheduleTime(e.target.value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handlePostOptionChange = (option: "now" | "schedule") => {
+    setPostOption(option);
+    setError(""); // Clear any previous errors when switching options
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const selectedSocialMedia = socialMediaOptions
@@ -60,19 +66,52 @@ function AddPostForm() {
       return;
     }
 
-    console.log({
+    if (postOption === "schedule" && !scheduleTime) {
+      setError("Please select a schedule date and time.");
+      return;
+    }
+
+    const postData = {
       content,
       image,
       socialMedia: selectedSocialMedia,
-      scheduleTime,
-    });
-    setContent("");
-    setImage(null);
-    setSocialMediaOptions((prevOptions) =>
-      prevOptions.map((option) => ({ ...option, isSelected: false }))
-    );
-    setScheduleTime("");
-    setError("");
+      ...(postOption === "schedule" && { scheduleTime }),
+    };
+
+    const apiUrl =
+      postOption === "now"
+        ? "/api/auth/connections/post"
+        : "/api/auth/connections/schedule";
+
+    console.log("Posting data:", postData, "to:", apiUrl);
+
+    // In a real application, you would make an API call here
+    // try {
+    //   const response = await fetch(apiUrl, {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(postData),
+    //   });
+    //   if (response.ok) {
+    //     console.log('Post successful!');
+    //     setContent("");
+    //     setImage(null);
+    //     setSocialMediaOptions((prevOptions) =>
+    //       prevOptions.map((option) => ({ ...option, isSelected: false }))
+    //     );
+    //     setScheduleTime("");
+    //     setError("");
+    //     setPostOption("now"); // Reset to default
+    //   } else {
+    //     console.error('Post failed:', response.status);
+    //     setError('Failed to add post.');
+    //   }
+    // } catch (error: any) {
+    //   console.error('Error posting:', error);
+    //   setError('An error occurred while adding the post.');
+    // }
   };
 
   return (
@@ -144,28 +183,62 @@ function AddPostForm() {
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
           </div>
 
-          <div>
-            <label
-              htmlFor="schedule-time"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Schedule Date & Time (Optional)
-            </label>
-            <input
-              type="datetime-local"
-              id="schedule-time"
-              value={scheduleTime}
-              onChange={handleScheduleTimeChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="YYYY-MM-DD hh:mm"
-            />
+          <div className="flex items-center space-x-4 mb-4">
+            <div>
+              <input
+                type="radio"
+                id="post-now"
+                name="postOption"
+                value="now"
+                checked={postOption === "now"}
+                onChange={() => handlePostOptionChange("now")}
+                className="mr-2"
+              />
+              <label htmlFor="post-now" className="text-sm font-medium text-gray-700">
+                Post Now
+              </label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                id="schedule-later"
+                name="postOption"
+                value="schedule"
+                checked={postOption === "schedule"}
+                onChange={() => handlePostOptionChange("schedule")}
+                className="mr-2"
+              />
+              <label htmlFor="schedule-later" className="text-sm font-medium text-gray-700">
+                Schedule for Later
+              </label>
+            </div>
           </div>
+
+          {postOption === "schedule" && (
+            <div>
+              <label
+                htmlFor="schedule-time"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Schedule Date & Time*
+              </label>
+              <input
+                type="datetime-local"
+                id="schedule-time"
+                value={scheduleTime}
+                onChange={handleScheduleTimeChange}
+                className="w-full p-2 border border-gray-300 rounded-md"
+                placeholder="YYYY-MM-DD hh:mm"
+                required={postOption === "schedule"}
+              />
+            </div>
+          )}
 
           <button
             type="submit"
             className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-6 rounded-md"
           >
-            Add Post
+            {postOption === "now" ? "Post Now" : "Schedule Post"}
           </button>
         </form>
       </div>
