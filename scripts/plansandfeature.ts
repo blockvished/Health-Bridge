@@ -1,4 +1,4 @@
-import { plans, planFeatures, permissionTypes } from "../src/db/schema";
+import { plans, planFeatures, permissionTypes, socialPlatforms } from "../src/db/schema";
 import { db } from "../src/db/db";
 
 const basicFeaturesList = [
@@ -151,6 +151,14 @@ async function seed() {
         description: permission.description,
       });
     }
+
+    const socialPlatformsList  = ['twitter', 'facebook', 'linkedin', 'instagram', 'google'];
+
+    for (const socialPlatformItem of socialPlatformsList) {
+      await db.insert(socialPlatforms).values({
+        name: socialPlatformItem,
+      });
+    }   
 
     console.log("Seed completed successfully.");
   } catch (error) {

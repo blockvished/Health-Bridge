@@ -360,7 +360,7 @@ function SocialChannel({
               </div>
               <div className="flex flex-col">
                 <span>
-                  Connected as{" "}
+                  Connected as
                   <span className="text-blue-600">{connection.account}</span>
                 </span>
                 <button

@@ -206,10 +206,15 @@ export const doctor = pgTable("doctor", {
   accountVerified: boolean("account_verified").default(false).notNull(),
 });
 
-export const social_platforms = pgTable("social_platforms", {
+export const socialPlatforms = pgTable("social_platforms", {
   id: serial("id").primaryKey(), // Use serial for auto-increment
   name: varchar("name", { length: 255 }).notNull(), // e.g., 'Facebook', 'Twitter'
 });
+
+export const socialPlatformRelations = relations(socialPlatforms, ({ many }) => ({
+    postSocialPlatforms: many(post_social_platform),
+}));
+
 
 // Posts table
 export const posts = pgTable("posts", {
@@ -218,13 +223,17 @@ export const posts = pgTable("posts", {
     .notNull()
     .references(() => doctor.id, { onDelete: "cascade" }), // changed to doctor
   content: text("content").notNull(),
-  imageLocation: text("image_location"),
+  imageLocalLink: text("image_local_link"),
   status: postStatusEnum("status").default("scheduled").notNull(), // 'scheduled', 'posted', 'failed'
   interactions: integer("interactions").default(0),
   publishedBy: varchar("published_by", { length: 255 }),
-  scheduledTime: timestamp("scheduled_time"),
+  scheduledTime: timestamp("scheduled_time"),// bull mq
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const postRelations = relations(posts, ({ many }) => ({
+    postSocialPlatforms: many(post_social_platform),
+}));
 
 // New table to link posts and social platforms
 export const post_social_platform = pgTable(
@@ -236,7 +245,7 @@ export const post_social_platform = pgTable(
       .references(() => posts.id, { onDelete: "cascade" }),
     socialPlatformId: integer("social_platform_id")
       .notNull()
-      .references(() => social_platforms.id, { onDelete: "cascade" }),
+      .references(() => socialPlatforms.id, { onDelete: "cascade" }),
     // Add any additional fields relevant to the relationship
     // e.g., a timestamp for when the post was published on the platform
     publishedAt: timestamp("published_at"),
@@ -256,6 +265,17 @@ export const post_social_platform = pgTable(
   })
 );
 
+export const postSocialPlatformRelations = relations(post_social_platform, ({ one }) => ({
+    post: one(posts, {
+        fields: [post_social_platform.postId],
+        references: [posts.id],
+    }),
+    socialPlatform: one(socialPlatforms, {
+        fields: [post_social_platform.socialPlatformId],
+        references: [socialPlatforms.id],
+    }),
+}));
+
 export const doctor_social_media_analytics = pgTable(
   "doctor_social_media_analytics",
   {
@@ -265,7 +285,7 @@ export const doctor_social_media_analytics = pgTable(
       .references(() => doctor.id, { onDelete: "cascade" }),
     socialPlatformId: integer("social_platform_id")
       .notNull()
-      .references(() => social_platforms.id, { onDelete: "cascade" }),
+      .references(() => socialPlatforms.id, { onDelete: "cascade" }),
     totalFollowers: integer("total_followers").notNull(),
     newFollowers: integer("new_followers").notNull(),
     numberOfPosts: integer("number_of_posts").notNull(),

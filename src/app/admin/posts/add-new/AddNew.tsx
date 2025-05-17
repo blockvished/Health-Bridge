@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface SocialMediaOption {
   id: string;
@@ -8,21 +8,48 @@ interface SocialMediaOption {
   isSelected: boolean;
 }
 
+async function fetchSocialMediaPlatforms(): Promise<SocialMediaOption[]> {
+  try {
+    const response = await fetch(
+      "/api/auth/connections/get_all_social_platforms"
+    );
+    if (!response.ok) {
+      console.error("Failed to fetch social media platforms:", response.status);
+      return [];
+    }
+    const data = await response.json();
+    // Assuming the API returns an array of objects with 'id' and 'name' properties
+    return data.map((platform: { id: number; name: string }) => ({
+      id: platform.id.toString(),
+      label: platform.name,
+      isSelected: false,
+    }));
+  } catch (error) {
+    console.error("Error fetching social media platforms:", error);
+    return [];
+  }
+}
+
 function AddPostForm() {
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [socialMediaOptions, setSocialMediaOptions] = useState<
     SocialMediaOption[]
-  >([
-    { id: "facebook", label: "Facebook", isSelected: false },
-    { id: "instagram", label: "Instagram", isSelected: false },
-    { id: "twitter", label: "Twitter", isSelected: false },
-    { id: "google", label: "Google", isSelected: false },
-    { id: "linkedin", label: "LinkedIn", isSelected: false },
-  ]);
+  >([]);
   const [scheduleTime, setScheduleTime] = useState("");
   const [postOption, setPostOption] = useState<"now" | "schedule">("now");
   const [error, setError] = useState("");
+  const [loadingPlatforms, setLoadingPlatforms] = useState(true);
+
+  useEffect(() => {
+    const loadPlatforms = async () => {
+      const platforms = await fetchSocialMediaPlatforms();
+      setSocialMediaOptions(platforms);
+      setLoadingPlatforms(false);
+    };
+
+    loadPlatforms();
+  }, []);
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
@@ -42,6 +69,18 @@ function AddPostForm() {
       prevOptions.map((option) =>
         option.id === id ? { ...option, isSelected: e.target.checked } : option
       )
+    );
+  };
+
+  const handleSelectAll = () => {
+    setSocialMediaOptions((prevOptions) =>
+      prevOptions.map((option) => ({ ...option, isSelected: true }))
+    );
+  };
+
+  const handleDeselectAll = () => {
+    setSocialMediaOptions((prevOptions) =>
+      prevOptions.map((option) => ({ ...option, isSelected: false }))
     );
   };
 
@@ -71,47 +110,52 @@ function AddPostForm() {
       return;
     }
 
-    const postData = {
-      content,
-      image,
-      socialMedia: selectedSocialMedia,
-      ...(postOption === "schedule" && { scheduleTime }),
-    };
+    const postData = new FormData();
+    postData.append("content", content);
+    if (image) {
+      postData.append("image", image);
+    }
+    postData.append("socialMedia", JSON.stringify(selectedSocialMedia));
+    if (postOption === "schedule") {
+      postData.append("scheduleTime", scheduleTime);
+    }
 
     const apiUrl =
       postOption === "now"
-        ? "/api/auth/connections/post"
+        ? "/api/auth/connections/post_new"
         : "/api/auth/connections/schedule";
 
-    console.log("Posting data:", postData, "to:", apiUrl);
+    console.log(
+      "Posting data:",
+      Object.fromEntries(postData as any),
+      "to:",
+      apiUrl
+    );
 
-    // In a real application, you would make an API call here
-    // try {
-    //   const response = await fetch(apiUrl, {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(postData),
-    //   });
-    //   if (response.ok) {
-    //     console.log('Post successful!');
-    //     setContent("");
-    //     setImage(null);
-    //     setSocialMediaOptions((prevOptions) =>
-    //       prevOptions.map((option) => ({ ...option, isSelected: false }))
-    //     );
-    //     setScheduleTime("");
-    //     setError("");
-    //     setPostOption("now"); // Reset to default
-    //   } else {
-    //     console.error('Post failed:', response.status);
-    //     setError('Failed to add post.');
-    //   }
-    // } catch (error: any) {
-    //   console.error('Error posting:', error);
-    //   setError('An error occurred while adding the post.');
-    // }
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        body: postData,
+      });
+      if (response.ok) {
+        console.log("Post successful!");
+        setContent("");
+        setImage(null);
+        setSocialMediaOptions((prevOptions) =>
+          prevOptions.map((option) => ({ ...option, isSelected: false }))
+        );
+        setScheduleTime("");
+        setError("");
+        setPostOption("now"); // Reset to default
+      } else {
+        console.error("Post failed:", response.status);
+        const errorData = await response.json();
+        setError(errorData?.message || "Failed to add post.");
+      }
+    } catch (error: any) {
+      console.error("Error posting:", error);
+      setError("An error occurred while adding the post.");
+    }
   };
 
   return (
@@ -164,7 +208,26 @@ function AddPostForm() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Social Media*
             </label>
+            {!loadingPlatforms &&
+            <div className="mb-2">
+              <button
+                type="button"
+                onClick={handleSelectAll}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-1 px-3 rounded-md mr-2 text-sm"
+              >
+                Select All
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDeselectAll}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-1 px-3 rounded-md text-sm"
+              >
+                Deselect All
+              </button>
+            </div>}
             <div className="grid grid-cols-3 gap-2">
+              {loadingPlatforms && `Loading social media platforms...`}
               {socialMediaOptions.map((option) => (
                 <div key={option.id} className="flex items-center">
                   <input
@@ -175,7 +238,8 @@ function AddPostForm() {
                     className="mr-2"
                   />
                   <label htmlFor={option.id} className="text-sm text-gray-700">
-                    {option.label}
+                    {option.label.charAt(0).toUpperCase() +
+                      option.label.slice(1).toLowerCase()}
                   </label>
                 </div>
               ))}
@@ -194,7 +258,10 @@ function AddPostForm() {
                 onChange={() => handlePostOptionChange("now")}
                 className="mr-2"
               />
-              <label htmlFor="post-now" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="post-now"
+                className="text-sm font-medium text-gray-700"
+              >
                 Post Now
               </label>
             </div>
@@ -208,7 +275,10 @@ function AddPostForm() {
                 onChange={() => handlePostOptionChange("schedule")}
                 className="mr-2"
               />
-              <label htmlFor="schedule-later" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="schedule-later"
+                className="text-sm font-medium text-gray-700"
+              >
                 Schedule for Later
               </label>
             </div>
