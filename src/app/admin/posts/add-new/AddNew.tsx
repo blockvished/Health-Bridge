@@ -2,15 +2,26 @@
 
 import React, { useState } from "react";
 
+interface SocialMediaOption {
+  id: string;
+  label: string;
+  isSelected: boolean;
+}
+
 function AddPostForm() {
   const [content, setContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
-  const [link, setLink] = useState("");
-  const [activeTab, setActiveTab] = useState("facebook");
-  const [customLink, setCustomLink] = useState("");
-  const [customMessage, setCustomMessage] = useState("");
+  const [socialMediaOptions, setSocialMediaOptions] = useState<
+    SocialMediaOption[]
+  >([
+    { id: "facebook", label: "Facebook", isSelected: false },
+    { id: "instagram", label: "Instagram", isSelected: false },
+    { id: "twitter", label: "Twitter", isSelected: false },
+    { id: "google", label: "Google", isSelected: false },
+    { id: "linkedin", label: "LinkedIn", isSelected: false },
+  ]);
   const [scheduleTime, setScheduleTime] = useState("");
-  const [scheduleValue, setScheduleValue] = useState("");
+  const [error, setError] = useState("");
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
@@ -21,51 +32,52 @@ function AddPostForm() {
       setImage(e.target.files[0]);
     }
   };
-  
-  const handleCustomLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCustomLink(e.target.value);
-  };
 
-  const handleCustomMessageChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
+  const handleSocialMediaChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    id: string
   ) => {
-    setCustomMessage(e.target.value);
+    setSocialMediaOptions((prevOptions) =>
+      prevOptions.map((option) =>
+        option.id === id ? { ...option, isSelected: e.target.checked } : option
+      )
+    );
   };
 
   const handleScheduleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setScheduleTime(e.target.value);
   };
 
-  const handleScheduleValueChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setScheduleValue(e.target.value);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const selectedSocialMedia = socialMediaOptions
+      .filter((option) => option.isSelected)
+      .map((option) => option.id);
+
+    if (selectedSocialMedia.length === 0) {
+      setError("Please select at least one social media platform.");
+      return;
+    }
+
     console.log({
-      tab: activeTab,
       content,
       image,
-      link,
-      customLink,
-      customMessage,
+      socialMedia: selectedSocialMedia,
       scheduleTime,
-      scheduleValue,
     });
     setContent("");
     setImage(null);
-    setLink("");
-    setCustomLink("");
-    setCustomMessage("");
+    setSocialMediaOptions((prevOptions) =>
+      prevOptions.map((option) => ({ ...option, isSelected: false }))
+    );
     setScheduleTime("");
-    setScheduleValue("");
+    setError("");
   };
 
   return (
     <div className="min-h-screen flex justify-center p-4">
-      <div className="w-full  bg-white p-6 rounded-lg shadow-md my-4">
+      <div className="w-full bg-white p-6 rounded-lg shadow-md my-4">
         <h2 className="text-2xl font-semibold mb-4">Add Content*</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -87,7 +99,7 @@ function AddPostForm() {
               htmlFor="image-upload"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Content Image
+              Content Image (Optional)
             </label>
             <div className="flex items-center space-x-2">
               <input
@@ -110,283 +122,51 @@ function AddPostForm() {
           </div>
 
           <div>
-            <div className="flex border-b border-gray-200">
-              <button
-                type="button"
-                className={`flex-1 py-2 px-3 font-medium text-sm ${
-                  activeTab === "facebook"
-                    ? "border-b-2 border-blue-500 text-blue-600"
-                    : "text-gray-500"
-                }`}
-                onClick={() => setActiveTab("facebook")}
-              >
-                Facebook
-              </button>
-              <button
-                type="button"
-                className={`flex-1 py-2 px-3 font-medium text-sm ${
-                  activeTab === "instagram"
-                    ? "border-b-2 border-blue-500 text-blue-600"
-                    : "text-gray-500"
-                }`}
-                onClick={() => setActiveTab("instagram")}
-              >
-                Instagram
-              </button>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Social Media*
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {socialMediaOptions.map((option) => (
+                <div key={option.id} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={option.id}
+                    checked={option.isSelected}
+                    onChange={(e) => handleSocialMediaChange(e, option.id)}
+                    className="mr-2"
+                  />
+                  <label htmlFor={option.id} className="text-sm text-gray-700">
+                    {option.label}
+                  </label>
+                </div>
+              ))}
             </div>
-
-            {activeTab === "facebook" && (
-              <div className="mt-4 space-y-3">
-                <div className="flex flex-col">
-                  <label className="text-blue-600 text-sm font-medium mb-1">
-                    Status
-                  </label>
-                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700">
-                    <option>Unpublished</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-blue-600 text-sm font-medium mb-1">
-                    Post To This Facebook Account(s)
-                  </label>
-                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700">
-                    <option>Select account</option>
-                  </select>
-                </div>
-
-                <div className="flex space-x-2">
-                  <button
-                    type="button"
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md text-sm"
-                  >
-                    Select All
-                  </button>
-                  <button
-                    type="button"
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md text-sm"
-                  >
-                    Select None
-                  </button>
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-blue-600 text-sm font-medium mb-1">
-                    Share posting type
-                  </label>
-                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white text-gray-700">
-                    <option>Link posting</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-blue-600 text-sm font-medium mb-1">
-                    Custom Link
-                  </label>
-                  <input
-                    type="text"
-                    value={customLink}
-                    onChange={handleCustomLinkChange}
-                    placeholder="Custom Link"
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-blue-600 text-sm font-medium mb-1">
-                    Custom Message
-                  </label>
-                  <textarea
-                    value={customMessage}
-                    onChange={handleCustomMessageChange}
-                    placeholder="Custom message"
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    rows={3}
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-blue-600 text-sm font-medium mb-1">
-                    Schedule Individually
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={scheduleTime}
-                    onChange={handleScheduleTimeChange}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="YYYY-MM-DD hh:mm"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-blue-600 text-sm font-medium mb-1">
-                    Schedule Global
-                  </label>
-                  <div className="flex border border-gray-300 rounded-md bg-white">
-                    <div className="py-2 px-2">
-                      <svg
-                        className="w-5 h-5 text-gray-400"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                      </svg>
-                    </div>
-                    <input
-                      type="number"
-                      value={scheduleValue}
-                      onChange={handleScheduleValueChange}
-                      className="w-full p-2 border-0 focus:ring-0"
-                    />
-                  </div>
-                </div>
-
-                <div className="bg-gray-100 p-3 rounded-md flex items-center">
-                  <span className="flex-shrink-0 bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-2">
-                    i
-                  </span>
-                  <p className="text-sm text-gray-600">
-                    Note: You can only schedule the content if the current
-                    status set to unpublished.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "instagram" && (
-              <div className="mt-4 space-y-3">
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-blue-600 mb-1">
-                    Status
-                  </label>
-                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white">
-                    <option>Unpublished</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-blue-600 mb-1">
-                    Post To This Instagram
-                  </label>
-                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white">
-                    <option>Select Instagram Account</option>
-                  </select>
-                </div>
-
-                <div className="flex space-x-2">
-                  <button
-                    type="button"
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md text-sm"
-                  >
-                    Select All
-                  </button>
-                  <button
-                    type="button"
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md text-sm"
-                  >
-                    Select None
-                  </button>
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-blue-600 mb-1">
-                    Share posting type
-                  </label>
-                  <select className="w-full p-2 border border-gray-300 rounded-md bg-white">
-                    <option>Image posting</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-blue-600 mb-1">
-                    Post Image
-                  </label>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                      id="instagram-image-upload"
-                    />
-                    <label
-                      htmlFor="instagram-image-upload"
-                      className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md cursor-pointer"
-                    >
-                      + Browse...
-                    </label>
-                  </div>
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-blue-600 mb-1">
-                    Custom Message
-                  </label>
-                  <textarea
-                    value={customMessage}
-                    onChange={handleCustomMessageChange}
-                    placeholder="Enter custom message"
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    rows={3}
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-blue-600 mb-1">
-                    Schedule Individually
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={scheduleTime}
-                    onChange={handleScheduleTimeChange}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="YYYY-MM-DD hh:mm"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <label className="text-sm font-medium text-blue-600 mb-1">
-                    Schedule Global
-                  </label>
-                  <input
-                    type="number"
-                    value={scheduleValue}
-                    onChange={handleScheduleValueChange}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  />
-                </div>
-
-                <div className="bg-gray-100 p-3 rounded-md flex items-center">
-                  <span className="flex-shrink-0 bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-2">
-                    i
-                  </span>
-                  <p className="text-sm text-gray-600">
-                    Note: You can only schedule the content if the current
-                    status set to unpublished.
-                  </p>
-                </div>
-
-                <button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-md"
-                >
-                  Add
-                </button>
-              </div>
-            )}
+            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
           </div>
 
-          {!activeTab.includes("instagram") && (
-            <button
-              type="submit"
-              className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-6 rounded-md"
+          <div>
+            <label
+              htmlFor="schedule-time"
+              className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Add
-            </button>
-          )}
+              Schedule Date & Time (Optional)
+            </label>
+            <input
+              type="datetime-local"
+              id="schedule-time"
+              value={scheduleTime}
+              onChange={handleScheduleTimeChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="YYYY-MM-DD hh:mm"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-6 rounded-md"
+          >
+            Add Post
+          </button>
         </form>
       </div>
     </div>

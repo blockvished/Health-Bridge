@@ -77,14 +77,14 @@ export const menuItemsDoctor: MenuItem[] = [
     svg: <FaListUl />,
     dropdown: [
       {
+        name: "Report",
+        link: "/admin/posts/report",
+        svg: <FaSlidersH />,
+      },
+      {
         name: "All Posts",
         link: "/admin/posts/all",
         svg: <FiBarChart2  />,
-      },
-      {
-        name: "Post Report",
-        link: "/admin/posts/report",
-        svg: <FaSlidersH />,
       },
       { name: "Connections", link: "/admin/posts/connections",svg: <FaCog /> },
     ],
