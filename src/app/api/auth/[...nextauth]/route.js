@@ -10,9 +10,16 @@ const handler = NextAuth({
       clientId: process.env.TWITTER_CLIENT_ID,
       clientSecret: process.env.TWITTER_CLIENT_SECRET,
       version: "2.0", // Important: use Twitter OAuth 2.0
+      checks: ["pkce", "state"],
       authorization: {
         params: {
-          scope: "tweet.read tweet.write users.read offline.access",
+          scope: [
+            "tweet.read",
+            "tweet.write",
+            "users.read",
+            "offline.access", // for refresh tokens
+            "media.write", // <— critical for v2 media upload :contentReference[oaicite:3]{index=3}
+          ].join(" "),
         },
       },
     }),

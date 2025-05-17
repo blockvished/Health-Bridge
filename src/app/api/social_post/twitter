@@ -1,0 +1,112 @@
+1. Request the media.write scope
+To call the v2 media upload endpoint (POST /2/media/upload) with OAuth 2.0, your user token must include the media.write scope. Without it you’ll get a 403 “not permitted” error 
+Dev Community
+.
+
+2. Enable OAuth 2.0 Authorization Code with PKCE
+In the Twitter Developer Portal, under your App’s User authentication settings, choose OAuth 2.0 Authorization Code (with PKCE) and make sure OAuth 2.0 is enabled alongside OAuth 1.0a 
+Twitter Developer Documentation
+.
+
+3. Update your NextAuth config
+Add media.write to your authorization.params.scope and enforce PKCE+state checks:
+
+ts
+Copy
+Edit
+import TwitterProvider from "next-auth/providers/twitter";
+
+TwitterProvider({
+  clientId: process.env.TWITTER_CLIENT_ID,
+  clientSecret: process.env.TWITTER_CLIENT_SECRET,
+  version: "2.0",          // Ensure OAuth2.0
+  checks: ["pkce", "state"], // Twitter now requires PKCE + state :contentReference[oaicite:2]{index=2}
+  authorization: {
+    params: {
+      scope: [
+        "tweet.read",
+        "tweet.write",
+        "users.read",
+        "offline.access",   // for refresh tokens
+        "media.write"       // <— critical for v2 media upload :contentReference[oaicite:3]{index=3}
+      ].join(" ")
+    }
+  }
+})
+4. Re-authenticate users
+After you add media.write, any existing tokens lack that scope. Users must log in again so NextAuth can request and store a fresh token with media.write 
+Stack Overflow
+.
+
+5. Upload media via v2 endpoint
+With your new OAuth 2.0 user token, POST the raw image bytes:
+
+ts
+Copy
+Edit
+const upload = await fetch('https://api.twitter.com/2/media/upload', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${userToken}`,
+    'Content-Type': 'application/octet-stream',
+  },
+  body: imageBuffer,  // Buffer.from(fs.readFileSync('cat.png'))
+});
+const { media_id } = await upload.json();
+This is the new v2 media upload API 
+Twitter Developer Documentation
+.
+
+6. Create the Tweet with media
+Pass the returned media_id into your v2 Tweet create call:
+
+ts
+Copy
+Edit
+await fetch('https://api.twitter.com/2/tweets', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${userToken}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    text: "Hello world with image via OAuth2!",
+    media: { media_ids: [media_id] }
+  }),
+});
+Exactly as v2 expects it 
+Twitter Developer Documentation
+.
+
+7. Persist long-lived tokens
+Because you included offline.access, NextAuth will handle refresh tokens for you. There’s no extra work—NextAuth stores and refreshes the token as needed 
+NextAuth
+.
+
+8. (Optional) Use a helper library
+If you prefer, libraries like twitter-api-v2 wrap all this:
+
+js
+Copy
+Edit
+import { TwitterApi } from 'twitter-api-v2';
+const client = new TwitterApi(userToken);
+const mediaId = await client.v2.uploadMedia('./cat.png');
+await client.v2.tweet('Posting via twitter-api-v2!', { media: { media_ids: [mediaId] }});
+They fully support OAuth 2.0 user tokens with media helpers 
+npm
+.
+
+9. Verify your scopes
+You can confirm your token scopes with:
+
+bash
+Copy
+Edit
+curl -H "Authorization: Bearer $USER_TOKEN" \
+  https://api.twitter.com/2/users/me
+Make sure tweet.write and media.write appear 
+Twitter Developer Documentation
+.
+
+That’s it—a pure OAuth 2.0 flow in NextAuth, from obtaining a media.write-enabled user token to uploading images and creating tweets, all without falling back to OAuth 1.0a.
