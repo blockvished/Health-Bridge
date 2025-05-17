@@ -19,8 +19,21 @@ export async function GET(req: Request) {
     // Fetch all social connections for the user
     const connections = await db.select().from(socialConnections).where(eq(socialConnections.userId, numericUserId));
 
-    // Return the connections as JSON
-    return NextResponse.json({ connections }, { status: 200 });
+    // Transform the connections to include expired flag instead of expiresAt
+    const now = new Date();
+    const transformedConnections = connections.map(connection => {
+      // Create a new object with all properties except expiresAt
+      const { expiresAt, ...connectionWithoutExpiresAt } = connection;
+      
+      // Add expired boolean property based on comparison with current date and disconnected status
+      return {
+        ...connectionWithoutExpiresAt,
+        expired: (expiresAt ? now > expiresAt : false) || connection.disconnected
+      };
+    });
+
+    // Return the transformed connections as JSON
+    return NextResponse.json({ connections: transformedConnections }, { status: 200 });
   } catch (error) {
     console.error("Error fetching social connections:", error);
     return NextResponse.json(
@@ -29,18 +42,3 @@ export async function GET(req: Request) {
     );
   }
 }
-
-
-// export const socialConnections = pgTable("social_connections", {
-//   id: serial("id").primaryKey(),
-//   userId: integer("user_id")
-//     .notNull()
-//     .references(() => users.id, { onDelete: "cascade" }),
-//   provider: text("provider").notNull().unique(), // e.g., "twitter"
-//   accountName: text("account_name"),
-//   accessToken: text("access_token").notNull(),
-//   refreshToken: text("refresh_token"),
-//   expiresAt: timestamp("expires_at", { mode: "date" }),
-//   autoposting: boolean("autoposting").default(false),
-//   createdAt: timestamp("created_at").defaultNow(),
-// });

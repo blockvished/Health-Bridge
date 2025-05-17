@@ -1,6 +1,8 @@
 import NextAuth from "next-auth";
 import TwitterProvider from "next-auth/providers/twitter";
 import LinkedInProvider from "next-auth/providers/linkedin";
+import FacebookProvider from "next-auth/providers/facebook";
+import InstagramProvider from "next-auth/providers/instagram";
 
 const handler = NextAuth({
   providers: [
@@ -8,6 +10,11 @@ const handler = NextAuth({
       clientId: process.env.TWITTER_CLIENT_ID,
       clientSecret: process.env.TWITTER_CLIENT_SECRET,
       version: "2.0", // Important: use Twitter OAuth 2.0
+      authorization: {
+        params: {
+          scope: "tweet.read tweet.write users.read offline.access",
+        },
+      },
     }),
     LinkedInProvider({
       clientId: process.env.LINKEDIN_CLIENT_ID,
@@ -23,9 +30,17 @@ const handler = NextAuth({
         "https://www.linkedin.com/oauth/.well-known/openid-configuration",
       authorization: {
         params: {
-          scope: "openid profile email",
+          scope: "openid profile email w_member_social",
         },
       },
+    }),
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+    }),
+    InstagramProvider({
+      clientId: process.env.INSTAGRAM_CLIENT_ID,
+      clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
     }),
   ],
   callbacks: {
@@ -50,7 +65,8 @@ const handler = NextAuth({
   },
   // Allow users to sign in with multiple accounts
   pages: {
-    signIn: '/auth/signin', // Custom sign-in page (optional)
+    signIn: "/auth/signin", // Custom sign-in page (optional)
   },
 });
+
 export { handler as GET, handler as POST };

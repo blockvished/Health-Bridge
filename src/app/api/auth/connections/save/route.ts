@@ -38,6 +38,7 @@ export async function POST(req: Request) {
           accountName: name || "Connected Account", // Use session name
           accessToken: accessToken,
           refreshToken: "", //  You might not have this
+          disconnected: false,
           expiresAt: expiresAtDate,
         })
         .onConflictDoUpdate({
@@ -46,6 +47,7 @@ export async function POST(req: Request) {
             accountName: name || "Connected Account",
             accessToken: accessToken,
             refreshToken: "", //  You might not have this
+            disconnected: false,
             expiresAt: expiresAtDate,
           },
         });

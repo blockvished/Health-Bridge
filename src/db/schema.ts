@@ -113,6 +113,7 @@ export const socialConnections = pgTable("social_connections", {
   refreshToken: text("refresh_token"),
   expiresAt: timestamp("expires_at", { mode: "date" }),
   autoposting: boolean("autoposting").default(false),
+  disconnected: boolean("disconnected").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

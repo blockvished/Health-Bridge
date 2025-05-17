@@ -1,4 +1,5 @@
 "use client";
+
 import { signIn, signOut, useSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
 import {
@@ -18,13 +19,59 @@ export default function ConnectionsPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [connectionError, setConnectionError] = useState(null);
   const [processingPlatform, setProcessingPlatform] = useState(null);
+  const [isLoadingConnections, setIsLoadingConnections] = useState(true);
 
   // Track connections for each platform separately
   const [socialConnections, setSocialConnections] = useState({
-    facebook: { connected: false, account: "", autoposting: false },
-    twitter: { connected: false, account: "", autoposting: false },
-    linkedin: { connected: false, account: "", autoposting: false },
+    facebook: { connected: false, account: "", autoposting: false, disconnected: false },
+    twitter: { connected: false, account: "", autoposting: false, disconnected: false },
+    linkedin: { connected: false, account: "", autoposting: false, disconnected: false },
+    instagram: { connected: false, account: "", autoposting: false, disconnected: false },
+    googleBusiness: { connected: false, account: "", autoposting: false, disconnected: false },
   });
+
+  // Fetch connections from API
+  const fetchConnections = async () => {
+    setIsLoadingConnections(true);
+    try {
+      const response = await fetch("/api/auth/connections/get_all");
+      if (response.ok) {
+        const data = await response.json();
+        console.log("API connections data:", data);
+        
+        // Update social connections based on API data
+        const updatedConnections = { ...socialConnections };
+        
+        data.connections.forEach(connection => {
+          if (updatedConnections[connection.provider]) {
+            updatedConnections[connection.provider] = {
+              connected: !connection.expired && !connection.disconnected,
+              account: connection.accountName,
+              autoposting: connection.autoposting,
+              id: connection.id,
+              accessToken: connection.accessToken,
+              refreshToken: connection.refreshToken,
+              disconnected: connection.disconnected
+            };
+          }
+        });
+        
+        setSocialConnections(updatedConnections);
+      } else {
+        console.error("Failed to fetch connections");
+        setConnectionError("Failed to load your connections");
+      }
+    } catch (error) {
+      console.error("Error fetching connections:", error);
+      setConnectionError("Could not connect to the server");
+    } finally {
+      setIsLoadingConnections(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchConnections();
+  }, []);
 
   useEffect(() => {
     if (session) {
@@ -55,29 +102,22 @@ export default function ConnectionsPage() {
           if (response.ok) {
             const data = await response.json();
             console.log("Backend response:", data);
-            // Optionally, you can update your local state based on the backend response
+            
+            // Refresh the connections list after saving a new connection
+            fetchConnections();
           } else {
             console.error("Failed to save connection data to backend");
-            // Optionally, handle the error in your UI
+            setConnectionError("Failed to save connection");
           }
         } catch (error) {
           console.error("Error sending data to backend:", error);
-          // Optionally, handle the error in your UI
+          setConnectionError("Connection error");
         }
       };
 
       saveDataToBackend();
-
-      setSocialConnections((prev) => ({
-        ...prev,
-        [provider]: {
-          connected: true,
-          account: session.user?.name || "Connected Account",
-          autoposting: prev[provider]?.autoposting || false,
-        },
-      }));
     }
-  }, [session, setSocialConnections]); // Ensure setSocialConnections is in the dependency array if it's defined outside
+  }, [session]);
 
   // Helper function to get platform display name
   const getPlatformName = (platform) => {
@@ -97,23 +137,46 @@ export default function ConnectionsPage() {
     setIsLoading(true);
 
     if (socialConnections[platform].connected) {
-      // Disconnect platform (mock)
-      setTimeout(() => {
-        setSocialConnections((prev) => ({
-          ...prev,
-          [platform]: {
-            ...prev[platform],
-            connected: false,
-            account: "",
+      try {
+        const response = await fetch(`/api/auth/connections/disconnect`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        }));
+          body: JSON.stringify({
+            provider: platform,
+            connectionId: socialConnections[platform].id
+          }),
+        });
+
+        if (response.ok) {
+          // Update local state
+          setSocialConnections((prev) => ({
+            ...prev,
+            [platform]: {
+              ...prev[platform],
+              connected: false,
+              disconnected: true
+            },
+          }));
+          
+          // You could add toast notification here
+          // toast.success(`Successfully disconnected ${getPlatformName(platform)}`);
+        } else {
+          const errorData = await response.json();
+          console.error("Failed to disconnect account:", errorData);
+          setConnectionError(`Failed to disconnect account: ${errorData.error || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error("Error disconnecting:", error);
+        setConnectionError("Connection error while disconnecting");
+      } finally {
         setIsLoading(false);
         setProcessingPlatform(null);
-      }, 500);
+      }
     } else {
       // Use shared handleConnect for OAuth providers
-      if (["twitter", "linkedin"].includes(platform)) {
-        // handleConnect(platform);
+      if (["twitter", "linkedin", "facebook", "instagram"].includes(platform)) {
         setProcessingPlatform(platform);
         setIsLoading(true);
         await signIn(platform);
@@ -125,6 +188,7 @@ export default function ConnectionsPage() {
             [platform]: {
               ...prev[platform],
               connected: true,
+              disconnected: false,
               account: `Demo ${getPlatformName(platform)} Account`,
             },
           }));
@@ -135,23 +199,58 @@ export default function ConnectionsPage() {
     }
   };
 
-  const handleToggleAutoposting = (platform) => {
+  // Implement the API call for toggling autoposting
+  const handleToggleAutoposting = async (platform) => {
     setProcessingPlatform(platform);
     setIsLoading(true);
-    setTimeout(() => {
-      setSocialConnections((prev) => ({
-        ...prev,
-        [platform]: {
-          ...prev[platform],
-          autoposting: !prev[platform].autoposting,
+    
+    try {
+      const newAutopostingState = !socialConnections[platform].autoposting;
+      const connectionId = socialConnections[platform].id;
+      
+      const response = await fetch(`/api/auth/connections/update_autoposting`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      }));
+        body: JSON.stringify({
+          provider: platform,
+          connectionId: connectionId,
+          autoposting: newAutopostingState
+        }),
+      });
+
+      if (response.ok) {
+        // Update the local state with the new autoposting setting
+        setSocialConnections((prev) => ({
+          ...prev,
+          [platform]: {
+            ...prev[platform],
+            autoposting: newAutopostingState,
+          },
+        }));
+        // You could add a toast notification here if desired
+        // toast.success(`Autoposting ${newAutopostingState ? 'enabled' : 'disabled'} for ${getPlatformName(platform)}`);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to update autoposting settings:", errorData);
+        setConnectionError(`Failed to update autoposting settings: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error("Error updating autoposting:", error);
+      setConnectionError("Connection error while updating settings");
+    } finally {
       setIsLoading(false);
       setProcessingPlatform(null);
-    }, 300);
+    }
   };
 
-  if (status === "loading") {
+  // Add a helper to determine if a platform can be reconnected
+  const canReconnect = (platform) => {
+    return socialConnections[platform].disconnected && ["twitter", "linkedin", "facebook", "instagram"].includes(platform);
+  };
+
+  if (status === "loading" || isLoadingConnections) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -173,9 +272,12 @@ export default function ConnectionsPage() {
                 There was an error connecting to the service: {connectionError}
               </p>
             </div>
-            <p className="mt-2 text-sm text-red-600">
-              Please try again or contact support if the issue persists.
-            </p>
+            <button 
+              onClick={() => setConnectionError(null)} 
+              className="mt-2 text-sm text-red-600 hover:underline"
+            >
+              Dismiss
+            </button>
           </div>
         )}
 
@@ -201,10 +303,9 @@ export default function ConnectionsPage() {
                 onToggleAutoposting={() => handleToggleAutoposting(platform)}
                 isLoading={isLoading && processingPlatform === platform}
                 isConfigured={
-                  platform === "twitter" || platform === "linkedin"
-                    ? true
-                    : true
+                  ["twitter", "linkedin", "facebook", "instagram"].includes(platform)
                 } // Set based on your provider configuration
+                canReconnect={canReconnect(platform)}
               />
             ))}
           </div>
@@ -222,6 +323,7 @@ function SocialChannel({
   onToggleAutoposting,
   isLoading,
   isConfigured = true,
+  canReconnect = false,
 }) {
   const iconMap = {
     facebook: <Facebook className="w-6 h-6 text-blue-600" />,
@@ -242,6 +344,9 @@ function SocialChannel({
           <div className="font-medium">{name}</div>
           {!isConfigured && (
             <div className="text-xs text-red-500">Provider not configured</div>
+          )}
+          {canReconnect && (
+            <div className="text-xs text-amber-600">Previously connected</div>
           )}
         </div>
       </div>
@@ -274,7 +379,10 @@ function SocialChannel({
             disabled={isLoading || !isConfigured}
             className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Connecting..." : "Connect"}
+            {isLoading ? 
+              (canReconnect ? "Reconnecting..." : "Connecting...") : 
+              (canReconnect ? "Reconnect" : "Connect")
+            }
           </button>
         )}
 
@@ -284,8 +392,8 @@ function SocialChannel({
             disabled={isLoading}
             className={`px-3 py-1 rounded-md text-sm flex items-center disabled:opacity-50 ${
               connection.autoposting
-                ? "text-red-600 hover:text-red-700"
-                : "text-green-600 hover:text-green-700"
+                ? "bg-red-50 text-red-600 hover:bg-red-100"
+                : "bg-green-50 text-green-600 hover:bg-green-100"
             }`}
           >
             {isLoading
