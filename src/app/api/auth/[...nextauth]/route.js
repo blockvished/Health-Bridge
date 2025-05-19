@@ -44,7 +44,15 @@ const handler = NextAuth({
     FacebookProvider({
       clientId: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+      authorization: {
+        params: {
+          scope: [
+            "pages_show_list",
+          ].join(",")
+        }
+      }
     }),
+
     InstagramProvider({
       clientId: process.env.INSTAGRAM_CLIENT_ID,
       clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,

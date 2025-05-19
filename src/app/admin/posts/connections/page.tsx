@@ -91,6 +91,7 @@ export default function ConnectionsPage() {
               expires: session.expires,
               expiresAt: session.expiresAt,
               provider: session.provider,
+              refreshToken: session.refreshToken,
               user: {
                 email: session.user?.email,
                 image: session.user?.image,

@@ -107,21 +107,6 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const socialConnections = pgTable("social_connections", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  provider: text("provider").notNull().unique(), // e.g., "twitter"
-  accountName: text("account_name"),
-  accessToken: text("access_token").notNull(),
-  refreshToken: text("refresh_token"),
-  expiresAt: timestamp("expires_at", { mode: "date" }),
-  autoposting: boolean("autoposting").default(false),
-  disconnected: boolean("disconnected").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
 export const plans = pgTable("plans", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(), // BASIC, CLASSIC, PREMIUM
@@ -215,6 +200,20 @@ export const socialPlatformRelations = relations(socialPlatforms, ({ many }) => 
     postSocialPlatforms: many(post_social_platform),
 }));
 
+export const socialConnections = pgTable("social_connections", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  provider: text("provider").notNull().unique(), // e.g., "twitter"
+  accountName: text("account_name"),
+  accessToken: text("access_token").notNull(),
+  refreshToken: text("refresh_token"),
+  expiresAt: timestamp("expires_at", { mode: "date" }),
+  autoposting: boolean("autoposting").default(false),
+  disconnected: boolean("disconnected").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
 
 // Posts table
 export const posts = pgTable("posts", {
@@ -228,6 +227,7 @@ export const posts = pgTable("posts", {
   interactions: integer("interactions").default(0),
   publishedBy: varchar("published_by", { length: 255 }),
   scheduledTime: timestamp("scheduled_time"),// bull mq
+  publishedTime: timestamp("published_time"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -366,7 +366,6 @@ export const enableRating = pgTable("enable_rating", {
 });
 
 // clinic
-
 export const clinic = pgTable("clinic", {
   id: serial("id").primaryKey(),
   doctorId: integer("doctor_id") // Foreign key linking to the doctor table

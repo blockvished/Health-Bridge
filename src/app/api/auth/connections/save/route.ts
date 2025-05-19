@@ -20,6 +20,7 @@ export async function POST(req: Request) {
 
     const {
       accessToken,
+      refreshToken,
       expires,
       expiresAt,
       provider,
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
           provider: provider,
           accountName: name || "Connected Account", // Use session name
           accessToken: accessToken,
-          refreshToken: "", //  You might not have this
+          refreshToken: refreshToken || "",
           disconnected: false,
           expiresAt: expiresAtDate,
         })
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
           set: {
             accountName: name || "Connected Account",
             accessToken: accessToken,
-            refreshToken: "", //  You might not have this
+            refreshToken: refreshToken || "", 
             disconnected: false,
             expiresAt: expiresAtDate,
           },
