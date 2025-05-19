@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 
 interface SocialMediaOption {
   id: string;
@@ -40,6 +41,8 @@ function AddPostForm() {
   const [postOption, setPostOption] = useState<"now" | "schedule">("now");
   const [error, setError] = useState("");
   const [loadingPlatforms, setLoadingPlatforms] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   useEffect(() => {
     const loadPlatforms = async () => {
@@ -110,6 +113,8 @@ function AddPostForm() {
       return;
     }
 
+    setIsSubmitting(true); // Disable the button while submitting
+
     const postData = new FormData();
     postData.append("content", content);
     if (image) {
@@ -147,6 +152,7 @@ function AddPostForm() {
         setScheduleTime("");
         setError("");
         setPostOption("now"); // Reset to default
+        setShowSuccessPopup(true); // Show success popup
       } else {
         console.error("Post failed:", response.status);
         const errorData = await response.json();
@@ -155,6 +161,8 @@ function AddPostForm() {
     } catch (error: any) {
       console.error("Error posting:", error);
       setError("An error occurred while adding the post.");
+    } finally {
+      setIsSubmitting(false); // Re-enable the button
     }
   };
 
@@ -208,24 +216,25 @@ function AddPostForm() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Social Media*
             </label>
-            {!loadingPlatforms &&
-            <div className="mb-2">
-              <button
-                type="button"
-                onClick={handleSelectAll}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-1 px-3 rounded-md mr-2 text-sm"
-              >
-                Select All
-              </button>
+            {!loadingPlatforms && (
+              <div className="mb-2">
+                <button
+                  type="button"
+                  onClick={handleSelectAll}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-1 px-3 rounded-md mr-2 text-sm"
+                >
+                  Select All
+                </button>
 
-              <button
-                type="button"
-                onClick={handleDeselectAll}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-1 px-3 rounded-md text-sm"
-              >
-                Deselect All
-              </button>
-            </div>}
+                <button
+                  type="button"
+                  onClick={handleDeselectAll}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-1 px-3 rounded-md text-sm"
+                >
+                  Deselect All
+                </button>
+              </div>
+            )}
             <div className="grid grid-cols-3 gap-2">
               {loadingPlatforms && `Loading social media platforms...`}
               {socialMediaOptions.map((option) => (
@@ -306,12 +315,45 @@ function AddPostForm() {
 
           <button
             type="submit"
-            className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-6 rounded-md"
+            disabled={isSubmitting}
+            className={`font-medium py-2 px-6 rounded-md ${
+              isSubmitting
+                ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600 text-white"
+            }`}
           >
-            {postOption === "now" ? "Post Now" : "Schedule Post"}
+            {isSubmitting
+              ? "Processing..."
+              : postOption === "now"
+              ? "Post Now"
+              : "Schedule Post"}
           </button>
         </form>
       </div>
+
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-xl font-semibold mb-4">
+              {postOption === "now" ? "Post Successfully Created!" : "Post Successfully Scheduled!"}
+            </h3>
+            <p className="mb-6">
+              {postOption === "now"
+                ? "Your content has been posted to the selected platforms."
+                : "Your content has been scheduled for the selected platforms."}
+            </p>
+            <div className="flex justify-end">
+              <Link
+                href="/admin/posts/all"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md"
+              >
+                View All Posts
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import TwitterProvider from "next-auth/providers/twitter";
 import LinkedInProvider from "next-auth/providers/linkedin";
 import FacebookProvider from "next-auth/providers/facebook";
 import InstagramProvider from "next-auth/providers/instagram";
+import GoogleProvider from "next-auth/providers/google";
 
 const handler = NextAuth({
   providers: [
@@ -41,6 +42,20 @@ const handler = NextAuth({
         },
       },
     }),
+    GoogleProvider({
+      id: "google-business",
+      name: "Google Business",
+      clientId: process.env.GOOGLE_BUSINESS_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_BUSINESS_CLIENT_SECRET,
+      authorization: {
+        params: {
+          scope: "openid email profile https://www.googleapis.com/auth/business.manage",
+          access_type: "offline",
+          prompt: "consent",
+        },
+      },
+    }),
+
     FacebookProvider({
       clientId: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,

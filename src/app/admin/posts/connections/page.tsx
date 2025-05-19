@@ -177,7 +177,7 @@ export default function ConnectionsPage() {
       }
     } else {
       // Use shared handleConnect for OAuth providers
-      if (["twitter", "linkedin", "facebook", "instagram"].includes(platform)) {
+      if (["twitter", "linkedin", "googleBusiness", "facebook", "instagram"].includes(platform)) {
         setProcessingPlatform(platform);
         setIsLoading(true);
         await signIn(platform);
@@ -304,7 +304,7 @@ export default function ConnectionsPage() {
                 onToggleAutoposting={() => handleToggleAutoposting(platform)}
                 isLoading={isLoading && processingPlatform === platform}
                 isConfigured={
-                  ["twitter", "linkedin", "facebook", "instagram"].includes(platform)
+                  ["twitter", "linkedin","googleBusiness", "facebook", "instagram"].includes(platform)
                 } // Set based on your provider configuration
                 canReconnect={canReconnect(platform)}
               />

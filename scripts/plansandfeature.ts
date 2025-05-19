@@ -152,7 +152,7 @@ async function seed() {
       });
     }
 
-    const socialPlatformsList  = ['twitter', 'facebook', 'linkedin', 'instagram', 'google'];
+    const socialPlatformsList  = ['twitter', 'facebook', 'linkedin', 'instagram', 'googleBusiness'];
 
     for (const socialPlatformItem of socialPlatformsList) {
       await db.insert(socialPlatforms).values({
