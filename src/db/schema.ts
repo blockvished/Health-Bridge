@@ -16,6 +16,7 @@ import { relations } from "drizzle-orm";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { uniqueIndex } from "drizzle-orm/pg-core";
 import { unique } from "drizzle-orm/pg-core";
+import { bigint } from "drizzle-orm/pg-core";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -199,9 +200,26 @@ export const doctor = pgTable("doctor", {
   planType: planTypeEnum("plan_type"),
   paymentStatus: boolean("payment_status").default(false).notNull(),
   paymentAt: timestamp("payment_at").defaultNow(),
-  expireAt: timestamp("expire_at").defaultNow(),
+  expireAt: timestamp("expire_at"),
   accountStatus: boolean("account_status").default(false).notNull(),
   accountVerified: boolean("account_verified").default(false).notNull(),
+});
+
+export const transactions = pgTable("transactions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id), // Removed onDelete: "cascade"
+  transactionId: varchar("transaction_id", { length: 255 }).notNull(),
+  orderId: varchar("order_id", { length: 255 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull(), // e.g., "COMPLETED", "PENDING", "FAILED"
+  amount: integer("amount").notNull(), // Amount in the smallest currency unit (e.g., paise for INR)
+  paymentMode: varchar("payment_mode", { length: 50 }), // e.g., "NET_BANKING", "UPI", "CREDIT_CARD"
+  // Use bigint to store the timestamp as a number (e.g., milliseconds since epoch)
+  timestamp: bigint("timestamp", { mode: "number" }).notNull(), // Store as number in TS, but as bigint in DB
+  timestamp_date: timestamp("timestamp_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const socialPlatforms = pgTable("social_platforms", {

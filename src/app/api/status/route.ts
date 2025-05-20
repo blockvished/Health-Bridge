@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { serialize } from "cookie";
 import { sign } from "jsonwebtoken";
 import { Env, StandardCheckoutClient } from "pg-sdk-node";
+import { doctor, transactions, users } from "../../../db/schema";
+import db from "../../../db/db";
+import { eq } from "drizzle-orm";
 
 /**
  * PhonePe API configuration
@@ -148,6 +151,75 @@ export async function POST(req: Request) {
       //   "paymentMode": "NET_BANKING",
       //   "timestamp": 1747735124551
       // }
+      try {
+        // Convert the numeric timestamp to a Date object for the timestamp_date column
+        const timestampAsDate = responseDetails.timestamp
+          ? new Date(Number(responseDetails.timestamp))
+          : null;
+
+        await db.insert(transactions).values({
+          userId: finalUserId,
+          transactionId: responseDetails.transactionId,
+          orderId: responseDetails.orderId,
+          status: responseDetails.status,
+          amount: responseDetails.amount,
+          paymentMode: responseDetails.paymentMode || "N/A", // Provide default value
+          timestamp: responseDetails.timestamp || Date.now(), // Fallback to current time if missing
+          timestamp_date: timestampAsDate,
+        });
+
+        await db
+          .update(users)
+          .set({
+            email_verified: true,
+            phone_verified: true,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, userId));
+
+        // export const planTypeEnum = pgEnum("plan_type", ["monthly", "yearly"]);
+
+        // Fetch doctor's plan ID and plan type from the doctor table
+        const doctorData = await db
+          .select({
+            planId: doctor.planId,
+            planType: doctor.planType,
+          })
+          .from(doctor)
+          .where(eq(doctor.userId, userId))
+          .limit(1);
+
+        if (doctorData.length > 0) {
+          const { planId, planType } = doctorData[0];
+          console.log(
+            `Doctor Plan Information - Plan ID: ${planId}, Plan Type: ${planType}`
+          );
+
+          // if plantype received from doctor table is monthly then a new variable will be 30 days + paymentAt and if yearly then 365 days + paymentAt
+
+          const expireAt = new Date(timestampAsDate || new Date());
+
+          if (planType && planType.toLowerCase() === "monthly") {
+            expireAt.setDate(expireAt.getDate() + 30);
+          } else if (planType && planType.toLowerCase() === "yearly") {
+            expireAt.setDate(expireAt.getDate() + 365);
+          }
+
+          await db
+            .update(doctor)
+            .set({
+              paymentStatus: true,
+              paymentAt: timestampAsDate,
+              expireAt: expireAt,
+              accountStatus: true,
+              accountVerified: true,
+            })
+            .where(eq(doctor.userId, userId));
+        }
+        console.log(`Transaction saved successfully for user ${finalUserId}!`);
+      } catch (error) {
+        console.error("Error saving transaction:", error);
+      }
 
       // Return success response with payment details
       const apiResponse = NextResponse.json({

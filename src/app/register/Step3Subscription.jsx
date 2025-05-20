@@ -107,7 +107,7 @@ const Step3Subscription = ({
           responseData.checkoutPageUrl;
       }
     } catch (err) {
-      console.error(err);
+      console.log(err);
       alert("Error initiating payment. Please try again.");
     } finally {
       setLoading(false);

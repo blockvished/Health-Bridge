@@ -390,7 +390,7 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
             </div>
           </div>
           <div className="mt-2 text-sm text-gray-600">
-            Didn't receive the OTP?{" "}
+            {`Didn't receive the OTP?`}
             <button
               type="button"
               onClick={handleResendEmailOTP}
