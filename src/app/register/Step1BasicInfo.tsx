@@ -99,6 +99,7 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   const handleSendEmailOTP = async (): Promise<void> => {
     if (!isEmailValid) return;
 
+    // /api/send-otp-email -> pass the email to the API and it will send the OTP
     setLoadingEmailOTP(true);
     // Simulate sending OTP - replace with your actual API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -108,6 +109,7 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   };
 
   const handleVerifyEmailOTP = async (): Promise<void> => {
+    // / /api/verify-otp-email -> pass the email and OTP to the API for verification
     setLoadingEmailOTP(true);
     // Simulate verifying OTP - replace with your actual API call
     await new Promise((resolve) => setTimeout(resolve, 1500));

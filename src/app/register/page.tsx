@@ -8,9 +8,9 @@ import Step1BasicInfo from "./Step1BasicInfo";
 import Step2ProfessionalDetails from "./Step2ProfessionalDetails";
 import Step3Subscription from "./Step3Subscription";
 
-let testing = true;
-let testMobile = "2452434324";
-let testEmail = "jcm@skjdf.com";
+let testing = false;
+let testMobile = "";
+let testEmail = "";
 
 if (process.env.NODE_ENV === "production") {
   testing = false;

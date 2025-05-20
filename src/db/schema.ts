@@ -15,6 +15,7 @@ import {
 import { relations } from "drizzle-orm";
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { uniqueIndex } from "drizzle-orm/pg-core";
+import { unique } from "drizzle-orm/pg-core";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -152,6 +153,17 @@ export const usersRelations = relations(users, ({ one }) => ({
     references: [staff.userId], // Specify the referenced field in the 'doctor' table
   }),
 }));
+
+export const emailOtps = pgTable("email_otps", {
+  email: varchar("email", { length: 255 }).notNull(),
+  otp: varchar("otp", { length: 6 }).notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+}, (table) => ({
+  uniqueEmail: unique("unique_email").on(table.email), // 👈 Add unique constraint
+}));
+
 
 ///
 // Doctor
