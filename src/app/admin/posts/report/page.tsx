@@ -1,4 +1,5 @@
 "use client";
+import React from "react"; // Added React import for JSX namespace
 import {
   ArrowUp,
   ArrowDown,
@@ -8,9 +9,26 @@ import {
   Eye,
 } from "lucide-react";
 
+// Define TypeScript interface for our platform data
+interface SocialPlatformData {
+  platform: string;
+  icon: string;
+  color: string;
+  totalFollowers: number;
+  totalFollowersChange: number;
+  newFollowers: number;
+  newFollowersChange: number;
+  posts: number;
+  postsChange: number;
+  reach: number;
+  reachChange: number;
+  engagement: number;
+  engagementChange: number;
+}
+
 export default function SocialMediaDashboard() {
   // Sample data - this would be replaced with API data in the future
-  const socialData = [
+  const socialData: SocialPlatformData[] = [
     {
       platform: "Facebook",
       icon: "facebook",
@@ -88,8 +106,8 @@ export default function SocialMediaDashboard() {
     },
   ];
 
-  // Function to render the change indicator
-  const renderChangeIndicator = (value) => {
+  // Function to render the change indicator - fixed with proper typing
+  const renderChangeIndicator = (value: number): React.ReactElement => {
     if (value > 0) {
       return (
         <span className="flex items-center text-green-600 text-sm font-medium">
@@ -110,7 +128,7 @@ export default function SocialMediaDashboard() {
   };
 
   // Function to render platform icon
-  const renderPlatformIcon = (platform) => {
+  const renderPlatformIcon = (platform: string): React.ReactElement | null => {
     switch (platform.toLowerCase()) {
       case "facebook":
         return (
@@ -256,7 +274,7 @@ export default function SocialMediaDashboard() {
       </div>
 
       <div className="mt-6 text-sm text-gray-500">
-        <p>Last updated: May 14, 2025 • Next update: May 21, 2025</p>
+        <p>Last updated: May 20, 2025 • Next update: May 27, 2025</p>
       </div>
     </div>
   );

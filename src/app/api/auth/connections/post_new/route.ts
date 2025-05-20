@@ -1,18 +1,22 @@
 // /src/app/api/auth/connections/schedule/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "../../../../lib/verify";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   doctor,
   posts,
   post_social_platform,
   socialConnections,
   socialPlatforms,
+  postStatusEnum,
 } from "../../../../../db/schema";
 import { db } from "../../../../../db/db";
 import path, { extname } from "path";
 import * as fs from "fs";
 import { v4 as uuidv4 } from "uuid";
+
+// Define the post status type to match the enum
+type PostStatus = (typeof postStatusEnum.enumValues)[number];
 
 // LinkedIn posting functions
 async function getAuthorURN(token: string): Promise<string> {
@@ -55,7 +59,7 @@ async function postUGC(
 
   // Create the UGC post
   const url = "https://api.linkedin.com/v2/ugcPosts";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const body: any = {
     author: authorURN,
     lifecycleState: "PUBLISHED",
@@ -149,7 +153,7 @@ async function postTweet(
     const response = await fetch("https://api.twitter.com/2/tweets", {
       method: "POST",
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
@@ -261,7 +265,7 @@ export async function POST(req: NextRequest) {
     }
 
     const platforms = await db.select().from(socialPlatforms);
-    
+
     // Create an id→name map from the social platform data
     const platformProviders = platforms.reduce<Record<number, string>>(
       (map, plat) => {
@@ -271,12 +275,15 @@ export async function POST(req: NextRequest) {
       {}
     );
 
-    // Fetch user's social connections
     const connections = await db
       .select()
       .from(socialConnections)
-      .where(eq(socialConnections.userId, userId))
-      .where(eq(socialConnections.disconnected, false));
+      .where(
+        and(
+          eq(socialConnections.userId, userId),
+          eq(socialConnections.disconnected, false)
+        )
+      );
 
     console.log("🔗 Found connections:", connections.length);
     connections.forEach((conn, i) => {
@@ -312,19 +319,24 @@ export async function POST(req: NextRequest) {
 
     // Post to social media platforms immediately based on selection
     const postResults = [];
-    const platformStatuses = [];
+    const platformStatuses: {
+      postId: number;
+      socialPlatformId: number;
+      status: PostStatus;
+      publishedAt: Date | null;
+    }[] = [];
 
     // Process each selected social platform
     console.log("🔄 Processing selected social platforms...");
     for (const platformId of socialMedia) {
       console.log(`🌐 Processing platform ID: ${platformId}`);
-      let status = "pending";
+      let status: PostStatus = "failed"; // Default status
       let result = null;
 
       try {
         // Find connection for this platform
         const platformProvider = platformProviders[platformId];
-        
+
         if (!platformProvider) {
           console.log(`❌ Unknown platform ID: ${platformId}`);
           status = "failed";
@@ -334,7 +346,7 @@ export async function POST(req: NextRequest) {
           });
           continue;
         }
-        
+
         console.log(`🔍 Looking for ${platformProvider} connection`);
 
         // Find the matching connection
@@ -343,7 +355,9 @@ export async function POST(req: NextRequest) {
         );
 
         if (!connection) {
-          console.log(`❌ No connection found for platform ${platformProvider}`);
+          console.log(
+            `❌ No connection found for platform ${platformProvider}`
+          );
           status = "failed";
           postResults.push({
             platform: platformProvider,
@@ -398,12 +412,14 @@ export async function POST(req: NextRequest) {
               result = { message: "Platform not implemented" };
           }
 
-          postResults.push({ 
-            platform: connection.provider, 
+          postResults.push({
+            platform: connection.provider,
             result,
-            status
+            status,
           });
-          console.log(`✅ Added result for ${connection.provider} to postResults`);
+          console.log(
+            `✅ Added result for ${connection.provider} to postResults`
+          );
         }
 
         // Store the post-platform relationship with actual status
@@ -411,27 +427,25 @@ export async function POST(req: NextRequest) {
         platformStatuses.push({
           postId,
           socialPlatformId: platformId,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          status: status as any,
+          status: status as PostStatus, // Ensure it's properly typed
           publishedAt: status === "posted" ? currentTime : null,
         });
       } catch (error) {
         console.error(`❌ Error posting to platform ${platformId}:`, error);
         status = "failed";
-        
+
         // Add the error to results
         postResults.push({
           platform: platformProviders[platformId] || `unknown-${platformId}`,
           error: (error as Error).message,
-          status: "failed"
+          status: "failed",
         });
-        
+
         // Still record the attempt in database
         platformStatuses.push({
           postId,
           socialPlatformId: platformId,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          status: "failed" as any,
+          status: "failed",
           publishedAt: null,
         });
       }
@@ -447,16 +461,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Update the main post status based on platform results
-    const anyPosted = platformStatuses.some(ps => ps.status === "posted");
-    const allFailed = platformStatuses.every(ps => ps.status === "failed");
-    
-    let finalPostStatus = "posted";
+    const anyPosted = platformStatuses.some((ps) => ps.status === "posted");
+    const allFailed = platformStatuses.every((ps) => ps.status === "failed");
+
+    let finalPostStatus: PostStatus = "posted";
     if (allFailed) {
       finalPostStatus = "failed";
     } else if (!anyPosted) {
-      finalPostStatus = "pending";
+      finalPostStatus = "posted";
     }
-    
+
     if (finalPostStatus !== "posted") {
       console.log(`📝 Updating post status to: ${finalPostStatus}`);
       await db

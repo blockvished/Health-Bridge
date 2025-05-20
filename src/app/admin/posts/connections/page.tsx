@@ -1,26 +1,72 @@
 "use client";
 
 import { signIn, useSession } from "next-auth/react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, JSX } from "react";
 import {
-  BriefcaseBusiness,
   Building2,
   UserCircle,
   AlertCircle,
 } from "lucide-react";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
+import { Session } from "next-auth";
 
 // import { toast } from "react-hot-toast";
 
+// Extend the Session type within this file
+interface ExtendedSession extends Session {
+  accessToken?: string;
+  expiresAt?: number;
+  provider?: string;
+  refreshToken?: string;
+}
+
+// Define interfaces for type safety
+interface SocialConnection {
+  connected: boolean;
+  account: string;
+  autoposting: boolean;
+  disconnected: boolean;
+  id?: string;
+  accessToken?: string;
+  refreshToken?: string;
+}
+
+interface SocialConnections {
+  facebook: SocialConnection;
+  twitter: SocialConnection;
+  linkedin: SocialConnection;
+  instagram: SocialConnection;
+  googleBusiness: SocialConnection;
+  [key: string]: SocialConnection; // Index signature for dynamic access
+}
+
+interface ApiConnection {
+  provider: string;
+  accountName: string;
+  autoposting: boolean;
+  expired: boolean;
+  disconnected: boolean;
+  id: string;
+  accessToken?: string;
+  refreshToken?: string;
+}
+
+interface ApiResponse {
+  connections: ApiConnection[];
+}
+
 export default function ConnectionsPage() {
-  const { data: session, status } = useSession();
-  const [isLoading, setIsLoading] = useState(false);
-  const [connectionError, setConnectionError] = useState(null);
-  const [processingPlatform, setProcessingPlatform] = useState(null);
-  const [isLoadingConnections, setIsLoadingConnections] = useState(true);
+  // Use the extended session type
+  const { data: sessionData, status } = useSession();
+  const session = sessionData as ExtendedSession | null;
+  
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [processingPlatform, setProcessingPlatform] = useState<string | null>(null);
+  const [isLoadingConnections, setIsLoadingConnections] = useState<boolean>(true);
 
   // Track connections for each platform separately
-  const [socialConnections, setSocialConnections] = useState({
+  const [socialConnections, setSocialConnections] = useState<SocialConnections>({
     facebook: { connected: false, account: "", autoposting: false, disconnected: false },
     twitter: { connected: false, account: "", autoposting: false, disconnected: false },
     linkedin: { connected: false, account: "", autoposting: false, disconnected: false },
@@ -28,19 +74,26 @@ export default function ConnectionsPage() {
     googleBusiness: { connected: false, account: "", autoposting: false, disconnected: false },
   });
 
-  // Fetch connections from API
-  const fetchConnections = async () => {
+  // Fetch connections from API - using useCallback to prevent unnecessary re-creation
+  const fetchConnections = useCallback(async () => {
     setIsLoadingConnections(true);
     try {
       const response = await fetch("/api/auth/connections/get_all");
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json() as ApiResponse;
         console.log("API connections data:", data);
         
-        // Update social connections based on API data
-        const updatedConnections = { ...socialConnections };
+        // Important: Don't spread the existing socialConnections which would
+        // cause a dependency loop, instead create a new object with default values
+        const updatedConnections: SocialConnections = {
+          facebook: { connected: false, account: "", autoposting: false, disconnected: false },
+          twitter: { connected: false, account: "", autoposting: false, disconnected: false },
+          linkedin: { connected: false, account: "", autoposting: false, disconnected: false },
+          instagram: { connected: false, account: "", autoposting: false, disconnected: false },
+          googleBusiness: { connected: false, account: "", autoposting: false, disconnected: false },
+        };
         
-        data.connections.forEach(connection => {
+        data.connections.forEach((connection: ApiConnection) => {
           if (updatedConnections[connection.provider]) {
             updatedConnections[connection.provider] = {
               connected: !connection.expired && !connection.disconnected,
@@ -65,15 +118,16 @@ export default function ConnectionsPage() {
     } finally {
       setIsLoadingConnections(false);
     }
-  };
-
-  useEffect(() => {
-    fetchConnections();
   }, []);
 
+  // Initial fetch on component mount
+  useEffect(() => {
+    fetchConnections();
+  }, [fetchConnections]);
+
+  // Handle session data changes
   useEffect(() => {
     if (session) {
-      const provider = session.provider || "twitter";
       console.log("Session data:", session);
 
       const saveDataToBackend = async () => {
@@ -85,11 +139,11 @@ export default function ConnectionsPage() {
             },
             credentials: "include",
             body: JSON.stringify({
-              accessToken: session.accessToken,
+              accessToken: session.accessToken || null,
               expires: session.expires,
-              expiresAt: session.expiresAt,
-              provider: session.provider,
-              refreshToken: session.refreshToken,
+              expiresAt: session.expiresAt || null,
+              provider: session.provider || null,
+              refreshToken: session.refreshToken || null,
               user: {
                 email: session.user?.email,
                 image: session.user?.image,
@@ -116,22 +170,21 @@ export default function ConnectionsPage() {
 
       saveDataToBackend();
     }
-  }, [session]);
+  }, [session, fetchConnections]);
 
   // Helper function to get platform display name
-  const getPlatformName = (platform) => {
-    const names = {
+  const getPlatformName = (platform: string): string => {
+    const names: Record<string, string> = {
       facebook: "Facebook Page",
       twitter: "X Profile",
       linkedin: "LinkedIn Profile",
-      linkedinCompany: "LinkedIn Company Page",
       instagram: "Instagram Profile",
       googleBusiness: "Google Business Profile",
     };
     return names[platform] || platform;
   };
 
-  const handleToggleConnection = async (platform) => {
+  const handleToggleConnection = async (platform: string) => {
     setProcessingPlatform(platform);
     setIsLoading(true);
 
@@ -199,7 +252,7 @@ export default function ConnectionsPage() {
   };
 
   // Implement the API call for toggling autoposting
-  const handleToggleAutoposting = async (platform) => {
+  const handleToggleAutoposting = async (platform: string) => {
     setProcessingPlatform(platform);
     setIsLoading(true);
     
@@ -245,8 +298,8 @@ export default function ConnectionsPage() {
   };
 
   // Add a helper to determine if a platform can be reconnected
-  const canReconnect = (platform) => {
-    return socialConnections[platform].disconnected && ["twitter", "linkedin", "facebook", "instagram"].includes(platform);
+  const canReconnect = (platform: string): boolean => {
+    return socialConnections[platform].disconnected && ["twitter", "linkedin","googleBusiness", "facebook", "instagram"].includes(platform);
   };
 
   if (status === "loading" || isLoadingConnections) {
@@ -314,6 +367,17 @@ export default function ConnectionsPage() {
   );
 }
 
+interface SocialChannelProps {
+  platform: string;
+  name: string;
+  connection: SocialConnection;
+  onToggleConnection: () => void;
+  onToggleAutoposting: () => void;
+  isLoading: boolean;
+  isConfigured?: boolean;
+  canReconnect?: boolean;
+}
+
 function SocialChannel({
   platform,
   name,
@@ -323,12 +387,11 @@ function SocialChannel({
   isLoading,
   isConfigured = true,
   canReconnect = false,
-}) {
-  const iconMap = {
+}: SocialChannelProps) {
+  const iconMap: Record<string, JSX.Element> = {
     facebook: <FaFacebook className="w-6 h-6 text-blue-600" />,
     twitter: <FaTwitter className="w-6 h-6 text-sky-500" />,
     linkedin: <FaLinkedin className="w-6 h-6 text-blue-700" />,
-    linkedinCompany: <BriefcaseBusiness className="w-6 h-6 text-gray-800" />,
     instagram: <FaInstagram className="w-6 h-6 text-pink-500" />,
     googleBusiness: <Building2 className="w-6 h-6 text-green-600" />,
   };
@@ -359,7 +422,7 @@ function SocialChannel({
               </div>
               <div className="flex flex-col">
                 <span>
-                  Connected as
+                  Connected as{" "}
                   <span className="text-blue-600">{connection.account}</span>
                 </span>
                 <button
