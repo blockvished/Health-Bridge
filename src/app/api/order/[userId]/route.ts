@@ -9,7 +9,8 @@ import {
 const clientIdFromEnv = process.env.PHONEPE_CLIENTID;
 const clientSecretFromEnv = process.env.PHONEPE_CLIENT_SECRET;
 const client_version = 1;
-const env = process.env.NODE_ENV === "production" ? Env.PRODUCTION : Env.SANDBOX;
+//const env = process.env.NODE_ENV === "production" ? Env.PRODUCTION : Env.SANDBOX;
+const env = Env.SANDBOX;
 
 // Type guard for Error
 function isError(error: unknown): error is Error {
