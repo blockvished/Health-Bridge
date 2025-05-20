@@ -57,6 +57,7 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   const [loadingEmailOTP, setLoadingEmailOTP] = useState<boolean>(false);
   const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
   const [existingAccount, setExistingAccount] = useState<boolean>(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   // Email validation function
   const validateEmail = (email: string): boolean => {
@@ -68,6 +69,7 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   // Validate email whenever it changes
   useEffect(() => {
     setIsEmailValid(validateEmail(email));
+    if (email) setEmailError(null);
   }, [email]);
 
   const formatMobileNumber = (value: string): string => {
@@ -99,27 +101,70 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   const handleSendEmailOTP = async (): Promise<void> => {
     if (!isEmailValid) return;
 
-    // /api/send-otp-email -> pass the email to the API and it will send the OTP
     setLoadingEmailOTP(true);
-    // Simulate sending OTP - replace with your actual API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setEmailOtpSent(true);
-    setLoadingEmailOTP(false);
-    console.log("Simulated email OTP sent to:", email);
+    setEmailError(null);
+
+    try {
+      const response = await fetch("/api/send-otp-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setEmailOtpSent(true);
+        console.log("Email OTP sent successfully");
+      } else {
+        setEmailError(data.message || "Failed to send OTP. Please try again.");
+        console.error("Failed to send email OTP:", data.message);
+      }
+    } catch (error) {
+      console.error("Error sending email OTP:", error);
+      setEmailError("Network error. Please try again.");
+    } finally {
+      setLoadingEmailOTP(false);
+    }
   };
 
   const handleVerifyEmailOTP = async (): Promise<void> => {
-    // / /api/verify-otp-email -> pass the email and OTP to the API for verification
     setLoadingEmailOTP(true);
-    // Simulate verifying OTP - replace with your actual API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    if (emailOtp === "123456") {
-      setEmailVerified(true);
-      console.log("Email verified successfully");
-    } else {
-      alert("Invalid OTP");
+    setEmailError(null);
+    try {
+      const response = await fetch("/api/verify-otp-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, otp: emailOtp }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setEmailVerified(true);
+        console.log("Email verified successfully");
+      } else {
+        setEmailError(
+          data.message || "Invalid or expired OTP. Please try again."
+        );
+        console.error("Failed to verify email OTP:", data.message);
+      }
+    } catch (error) {
+      console.error("Error verifying email OTP:", error);
+      setEmailError("Network error. Please try again.");
+    } finally {
+      setLoadingEmailOTP(false);
     }
-    setLoadingEmailOTP(false);
+  };
+
+  const handleResendEmailOTP = async (): Promise<void> => {
+    setEmailOtpSent(false);
+    setEmailOtp("");
+    await handleSendEmailOTP();
   };
 
   // Check if mobile number is valid for OTP sending
@@ -207,13 +252,13 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
               <div className="mt-2 text-sm text-yellow-700">
                 <p>
                   You already have a verified account with this mobile number.
-                  Please
+                  Please{" "}
                   <Link
                     href="/"
                     className="font-medium text-yellow-800 underline hover:text-yellow-900"
                   >
                     sign in
-                  </Link>
+                  </Link>{" "}
                   instead.
                 </p>
               </div>
@@ -269,17 +314,22 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
             <input
               type="email"
               placeholder="Your email address"
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none`}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none ${
+                emailError ? "border-red-500" : ""
+              }`}
               value={email}
               onChange={(e) => setEmail(e.target.value.toLowerCase())}
               required
               disabled={emailVerified}
             />
             <div className="h-5 mt-1">
-              {email && !isEmailValid && (
+              {email && !isEmailValid && !emailError && (
                 <div className="text-red-500 text-xs">
                   Please enter a valid email address (e.g., example@domain.com)
                 </div>
+              )}
+              {emailError && (
+                <div className="text-red-500 text-xs">{emailError}</div>
               )}
             </div>
           </div>
@@ -338,6 +388,17 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
                 {loadingEmailOTP ? "Verifying..." : "Verify"}
               </button>
             </div>
+          </div>
+          <div className="mt-2 text-sm text-gray-600">
+            Didn't receive the OTP?{" "}
+            <button
+              type="button"
+              onClick={handleResendEmailOTP}
+              disabled={loadingEmailOTP}
+              className="text-blue-600 hover:text-blue-800 font-medium focus:outline-none"
+            >
+              Resend OTP
+            </button>
           </div>
         </div>
       )}
