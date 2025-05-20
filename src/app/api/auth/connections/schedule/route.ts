@@ -114,12 +114,12 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function slugify(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
+// function slugify(str: string) {
+//   return str
+//     .toLowerCase()
+//     .replace(/[^a-z0-9]+/g, "-")
+//     .replace(/^-|-$/g, "");
+// }
 
 async function blobToBuffer(blob: Blob): Promise<Buffer> {
   if (blob && typeof blob.arrayBuffer === "function") {

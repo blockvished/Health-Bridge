@@ -1,17 +1,15 @@
 "use client";
 
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import React, { useState, useEffect } from "react";
 import {
-  Facebook,
-  Twitter,
-  Linkedin,
   BriefcaseBusiness,
-  Instagram,
   Building2,
   UserCircle,
   AlertCircle,
 } from "lucide-react";
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
+
 // import { toast } from "react-hot-toast";
 
 export default function ConnectionsPage() {
@@ -327,11 +325,11 @@ function SocialChannel({
   canReconnect = false,
 }) {
   const iconMap = {
-    facebook: <Facebook className="w-6 h-6 text-blue-600" />,
-    twitter: <Twitter className="w-6 h-6 text-sky-500" />,
-    linkedin: <Linkedin className="w-6 h-6 text-blue-700" />,
+    facebook: <FaFacebook className="w-6 h-6 text-blue-600" />,
+    twitter: <FaTwitter className="w-6 h-6 text-sky-500" />,
+    linkedin: <FaLinkedin className="w-6 h-6 text-blue-700" />,
     linkedinCompany: <BriefcaseBusiness className="w-6 h-6 text-gray-800" />,
-    instagram: <Instagram className="w-6 h-6 text-pink-500" />,
+    instagram: <FaInstagram className="w-6 h-6 text-pink-500" />,
     googleBusiness: <Building2 className="w-6 h-6 text-green-600" />,
   };
 

@@ -21,6 +21,7 @@ export async function POST(req: Request) {
     const {
       accessToken,
       refreshToken,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars 
       expires,
       expiresAt,
       provider,

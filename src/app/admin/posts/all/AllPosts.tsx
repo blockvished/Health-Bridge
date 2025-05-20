@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Post {
   id: number;
@@ -47,9 +48,14 @@ function Posts() {
           setPublishedPosts([]);
           setScheduledPosts([]);
         }
-      } catch (err: any) {
-        setError(err.message);
-        console.error("Error fetching posts:", err);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+          console.error("Error fetching posts:", err);
+        } else {
+          setError("An unknown error occurred.");
+          console.error("An unknown error occurred:", err);
+        }
       } finally {
         setLoading(false);
       }
@@ -62,24 +68,22 @@ function Posts() {
   const SocialIcons = ({ platforms }: { platforms: string[] }) => (
     <div className="flex space-x-2">
       {platforms?.includes("facebook") && (
-        <Facebook className="w-6 h-6 text-blue-600" />
+        <FaFacebook className="w-6 h-6 text-blue-600" />
       )}
       {platforms?.includes("twitter") && (
-        <Twitter className="w-6 h-6 text-blue-600" />
+        <FaTwitter className="w-6 h-6 text-blue-600" />
       )}
       {platforms?.includes("instagram") && (
-        <Instagram className="w-6 h-6 text-pink-600" />
+        <FaInstagram className="w-6 h-6 text-pink-600" />
       )}
       {platforms?.includes("linkedin") && (
-        <div className="w-6 h-6 rounded-full bg-pink-500 flex items-center justify-center text-white text-xs shadow-sm">
-          l
-        </div>
+        <FaLinkedin className="w-6 h-6 text-blue-800" />
       )}
     </div>
   );
 
   // Empty state with improved styling
-  const renderEmptyState = (section: string) => (
+  const renderEmptyState = () => (
     <div className="py-12 text-center bg-gray-50 rounded-lg border border-dashed border-gray-300">
       <svg
         className="w-16 h-16 text-gray-300 mb-4 mx-auto"
@@ -194,11 +198,13 @@ function Posts() {
                     <td className="px-4 py-4">
                       <div className="flex items-center">
                         {post.imageLocalLink && (
-                          <div className="w-12 h-12 bg-gray-100 rounded-md mr-3 flex-shrink-0 shadow-sm overflow-hidden">
-                            <img
+                          <div className="w-12 h-12 bg-gray-100 rounded-md mr-3 flex-shrink-0 shadow-sm overflow-hidden relative">
+                            <Image
                               src={post.imageLocalLink}
                               alt=""
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover rounded-md"
+                              sizes="48px"
                             />
                           </div>
                         )}
@@ -227,7 +233,7 @@ function Posts() {
               </tbody>
             </table>
           ) : (
-            renderEmptyState("Published")
+            renderEmptyState()
           )}
         </div>
 
@@ -253,11 +259,13 @@ function Posts() {
 
                     <div className="flex items-start mb-3">
                       {post.imageLocalLink && (
-                        <div className="w-16 h-16 bg-gray-100 rounded-md mr-3 flex-shrink-0 shadow-sm overflow-hidden">
-                          <img
+                        <div className="w-16 h-16 bg-gray-100 rounded-md mr-3 flex-shrink-0 shadow-sm overflow-hidden relative">
+                          <Image
                             src={post.imageLocalLink}
                             alt=""
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover rounded-md"
+                            sizes="64px"
                           />
                         </div>
                       )}
@@ -289,7 +297,7 @@ function Posts() {
               ))}
             </div>
           ) : (
-            renderEmptyState("Published")
+            renderEmptyState()
           )}
         </div>
       </div>
@@ -357,11 +365,13 @@ function Posts() {
                   <td className="px-4 py-4">
                     <div className="flex items-center">
                       {post.imageLocalLink && (
-                        <div className="w-12 h-12 bg-gray-100 rounded-md mr-3 flex-shrink-0 shadow-sm overflow-hidden">
-                          <img
+                        <div className="w-12 h-12 bg-gray-100 rounded-md mr-3 flex-shrink-0 shadow-sm overflow-hidden relative">
+                          <Image
                             src={post.imageLocalLink}
                             alt=""
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover rounded-md"
+                            sizes="48px"
                           />
                         </div>
                       )}
@@ -427,11 +437,13 @@ function Posts() {
 
                     <div className="flex items-start mb-3">
                       {post.imageLocalLink && (
-                        <div className="w-16 h-16 bg-gray-100 rounded-md mr-3 flex-shrink-0 shadow-sm overflow-hidden">
-                          <img
+                        <div className="w-16 h-16 bg-gray-100 rounded-md mr-3 flex-shrink-0 shadow-sm overflow-hidden relative">
+                          <Image
                             src={post.imageLocalLink}
                             alt=""
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover rounded-md"
+                            sizes="64px"
                           />
                         </div>
                       )}
@@ -459,7 +471,7 @@ function Posts() {
               ))}
             </div>
           ) : (
-            renderEmptyState("Scheduled")
+            renderEmptyState()
           )}
         </div>
       </div>
@@ -497,7 +509,7 @@ function Posts() {
       )}
       {publishedPosts.length === 0 &&
         scheduledPosts.length === 0 &&
-        renderEmptyState("No posts found")}
+        renderEmptyState()}
     </div>
   );
 }

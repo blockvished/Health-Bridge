@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { socialPlatforms, socialConnections } from "../../../../../db/schema";
 import { db } from "../../../../../db/db";
 import { eq, inArray } from "drizzle-orm";
 import { verifyAuthToken } from "../../../../lib/verify";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const decodedOrResponse = await verifyAuthToken();
     if (decodedOrResponse instanceof NextResponse) {

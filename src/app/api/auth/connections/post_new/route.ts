@@ -55,7 +55,7 @@ async function postUGC(
 
   // Create the UGC post
   const url = "https://api.linkedin.com/v2/ugcPosts";
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const body: any = {
     author: authorURN,
     lifecycleState: "PUBLISHED",
@@ -124,7 +124,8 @@ async function postTweet(
   imageUrl?: string
 ) {
   console.log("🔍 BEGIN: Posting to Twitter...");
-  let body: any = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const body: any = {
     text: tweetText,
   };
 
@@ -410,6 +411,7 @@ export async function POST(req: NextRequest) {
         platformStatuses.push({
           postId,
           socialPlatformId: platformId,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           status: status as any,
           publishedAt: status === "posted" ? currentTime : null,
         });
@@ -428,6 +430,7 @@ export async function POST(req: NextRequest) {
         platformStatuses.push({
           postId,
           socialPlatformId: platformId,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           status: "failed" as any,
           publishedAt: null,
         });
@@ -484,12 +487,12 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function slugify(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
+// function slugify(str: string) {
+//   return str
+//     .toLowerCase()
+//     .replace(/[^a-z0-9]+/g, "-")
+//     .replace(/^-|-$/g, "");
+// }
 
 async function blobToBuffer(blob: Blob): Promise<Buffer> {
   console.log("🔄 Converting Blob to Buffer...");

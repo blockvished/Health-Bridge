@@ -4,7 +4,7 @@ import { socialConnections } from "../../../../../db/schema";
 import { verifyAuthToken } from "../../../../lib/verify";
 import { eq } from "drizzle-orm";
 
-export async function GET(req: Request) {
+export async function GET() {
   const decodedOrResponse = await verifyAuthToken();
 
   // Handle potential error response from token verification

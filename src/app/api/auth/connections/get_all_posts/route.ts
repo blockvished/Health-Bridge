@@ -2,15 +2,14 @@ import { NextResponse } from "next/server";
 import { db } from "../../../../../db/db";
 import {
   posts,
-  post_social_platform,
-  socialPlatforms,
+  // post_social_platform,
+  // socialPlatforms,
   doctor,
 } from "../../../../../db/schema"; // Import necessary schemas
 import { verifyAuthToken } from "../../../../lib/verify";
-import { eq, and, inArray } from "drizzle-orm";
-import { alias } from "drizzle-orm/pg-core";
+import { eq,  } from "drizzle-orm";
 
-export async function GET(req: Request) {
+export async function GET() {
   const decodedOrResponse = await verifyAuthToken();
 
   if (decodedOrResponse instanceof NextResponse) {

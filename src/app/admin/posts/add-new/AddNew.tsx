@@ -130,12 +130,12 @@ function AddPostForm() {
         ? "/api/auth/connections/post_new"
         : "/api/auth/connections/schedule";
 
-    console.log(
-      "Posting data:",
-      Object.fromEntries(postData as any),
-      "to:",
-      apiUrl
+    // Log the data being sent
+    const formDataEntries: [string, FormDataEntryValue][] = Array.from(
+      postData.entries()
     );
+    const formDataObject = Object.fromEntries(formDataEntries);
+    console.log("Posting data:", formDataObject, "to:", apiUrl);
 
     try {
       const response = await fetch(apiUrl, {
@@ -158,9 +158,13 @@ function AddPostForm() {
         const errorData = await response.json();
         setError(errorData?.message || "Failed to add post.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error posting:", error);
-      setError("An error occurred while adding the post.");
+      if (error instanceof Error) {
+        setError(`An error occurred: ${error.message}`);
+      } else {
+        setError("An unexpected error occurred.");
+      }
     } finally {
       setIsSubmitting(false); // Re-enable the button
     }
@@ -336,7 +340,9 @@ function AddPostForm() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
             <h3 className="text-xl font-semibold mb-4">
-              {postOption === "now" ? "Post Successfully Created!" : "Post Successfully Scheduled!"}
+              {postOption === "now"
+                ? "Post Successfully Created!"
+                : "Post Successfully Scheduled!"}
             </h3>
             <p className="mb-6">
               {postOption === "now"

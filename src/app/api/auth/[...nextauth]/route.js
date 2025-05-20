@@ -49,7 +49,8 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_BUSINESS_CLIENT_SECRET,
       authorization: {
         params: {
-          scope: "openid email profile https://www.googleapis.com/auth/business.manage",
+          scope:
+            "openid email profile https://www.googleapis.com/auth/business.manage",
           access_type: "offline",
           prompt: "consent",
         },
@@ -61,11 +62,9 @@ const handler = NextAuth({
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
       authorization: {
         params: {
-          scope: [
-            "pages_show_list",
-          ].join(",")
-        }
-      }
+          scope: ["pages_show_list"].join(","),
+        },
+      },
     }),
 
     InstagramProvider({
@@ -74,7 +73,11 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, account, profile }) {
+    async jwt({
+      token,
+      account, // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      profile,
+    }) {
       // Store provider and access tokens in JWT
       if (account) {
         token.accessToken = account.access_token;

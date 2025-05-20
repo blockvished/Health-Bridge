@@ -1,14 +1,20 @@
 "use client";
-import { useState } from 'react';
-import { ArrowUp, ArrowDown, Activity, Users, MessageSquare, Eye } from 'lucide-react';
+import {
+  ArrowUp,
+  ArrowDown,
+  Activity,
+  Users,
+  MessageSquare,
+  Eye,
+} from "lucide-react";
 
 export default function SocialMediaDashboard() {
   // Sample data - this would be replaced with API data in the future
-  const [socialData, setSocialData] = useState([
+  const socialData = [
     {
-      platform: 'Facebook',
-      icon: 'facebook',
-      color: '#1877F2',
+      platform: "Facebook",
+      icon: "facebook",
+      color: "#1877F2",
       totalFollowers: 221,
       totalFollowersChange: 0.5,
       newFollowers: 4,
@@ -18,12 +24,12 @@ export default function SocialMediaDashboard() {
       reach: 51,
       reachChange: 7.9,
       engagement: 36,
-      engagementChange: 41.0
+      engagementChange: 41.0,
     },
     {
-      platform: 'X (formerly Twitter)',
-      icon: 'twitter',
-      color: '#000000',
+      platform: "X (formerly Twitter)",
+      icon: "twitter",
+      color: "#000000",
       totalFollowers: 105,
       totalFollowersChange: -2.8,
       newFollowers: 2,
@@ -33,12 +39,12 @@ export default function SocialMediaDashboard() {
       reach: 32,
       reachChange: -8.6,
       engagement: 26,
-      engagementChange: -15.5
+      engagementChange: -15.5,
     },
     {
-      platform: 'LinkedIn',
-      icon: 'linkedin',
-      color: '#0A66C2',
+      platform: "LinkedIn",
+      icon: "linkedin",
+      color: "#0A66C2",
       totalFollowers: 186,
       totalFollowersChange: 20.0,
       newFollowers: 11,
@@ -48,12 +54,12 @@ export default function SocialMediaDashboard() {
       reach: 78,
       reachChange: 14.3,
       engagement: 40,
-      engagementChange: 33.3
+      engagementChange: 33.3,
     },
     {
-      platform: 'Instagram',
-      icon: 'instagram',
-      color: '#E4405F',
+      platform: "Instagram",
+      icon: "instagram",
+      color: "#E4405F",
       totalFollowers: 341,
       totalFollowersChange: 8.0,
       newFollowers: 12,
@@ -63,12 +69,12 @@ export default function SocialMediaDashboard() {
       reach: 122,
       reachChange: 30.0,
       engagement: 92,
-      engagementChange: 28.8
+      engagementChange: 28.8,
     },
     {
-      platform: 'TikTok',
-      icon: 'tiktok',
-      color: '#000000',
+      platform: "TikTok",
+      icon: "tiktok",
+      color: "#000000",
       totalFollowers: 408,
       totalFollowersChange: 35.5,
       newFollowers: 22,
@@ -78,9 +84,9 @@ export default function SocialMediaDashboard() {
       reach: 215,
       reachChange: 56.2,
       engagement: 125,
-      engagementChange: 67.3
-    }
-  ]);
+      engagementChange: 67.3,
+    },
+  ];
 
   // Function to render the change indicator
   const renderChangeIndicator = (value) => {
@@ -99,40 +105,38 @@ export default function SocialMediaDashboard() {
         </span>
       );
     } else {
-      return (
-        <span className="text-gray-500 text-sm font-medium">0.0%</span>
-      );
+      return <span className="text-gray-500 text-sm font-medium">0.0%</span>;
     }
   };
 
   // Function to render platform icon
   const renderPlatformIcon = (platform) => {
     switch (platform.toLowerCase()) {
-      case 'facebook':
+      case "facebook":
         return (
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100">
             <span className="text-blue-600 font-bold">f</span>
           </div>
         );
-      case 'x (formerly twitter)':
+      case "x (formerly twitter)":
         return (
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
             <span className="text-black font-bold">𝕏</span>
           </div>
         );
-      case 'linkedin':
+      case "linkedin":
         return (
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100">
             <span className="text-blue-700 font-bold">in</span>
           </div>
         );
-      case 'instagram':
+      case "instagram":
         return (
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-pink-100">
             <span className="text-pink-600 font-bold">Ig</span>
           </div>
         );
-      case 'tiktok':
+      case "tiktok":
         return (
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
             <span className="text-black font-bold">T</span>
@@ -146,10 +150,12 @@ export default function SocialMediaDashboard() {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 max-w-5xl mx-auto">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Social Media Analytics</h2>
+        <h2 className="text-2xl font-bold text-gray-800">
+          Social Media Analytics
+        </h2>
         <p className="text-gray-500">Performance overview across platforms</p>
       </div>
-      
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead>
@@ -165,7 +171,7 @@ export default function SocialMediaDashboard() {
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <div className="flex items-center">
-                  <Users size={14} className="mr-1" /> 
+                  <Users size={14} className="mr-1" />
                   New Followers
                 </div>
               </th>
@@ -191,40 +197,55 @@ export default function SocialMediaDashboard() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {socialData.map((platform, index) => (
-              <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+              <tr
+                key={index}
+                className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+              >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     {renderPlatformIcon(platform.platform)}
-                    <span className="ml-3 font-medium text-gray-900">{platform.platform}</span>
+                    <span className="ml-3 font-medium text-gray-900">
+                      {platform.platform}
+                    </span>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{platform.totalFollowers}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {platform.totalFollowers}
+                    </div>
                     {renderChangeIndicator(platform.totalFollowersChange)}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{platform.newFollowers}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {platform.newFollowers}
+                    </div>
                     {renderChangeIndicator(platform.newFollowersChange)}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{platform.posts}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {platform.posts}
+                    </div>
                     {renderChangeIndicator(platform.postsChange)}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{platform.reach}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {platform.reach}
+                    </div>
                     {renderChangeIndicator(platform.reachChange)}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{platform.engagement}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {platform.engagement}
+                    </div>
                     {renderChangeIndicator(platform.engagementChange)}
                   </div>
                 </td>
@@ -233,7 +254,7 @@ export default function SocialMediaDashboard() {
           </tbody>
         </table>
       </div>
-      
+
       <div className="mt-6 text-sm text-gray-500">
         <p>Last updated: May 14, 2025 • Next update: May 21, 2025</p>
       </div>
