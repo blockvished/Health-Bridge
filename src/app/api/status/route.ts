@@ -1,61 +1,56 @@
 import { NextResponse } from "next/server";
 import { serialize } from "cookie";
 import { sign } from "jsonwebtoken";
+import { Env, StandardCheckoutClient } from "pg-sdk-node";
 
-interface PaymentStatusResponse {
-  success: boolean;
-  state?: "COMPLETED" | "FAILED" | "PENDING" | string;
-  details?: {
-    transactionId: string;
-    amount?: number;
-    [key: string]: unknown; // Allow other dynamic properties, use a more specific type if possible
-  };
-  error?: string; // Added error property to the interface
-}
+/**
+ * PhonePe API configuration
+ * These environment variables must be set in your .env or deployment config
+ */
+const clientIdFromEnv = process.env.PHONEPE_CLIENTID;
+const clientSecretFromEnv = process.env.PHONEPE_CLIENT_SECRET;
+const client_version = 1;
+const env =
+  process.env.NODE_ENV === "production" ? Env.PRODUCTION : Env.SANDBOX;
 
-// This would be your payment client implementation
-// Assuming you have a client that can check the payment status
-const client = {
-  getOrderStatus: async (merchantOrderId: string): Promise<PaymentStatusResponse> => {
-    // This is where you would call your payment gateway's API
-    // For demonstration, we'll simulate a successful response
-    // In a real implementation, you would call PhonePe's API here
-
-    try {
-      // Here you would implement the actual API call to PhonePe
-      // using the merchantOrderId
-
-      // Simulating a response from the payment gateway
-      return {
-        success: true,
-        state: "COMPLETED", // or "FAILED", "PENDING", etc.
-        details: {
-          transactionId: merchantOrderId,
-          amount: 100, // Example amount
-          // Other payment details
-        }
-      };
-    } catch (error: unknown) {
-      console.error("Error getting order status:", error);
-      let errorMessage = "Failed to get order status";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      return { // Handle the error and return a failure response
-        success: false,
-        state: "FAILED",
-        error: errorMessage
-      };    
-    }
-  }
-};
-
+/**
+ * API handler for checking PhonePe payment status
+ * Endpoint: POST /api/status
+ * @param req - Incoming request with merchantOrderId and userId
+ */
 export async function POST(req: Request) {
+  // Check for required environment variables - CLIENT ID
+  if (!clientIdFromEnv) {
+    console.log("ERROR: PHONEPE_CLIENTID missing");
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Configuration error: PHONEPE_CLIENTID is missing",
+      },
+      { status: 500 }
+    );
+  }
+
+  // Check for required environment variables - CLIENT SECRET
+  if (!clientSecretFromEnv) {
+    console.log("ERROR: PHONEPE_CLIENT_SECRET missing");
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Configuration error: PHONEPE_CLIENT_SECRET is missing",
+      },
+      { status: 500 }
+    );
+  }
+
   try {
     // Parse the request body
-    const body = await req.json();
-    const { merchantOrderId, userId } = body;
+    const body = await req.json().catch((e) => {
+      console.log("BODY PARSE ERROR:", e.message);
+      return {};
+    });
 
+    const { merchantOrderId, userId } = body;
     // Also get the query parameters (in case they're provided there)
     const searchParams = new URL(req.url).searchParams;
     const queryMerchantOrderId = searchParams.get("merchantOrderId");
@@ -65,25 +60,52 @@ export async function POST(req: Request) {
     const finalMerchantOrderId = merchantOrderId || queryMerchantOrderId;
     const finalUserId = userId || queryUserId;
 
+    // Validate required parameters - ORDER ID
     if (!finalMerchantOrderId) {
+      console.log("VALIDATION FAILURE: No merchantOrderId provided");
       return NextResponse.json(
         { success: false, error: "MerchantOrderId is required" },
         { status: 400 }
       );
     }
 
+    // Validate required parameters - USER ID
     if (!finalUserId) {
+      console.log("VALIDATION FAILURE: No userId provided");
       return NextResponse.json(
         { success: false, error: "User ID is required" },
         { status: 400 }
       );
     }
 
-    // Get the payment status from your payment client
+    console.log("STEP 2: Initializing PhonePe client");
+    // Initialize the PhonePe client
+    const client = StandardCheckoutClient.getInstance(
+      clientIdFromEnv,
+      clientSecretFromEnv,
+      client_version,
+      env
+    );
+
+    console.log("STEP 3: Fetching order status");
+    // Get order status from PhonePe - await the promise
     const response = await client.getOrderStatus(finalMerchantOrderId);
+    console.log("PHONEPE RESPONSE:", JSON.stringify(response, null, 2));
+
+    if (response?.paymentDetails && response.paymentDetails.length > 0) {
+      if (response.paymentDetails[0].state === "FAILED") {
+        console.log("Error Code:", response.paymentDetails[0].errorCode);
+        console.log(
+          "Detailed Error Code:",
+          response.paymentDetails[0].detailedErrorCode
+        );
+      }
+    } else {
+      console.log("No payment details available in response");
+    }
 
     // Check if the payment was successful
-    if (response.success && response.state === "COMPLETED") {
+    if (response && response.state === "COMPLETED") {
       // Create JWT token
       const JWT_SECRET = process.env.JWT_SECRET;
       if (!JWT_SECRET) {
@@ -91,6 +113,7 @@ export async function POST(req: Request) {
       }
 
       // Create the JWT token with user data and payment details
+      console.log("Creating JWT token for user:", finalUserId);
       const token = sign(
         {
           userId: finalUserId,
@@ -102,17 +125,38 @@ export async function POST(req: Request) {
         { expiresIn: "10m" }
       );
 
+      // Prepare response data
+      const responseDetails = {
+        transactionId: finalMerchantOrderId,
+        orderId: response.orderId,
+        status: response.state,
+        amount: response.amount ? response.amount / 100 : 0, // Convert paisa to rupees
+        paymentMode: response.paymentDetails?.[0]?.paymentMode || "N/A",
+        timestamp: response.paymentDetails?.[0]?.timestamp || null,
+      };
+      console.log(
+        "RESPONSE DETAILS:",
+        JSON.stringify(responseDetails, null, 2)
+      );
+      // reposonse details has below and i want to save this in db
+      // email_verified true and phone_verified true in db users table
+      // RESPONSE DETAILS: {
+      //   "transactionId": "9ce2fa17-d7a3-47d7-81c5-6eebcdea6392",
+      //   "orderId": "OMO2505201520337035694714",
+      //   "status": "COMPLETED",
+      //   "amount": 8990,
+      //   "paymentMode": "NET_BANKING",
+      //   "timestamp": 1747735124551
+      // }
+
       // Return success response with payment details
       const apiResponse = NextResponse.json({
         success: true,
-        details: {
-          transactionId: finalMerchantOrderId,
-          status: "COMPLETED",
-          // Include other payment details you want to return
-        }
+        details: responseDetails,
       });
 
       // Set JWT token in cookie
+      console.log("Setting auth cookie");
       apiResponse.headers.set(
         "Set-Cookie",
         serialize("authToken", token, {
@@ -123,32 +167,49 @@ export async function POST(req: Request) {
           maxAge: 10 * 60, // 10 minutes in seconds
         })
       );
-
       return apiResponse;
     } else {
       // Payment failed or is in another state
+
+      const failureDetails = {
+        status: response?.state || "Unknown",
+        errorCode: response?.paymentDetails?.[0]?.errorCode,
+        detailedErrorCode: response?.paymentDetails?.[0]?.detailedErrorCode,
+      };
+
       return NextResponse.json({
         success: false,
         error: "Payment verification failed",
-        details: response.state || "Unknown status"
+        details: failureDetails,
       });
     }
   } catch (error: unknown) {
-    console.error("Error checking payment status:", error);
-  
+    console.log(
+      "Error Type:",
+      error instanceof Error ? "Error object" : typeof error
+    );
+    console.log(
+      "Error Message:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
+    if (error instanceof Error && error.stack) {
+      console.log("Stack Trace:", error.stack);
+    }
+
     let errorMessage = "Payment check failed";
     if (error instanceof Error) {
       errorMessage = error.message;
     }
-  
+
     // Return error response
     return NextResponse.json(
       {
         success: false,
         error: errorMessage,
-        details: error instanceof Error ? error.message : "An unknown error occurred"
+        details:
+          error instanceof Error ? error.message : "An unknown error occurred",
       },
       { status: 500 }
     );
-  }  
+  }
 }

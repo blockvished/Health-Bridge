@@ -180,6 +180,7 @@ export const doctor = pgTable("doctor", {
   pincode: varchar("pincode", { length: 10 }),
   specialization: text("specialization"),
   degree: text("degree"),
+  practiceType: text("practice_type"), // e.g., "Allopathy", "Homeopathy"
   experience: integer("experience"),
   aboutSelf: text("about_self"),
   aboutClinic: text("about_clinic"),
@@ -265,11 +266,6 @@ export const post_social_platform = pgTable(
     status: postStatusEnum("status").default("scheduled").notNull(),
   },
   (table) => ({
-    // Composite primary key (optional, if you want to enforce unique pairs)
-    // You might not need this if 'id' is already a primary key
-    // primaryKey: [table.postId, table.socialPlatformId],
-
-    //  indexes (optional, but recommended for performance)
     postSocialPlatformIdIdx: index("post_social_platform_id_idx").on(
       table.postId,
       table.socialPlatformId

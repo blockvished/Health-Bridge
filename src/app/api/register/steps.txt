@@ -1,17 +1,5 @@
-/api/send-opt
-verified -> display that he already has a verified account, so use that for login
-if not then verify his phone and allow next button for step 2 
-
-after he clicks next button and data is passed to the backend, there is a check if user/doctor exist or not if not then is created else updated
-
-similarly step 3, but will validate the email after payment and save the data and also confirm password with the same
-
-
-
-// type of practice
-// clinic name
-// email duplication validation before saving, email verification, email_verified true and phone_verified true after transaction
-// transaction save
+// email_verified true and phone_verified true after transaction
+// transaction save, get expires at based on the plan
 
 // put limits on create etc
 // show active plan on doctor dashboard based on..

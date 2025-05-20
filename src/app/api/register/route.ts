@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       email,
       clinicName,
       speciality,
-      // practiceType,
+      practiceType,
       yearsOfExperience,
       city,
       pincode,
@@ -31,6 +31,8 @@ export async function POST(request: Request) {
     } = userData;
 
     console.log("billing period", billingPeriod);
+
+    const full_name = "Dr. " + fullName;
 
     // Validate required fields
     if (!fullName || !mobile) {
@@ -76,7 +78,7 @@ export async function POST(request: Request) {
     if (existingUser && existingUser.length > 0) {
       registrationResult = await updateUser(
         existingUser[0].id,
-        fullName,
+        full_name,
         email || existingUser[0].email,
         password || "",
         mobile,
@@ -85,7 +87,7 @@ export async function POST(request: Request) {
     } else {
       // Otherwise register a new user
       registrationResult = await registerUser(
-        fullName,
+        full_name,
         email || "",
         password || "",
         mobile,
@@ -116,12 +118,13 @@ export async function POST(request: Request) {
       // Prepare doctor data
       const doctorData: Partial<NewDoctor> = {
         userId: userId,
-        name: fullName,
+        name: full_name,
         email: email || null,
         phone: mobile,
         city: city || null,
         pincode: pincode || null,
         specialization: speciality || null,
+        practiceType: practiceType || null,
         experience: yearsOfExperience ? parseInt(yearsOfExperience) : null,
         aboutClinic: clinicName || null,
         planId: subscriptionPlan || null, // Foreign key to plans table
