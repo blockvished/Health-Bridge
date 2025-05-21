@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       );
     }
 
+    
     const user = userResult[0];
     const salt = user.salt || "";
     const saltedPassword = salt + password

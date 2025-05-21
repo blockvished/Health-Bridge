@@ -50,94 +50,52 @@ export async function PUT(req: NextRequest) {
 
     const existingUser = existingUserResult[0];
 
-    // Handle the case where the user's password_hash is null (e.g., initial setup)
-    if (existingUser.password_hash === null) {
-      // Hash the new password
-      const salt = randomBytes(16).toString('hex');
-      const saltedNewPassword = salt + newPassword;
-      const hashedPassword = await hash(saltedNewPassword);
-
-      // Update the user's password in the database
-      await db
-        .update(users)
-        .set({ password_hash: hashedPassword, salt: salt })
-        .where(eq(users.id, userId));
-
-      let redirectUrl = `http://localhost:3000/success/${userId}`;
-      if (process.env.NODE_ENV === "production") {
-        redirectUrl = `https://app.livedoctors24.com/`;
-      }
-
-      const res = NextResponse.redirect(redirectUrl, {
-        status: 301, // Use 302 for temporary redirect
-      });
-
-      // Set JWT token in cookie
-      res.headers.set(
-        "Set-Cookie",
-        serialize("authToken", "", {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          path: "/",
-          maxAge: 0,
-        })
-      );
-
-      return res;
-
-      //
-    } else {
-      // If password_hash exists, verify the old password
-      if (!oldPassword) {
-        return NextResponse.json(
-          {
-            error: "Old password is required to change the existing password.",
-          },
-          { status: 400 }
-        );
-      }
-
-      if (oldPassword === newPassword) {
-        return NextResponse.json(
-          { error: "New password cannot be the same as the old password." },
-          { status: 400 }
-        );
-      }
-      const existintSalt = existingUser.salt
-      const saltedOldPassword = existintSalt + oldPassword;
-      const hashedOldPassword = await hash(saltedOldPassword);
-
-      // Verify old password
-      const isOldPasswordCorrect = await verify(
-        existingUser.password_hash,
-        hashedOldPassword
-      );
-
-      if (!isOldPasswordCorrect) {
-        return NextResponse.json(
-          { error: "Incorrect old password." },
-          { status: 401 }
-        );
-      }
-
-      // Hash the new password
-      const salt = randomBytes(16).toString('hex');
-      const saltedNewPassword = salt + newPassword;
-
-      const hashedPassword = await hash(saltedNewPassword);
-
-      // Update the user's password in the database
-      await db
-        .update(users)
-        .set({ password_hash: hashedPassword, salt: salt })
-        .where(eq(users.id, userId));
-
+    if (existingUser.password_hash === null || existingUser.salt === null) {
       return NextResponse.json(
-        { message: "Password changed successfully." },
-        { status: 200 }
+        { error: "User data is incomplete. Missing password hash or salt." },
+        { status: 500 }
       );
     }
+
+    if (oldPassword === newPassword) {
+      return NextResponse.json(
+        { error: "New password cannot be the same as the old password." },
+        { status: 400 }
+      );
+    }
+    const existintSalt = existingUser.salt;
+    const saltedOldPassword = existintSalt + oldPassword;
+    const hashedOldPassword = await hash(saltedOldPassword);
+
+    // Verify old password
+    const isOldPasswordCorrect = await verify(
+      existingUser.password_hash,
+      saltedOldPassword
+    );
+
+    if (!isOldPasswordCorrect) {
+      return NextResponse.json(
+        { error: "Incorrect old password." },
+        { status: 401 }
+      );
+    }
+
+    // Hash the new password
+    const salt = randomBytes(16).toString("hex");
+    const saltedNewPassword = salt + newPassword;
+
+    const hashedPassword = await hash(saltedNewPassword);
+
+    // Update the user's password in the database
+    await db
+      .update(users)
+      .set({ password_hash: hashedPassword, salt: salt })
+      .where(eq(users.id, userId));
+
+    return NextResponse.json(
+      { message: "Password changed successfully." },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error changing/setting password:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
