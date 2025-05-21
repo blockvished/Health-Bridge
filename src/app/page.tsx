@@ -15,16 +15,32 @@ const Login = () => {
   const [loginError, setLoginError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isFormValid, setIsFormValid] = useState(false);
+  const [isMobileInput, setIsMobileInput] = useState(false);
+  const [displayValue, setDisplayValue] = useState("");
 
   const router = useRouter();
+
+  // Fixed TypeScript error by adding proper type annotation
+  const formatMobileNumber = (number: string): string => {
+    // Remove any non-digit characters
+    const digitsOnly = number.replace(/\D/g, "");
+    
+    if (digitsOnly.length <= 5) {
+      return digitsOnly;
+    } else {
+      // Insert space after 5 digits
+      return `${digitsOnly.substring(0, 5)} ${digitsOnly.substring(5, 10)}`;
+    }
+  };
 
   const validateForm = useCallback(() => {
     // Validate login (mobile or email)
     if (login) {
       const isMobile = /^\d+$/.test(login); // Check if login contains only digits
+      setIsMobileInput(isMobile);
 
       if (isMobile) {
-        // Mobile validation - exactly 10 digits
+        // Mobile validation - exactly 10 digits (login already has spaces removed)
         if (login.length !== 10) {
           setLoginError("Mobile number must be exactly 10 digits");
           setIsFormValid(false);
@@ -47,6 +63,7 @@ const Login = () => {
       }
     } else {
       setLoginError("");
+      setIsMobileInput(false);
       setIsFormValid(false);
     }
 
@@ -72,6 +89,15 @@ const Login = () => {
       setIsFormValid(false);
     }
   }, [login, password, setLoginError, setIsFormValid, setPasswordError]);
+
+  // Update display value when login changes or isMobileInput changes
+  useEffect(() => {
+    if (isMobileInput) {
+      setDisplayValue(formatMobileNumber(login));
+    } else {
+      setDisplayValue(login);
+    }
+  }, [login, isMobileInput]);
 
   // Validate form inputs and update button state
   useEffect(() => {
@@ -127,7 +153,26 @@ const Login = () => {
   };
 
   const handleLoginChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setLogin(e.target.value.toLowerCase());
+    const value = e.target.value.toLowerCase();
+    
+    // Check if it's a mobile number (contains only digits or space)
+    const isMobile = /^[\d\s]*$/.test(value);
+    
+    if (isMobile) {
+      // Remove any non-digit characters from the input
+      const digitsOnly = value.replace(/\D/g, "");
+      
+      // Limit to 10 digits
+      const limitedDigits = digitsOnly.substring(0, 10);
+      
+      // Update actual login value with digits only (no space)
+      setLogin(limitedDigits);
+      
+      // Format display value will happen in useEffect
+    } else {
+      // For email, just set the value
+      setLogin(value);
+    }
   };
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -177,14 +222,22 @@ const Login = () => {
                 <label className="block text-gray-600 font-medium">
                   Mobile / Email:{" "}
                 </label>
-                <input
-                  type="text"
-                  placeholder="Please enter your registered Mobile Number or E-Mail"
-                  value={login}
-                  onChange={handleLoginChange}
-                  required
-                  className={`w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none`}
-                />
+                <div className={`relative flex items-center ${isMobileInput ? 'mt-1' : ''}`}>
+                  {isMobileInput && (
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <span className="text-gray-500">+91</span>
+                    </div>
+                  )}
+                  <input
+                    type="text"
+                    placeholder="Please enter your registered Mobile Number or E-Mail"
+                    value={displayValue}
+                    onChange={handleLoginChange}
+                    required
+                    maxLength={isMobileInput ? 11 : undefined}
+                    className={`w-full ${isMobileInput ? 'pl-12' : 'px-4'} py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none`}
+                  />
+                </div>
                 {loginError && (
                   <p className="text-red-500 text-xs mt-1">{loginError}</p>
                 )}
