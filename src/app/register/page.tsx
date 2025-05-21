@@ -12,6 +12,12 @@ let testing = false;
 let testMobile = "";
 let testEmail = "";
 
+if (process.env.NODE_ENV === "production") {
+  testing = false;
+  testEmail = "";
+  testMobile = "";
+}
+
 const Signup = () => {
   // Step management
   const [currentStep, setCurrentStep] = useState(1);
