@@ -1,14 +1,35 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const Subscription = () => {
-  const [subscriptionData, setSubscriptionData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+// Define TypeScript interfaces for our data structures
+interface PlanDetails {
+  name: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
+  staffLimit?: number;
+  chamberLimit?: number;
+}
+
+interface DoctorPlan {
+  expireAt: string;
+  paymentAt: string;
+  planType: 'monthly' | 'yearly';
+  paymentStatus: boolean;
+}
+
+interface SubscriptionData {
+  doctorPlan: DoctorPlan;
+  planDetails: PlanDetails;
+}
+
+const Subscription = (): React.ReactElement => {
+  const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchSubscription = async () => {
+    const fetchSubscription = async (): Promise<void> => {
       try {
         const response = await fetch('/api/doctor/subscription');
         
@@ -16,10 +37,10 @@ const Subscription = () => {
           throw new Error('Failed to fetch subscription data');
         }
         
-        const data = await response.json();
+        const data: SubscriptionData = await response.json();
         setSubscriptionData(data);
       } catch (err) {
-        setError(err.message);
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
         setLoading(false);
       }
@@ -29,7 +50,7 @@ const Subscription = () => {
   }, []);
 
   // Calculate days remaining
-  const calculateDaysRemaining = (expireDate) => {
+  const calculateDaysRemaining = (expireDate: string): number => {
     const today = new Date();
     const expireAt = new Date(expireDate);
     const diffTime = expireAt.getTime() - today.getTime();
@@ -38,13 +59,13 @@ const Subscription = () => {
   };
 
   // Format date to a readable format
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  const formatDate = (dateString: string): string => {
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
   // Format price to currency format (converting from paisas to rupees)
-  const formatPrice = (price) => {
+  const formatPrice = (price: number): string => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
@@ -69,10 +90,9 @@ const Subscription = () => {
     );
   }
 
-  if (!subscriptionData) {
-    return null;
-  }
-
+if (!subscriptionData) {
+  return <div>N/A</div>; // or any other empty element
+}
   const { doctorPlan, planDetails } = subscriptionData;
   const daysRemaining = calculateDaysRemaining(doctorPlan.expireAt);
   const isPlanExpiringSoon = daysRemaining <= 30;
