@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import Step4Security from "../../register/Step4Security";
+import Step4Security from "./Step4Security";
+import { useSearchParams } from "next/navigation";
 
 const Success = () => {
   // Step 4 - Password
@@ -11,6 +12,10 @@ const Success = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
+
+  const searchParams = useSearchParams();
+  const userId = searchParams.get("userId");
+  const resetToken = searchParams.get("resetToken");
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -37,8 +42,8 @@ const Success = () => {
                 currentStep > index + 1
                   ? "bg-green-500 text-white"
                   : currentStep === index + 1
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-600"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-600"
               }`}
             >
               {currentStep > index + 1 ? "✓" : index + 1}
@@ -89,6 +94,8 @@ const Success = () => {
             toggleConfirmPasswordVisibility={toggleConfirmPasswordVisibility}
             agreeTerms={agreeTerms}
             setAgreeTerms={setAgreeTerms}
+            userId={userId}
+            resetToken={resetToken}
           />
         </div>
       </div>

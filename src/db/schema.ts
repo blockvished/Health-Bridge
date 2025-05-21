@@ -17,6 +17,7 @@ import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import { uniqueIndex } from "drizzle-orm/pg-core";
 import { unique } from "drizzle-orm/pg-core";
 import { bigint } from "drizzle-orm/pg-core";
+import { uuid } from "drizzle-orm/pg-core";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -664,7 +665,7 @@ export const doctorConsultation = pgTable("doctor_consultation", {
   consultationLink: text("consultation_link"),
   isLiveConsultationEnabled: boolean("is_live_consultation_enabled").default(
     false
-  ), // Added boolean field with a default value
+  ), 
 });
 
 export const appointmentSettings = pgTable("appointment_settings", {
@@ -673,6 +674,15 @@ export const appointmentSettings = pgTable("appointment_settings", {
     .notNull()
     .references(() => doctor.id, { onDelete: "cascade" }),
   intervalMinutes: integer("interval_minutes").notNull(), // e.g., 10, 15, etc.
+});
+
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  token: uuid("token").primaryKey().notNull(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  used: boolean("used").default(false).notNull(), // 'true' or 'false'
 });
 
 export const appointmentDays = pgTable("appointment_days", {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FormEvent, useState } from "react";
+import React, { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation"; // Changed import
 
@@ -15,6 +15,8 @@ const Step4Security = ({
   toggleConfirmPasswordVisibility,
   agreeTerms,
   setAgreeTerms,
+  userId,
+  resetToken
 }) => {
   const [passwordMatchError, setPasswordMatchError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -30,12 +32,12 @@ const Step4Security = ({
     setPasswordMatchError(false);
 
     try {
-      const response = await fetch("/api/change_password", {
+      const response = await fetch("/api/change_password/create", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ newPassword: password }),
+        body: JSON.stringify({ newPassword: password, resetToken: resetToken, userId: userId  }),
       });
 
       if (!response.ok) {

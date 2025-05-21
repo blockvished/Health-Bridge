@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
-import { serialize } from "cookie";
+import { v4 as uuidv4 } from "uuid";
 import { sign } from "jsonwebtoken";
 import { Env, StandardCheckoutClient } from "pg-sdk-node";
-import { doctor, transactions, users } from "../../../db/schema";
+import {
+  doctor,
+  transactions,
+  users,
+  passwordResetTokens,
+} from "../../../db/schema";
 import db from "../../../db/db";
 import { eq } from "drizzle-orm";
 
@@ -141,16 +146,8 @@ export async function POST(req: Request) {
         "RESPONSE DETAILS:",
         JSON.stringify(responseDetails, null, 2)
       );
-      // reposonse details has below and i want to save this in db
-      // email_verified true and phone_verified true in db users table
-      // RESPONSE DETAILS: {
-      //   "transactionId": "9ce2fa17-d7a3-47d7-81c5-6eebcdea6392",
-      //   "orderId": "OMO2505201520337035694714",
-      //   "status": "COMPLETED",
-      //   "amount": 8990,
-      //   "paymentMode": "NET_BANKING",
-      //   "timestamp": 1747735124551
-      // }
+      let resetTokenF = "";
+      let expiresAtF = new Date();
       try {
         // Convert the numeric timestamp to a Date object for the timestamp_date column
         const timestampAsDate = responseDetails.timestamp
@@ -177,7 +174,6 @@ export async function POST(req: Request) {
           })
           .where(eq(users.id, userId));
 
-        // Fetch doctor's plan ID and plan type from the doctor table
         const doctorData = await db
           .select({
             planId: doctor.planId,
@@ -192,8 +188,6 @@ export async function POST(req: Request) {
           console.log(
             `Doctor Plan Information - Plan ID: ${planId}, Plan Type: ${planType}`
           );
-
-          // if plantype received from doctor table is monthly then a new variable will be 30 days + paymentAt and if yearly then 365 days + paymentAt
 
           const expireAt = new Date(timestampAsDate || new Date());
 
@@ -215,28 +209,32 @@ export async function POST(req: Request) {
             .where(eq(doctor.userId, userId));
         }
         console.log(`Transaction saved successfully for user ${finalUserId}!`);
+
+        // also save a variable with time + 5 minutes for create password that takes uuid, user id, used false
+        const resetToken = uuidv4();
+        const expiresAt = new Date();
+        expiresAt.setMinutes(expiresAt.getMinutes() + 5);
+
+        resetTokenF = resetToken
+        expiresAtF = expiresAt
+
+        await db.insert(passwordResetTokens).values({
+          token: resetToken, // You must provide this
+          userId: finalUserId,
+          expiresAt: expiresAt,
+        });
       } catch (error) {
         console.error("Error saving transaction:", error);
       }
 
-      // Return success response with payment details
       const apiResponse = NextResponse.json({
         success: true,
         details: responseDetails,
+        resetToken: resetTokenF,
+        userId: finalUserId,
+        expiresAt: expiresAtF,
       });
 
-      // Set JWT token in cookie
-      console.log("Setting auth cookie");
-      apiResponse.headers.set(
-        "Set-Cookie",
-        serialize("authToken", token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          path: "/",
-          maxAge: 10 * 60, // 10 minutes in seconds
-        })
-      );
       return apiResponse;
     } else {
       // Payment failed or is in another state
