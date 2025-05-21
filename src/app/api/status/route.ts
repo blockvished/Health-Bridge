@@ -13,8 +13,8 @@ import { eq } from "drizzle-orm";
 const clientIdFromEnv = process.env.PHONEPE_CLIENTID;
 const clientSecretFromEnv = process.env.PHONEPE_CLIENT_SECRET;
 const client_version = 1;
-const env =
-  process.env.NODE_ENV === "production" ? Env.PRODUCTION : Env.SANDBOX;
+// const env =  process.env.NODE_ENV === "production" ? Env.PRODUCTION : Env.SANDBOX;
+const env = Env.SANDBOX;
 
 /**
  * API handler for checking PhonePe payment status
@@ -176,8 +176,6 @@ export async function POST(req: Request) {
             updatedAt: new Date(),
           })
           .where(eq(users.id, userId));
-
-        // export const planTypeEnum = pgEnum("plan_type", ["monthly", "yearly"]);
 
         // Fetch doctor's plan ID and plan type from the doctor table
         const doctorData = await db
