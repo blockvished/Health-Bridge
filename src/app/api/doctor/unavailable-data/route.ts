@@ -1,8 +1,8 @@
+// \api\doctor\unavailable-data
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import {
   appointmentDays,
-  appointmentSettings,
   appointmentTimeRanges,
   clinic,
   doctor,
