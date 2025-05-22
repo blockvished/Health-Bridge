@@ -21,6 +21,7 @@ import {
 // import NetIncomeTable from "../_common/NetIncomeTable";
 
 import AppointmentsPage from "../../appointment/all_list/page";
+import DoctorInfoModal from "./Modal"; // Import the modal component
 import Cookies from "js-cookie";
 
 // Register Chart.js components
@@ -76,6 +77,7 @@ interface DashboardData {
   allAppointmentsCount: number;
   staffCount: number;
 }
+
 // Dashboard Summary Cards Component
 const DashboardSummaryCards: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
@@ -213,6 +215,9 @@ const DashboardSummaryCards: React.FC = () => {
 const Dashboard: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
+      {/* Add the modal component here - it will show automatically when needed */}
+      <DoctorInfoModal />
+      
       <DashboardSummaryCards />
       {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6"> */}
       <div>
