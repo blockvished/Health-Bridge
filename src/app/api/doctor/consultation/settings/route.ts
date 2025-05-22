@@ -1,18 +1,15 @@
-// backend/app/api/doctor/consultation/settings/[userId]/route.ts
+// backend/app/api/doctor/consultation/settings/
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
-import db from "../../../../../../db/db";
-import { verifyAuthToken } from "../../../../../lib/verify";
-import { doctor, doctorConsultation } from "../../../../../../db/schema";
+import db from "../../../../../db/db";
+import { verifyAuthToken } from "../../../../lib/verify";
+import { doctor, doctorConsultation } from "../../../../../db/schema";
 
-// /api/doctor/consultation/settings/[userId]
+// /api/doctor/consultation/settings
 // =======================
 // GET - Fetch Consultation Settings
 // =======================
 export async function GET(req: NextRequest) {
-  // Get ID from URL
-  const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
-
   // Verify JWT token using the modularized function
   const decodedOrResponse = await verifyAuthToken();
 
@@ -23,13 +20,6 @@ export async function GET(req: NextRequest) {
 
   const decoded = decodedOrResponse;
   const userId = Number(decoded.userId);
-
-  if (String(userId) !== userIdFromUrl) {
-    return NextResponse.json(
-      { error: "Forbidden: You don't have access to this profile" },
-      { status: 403 }
-    );
-  }
 
   // Query for doctor information
   const doctorData = await db
@@ -68,7 +58,6 @@ export async function GET(req: NextRequest) {
 // POST - Create or Update - Consultation Settings
 // =======================
 export async function POST(req: NextRequest) {
-  const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
   try {
     // Verify JWT token
     const decodedOrResponse = await verifyAuthToken();
@@ -83,16 +72,6 @@ export async function POST(req: NextRequest) {
 
     const reqBody = await req.json();
     const { consultationFees, mode, consultationLink, liveConsultation } = reqBody; // Receive liveConsultation
-
-    if (String(userId) !== userIdFromUrl) {
-      return NextResponse.json(
-        {
-          error:
-            "Forbidden: You don't have access to this profile's consultation settings.",
-        },
-        { status: 403 }
-      );
-    }
 
     // Query for doctor information based on the authenticated user ID
     const doctorData = await db

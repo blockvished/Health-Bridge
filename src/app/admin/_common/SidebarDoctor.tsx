@@ -61,7 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     const fetchClinics = async () => {
       if (userId) {
         try {
-          const response = await fetch(`/api/doctor/clinic/${userId}`);
+          const response = await fetch(`/api/doctor/clinic`);
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(
@@ -102,6 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         } catch (err: unknown) {
           console.error("Error fetching clinics:", err);
           if (err instanceof Error) {
+            console.log("Error message:", err);
             console.error("Error message:", err.message);
           } else {
             console.error("An unknown error occurred.");

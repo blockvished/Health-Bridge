@@ -3,27 +3,16 @@ import { NextRequest, NextResponse } from "next/server";
 import * as fs from "fs"; 
 import path from "path";
 import { eq } from "drizzle-orm";
-import db from "../../../../../db/db";
-import { verifyAuthToken } from "../../../../lib/verify";
-import { doctor, clinic } from "../../../../../db/schema";
+import db from "../../../../db/db";
+import { verifyAuthToken } from "../../../lib/verify";
+import { doctor, clinic } from "../../../../db/schema";
 
 export async function GET(req: NextRequest) {
-  // Get ID from URL
-  const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
-
   // Verify JWT token
   const decodedOrResponse = await verifyAuthToken();
   if (decodedOrResponse instanceof NextResponse) return decodedOrResponse;
   const { userId } = decodedOrResponse;
   const numericUserId = Number(userId);
-
-  // Check if the requested ID matches the authenticated user's ID
-  if (String(numericUserId) !== userIdFromUrl) {
-    return NextResponse.json(
-      { error: "Forbidden: You don't have access to this profile" },
-      { status: 403 }
-    );
-  }
 
   const doctorData = await db
     .select({ id: doctor.id })
@@ -102,22 +91,11 @@ interface FormDataFile extends Blob {
 }
 
 export async function POST(req: NextRequest) {
-  // Get ID from URL
-  const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
-
   // Verify JWT token
   const decodedOrResponse = await verifyAuthToken();
   if (decodedOrResponse instanceof NextResponse) return decodedOrResponse;
   const { userId } = decodedOrResponse;
   const numericUserId = Number(userId);
-
-  // Check if the requested ID matches the authenticated user's ID
-  if (String(numericUserId) !== userIdFromUrl) {
-    return NextResponse.json(
-      { error: "Forbidden: You don't have access to this profile" },
-      { status: 403 }
-    );
-  }
 
   try {
     // Find the doctor's record
@@ -269,22 +247,12 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  // Get ID from URL
-  const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
 
   // Verify JWT token
   const decodedOrResponse = await verifyAuthToken();
   if (decodedOrResponse instanceof NextResponse) return decodedOrResponse;
   const { userId } = decodedOrResponse;
   const numericUserId = Number(userId);
-
-  // Check if the requested ID matches the authenticated user's ID
-  if (String(numericUserId) !== userIdFromUrl) {
-    return NextResponse.json(
-      { error: "Forbidden: You don't have access to this profile" },
-      { status: 403 }
-    );
-  }
 
   const doctorData = await db
     .select({ id: doctor.id })

@@ -41,7 +41,7 @@ const ClinicList = () => {
         setLoading(true);
         setError(null);
         try {
-          const response = await fetch(`/api/doctor/clinic/${userId}`);
+          const response = await fetch(`/api/doctor/clinic/`);
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(
@@ -93,7 +93,7 @@ const ClinicList = () => {
       )
     ) {
       try {
-        const response = await fetch(`/api/doctor/clinic/${userId}`, {
+        const response = await fetch(`/api/doctor/clinic/`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -129,7 +129,7 @@ const ClinicList = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/doctor/clinic/${userId}`);
+        const response = await fetch(`/api/doctor/clinic/`);
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(
@@ -426,7 +426,7 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
     setUploading(true);
     setUploadError(null);
 
-    const apiUrl = `/api/doctor/clinic/${userId}`; // Endpoint is the same
+    const apiUrl = `/api/doctor/clinic/`; // Endpoint is the same
     const method = "POST";
 
     const form = new FormData();

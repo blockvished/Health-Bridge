@@ -29,7 +29,7 @@ const LiveConsultationSettings = () => {
         setError(null);
         try {
           const res = await fetch(
-            `/api/doctor/consultation/settings/${userId}`
+            `/api/doctor/consultation/settings/`
           );
           if (!res.ok) {
             const errorData = await res.json();
@@ -78,7 +78,7 @@ const LiveConsultationSettings = () => {
     setError(null);
 
     try {
-      const res = await fetch(`/api/doctor/consultation/settings/${userId}`, {
+      const res = await fetch(`/api/doctor/consultation/settings/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -43,7 +43,7 @@ const LeftPopup: React.FC<LeftPopupProps> = ({
         setLoading(true);
         setError(null);
         try {
-          const response = await fetch(`/api/doctor/clinic/${userId}`);
+          const response = await fetch(`/api/doctor/clinic/`);
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(

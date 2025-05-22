@@ -72,7 +72,7 @@ const Appointments = () => {
       try {
         if (!userId) return;
 
-        const response = await fetch(`/api/doctor/clinic/${userId}`);
+        const response = await fetch(`/api/doctor/clinic/`);
 
         if (!response.ok) {
           const errorData = await response.json();
