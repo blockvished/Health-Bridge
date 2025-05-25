@@ -41,11 +41,8 @@ export async function POST(request: Request) {
     if (verification_check.status === "approved") {
       const resetToken = uuidv4();
 
-      let expiresAtF = new Date();
       const expiresAt = new Date();
       expiresAt.setMinutes(expiresAt.getMinutes() + 5);
-
-      expiresAtF = expiresAt;
 
        await db.insert(passwordResetTokens).values({
           token: resetToken, // You must provide this

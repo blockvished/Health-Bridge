@@ -9,7 +9,7 @@ import Image from "next/image";
 interface OTPResponse {
   success: boolean;
   message: string;
-  existingUserId: Number;
+  existingUserId: number;
   verificationId?: string;
   userExists?: boolean;
   verified?: boolean;
@@ -23,7 +23,7 @@ const ForgotPassword = () => {
   const [verificationType, setVerificationType] = useState<"mobile" | "email">(
     "mobile"
   );
-  const [userId, setUserId] = useState<Number>();
+  const [userId, setUserId] = useState<number>();
   const [resetToken, setResetToken] = useState<string>("");
 
   // Form states
@@ -48,9 +48,9 @@ const ForgotPassword = () => {
   const [isFormValid, setIsFormValid] = useState(false);
 
   // OTP states
-  const [otpSent, setOtpSent] = useState(false);
+  // const [otpSent, setOtpSent] = useState(false);
   const [verificationId, setVerificationId] = useState("");
-  const [isVerified, setIsVerified] = useState(false);
+  // const [isVerified, setIsVerified] = useState(false);
 
   // Mobile formatting
   const [displayValue, setDisplayValue] = useState("");
@@ -184,7 +184,7 @@ const ForgotPassword = () => {
       setUserId(data.existingUserId);
 
       if (response.ok && data.success) {
-        setOtpSent(true);
+        // setOtpSent(true);
         setVerificationId(data.verificationId || "");
         setCurrentStep("verify");
         setSuccessMessage("OTP sent to your mobile number");
@@ -223,7 +223,7 @@ const ForgotPassword = () => {
       setUserId(data.existingUserId);
 
       if (response.ok && data.success) {
-        setOtpSent(true);
+        // setOtpSent(true);
         setCurrentStep("verify");
         setSuccessMessage("OTP sent to your email address");
         setTimeout(() => setSuccessMessage(null), 3000);
@@ -264,7 +264,7 @@ const ForgotPassword = () => {
       setResetToken(data.resetToken);
 
       if (response.ok && data.success) {
-        setIsVerified(true);
+        // setIsVerified(true);
         setCurrentStep("reset");
         setSuccessMessage("Mobile number verified successfully!");
         setTimeout(() => setSuccessMessage(null), 3000);
@@ -303,7 +303,7 @@ const ForgotPassword = () => {
       console.log(data);
 
       if (response.ok && data.success) {
-        setIsVerified(true);
+        // setIsVerified(true);
         setCurrentStep("reset");
         setSuccessMessage("Email verified successfully!");
         setTimeout(() => setSuccessMessage(null), 3000);
@@ -378,11 +378,11 @@ const ForgotPassword = () => {
   const handleBack = () => {
     if (currentStep === "verify") {
       setCurrentStep("input");
-      setOtpSent(false);
+      // setOtpSent(false);
       setOtp("");
     } else if (currentStep === "reset") {
       setCurrentStep("verify");
-      setIsVerified(false);
+      // setIsVerified(false);
       setNewPassword("");
       setConfirmPassword("");
     }

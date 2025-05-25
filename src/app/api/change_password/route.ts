@@ -4,7 +4,6 @@ import { users } from "../../../db/schema";
 import db from "../../../db/db";
 import { verifyAuthToken } from "../../lib/verify";
 import { verify, hash } from "argon2";
-import { serialize } from "cookie";
 import { randomBytes } from "crypto";
 
 // =======================
@@ -65,7 +64,7 @@ export async function PUT(req: NextRequest) {
     }
     const existintSalt = existingUser.salt;
     const saltedOldPassword = existintSalt + oldPassword;
-    const hashedOldPassword = await hash(saltedOldPassword);
+    // const hashedOldPassword = await hash(saltedOldPassword);
 
     // Verify old password
     const isOldPasswordCorrect = await verify(

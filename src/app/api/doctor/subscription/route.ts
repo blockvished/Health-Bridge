@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { doctor, plans } from "../../../../db/schema";
 import db from "../../../../db/db";
@@ -7,7 +7,7 @@ import { verifyAuthToken } from "../../../lib/verify";
 // =======================
 // Get - Plan details of Doctor
 // =======================
-export async function GET(req: NextRequest) {
+export async function GET() {
   // Verify JWT token using the modularized function
   const decodedOrResponse = await verifyAuthToken();
 

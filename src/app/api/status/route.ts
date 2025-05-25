@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
-import { sign } from "jsonwebtoken";
 import { Env, StandardCheckoutClient } from "pg-sdk-node";
 import {
   doctor,
@@ -122,17 +121,7 @@ export async function POST(req: Request) {
 
       // Create the JWT token with user data and payment details
       console.log("Creating JWT token for user:", finalUserId);
-      const token = sign(
-        {
-          userId: finalUserId,
-          paymentSuccess: true,
-          transactionId: finalMerchantOrderId,
-          // Add any other data you need
-        },
-        JWT_SECRET,
-        { expiresIn: "10m" }
-      );
-
+      
       // Prepare response data
       const responseDetails = {
         transactionId: finalMerchantOrderId,

@@ -9,7 +9,7 @@ import { doctor, doctorConsultation } from "../../../../../db/schema";
 // =======================
 // GET - Fetch Consultation Settings
 // =======================
-export async function GET(req: NextRequest) {
+export async function GET() {
   // Verify JWT token using the modularized function
   const decodedOrResponse = await verifyAuthToken();
 
