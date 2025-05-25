@@ -1,11 +1,11 @@
 import { extname } from "path";
 import { NextRequest, NextResponse } from "next/server";
-import * as fs from "fs"; 
+import * as fs from "fs";
 import path from "path";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import db from "../../../../db/db";
 import { verifyAuthToken } from "../../../lib/verify";
-import { doctor, clinic } from "../../../../db/schema";
+import { doctor, clinic, plans } from "../../../../db/schema";
 
 export async function GET(req: NextRequest) {
   // Verify JWT token
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
   try {
     // Find the doctor's record
     const doctorData = await db
-      .select({ id: doctor.id })
+      .select({ id: doctor.id, planId: doctor.planId })
       .from(doctor)
       .where(eq(doctor.userId, numericUserId));
 
@@ -112,11 +112,19 @@ export async function POST(req: NextRequest) {
     }
 
     const requiredDoctorId = doctorData[0].id;
+    const requiredDoctorPlanId = doctorData[0].planId;
+
+    if (requiredDoctorPlanId === null) {
+      return NextResponse.json(
+        { error: "Doctor's planId is missing." },
+        { status: 400 }
+      );
+    }
+
     const baseUploadPath = path.join(process.cwd(), "private_uploads");
 
     // 1. Parse the form data
     const formData = await req.formData();
-    console.log("$$$$$$$$$$$$$$$$getting", formData.get("active"));
 
     // 2. Extract fields
     const id = formData.get("id") as string | null;
@@ -217,22 +225,44 @@ export async function POST(req: NextRequest) {
       // 7. Respond with the updated clinic
       return NextResponse.json(updatedClinic[0], { status: 200 });
     } else {
-      console.log("lol");
-      const newClinic = await db
-        .insert(clinic)
-        .values({
-          doctorId: requiredDoctorId,
-          name,
-          imageLink,
-          department,
-          appointmentLimit,
-          active,
-          address,
-        })
-        .returning();
+      const countResult = await db
+        .select({ count: count() })
+        .from(clinic)
+        .where(eq(clinic.doctorId, requiredDoctorId));
 
-      // 7. Respond with the newly created clinic
-      return NextResponse.json(newClinic[0], { status: 201 });
+      const totalClincsOfDoctor = countResult[0].count;
+
+      const currentPlan = await db
+        .select({ clinicLimit: plans.chamberLimit })
+        .from(plans)
+        .where(eq(plans.id, requiredDoctorPlanId));
+
+      const clinicLimit = currentPlan[0].clinicLimit;
+
+      if (clinicLimit > totalClincsOfDoctor) {
+        const newClinic = await db
+          .insert(clinic)
+          .values({
+            doctorId: requiredDoctorId,
+            name,
+            imageLink,
+            department,
+            appointmentLimit,
+            active,
+            address,
+          })
+          .returning();
+
+        // 7. Respond with the newly created clinic
+        return NextResponse.json(newClinic[0], { status: 201 });
+      } else {
+        return NextResponse.json(
+          {
+            error: `You have reached the maximum number of clinics (${clinicLimit}) allowed by your current plan.`,
+          },
+          { status: 403 }
+        );
+      }
     }
   } catch (error: unknown) {
     console.error("Error creating clinic:", error);
@@ -247,7 +277,6 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-
   // Verify JWT token
   const decodedOrResponse = await verifyAuthToken();
   if (decodedOrResponse instanceof NextResponse) return decodedOrResponse;

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq, or, sql } from "drizzle-orm";
+import { count, eq, or, sql } from "drizzle-orm";
 import {
   doctor,
   users,
@@ -7,6 +7,7 @@ import {
   clinic,
   staffPermissions,
   permissionTypes,
+  plans,
 } from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
@@ -165,18 +166,23 @@ export async function GET(req: NextRequest) {
 // =======================
 // POST - Create - Staff
 // =======================
+
 export async function POST(req: NextRequest) {
+  console.log("POST /api/doctor/staff - Request received");
+
   try {
     // Get doctor ID from URL
     const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
 
     // Verify JWT token
+    console.log("Verifying JWT token...");
     const decodedOrResponse = await verifyAuthToken();
     if (decodedOrResponse instanceof NextResponse) {
       return decodedOrResponse;
     }
     const decoded = decodedOrResponse;
     const userId = Number(decoded.userId);
+    console.log(`JWT token verified. User ID: ${userId}`);
 
     // Check if the requested ID matches the authenticated user's ID
     if (String(userId) !== userIdFromUrl) {
@@ -188,12 +194,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Fetch doctor information to ensure the requesting user is the correct doctor
+
+    console.log(`Workspaceing doctor profile for userId: ${userId}...`);
     const doctorData = await db
       .select()
       .from(doctor)
       .where(eq(doctor.userId, userId));
 
     if (!doctorData.length) {
+      console.warn(`Doctor profile not found for userId: ${userId}`);
       return NextResponse.json(
         { error: "Doctor profile not found for this user." },
         { status: 404 }
@@ -201,9 +210,86 @@ export async function POST(req: NextRequest) {
     }
 
     const requiredDoctorId = doctorData[0].id;
+    const requiredDoctorPlanId = doctorData[0].planId;
     const baseUploadPath = path.join(process.cwd(), "private_uploads");
 
+    //////
+    console.log(
+      `Doctor profile found. Doctor ID: ${requiredDoctorId}, Plan ID: ${requiredDoctorPlanId}`
+    );
+
+    console.log(`Counting total staff for doctor ID: ${requiredDoctorId}...`);
+
+    const countResult = await db
+
+      .select({ count: count() })
+
+      .from(staff)
+
+      .where(eq(staff.doctorId, requiredDoctorId));
+
+    const totalStaffOfDoctor = countResult[0].count;
+
+    console.log(`Total staff for doctor: ${totalStaffOfDoctor}`);
+
+    // Check if doctor has a plan before querying
+
+    if (!requiredDoctorPlanId) {
+      console.warn(`No plan assigned to doctor ID: ${requiredDoctorId}`);
+
+      return NextResponse.json(
+        { error: "No plan assigned to doctor." },
+
+        { status: 403 }
+      );
+    }
+
+    console.log(
+      `Workspaceing plan details for plan ID: ${requiredDoctorPlanId}...`
+    );
+
+    const currentPlan = await db
+
+      .select({ staffLimit: plans.staffLimit })
+
+      .from(plans)
+
+      .where(eq(plans.id, requiredDoctorPlanId));
+
+    if (!currentPlan.length) {
+      console.warn(`Plan not found for plan ID: ${requiredDoctorPlanId}`);
+
+      return NextResponse.json(
+        { error: "Plan not found." },
+
+        { status: 404 }
+      );
+    }
+
+    const staffLimit = currentPlan[0].staffLimit;
+
+    console.log(`Current plan staff limit: ${staffLimit}`);
+
+    // Fix: Check if current staff count has reached or exceeded the limit
+
+    if (totalStaffOfDoctor >= staffLimit) {
+      console.warn(
+        `Staff limit reached for doctor ID: ${requiredDoctorId}. Current staff: ${totalStaffOfDoctor}, Limit: ${staffLimit}`
+      );
+
+      return NextResponse.json(
+        {
+          error: `You have reached the maximum number of staff (${staffLimit}) allowed by your current plan.`,
+        },
+
+        { status: 403 }
+      );
+    }
+    /////
+
     // 1. Parse the form data
+
+    console.log("Parsing form data...");
     const formData = await req.formData();
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
@@ -219,6 +305,7 @@ export async function POST(req: NextRequest) {
     let imageLink: string | null = null;
 
     if (imageFile) {
+      console.log(`Image file detected: ${imageFile.name}`);
       // Safely get the filename
       const originalFileName = imageFile.name;
       const fileExtension = extname(originalFileName || "") || ".png";
@@ -226,17 +313,24 @@ export async function POST(req: NextRequest) {
       const uniqueFilename = `${safeName}${fileExtension}`;
       const uploadDir = path.join(baseUploadPath, "staff", String(userId));
       const uploadPath = path.join(uploadDir, uniqueFilename);
+      console.log(`Image upload path: ${uploadPath}`);
 
       // Ensure directory exists
       if (!fs.existsSync(uploadDir)) {
+         console.log(`Creating upload directory: ${uploadDir}`);
         fs.mkdirSync(uploadDir, { recursive: true });
       }
 
       // Convert Blob to Buffer
+        console.log("Converting image Blob to Buffer...");
       const buffer = await blobToBuffer(imageFile);
 
       // Write the file using the standard fs.writeFileSync
+      console.log("Writing image file to disk...");
+
       fs.writeFileSync(uploadPath, buffer);
+
+      console.log("Image file written successfully.");
 
       imageLink = `/api/doctor/staff/image/${userId}/${uniqueFilename}`;
     }

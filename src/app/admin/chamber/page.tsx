@@ -34,6 +34,8 @@ const ClinicList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingClinic, setEditingClinic] = useState<Clinic | null>(null);
+  // New state for toast message
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchClinics = async () => {
@@ -52,7 +54,6 @@ const ClinicList = () => {
           console.log(data);
           setClinicsData(data);
         } catch (err: unknown) {
-          // After
           console.error("Error fetching clinics:", err);
           if (err instanceof Error) {
             setError(err.message);
@@ -66,6 +67,16 @@ const ClinicList = () => {
     fetchClinics();
   }, [userId]);
 
+  // Effect to manage toast message visibility
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => {
+        setToastMessage(null);
+      }, 3000); // Hide toast after 3 seconds
+      return () => clearTimeout(timer); // Cleanup the timer
+    }
+  }, [toastMessage]);
+
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
@@ -76,9 +87,15 @@ const ClinicList = () => {
     setShowForm(true);
   };
 
-  const handleCloseForm = () => {
+  const handleCloseForm = (success: boolean = false, message: string | null = null) => {
     setShowForm(false);
     setEditingClinic(null);
+    if (success) {
+      fetchClinics(); // Refetch clinics if an action was successful
+    }
+    if (message) {
+      setToastMessage(message); // Display the toast message
+    }
   };
 
   const handleDeleteClick = async (clinicId: number) => {
@@ -103,8 +120,8 @@ const ClinicList = () => {
 
         if (response.ok) {
           console.log(`Clinic with ID ${clinicId} deleted successfully!`);
-          // Refetch the clinic list to update the UI
-          fetchClinics();
+          setToastMessage("Clinic deleted successfully!"); // Show success toast
+          fetchClinics(); // Refetch the clinic list to update the UI
         } else {
           const errorData = await response.json();
           console.error(
@@ -112,6 +129,7 @@ const ClinicList = () => {
             errorData
           );
           setError(errorData.message || `Failed to delete clinic.`);
+          setToastMessage(errorData.error || errorData.message || "Failed to delete clinic."); // Show error toast
         }
       } catch (error: unknown) {
         console.error("An error occurred while deleting the clinic:", error);
@@ -120,6 +138,7 @@ const ClinicList = () => {
           errorMessage = error.message || errorMessage;
         }
         setError(errorMessage);
+        setToastMessage(errorMessage); // Show error toast
       }
     }
   };
@@ -187,6 +206,13 @@ const ClinicList = () => {
       )}
       {error && <p className="text-red-500 mt-2">{error}</p>}
       {loading && <p>Loading clinics...</p>}
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 };
@@ -348,7 +374,7 @@ const ClinicTable = ({ clinics, onEdit, onDelete }: ClinicTableProps) => {
 };
 
 interface ClinicFormProps {
-  onClose: () => void;
+  onClose: (success: boolean, message: string | null) => void; // Modified onClose
   userId: string | null;
   editClinic: Clinic | null;
 }
@@ -427,8 +453,6 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
     setUploadError(null);
 
     const apiUrl = `/api/doctor/clinic/`; // Endpoint is the same
-    const method = "POST";
-
     const form = new FormData();
     if (formData.logo) {
       form.append("logo", formData.logo);
@@ -445,7 +469,7 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
 
     try {
       const response = await fetch(apiUrl, {
-        method: method,
+        method: "POST",
         body: form,
       });
 
@@ -453,19 +477,15 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
         console.log(
           `Clinic data ${formData.id ? "updated" : "submitted"} successfully!`
         );
-        onClose();
-        // Optionally, you might want to trigger a refetch of the clinic list here
-        window.location.reload(); // Simple way to refresh the data
+        onClose(true, `Clinic data ${formData.id ? "updated" : "submitted"} successfully!`); // Pass success and message
       } else {
         const errorData = await response.json();
-        console.error(
-          `Failed to ${formData.id ? "update" : "submit"} clinic data:`,
-          errorData
-        );
+       
         setUploadError(
-          errorData.message ||
+          errorData.error || errorData.message || // Use errorData.error if available
             `Failed to ${formData.id ? "update" : "submit"} clinic data.`
         );
+        onClose(false, errorData.error || errorData.message || "Failed to save clinic."); // Pass error message to toast
       }
     } catch (error: unknown) {
       console.error("An error occurred while submitting:", error);
@@ -474,6 +494,7 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
         errorMessage = error.message || errorMessage;
       }
       setUploadError(errorMessage);
+      onClose(false, errorMessage); // Pass error message to toast
     } finally {
       setUploading(false);
     }
@@ -587,7 +608,7 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
           <button
             type="button"
             className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition w-1/2 mr-2"
-            onClick={onClose}
+            onClick={() => onClose(false, null)} // No success, no message on cancel
             disabled={uploading}
           >
             Cancel
