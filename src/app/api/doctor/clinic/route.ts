@@ -7,7 +7,7 @@ import db from "../../../../db/db";
 import { verifyAuthToken } from "../../../lib/verify";
 import { doctor, clinic, plans } from "../../../../db/schema";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   // Verify JWT token
   const decodedOrResponse = await verifyAuthToken();
   if (decodedOrResponse instanceof NextResponse) return decodedOrResponse;

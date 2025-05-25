@@ -36,7 +36,7 @@ export default function DoctorInfoModal() {
         const data = await res.json();
 
         const missing = Object.entries(data)
-          .filter(([_, value]) => value === true)
+          .filter(([, value]) => value === true)
           .map(([key]) => key);
 
         if (missing.length > 0) {

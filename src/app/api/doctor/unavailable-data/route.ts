@@ -1,5 +1,5 @@
 // \api\doctor\unavailable-data
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import {
   appointmentDays,
@@ -13,7 +13,7 @@ import {
 import db from "../../../../db/db";
 import { verifyAuthToken } from "../../../lib/verify";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   // Verify JWT token
   const decodedOrResponse = await verifyAuthToken();
   if (decodedOrResponse instanceof NextResponse) {
