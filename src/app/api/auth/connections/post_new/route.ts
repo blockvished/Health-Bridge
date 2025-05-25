@@ -14,8 +14,8 @@ import { db } from "../../../../../db/db";
 import path, { extname } from "path";
 import * as fs from "fs";
 import { v4 as uuidv4 } from "uuid";
-import { getAuthorURN, postUGC } from "./linkedin";
-import { postTweet } from "./twit";
+import { getAuthorURN, postUGC } from "../../../../../../scripts/linkedin";
+import { postTweet } from "../../../../../../scripts/twit";
 
 // Define the post status type to match the enum
 type PostStatus = (typeof postStatusEnum.enumValues)[number];
