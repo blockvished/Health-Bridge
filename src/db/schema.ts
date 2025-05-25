@@ -237,7 +237,7 @@ export const socialConnections = pgTable("social_connections", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  provider: text("provider").notNull().unique(), // e.g., "twitter"
+  provider: text("provider").notNull(), // Remove .unique() from here
   accountName: text("account_name"),
   accessToken: text("access_token").notNull(),
   refreshToken: text("refresh_token"),
@@ -245,7 +245,10 @@ export const socialConnections = pgTable("social_connections", {
   autoposting: boolean("autoposting").default(false),
   disconnected: boolean("disconnected").default(false),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => ({
+  // Add composite unique constraint instead
+  uniqueUserProvider: unique().on(table.userId, table.provider),
+}));
 
 // Posts table
 export const posts = pgTable("posts", {

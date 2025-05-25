@@ -43,7 +43,7 @@ const handler = NextAuth({
       },
     }),
     GoogleProvider({
-      id: "google-business",
+      id: "googleBusiness", // Custom ID (important)
       name: "Google Business",
       clientId: process.env.GOOGLE_BUSINESS_CLIENT_ID,
       clientSecret: process.env.GOOGLE_BUSINESS_CLIENT_SECRET,
@@ -57,6 +57,11 @@ const handler = NextAuth({
       },
     }),
 
+    InstagramProvider({
+      clientId: process.env.INSTAGRAM_CLIENT_ID,
+      clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
+    }),
+
     FacebookProvider({
       clientId: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
@@ -65,11 +70,6 @@ const handler = NextAuth({
           scope: ["pages_show_list"].join(","),
         },
       },
-    }),
-
-    InstagramProvider({
-      clientId: process.env.INSTAGRAM_CLIENT_ID,
-      clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
     }),
   ],
   callbacks: {
