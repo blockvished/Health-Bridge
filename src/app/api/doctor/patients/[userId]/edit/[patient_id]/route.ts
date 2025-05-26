@@ -89,7 +89,7 @@ export async function PUT(req: NextRequest) {
     } = reqBody;
 
     // Validate required fields
-    if (!name || !email || !phone) {
+    if (!name || !phone) {
       return NextResponse.json(
         { error: "Missing required fields." },
         { status: 400 }

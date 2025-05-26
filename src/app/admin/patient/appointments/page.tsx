@@ -45,6 +45,9 @@ export default function AppointmentsList() {
   const [consultationLinks, setConsultationLinks] = useState<{
     [appointmentId: number]: string | null;
   }>({});
+  const [paymentLoading, setPaymentLoading] = useState<{
+    [appointmentId: number]: boolean;
+  }>({});
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -134,6 +137,49 @@ export default function AppointmentsList() {
     }
   }, [appointments, loading]);
 
+  // Payment handler function
+  const handlePayment = async (appointment: Appointment) => {
+    setPaymentLoading(prev => ({
+      ...prev,
+      [appointment.appointmentId]: true
+    }));
+
+    try {
+      const data = {
+        amount: appointment.amount,
+        appointmentId: appointment.appointmentId,
+      };
+
+      console.log("Payment data:", data);
+
+      const response = await fetch(`/api/order-patient/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const responseData = await response.json();
+      console.log(responseData);
+
+      // Redirect user to PhonePe payment page
+      if (responseData && responseData.checkoutPageUrl) {
+        window.location.href = responseData.checkoutPageUrl;
+      } else {
+        alert("Failed to initiate payment. Please try again.");
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Error initiating payment. Please try again.");
+    } finally {
+      setPaymentLoading(prev => ({
+        ...prev,
+        [appointment.appointmentId]: false
+      }));
+    }
+  };
+
   // Function to format date in required format (e.g. "01 Apr 2025")
   const formatDate = (dateString: string): string => {
     if (!dateString) return "N/A";
@@ -204,6 +250,23 @@ export default function AppointmentsList() {
     if (
       appointment.paymentStatus !== "true" &&
       appointment.paymentStatus !== true
+    ) {
+      return false;
+    }
+
+    return true;
+  };
+
+  // Function to check if payment button should be displayed
+  const shouldShowPaymentButton = (appointment: Appointment): boolean => {
+    // Only show payment button for online consultations that are not paid yet
+    if (!appointment.mode || appointment.mode.toLowerCase() !== "online") {
+      return false;
+    }
+
+    if (
+      appointment.paymentStatus === "true" ||
+      appointment.paymentStatus === true
     ) {
       return false;
     }
@@ -298,7 +361,9 @@ export default function AppointmentsList() {
                     {appointment.mode?.toLowerCase() === "offline" && (
                       <span className="text-xs text-gray-500">N/A offline</span>
                     )}
-                    {shouldShowJoinButton(appointment) ? (
+                    
+                    {/* Join Button for paid online appointments */}
+                    {shouldShowJoinButton(appointment) && (
                       <Link
                         href={
                           consultationLinks[appointment.appointmentId] || "#"
@@ -313,15 +378,30 @@ export default function AppointmentsList() {
                           <Video size={14} className="mr-1" /> Join
                         </button>
                       </Link>
-                    ) : (
-                      appointment.mode?.toLowerCase() === "online" && (
-                        <span className="text-xs text-gray-500">
-                          {appointment.paymentStatus === true ||
-                          appointment.paymentStatus === "true"
-                            ? "Waiting to join"
-                            : "Pay to join"}
-                        </span>
-                      )
+                    )}
+
+                    {/* Payment Button for unpaid online appointments */}
+                    {shouldShowPaymentButton(appointment) && (
+                      <button
+                        onClick={() => handlePayment(appointment)}
+                        disabled={paymentLoading[appointment.appointmentId]}
+                        className="bg-green-500 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-2 px-3 rounded-md text-xs flex items-center gap-1"
+                      >
+                        {paymentLoading[appointment.appointmentId] ? (
+                          "Processing..."
+                        ) : (
+                          "Pay to Join"
+                        )}
+                      </button>
+                    )}
+
+                    {/* Waiting message for paid online appointments without consultation link */}
+                    {appointment.mode?.toLowerCase() === "online" && 
+                     (appointment.paymentStatus === true || appointment.paymentStatus === "true") &&
+                     !consultationLinks[appointment.appointmentId] && (
+                      <span className="text-xs text-gray-500">
+                        Waiting to join
+                      </span>
                     )}
                   </td>
                 </tr>
