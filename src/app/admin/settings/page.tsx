@@ -9,30 +9,19 @@ import {
   List,
 } from "lucide-react";
 
-import TrialSettings from "./TrialSettings";
-import Payments from "./Payments";
-import PreferencesSettings from "./PreferencesSettings";
 import ZoomSettings from "./ZoomSettings";
 import Email from "./EmailSettings";
-import ReCaptchaV2Settings from "./RecaptchaV2";
-import SocialSettings from "./SocialSettingsForm";
 import DoctorVerificationForm from "./DoctorVerificationForm";
-import TwilioSmsSettings from "./TwilioSmsSettings";
+
 
 const tabs = [
-  { id: "trial", label: "Trial Settings", icon: Settings },
-  { id: "payments", label: "Payment Settings", icon: Globe },
-  { id: "preferences", label: "Preferences", icon: Paintbrush },
   { id: "zoom", label: "Zoom Settings", icon: Globe },
   { id: "email", label: "Email Settings", icon: MessageCircle },
-  { id: "recaptcha", label: "reCAPTCHA V2 Settings", icon: Shield },
-  { id: "social", label: "Social Settings", icon: List },
   { id: "doctors", label: "Doctors Verification", icon: Shield }, 
-  { id: "twilio", label: "Twilio Sms Settings", icon: Globe },
 ];
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("trial");
+  const [activeTab, setActiveTab] = useState("zoom");
 
   return (
     <div className="bg-white rounded-lg shadow-md bg-gray-50 p-4 m-4">
@@ -59,15 +48,10 @@ export default function SettingsPage() {
           </nav>
         </aside>
         <main className="md:w-3/4 bg-white p-6 rounded-md shadow-sm">
-          {activeTab === "trial" && <TrialSettings />}
-          {activeTab === "payments" && <Payments />}
-          {activeTab === "preferences" && <PreferencesSettings />}
           {activeTab === "zoom" && <ZoomSettings />}
           {activeTab === "email" && <Email />}
-          {activeTab === "recaptcha" && <ReCaptchaV2Settings />}
-          {activeTab === "social" && <SocialSettings />}
           {activeTab === "doctors" && <DoctorVerificationForm />}
-          {activeTab === "twilio" && <TwilioSmsSettings />}
+
         </main>
       </div>
     </div>

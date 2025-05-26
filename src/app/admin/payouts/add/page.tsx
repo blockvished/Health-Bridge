@@ -32,7 +32,7 @@ const PayoutForm = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Users <span className="text-red-500">*</span>
+            Doctors <span className="text-red-500">*</span>
           </label>
           <Select 
             value={selectedUser} 

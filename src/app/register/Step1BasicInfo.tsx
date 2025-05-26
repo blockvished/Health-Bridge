@@ -2,6 +2,7 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import React, { useState, useEffect, ChangeEvent } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 
 interface Step1BasicInfoProps {
   fullName: string;
@@ -58,6 +59,7 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   const [isEmailValid, setIsEmailValid] = useState<boolean>(false);
   const [existingAccount, setExistingAccount] = useState<boolean>(false);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   // Email validation function
   const validateEmail = (email: string): boolean => {
@@ -99,7 +101,15 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
   };
 
   const handleSendEmailOTP = async (): Promise<void> => {
-    if (!isEmailValid) return;
+    if (!isEmailValid) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!recaptchaToken) {
+      setEmailError("Please complete the reCAPTCHA verification.");
+      return;
+    }
 
     setLoadingEmailOTP(true);
     setEmailError(null);
@@ -110,21 +120,19 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, recaptchaToken }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
         setEmailOtpSent(true);
-        console.log("Email OTP sent successfully");
       } else {
-        setEmailError(data.message || "Failed to send OTP. Please try again.");
-        console.error("Failed to send email OTP:", data.message);
+        setEmailError(data.message || "Failed to send OTP.");
       }
     } catch (error) {
-      console.error("Error sending email OTP:", error);
-      setEmailError("Network error. Please try again.");
+      console.error("Error:", error);
+      setEmailError("Network error.");
     } finally {
       setLoadingEmailOTP(false);
     }
@@ -422,6 +430,13 @@ const Step1BasicInfo: React.FC<Step1BasicInfoProps> = ({
           disabled={existingAccount}
         />
       </div>
+
+      <ReCAPTCHA
+        sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+        onChange={(token) => setRecaptchaToken(token)}
+        theme="light" // or "dark"
+        className="mt-4"
+      />
 
       <div className="flex justify-start pt-6">
         <button

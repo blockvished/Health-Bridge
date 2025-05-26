@@ -4,10 +4,30 @@ import { Resend } from "resend";
 import { db } from "../../../db/db";
 import { emailOtps } from "../../../db/schema"; // Import users table
 
+const verifyCaptcha = async (token: string) => {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `secret=${secret}&response=${token}`,
+  });
+
+  const data = await res.json();
+  return data.success;
+};
+
 export async function POST(req: Request) {
-  const { email } = await req.json();
+  const { email, recaptchaToken } = await req.json();
 
   console.log("Received email:", email);
+
+  const success = await verifyCaptcha(recaptchaToken);
+  if (!success) {
+    return NextResponse.json(
+      { success: false, message: "Failed CAPTCHA" },
+      { status: 400 }
+    );
+  }
 
   if (!email || !email.includes("@")) {
     return NextResponse.json(
