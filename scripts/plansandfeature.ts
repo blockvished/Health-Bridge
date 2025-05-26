@@ -1,4 +1,10 @@
-import { plans, planFeatures, permissionTypes, socialPlatforms } from "../src/db/schema";
+import {
+  plans,
+  planFeatures,
+  permissionTypes,
+  socialPlatforms,
+  doctorVerificationDocuments,
+} from "../src/db/schema";
 import { db } from "../src/db/db";
 
 const basicFeaturesList = [
@@ -152,13 +158,31 @@ async function seed() {
       });
     }
 
-    const socialPlatformsList  = ['twitter', 'facebook', 'linkedin', 'instagram', 'googleBusiness'];
+    const socialPlatformsList = [
+      "twitter",
+      "facebook",
+      "linkedin",
+      "instagram",
+      "googleBusiness",
+    ];
 
     for (const socialPlatformItem of socialPlatformsList) {
       await db.insert(socialPlatforms).values({
         name: socialPlatformItem,
       });
-    }   
+    }
+
+    const doctorVerficatoins = [
+      "State Medical Council Registration",
+      "NHA HPR Registration",
+      "IMR Registration",
+    ];
+
+    for (const item of doctorVerficatoins) {
+      await db.insert(doctorVerificationDocuments).values({
+        name: item,
+      });
+    }
 
     console.log("Seed completed successfully.");
   } catch (error) {

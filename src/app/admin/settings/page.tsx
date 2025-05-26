@@ -11,19 +11,17 @@ import {
 
 import ZoomSettings from "./ZoomSettings";
 import Email from "./EmailSettings";
-import ReCaptchaV2Settings from "./RecaptchaV2";
 import DoctorVerificationForm from "./DoctorVerificationForm";
 
 
 const tabs = [
   { id: "zoom", label: "Zoom Settings", icon: Globe },
   { id: "email", label: "Email Settings", icon: MessageCircle },
-  { id: "recaptcha", label: "reCAPTCHA V2 Settings", icon: Shield },  
   { id: "doctors", label: "Doctors Verification", icon: Shield }, 
 ];
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("trial");
+  const [activeTab, setActiveTab] = useState("zoom");
 
   return (
     <div className="bg-white rounded-lg shadow-md bg-gray-50 p-4 m-4">
@@ -52,7 +50,6 @@ export default function SettingsPage() {
         <main className="md:w-3/4 bg-white p-6 rounded-md shadow-sm">
           {activeTab === "zoom" && <ZoomSettings />}
           {activeTab === "email" && <Email />}
-          {activeTab === "recaptcha" && <ReCaptchaV2Settings />}
           {activeTab === "doctors" && <DoctorVerificationForm />}
 
         </main>

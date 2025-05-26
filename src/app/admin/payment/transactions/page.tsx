@@ -251,7 +251,6 @@ const Transactions: React.FC = () => {
               <th className="py-2">Status</th>
               <th className="py-2">Date</th>
               <th className="py-2">Expires</th>
-              <th className="py-2">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -300,11 +299,7 @@ const Transactions: React.FC = () => {
                       {new Date(transaction.expireAt).toLocaleDateString()}
                     </span>
                   </td>
-                  <td className="py-2">
-                    <button className="bg-green-100 text-green-700 rounded-lg p-1 text-xs hover:bg-green-200">
-                      View
-                    </button>
-                  </td>
+                
                 </tr>
               ))
             )}
