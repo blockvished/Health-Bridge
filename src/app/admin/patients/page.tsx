@@ -251,20 +251,19 @@ const PatientForm: React.FC<PatientFormProps> = ({
           required
         />
         <Input
-          label="Email *"
-          type="text"
-          name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <Input
           label="Phone *"
           type="number"
           name="phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           required
+        />
+        <Input
+          label="Email"
+          type="text"
+          name="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <Input
           label="Age"
@@ -416,17 +415,17 @@ const PatientsTable: React.FC<{
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
     setUserId(idFromCookie || null);
-  
+
     const fetchPatients = async () => {
       if (!userId) return;
-  
+
       setLoading(true);
       try {
         const response = await fetch(`/api/doctor/patients/${userId}`, {
           method: "GET",
           credentials: "include",
         });
-  
+
         if (response.ok) {
           const data = await response.json();
           if (data && data.Patients) {
@@ -447,7 +446,7 @@ const PatientsTable: React.FC<{
         setLoading(false);
       }
     };
-  
+
     if (userId) {
       fetchPatients();
     }

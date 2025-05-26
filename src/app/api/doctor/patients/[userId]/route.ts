@@ -133,14 +133,7 @@ export async function POST(req: NextRequest) {
     // Validate required fields
     if (
       !name ||
-      !phone ||
-      !email ||
-      !abha_id ||
-      !age ||
-      !height ||
-      !weight ||
-      !address ||
-      !gender
+      !phone
     ) {
       return NextResponse.json(
         { error: "Missing required fieldsKTJ." },
@@ -152,7 +145,7 @@ export async function POST(req: NextRequest) {
     const existingUsers = await db
       .select()
       .from(users)
-      .where(or(eq(users.email, email)));
+      .where(or(eq(users.phone, phone)));
 
     if (existingUsers.length > 0) {
       return NextResponse.json(
@@ -165,7 +158,7 @@ export async function POST(req: NextRequest) {
     const salt = randomBytes(16).toString("hex");
 
     // Hash the default password using argon2
-    const password = email // Better default password
+    const password = phone // Better default password
     const saltedPassword = salt + password
     const passwordHash = await hash(saltedPassword);
 
