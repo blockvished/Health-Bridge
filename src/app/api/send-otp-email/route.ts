@@ -2,8 +2,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { db } from "../../../db/db";
-import { emailOtps, users } from "../../../db/schema"; // Import users table
-import { eq } from "drizzle-orm";
+import { emailOtps } from "../../../db/schema"; // Import users table
 
 export async function POST(req: Request) {
   const { email } = await req.json();
@@ -16,29 +15,13 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
+  console.log("Sending OTP to email:", email);
+  const resend = new Resend(process.env.RESEND_API_KEY!);
+
+  const otp = Math.floor(100000 + Math.random() * 900000);
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
   try {
-    // Check if user exists in the database
-    const existingUser = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
-
-    if (existingUser.length === 0) {
-      return NextResponse.json(
-        { success: false, message: "User does not exist" },
-        { status: 404 }
-      );
-    }
-
-    console.log("User exists, sending OTP to email:", email);
-
-    const resend = new Resend(process.env.RESEND_API_KEY!);
-
-    const otp = Math.floor(100000 + Math.random() * 900000);
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
     const emailResponse = await resend.emails.send({
       from: "onboarding@resend.dev",
       to: email,
@@ -77,12 +60,11 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       message: "OTP sent and stored successfully",
-      existingUserId: existingUser[0].id
     });
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json(
-      { success: false, message: "Server error while processing request" },
+      { success: false, message: "Server error while sending OTP" },
       { status: 500 }
     );
   }

@@ -211,7 +211,7 @@ const ForgotPassword = () => {
     }
 
     try {
-      const response = await fetch("/api/send-otp-email", {
+      const response = await fetch("/api/forgot-password/send-otp-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -121,7 +121,7 @@ export async function POST(req: Request) {
 
       // Create the JWT token with user data and payment details
       console.log("Creating JWT token for user:", finalUserId);
-      
+
       // Prepare response data
       const responseDetails = {
         transactionId: finalMerchantOrderId,
@@ -153,6 +153,12 @@ export async function POST(req: Request) {
           timestamp: responseDetails.timestamp || Date.now(), // Fallback to current time if missing
           timestamp_date: timestampAsDate,
         });
+        let currentPlan;
+        if (responseDetails.amount > 20000) {
+          currentPlan = "yearly";
+        } else {
+          currentPlan = "monthly";
+        }
 
         await db
           .update(users)
@@ -180,9 +186,9 @@ export async function POST(req: Request) {
 
           const expireAt = new Date(timestampAsDate || new Date());
 
-          if (planType && planType.toLowerCase() === "monthly") {
+          if (currentPlan === "monthly") {
             expireAt.setDate(expireAt.getDate() + 30);
-          } else if (planType && planType.toLowerCase() === "yearly") {
+          } else if (currentPlan === "yearly") {
             expireAt.setDate(expireAt.getDate() + 365);
           }
 
@@ -191,6 +197,7 @@ export async function POST(req: Request) {
             .set({
               paymentStatus: true,
               paymentAt: timestampAsDate,
+              planType: currentPlan as "monthly" | "yearly",
               expireAt: expireAt,
               accountStatus: true,
               accountVerified: true,
@@ -204,8 +211,8 @@ export async function POST(req: Request) {
         const expiresAt = new Date();
         expiresAt.setMinutes(expiresAt.getMinutes() + 5);
 
-        resetTokenF = resetToken
-        expiresAtF = expiresAt
+        resetTokenF = resetToken;
+        expiresAtF = expiresAt;
 
         await db.insert(passwordResetTokens).values({
           token: resetToken, // You must provide this
