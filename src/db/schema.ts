@@ -213,8 +213,8 @@ export const transactions = pgTable("transactions", {
     .references(() => users.id), // Removed onDelete: "cascade"
   transactionId: varchar("transaction_id", { length: 255 }).notNull(),
   orderId: varchar("order_id", { length: 255 }).notNull(),
-  status: varchar("status", { length: 50 }).notNull(), // e.g., "COMPLETED", "PENDING", "FAILED"
-  amount: integer("amount").notNull(), // Amount in the smallest currency unit (e.g., paise for INR)
+  status: varchar("status", { length: 50 }).notNull(), 
+  amount: integer("amount").notNull(),
   paymentMode: varchar("payment_mode", { length: 50 }), // e.g., "NET_BANKING", "UPI", "CREDIT_CARD"
   // Use bigint to store the timestamp as a number (e.g., milliseconds since epoch)
   timestamp: bigint("timestamp", { mode: "number" }).notNull(), // Store as number in TS, but as bigint in DB
