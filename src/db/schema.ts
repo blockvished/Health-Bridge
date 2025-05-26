@@ -420,7 +420,7 @@ export const staff = pgTable("staff", {
     .notNull()
     .references(() => doctor.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
   imageLink: varchar("image_link", { length: 255 }),
   clinicId: integer("clinic_id").references(() => clinic.id, {
     onDelete: "set null",
