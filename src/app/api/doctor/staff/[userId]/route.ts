@@ -18,9 +18,6 @@ import * as fs from "fs";
 import path from "path";
 
 export async function DELETE(req: NextRequest) {
-  // Get doctor ID from URL
-  const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
-
   // Verify JWT token
   const decodedOrResponse = await verifyAuthToken();
   if (decodedOrResponse instanceof NextResponse) {
@@ -28,15 +25,6 @@ export async function DELETE(req: NextRequest) {
   }
   const decoded = decodedOrResponse;
   const userId = Number(decoded.userId);
-
-  // Check if the requested ID matches the authenticated user's ID
-  if (String(userId) !== userIdFromUrl) {
-    console.log("hsifhisf");
-    return NextResponse.json(
-      { error: "Forbidden: You don't have access to this profile" },
-      { status: 403 }
-    );
-  }
 
   // Fetch doctor information to ensure the requesting user is the correct doctor
   const doctorData = await db
@@ -85,9 +73,6 @@ export async function DELETE(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  // Get doctor ID from URL
-  const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
-
   // Verify JWT token
   const decodedOrResponse = await verifyAuthToken();
   if (decodedOrResponse instanceof NextResponse) {
@@ -95,15 +80,6 @@ export async function GET(req: NextRequest) {
   }
   const decoded = decodedOrResponse;
   const userId = Number(decoded.userId);
-
-  // Check if the requested ID matches the authenticated user's ID
-  if (String(userId) !== userIdFromUrl) {
-    console.log("hsifhisf");
-    return NextResponse.json(
-      { error: "Forbidden: You don't have access to this profile" },
-      { status: 403 }
-    );
-  }
 
   // Fetch doctor information to ensure the requesting user is the correct doctor
   const doctorData = await db
@@ -124,8 +100,8 @@ export async function GET(req: NextRequest) {
       .select({
         id: staff.id,
         name: staff.name,
-        email: staff.email,
         role: staff.role,
+        phone: staff.phone,
         imageLink: staff.imageLink,
         clinicId: clinic.id,
         clinicName: clinic.name,
@@ -144,7 +120,6 @@ export async function GET(req: NextRequest) {
       .groupBy(
         staff.id,
         staff.name,
-        staff.email,
         staff.role,
         staff.imageLink,
         clinic.id,
@@ -168,41 +143,21 @@ export async function GET(req: NextRequest) {
 // =======================
 
 export async function POST(req: NextRequest) {
-  console.log("POST /api/doctor/staff - Request received");
-
   try {
-    // Get doctor ID from URL
-    const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
-
-    // Verify JWT token
-    console.log("Verifying JWT token...");
     const decodedOrResponse = await verifyAuthToken();
     if (decodedOrResponse instanceof NextResponse) {
       return decodedOrResponse;
     }
     const decoded = decodedOrResponse;
     const userId = Number(decoded.userId);
-    console.log(`JWT token verified. User ID: ${userId}`);
-
-    // Check if the requested ID matches the authenticated user's ID
-    if (String(userId) !== userIdFromUrl) {
-      console.log("hsifhisf");
-      return NextResponse.json(
-        { error: "Forbidden: You don't have access to this profile" },
-        { status: 403 }
-      );
-    }
 
     // Fetch doctor information to ensure the requesting user is the correct doctor
-
-    console.log(`Workspaceing doctor profile for userId: ${userId}...`);
     const doctorData = await db
       .select()
       .from(doctor)
       .where(eq(doctor.userId, userId));
 
     if (!doctorData.length) {
-      console.warn(`Doctor profile not found for userId: ${userId}`);
       return NextResponse.json(
         { error: "Doctor profile not found for this user." },
         { status: 404 }
@@ -214,64 +169,35 @@ export async function POST(req: NextRequest) {
     const baseUploadPath = path.join(process.cwd(), "private_uploads");
 
     //////
-    console.log(
-      `Doctor profile found. Doctor ID: ${requiredDoctorId}, Plan ID: ${requiredDoctorPlanId}`
-    );
-
-    console.log(`Counting total staff for doctor ID: ${requiredDoctorId}...`);
-
     const countResult = await db
-
       .select({ count: count() })
-
       .from(staff)
-
       .where(eq(staff.doctorId, requiredDoctorId));
 
     const totalStaffOfDoctor = countResult[0].count;
 
     console.log(`Total staff for doctor: ${totalStaffOfDoctor}`);
 
-    // Check if doctor has a plan before querying
-
     if (!requiredDoctorPlanId) {
-      console.warn(`No plan assigned to doctor ID: ${requiredDoctorId}`);
-
       return NextResponse.json(
         { error: "No plan assigned to doctor." },
-
         { status: 403 }
       );
     }
 
-    console.log(
-      `Workspaceing plan details for plan ID: ${requiredDoctorPlanId}...`
-    );
-
     const currentPlan = await db
-
       .select({ staffLimit: plans.staffLimit })
-
       .from(plans)
-
       .where(eq(plans.id, requiredDoctorPlanId));
 
     if (!currentPlan.length) {
-      console.warn(`Plan not found for plan ID: ${requiredDoctorPlanId}`);
-
       return NextResponse.json(
         { error: "Plan not found." },
-
         { status: 404 }
       );
     }
 
     const staffLimit = currentPlan[0].staffLimit;
-
-    console.log(`Current plan staff limit: ${staffLimit}`);
-
-    // Fix: Check if current staff count has reached or exceeded the limit
-
     if (totalStaffOfDoctor >= staffLimit) {
       console.warn(
         `Staff limit reached for doctor ID: ${requiredDoctorId}. Current staff: ${totalStaffOfDoctor}, Limit: ${staffLimit}`
@@ -281,18 +207,15 @@ export async function POST(req: NextRequest) {
         {
           error: `You have reached the maximum number of staff (${staffLimit}) allowed by your current plan.`,
         },
-
         { status: 403 }
       );
     }
     /////
 
     // 1. Parse the form data
-
-    console.log("Parsing form data...");
     const formData = await req.formData();
     const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
+    const phone = formData.get("phone") as string;
     const clinicId = formData.get("clinicId") as string;
     const role = formData.get("role") as string;
 
@@ -317,12 +240,12 @@ export async function POST(req: NextRequest) {
 
       // Ensure directory exists
       if (!fs.existsSync(uploadDir)) {
-         console.log(`Creating upload directory: ${uploadDir}`);
+        console.log(`Creating upload directory: ${uploadDir}`);
         fs.mkdirSync(uploadDir, { recursive: true });
       }
 
       // Convert Blob to Buffer
-        console.log("Converting image Blob to Buffer...");
+      console.log("Converting image Blob to Buffer...");
       const buffer = await blobToBuffer(imageFile);
 
       // Write the file using the standard fs.writeFileSync
@@ -336,9 +259,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate required fields
-    if (!name || !email) {
+    if (!name || !phone) {
       return NextResponse.json(
-        { error: "Missing required fieldsKTJ." },
+        { error: "Missing required fields." },
         { status: 400 }
       );
     }
@@ -347,7 +270,7 @@ export async function POST(req: NextRequest) {
     const existingUsers = await db
       .select()
       .from(users)
-      .where(or(eq(users.email, email)));
+      .where(or(eq(users.phone, phone)));
 
     if (existingUsers.length > 0) {
       return NextResponse.json(
@@ -363,14 +286,11 @@ export async function POST(req: NextRequest) {
     const saltedPassword = salt + password;
     const passwordHash = await hash(saltedPassword);
 
-    const phone = randomBytes(16).toString("hex"); // fix in future
-
     // Create the new user
     const [newUser] = await db
       .insert(users)
       .values({
         name,
-        email,
         phone: phone,
         password_hash: passwordHash,
         salt: salt,
@@ -392,7 +312,7 @@ export async function POST(req: NextRequest) {
         userId: newUser.id,
         doctorId: requiredDoctorId,
         name: name,
-        email: email,
+        phone: phone,
         imageLink: imageLink,
         clinicId: clinicId ? Number(clinicId) : null,
         role,

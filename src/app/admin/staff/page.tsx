@@ -8,7 +8,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 type StaffMember = {
   id: number;
   name: string;
-  email: string;
+  phone: string; // Changed from Number to string
   role: string;
   imageLink?: string;
   clinicId: string;
@@ -59,7 +59,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
   const [formData, setFormData] = useState({
     name: initialStaffData?.name || "",
     role: initialStaffData?.role || "",
-    email: initialStaffData?.email || "",
+    phone: initialStaffData?.phone || "", // Changed to string with default empty string
     password: "", // Password should be empty for edit unless they want to change it
     clinicId: initialStaffData?.clinicId || "",
   });
@@ -72,14 +72,22 @@ const StaffForm: React.FC<StaffFormProps> = ({
 
   useEffect(() => {
     if (initialStaffData) {
+      // Simplified phone processing - handle all falsy values and string "null"
+      const processedPhone =
+        initialStaffData.phone &&
+        initialStaffData.phone !== "null" &&
+        String(initialStaffData.phone).trim() !== ""
+          ? String(initialStaffData.phone).trim()
+          : "";
+
       setFormData({
         name: initialStaffData.name || "",
         role: initialStaffData.role || "",
-        email: initialStaffData.email || "",
-        password: "", // Always reset password field
+        phone: processedPhone,
+        password: "", // Password remains empty unless changing
         clinicId: initialStaffData.clinicId || "",
       });
-      console.log(initialStaffData);
+
       setPermissions(initialStaffData.permissionIds || []);
       setImagePreview(initialStaffData.imageLink || null);
     }
@@ -102,7 +110,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === "email" ? value.toLowerCase() : value,
+      [name]: value,
     });
   };
 
@@ -126,7 +134,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
     try {
       const submitData = new FormData();
       submitData.append("name", formData.name);
-      submitData.append("email", formData.email);
+      submitData.append("phone", formData.phone); // Now it's a string
       submitData.append("role", formData.role);
       submitData.append("clinicId", formData.clinicId);
       submitData.append("permissions", JSON.stringify(permissions));
@@ -292,30 +300,33 @@ const StaffForm: React.FC<StaffFormProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Email (Username) <span className="text-red-500">*</span>
+            Phone <span className="text-red-500">*</span>
           </label>
           <input
-            type="email"
-            name="email"
-            value={formData.email}
+            type="tel" // Changed from "phone" to "tel" for better semantics
+            name="phone"
+            value={formData.phone}
             onChange={handleInputChange}
             required
             className="w-full p-3 border border-gray-300 rounded-lg"
           />
         </div>
 
-        <div className="relative flex items-center">
+        <div className="relative">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Password
+          </label>
           <input
             type={showPassword ? "text" : "password"}
             name="password"
             value={formData.password}
             onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-lg"
+            className="w-full p-3 border border-gray-300 rounded-lg pr-10" // Added right padding for icon
             {...(!initialStaffData?.id && { required: true })}
           />
           <button
             type="button"
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 cursor-pointer top-8" // Added top-8 to account for label
             onClick={togglePasswordVisibility}
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
@@ -609,7 +620,7 @@ const StaffPage: React.FC = () => {
                           {staff.clinicName}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {staff.email}
+                          {staff.phone}
                         </div>
                         <div className="text-sm text-gray-500">
                           {staff.role}
