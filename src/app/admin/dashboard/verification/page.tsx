@@ -138,7 +138,11 @@ export default function DoctorVerification() {
       </h2>
 
       <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-        <h3 className="text-lg font-medium mb-2">Required Documents</h3>
+        <h3 className="text-lg font-medium mb-2">Required Documents.</h3>
+        <span className="text-sm text-gray-600">
+          {`If you've already uploaded the documents then please wait as admin will verify and update.`}
+        </span>
+
         {loading ? (
           <p className="text-gray-500">Loading...</p>
         ) : (
@@ -161,6 +165,9 @@ export default function DoctorVerification() {
           </span>
           <span className="text-sm text-gray-400">
             You can upload multiple files
+          </span>
+          <span className="text-sm text-gray-600">
+            Please upload only PDF or image files
           </span>
           <input
             id="file-upload"
