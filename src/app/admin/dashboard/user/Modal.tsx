@@ -7,6 +7,7 @@ import { ChevronRight, AlertCircle } from "lucide-react";
 
 // Link mapping
 const UNAVAILABLE_DATA_LINKS: Record<string, string> = {
+  doctorVerificationPage: "admin/dashboard/verification",
   doctorInfoPage: "/admin/profile",
   doctorEduPage: "/admin/educations",
   doctorExpPage: "/admin/experiences",
@@ -17,6 +18,7 @@ const UNAVAILABLE_DATA_LINKS: Record<string, string> = {
 
 // Label mapping
 const UNAVAILABLE_DATA_LABELS: Record<string, string> = {
+  doctorVerificationPage: "Verify your account",
   doctorInfoPage: "Update Doctor Information",
   doctorEduPage: "Update educations",
   doctorExpPage: "Update experiences",

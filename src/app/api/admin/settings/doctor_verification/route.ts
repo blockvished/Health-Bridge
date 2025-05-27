@@ -1,4 +1,3 @@
-// app/api/doctorverification/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '../../../../../db/db'; // Adjust import path to your database connection
 import { doctorVerificationDocuments } from '../../../../../db/schema'; // Adjust import path to your schema
@@ -6,9 +5,7 @@ import { eq } from 'drizzle-orm';
 
 // GET - Fetch all doctor verification documents
 export async function GET() {
-  try {
-    console.log('GET /api/doctor_verification - Fetching documents');
-    
+  try {    
     const documents = await db
       .select()
       .from(doctorVerificationDocuments)
@@ -28,9 +25,7 @@ export async function GET() {
 
 // PUT - Bulk update/create documents
 export async function PUT(request: NextRequest) {
-  try {
-    console.log('PUT /api/admin/settings/doctor_verification - Bulk update/create');
-    
+  try {    
     const body = await request.json();
     const { documents } = body;
 
@@ -118,9 +113,7 @@ export async function PUT(request: NextRequest) {
 
 // POST - Create a single new document
 export async function POST(request: NextRequest) {
-  try {
-    console.log('POST /api/admin/settings/doctor_verification - Create document');
-    
+  try {    
     const body = await request.json();
     const { name } = body;
 

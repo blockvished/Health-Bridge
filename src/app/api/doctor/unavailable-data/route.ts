@@ -31,6 +31,10 @@ export async function GET() {
   const requiredDoctorId = doctorData[0].id;
 
   let doctorInfoPage = false;
+  let doctorVerificationPage = false;
+  if (doctorData[0].accountVerified === false) {
+    doctorVerificationPage = true;
+  }
 
   const doctor_name = doctorData[0].name;
   const doctor_email = doctorData[0].email;
@@ -171,6 +175,7 @@ export async function GET() {
   } 
   try {
     return NextResponse.json({
+      doctorVerificationPage: doctorVerificationPage,
       doctorInfoPage: doctorInfoPage,
       doctorEduPage: doctorEduPage,
       doctorExpPage: doctorExpPage,

@@ -1,8 +1,7 @@
 import { AiFillSetting } from "react-icons/ai";
 import { RiFileListFill } from "react-icons/ri";
 import { FaListUl, FaCog } from "react-icons/fa";
-import { FiBarChart2 } from "react-icons/fi";
-
+import { FiBarChart2, FiFileText } from "react-icons/fi";
 import {
   FaUserMd,
   FaUsers,
@@ -43,7 +42,8 @@ export const menuItemsDoctor: MenuItem[] = [
   {
     name: "Settings",
     svg: <AiFillSetting />,
-    dropdown: [
+    dropdown: [      
+      { name: "Verification", link: "/admin/dashboard/verification", svg: <FiFileText /> },
       { name: "Departments", link: "/admin/department", svg: <FaBuilding /> },
       {
         name: "Set Schedule",

@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -18,8 +18,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { CheckCircle, Loader2 } from 'lucide-react';
+} from "@/components/ui/table";
+import { CheckCircle, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 interface User {
   id: number;
@@ -28,44 +29,46 @@ interface User {
   phone: string;
   verified: boolean;
   paymentStatus: boolean;
-  accountStatus: boolean;
   image_link: string | null;
   planId: number;
   planName: string;
   createdAt: string;
+  expireAt: string;
 }
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const [sortByPackage, setSortByPackage] = useState('');
-  const [sortByStatus, setSortByStatus] = useState('');
-  const [searchName, setSearchName] = useState('');
+
+  const [sortByPackage, setSortByPackage] = useState("");
+  const [sortByStatus, setSortByStatus] = useState("");
+  const [searchName, setSearchName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
 
   // Simulated package options
-  const packageOptions = ['All', 'No plan', 'BASIC', 'STANDARD', 'PREMIUM'];
-  const statusOptions = ['All', 'Verified', 'Pending'];
+  const packageOptions = ["All", "BASIC", "STANDARD", "PREMIUM"];
+  const statusOptions = ["All", "Verified", "Pending"];
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/admin/users');
-        
+        const response = await fetch("/api/admin/users");
+
         if (!response.ok) {
           throw new Error(`API request failed with status ${response.status}`);
         }
-        
+
         const data = await response.json();
         setUsers(data.doctors);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
-        console.error('Error fetching users:', err);
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
+        console.error("Error fetching users:", err);
       } finally {
         setLoading(false);
       }
@@ -79,19 +82,22 @@ const Users: React.FC = () => {
     return verified ? 2 : 1;
   };
 
-  const filteredUsers = users.filter(user =>
+  const filteredUsers = users.filter((user) =>
     user.name.toLowerCase().includes(searchName.toLowerCase())
   );
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
-    if (sortByPackage && sortByPackage !== 'All') {
-      const packageComparison = (a.planName || 'No plan').localeCompare(b.planName || 'No plan');
+    if (sortByPackage && sortByPackage !== "All") {
+      const packageComparison = (a.planName || "No plan").localeCompare(
+        b.planName || "No plan"
+      );
       if (packageComparison !== 0) {
         return packageComparison;
       }
     }
-    if (sortByStatus && sortByStatus !== 'All') {
-      const statusComparison = getVerificationStatus(a.verified) - getVerificationStatus(b.verified);
+    if (sortByStatus && sortByStatus !== "All") {
+      const statusComparison =
+        getVerificationStatus(a.verified) - getVerificationStatus(b.verified);
       if (statusComparison !== 0) {
         return statusComparison;
       }
@@ -119,25 +125,24 @@ const Users: React.FC = () => {
         for (let i = 1; i <= 4; i++) {
           pages.push(i);
         }
-        pages.push('...');
+        pages.push("...");
         pages.push(totalPages - 1);
         pages.push(totalPages);
       } else if (currentPage >= totalPages - 2) {
         pages.push(1);
         pages.push(2);
-        pages.push('...');
+        pages.push("...");
         for (let i = totalPages - 3; i <= totalPages; i++) {
           pages.push(i);
         }
-      }
-      else {
+      } else {
         pages.push(1);
         pages.push(2);
-        pages.push('...');
+        pages.push("...");
         pages.push(currentPage - 1);
         pages.push(currentPage);
         pages.push(currentPage + 1);
-        pages.push('...');
+        pages.push("...");
         pages.push(totalPages - 1);
         pages.push(totalPages);
       }
@@ -148,10 +153,10 @@ const Users: React.FC = () => {
   // Format date to a more readable format
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
+    return new Intl.DateTimeFormat("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     }).format(date);
   };
 
@@ -169,8 +174,8 @@ const Users: React.FC = () => {
       <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
         <h3 className="font-semibold">Error loading users</h3>
         <p>{error}</p>
-        <Button 
-          className="mt-2 bg-red-600 hover:bg-red-700" 
+        <Button
+          className="mt-2 bg-red-600 hover:bg-red-700"
           onClick={() => window.location.reload()}
         >
           Try Again
@@ -188,8 +193,10 @@ const Users: React.FC = () => {
               <SelectValue placeholder="Sort by Packages" />
             </SelectTrigger>
             <SelectContent>
-              {packageOptions.map(option => (
-                <SelectItem key={option} value={option}>{option}</SelectItem>
+              {packageOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -199,8 +206,10 @@ const Users: React.FC = () => {
               <SelectValue placeholder="Sort by Status" />
             </SelectTrigger>
             <SelectContent>
-              {statusOptions.map(option => (
-                <SelectItem key={option} value={option}>{option}</SelectItem>
+              {statusOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -212,10 +221,11 @@ const Users: React.FC = () => {
             onChange={(e) => setSearchName(e.target.value)}
           />
         </div>
-        <Select onValueChange={(value) => {
-          setEntriesPerPage(parseInt(value, 10));
-          setCurrentPage(1); // Reset to the first page when changing page size
-        }}
+        <Select
+          onValueChange={(value) => {
+            setEntriesPerPage(parseInt(value, 10));
+            setCurrentPage(1); // Reset to the first page when changing page size
+          }}
           value={String(entriesPerPage)}
         >
           <SelectTrigger className="w-[180px] justify-end">
@@ -234,14 +244,14 @@ const Users: React.FC = () => {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[60px]">#</TableHead>
-            <TableHead className="w-[100px]">Avatar</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Account Verification</TableHead>
             <TableHead>Phone</TableHead>
             <TableHead>Plan</TableHead>
             <TableHead>Payment Status</TableHead>
-            <TableHead>Account Status</TableHead>
+            <TableHead>Expire At</TableHead>
             <TableHead>Joined</TableHead>
+            <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -255,12 +265,7 @@ const Users: React.FC = () => {
             currentUsers.map((user) => (
               <TableRow key={user.id}>
                 <TableCell className="font-medium">{user.id}</TableCell>
-                <TableCell>
-                  <Avatar>
-                    <AvatarImage src={user.image_link || undefined} alt={user.name} />
-                    <AvatarFallback>{user.name.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                </TableCell>
+
                 <TableCell>
                   <div>
                     <div>{user.name}</div>
@@ -277,7 +282,7 @@ const Users: React.FC = () => {
                   )}
                 </TableCell>
                 <TableCell>{user.phone}</TableCell>
-                <TableCell>{user.planName || 'No plan'}</TableCell>
+                <TableCell>{user.planName || "No plan"}</TableCell>
                 <TableCell>
                   {user.paymentStatus ? (
                     <span className="text-green-500">Completed</span>
@@ -285,14 +290,16 @@ const Users: React.FC = () => {
                     <span className="text-yellow-500">Pending</span>
                   )}
                 </TableCell>
-                <TableCell>
-                  {user.accountStatus ? (
-                    <span className="text-green-500">Active</span>
-                  ) : (
-                    <span className="text-red-500">Inactive</span>
-                  )}
-                </TableCell>
+                <TableCell>{formatDate(user.expireAt)}</TableCell>
                 <TableCell>{formatDate(user.createdAt)}</TableCell>
+                <TableCell>
+                  <Link
+                    href={`/admin/users/${user.id}`}
+                    className="bg-blue-500 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded-md transition-colors"
+                  >
+                    View
+                  </Link>
+                </TableCell>
               </TableRow>
             ))
           )}
@@ -301,7 +308,9 @@ const Users: React.FC = () => {
       {/* Pagination */}
       <div className="flex justify-between items-center mt-4">
         <div className="text-sm text-gray-500">
-          Showing {sortedUsers.length > 0 ? indexOfFirstEntry + 1 : 0} to {Math.min(indexOfLastEntry, sortedUsers.length)} of {sortedUsers.length} entries
+          Showing {sortedUsers.length > 0 ? indexOfFirstEntry + 1 : 0} to{" "}
+          {Math.min(indexOfLastEntry, sortedUsers.length)} of{" "}
+          {sortedUsers.length} entries
         </div>
         <div className="flex items-center">
           <Button
@@ -312,12 +321,14 @@ const Users: React.FC = () => {
             Previous
           </Button>
           {getPageNumbers().map((page, index) =>
-            page === '...' ? (
-              <span key={`ellipsis-${index}`} className="mx-1 text-sm">...</span>
+            page === "..." ? (
+              <span key={`ellipsis-${index}`} className="mx-1 text-sm">
+                ...
+              </span>
             ) : (
               <button
                 key={page}
-                className={`rounded-lg p-1 text-xs mr-1 ${currentPage === page ? 'bg-blue-500 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'}`}
+                className={`rounded-lg p-1 text-xs mr-1 ${currentPage === page ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300 text-gray-800"}`}
                 onClick={() => paginate(page as number)}
                 disabled={currentPage === page || sortedUsers.length === 0}
               >
