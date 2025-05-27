@@ -200,7 +200,7 @@ export async function POST(req: Request) {
               planType: currentPlan as "monthly" | "yearly",
               expireAt: expireAt,
               accountStatus: true,
-              accountVerified: true,
+              accountVerified: false,
             })
             .where(eq(doctor.userId, userId));
         }
