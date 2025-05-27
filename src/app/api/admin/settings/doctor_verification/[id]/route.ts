@@ -17,8 +17,6 @@ export async function DELETE(
 ) {
   try {
     const { id } = params;
-    
-    console.log(`DELETE /api/admin/settings/doctor_verification/${id}`);
 
     // Validate ID
     const documentId = parseInt(id);

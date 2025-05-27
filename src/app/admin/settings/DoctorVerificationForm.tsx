@@ -121,8 +121,6 @@ const DoctorVerificationForm: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      console.log('Fetching documents from /api/admin/settings/doctor_verification');
-      
       const response = await fetch('/api/admin/settings/doctor_verification');
       
       console.log('Fetch response status:', response.status);
