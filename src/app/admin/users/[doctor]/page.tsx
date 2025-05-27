@@ -74,7 +74,7 @@ const DoctorData = () => {
     fetchDoctorData();
   }, [doctorId]);
 
-  // Open modal and fetch image blob, then create blob URL for img src
+  // Open modal and fetch file blob, then create blob URL for img/pdf src
   const openModal = async (fileName: string) => {
     setModalOpen(true);
     setModalLoading(true);
@@ -84,16 +84,19 @@ const DoctorData = () => {
 
     try {
       const response = await axios.get(
-        `/api/doctor/verification/get_image?name=${encodeURIComponent(fileName)}&doctorId=${doctorId}`,
+        `/api/doctor/verification/get_image?name=${encodeURIComponent(
+          fileName
+        )}&doctorId=${doctorId}`,
         {
           responseType: "blob",
         }
       );
-      const imageUrl = URL.createObjectURL(response.data);
-      setModalImageSrc(imageUrl);
+      const fileBlob = response.data;
+      const fileUrl = URL.createObjectURL(fileBlob);
+      setModalImageSrc(fileUrl);
     } catch (err) {
-      console.error("Failed to fetch image", err);
-      setModalError("Failed to load image.");
+      console.error("Failed to fetch file", err);
+      setModalError("Failed to load file.");
     } finally {
       setModalLoading(false);
     }
@@ -282,7 +285,7 @@ const DoctorData = () => {
         </aside>
       </div>
 
-      {/* Modal for verification file image */}
+      {/* Modal for verification file image/pdf */}
       {modalOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
@@ -292,23 +295,23 @@ const DoctorData = () => {
           aria-labelledby="modal-title"
         >
           <div
-            className="bg-white rounded-md shadow-lg max-w-4xl max-h-[80vh] p-4 relative"
+            className="bg-white rounded-md shadow-lg max-w-[90vw] max-h-[95vh] w-[90vw] h-[95vh] p-6 relative overflow-auto"
             onClick={(e) => e.stopPropagation()} // prevent closing modal on clicking inside
           >
             <button
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+              className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
               onClick={closeModal}
               aria-label="Close modal"
             >
               &#x2715;
             </button>
-            <h3 id="modal-title" className="text-lg font-semibold mb-4">
+            <h3 id="modal-title" className="text-lg font-semibold mb-4 break-all">
               {modalFileName}
             </h3>
 
             {modalLoading && (
-              <div className="flex justify-center items-center h-48">
-                <span className="text-gray-600">Loading image...</span>
+              <div className="flex justify-center items-center h-full">
+                <span className="text-gray-600">Loading file...</span>
               </div>
             )}
 
@@ -317,11 +320,20 @@ const DoctorData = () => {
             )}
 
             {!modalLoading && !modalError && modalImageSrc && (
-              <img
-                src={modalImageSrc}
-                alt={`Verification file ${modalFileName}`}
-                className="max-w-full max-h-[60vh] object-contain rounded"
-              />
+              modalFileName &&
+              modalFileName.toLowerCase().endsWith(".pdf") ? (
+                <embed
+                  src={modalImageSrc}
+                  type="application/pdf"
+                  className="w-full h-[85vh] rounded"
+                />
+              ) : (
+                <img
+                  src={modalImageSrc}
+                  alt={`Verification file ${modalFileName}`}
+                  className="max-w-full max-h-[85vh] object-contain rounded"
+                />
+              )
             )}
           </div>
         </div>
