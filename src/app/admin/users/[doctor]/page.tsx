@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 type Doctor = {
   id: string;
@@ -32,7 +32,7 @@ type Experience = {
   title: string;
   organization?: string;
   yearFrom?: number;
-  yearTo?: number | 'Present';
+  yearTo?: number | "Present";
   details?: string;
 };
 
@@ -62,7 +62,7 @@ const DoctorData = () => {
     const fetchDoctorData = async () => {
       try {
         const res = await fetch(`/api/admin/users/${doctorId}`);
-        if (!res.ok) throw new Error('Failed to fetch doctor data');
+        if (!res.ok) throw new Error("Failed to fetch doctor data");
         const data = await res.json();
         setDoctorData(data);
         setError(null);
@@ -86,14 +86,14 @@ const DoctorData = () => {
       const response = await axios.get(
         `/api/doctor/verification/get_image?name=${encodeURIComponent(fileName)}&doctorId=${doctorId}`,
         {
-          responseType: 'blob',
+          responseType: "blob",
         }
       );
       const imageUrl = URL.createObjectURL(response.data);
       setModalImageSrc(imageUrl);
     } catch (err) {
-      console.error('Failed to fetch image', err);
-      setModalError('Failed to load image.');
+      console.error("Failed to fetch image", err);
+      setModalError("Failed to load image.");
     } finally {
       setModalLoading(false);
     }
@@ -138,25 +138,26 @@ const DoctorData = () => {
               <strong>Phone:</strong> {doctor.phone}
             </p>
             <p>
-              <strong>City:</strong> {doctor.city || '-'}
+              <strong>City:</strong> {doctor.city || "-"}
             </p>
             <p>
-              <strong>Pincode:</strong> {doctor.pincode || '-'}
+              <strong>Pincode:</strong> {doctor.pincode || "-"}
             </p>
             <p>
-              <strong>Specialization:</strong> {doctor.specialization || '-'}
+              <strong>Specialization:</strong> {doctor.specialization || "-"}
             </p>
             <p>
-              <strong>Degree:</strong> {doctor.degree || '-'}
+              <strong>Degree:</strong> {doctor.degree || "-"}
             </p>
             <p>
-              <strong>Practice Type:</strong> {doctor.practiceType || '-'}
+              <strong>Practice Type:</strong> {doctor.practiceType || "-"}
             </p>
             <p>
-              <strong>Experience:</strong> {doctor.experience ?? '-'} years
+              <strong>Experience:</strong> {doctor.experience ?? "-"} years
             </p>
             <p>
-              <strong>Account Verified:</strong> {doctor.accountVerified ? 'Yes' : 'No'}
+              <strong>Account Verified:</strong>{" "}
+              {doctor.accountVerified ? "Yes" : "No"}
             </p>
           </section>
 
@@ -168,9 +169,12 @@ const DoctorData = () => {
               <ul className="list-disc list-inside space-y-1">
                 {education.map((edu) => (
                   <li key={edu.id}>
-                    <strong>{edu.title}</strong>{' '}
-                    {edu.institution && `- ${edu.institution}`} ({edu.yearFrom ?? '?'} - {edu.yearTo ?? '?'})
-                    {edu.details && <div className="text-sm text-gray-600">{edu.details}</div>}
+                    <strong>{edu.title}</strong>{" "}
+                    {edu.institution && `- ${edu.institution}`} (
+                    {edu.yearFrom ?? "?"} - {edu.yearTo ?? "?"})
+                    {edu.details && (
+                      <div className="text-sm text-gray-600">{edu.details}</div>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -185,9 +189,12 @@ const DoctorData = () => {
               <ul className="list-disc list-inside space-y-1">
                 {experience.map((exp) => (
                   <li key={exp.id}>
-                    <strong>{exp.title}</strong>{' '}
-                    {exp.organization && `- ${exp.organization}`} ({exp.yearFrom ?? '?'} - {exp.yearTo ?? 'Present'})
-                    {exp.details && <div className="text-sm text-gray-600">{exp.details}</div>}
+                    <strong>{exp.title}</strong>{" "}
+                    {exp.organization && `- ${exp.organization}`} (
+                    {exp.yearFrom ?? "?"} - {exp.yearTo ?? "Present"})
+                    {exp.details && (
+                      <div className="text-sm text-gray-600">{exp.details}</div>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -196,16 +203,21 @@ const DoctorData = () => {
         </div>
 
         {/* Right side: Verification files */}
-        <aside className="w-80 sticky top-6 self-start p-4 bg-gray-50 border rounded-md shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Verification Files</h2>
+        <aside className="w-80 sticky top-6 self-start p-6 bg-gray-50 border border-gray-300 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+            Verification Files
+          </h2>
+
           {verificationFiles.length === 0 ? (
-            <p>No verification files found.</p>
+            <p className="text-gray-500 italic mb-6">
+              No verification files found.
+            </p>
           ) : (
-            <ul className="space-y-2">
+            <ul className="space-y-2 mb-6 max-h-48 overflow-y-auto">
               {verificationFiles.map((file, i) => (
                 <li key={i}>
                   <button
-                    className="text-blue-600 underline hover:text-blue-800"
+                    className="text-blue-600 underline hover:text-blue-800 transition-colors duration-200"
                     onClick={() => openModal(file)}
                     type="button"
                   >
@@ -215,6 +227,58 @@ const DoctorData = () => {
               ))}
             </ul>
           )}
+
+          <div className="mb-4">
+            <span className="font-medium text-gray-700">
+              Doctor Verification Status:
+            </span>{" "}
+            <span
+              className={`font-semibold ${
+                doctor.accountVerified ? "text-green-700" : "text-yellow-700"
+              }`}
+            >
+              {doctor.accountVerified ? "Verified" : "Pending"}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className={`w-full py-2 rounded-md font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+              doctor.accountVerified
+                ? "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
+                : "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500"
+            }`}
+            onClick={async () => {
+              try {
+                const response = await fetch(
+                  `/api/admin/users/${doctorId}/verify`,
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                  }
+                );
+                if (!response.ok) {
+                  throw new Error("Failed to update verification status");
+                }
+                const data = await response.json();
+                setDoctorData((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        doctor: {
+                          ...prev.doctor,
+                          accountVerified: data.accountVerified,
+                        },
+                      }
+                    : prev
+                );
+              } catch (err) {
+                alert((err as Error).message);
+              }
+            }}
+          >
+            {doctor.accountVerified ? "Mark as Pending" : "Mark as Verified"}
+          </button>
         </aside>
       </div>
 
@@ -248,7 +312,9 @@ const DoctorData = () => {
               </div>
             )}
 
-            {modalError && <p className="text-red-600 text-center py-6">{modalError}</p>}
+            {modalError && (
+              <p className="text-red-600 text-center py-6">{modalError}</p>
+            )}
 
             {!modalLoading && !modalError && modalImageSrc && (
               <img
