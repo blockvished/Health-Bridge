@@ -16,6 +16,7 @@ export default function DoctorVerification() {
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [modalImageSrc, setModalImageSrc] = useState<string | null>(null);
+  const [modalImageSrcName, setModalImageSrcName] = useState<string | null>(null); // filename for type check
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
 
@@ -89,19 +90,20 @@ export default function DoctorVerification() {
     setModalLoading(true);
     setModalError(null);
     setModalImageSrc(null);
+    setModalImageSrcName(filename);
 
     try {
-      // Fetch the image as a blob from the API
+      // Fetch the image/pdf as a blob from the API
       const response = await axios.get(`/api/doctor/verification/get_image?name=${encodeURIComponent(filename)}`, {
         responseType: "blob",
       });
 
-      // Create a local URL for the blob image
-      const imageUrl = URL.createObjectURL(response.data);
-      setModalImageSrc(imageUrl);
+      // Create a local URL for the blob file
+      const fileUrl = URL.createObjectURL(response.data);
+      setModalImageSrc(fileUrl);
     } catch (error) {
-      console.error("Failed to fetch image", error);
-      setModalError("Failed to load image.");
+      console.error("Failed to fetch document", error);
+      setModalError("Failed to load document.");
     } finally {
       setModalLoading(false);
     }
@@ -113,8 +115,12 @@ export default function DoctorVerification() {
       URL.revokeObjectURL(modalImageSrc);
       setModalImageSrc(null);
     }
+    setModalImageSrcName(null);
     setModalError(null);
   };
+
+  // Helper to check if file is a PDF
+  const isPdf = (filename: string) => filename.toLowerCase().endsWith(".pdf");
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
@@ -142,9 +148,7 @@ export default function DoctorVerification() {
           <span className="text-gray-600 font-medium mb-1">
             Click to upload or drag files here
           </span>
-          <span className="text-sm text-gray-400">
-            You can upload multiple files
-          </span>
+          <span className="text-sm text-gray-400">You can upload multiple files</span>
           <input
             id="file-upload"
             type="file"
@@ -207,45 +211,55 @@ export default function DoctorVerification() {
       </div>
 
       {/* Modal */}
-      {modalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
-          onClick={closeModal}
-          aria-modal="true"
-          role="dialog"
-        >
-          <div
-            className="bg-white rounded-lg p-4 max-w-3xl max-h-[90vh] overflow-auto relative"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
-          >
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-              aria-label="Close modal"
-            >
-              <X className="w-6 h-6" />
-            </button>
+{/* Modal */}
+{modalOpen && (
+  <div
+    className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+    onClick={closeModal}
+    aria-modal="true"
+    role="dialog"
+  >
+    <div
+      className="bg-white rounded-lg p-6 max-w-[90vw] max-h-[95vh] w-[90vw] h-[95vh] overflow-auto relative"
+      onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+    >
+      <button
+        onClick={closeModal}
+        className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
+        aria-label="Close modal"
+      >
+        <X className="w-6 h-6" />
+      </button>
 
-            {modalLoading && (
-              <div className="flex justify-center items-center h-64">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-              </div>
-            )}
-
-            {modalError && (
-              <p className="text-red-600 text-center py-6">{modalError}</p>
-            )}
-
-            {modalImageSrc && !modalLoading && !modalError && (
-              <img
-                src={modalImageSrc}
-                alt="Uploaded document"
-                className="max-w-full max-h-[80vh] object-contain rounded"
-              />
-            )}
-          </div>
+      {modalLoading && (
+        <div className="flex justify-center items-center h-full">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
         </div>
       )}
+
+      {modalError && (
+        <p className="text-red-600 text-center py-6">{modalError}</p>
+      )}
+
+      {modalImageSrc && !modalLoading && !modalError && (
+        isPdf(modalImageSrcName || "") ? (
+          <embed
+            src={modalImageSrc}
+            type="application/pdf"
+            className="w-full h-full rounded"
+          />
+        ) : (
+          <img
+            src={modalImageSrc}
+            alt="Uploaded document"
+            className="max-w-full max-h-full object-contain rounded"
+          />
+        )
+      )}
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
