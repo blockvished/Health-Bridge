@@ -228,7 +228,8 @@ export const payoutRequests = pgTable("payout_requests", {
   amountPaid: numeric("amount_paid", { scale: 2 }), // Actual amount paid after deductions (nullable until processed)
   commissionDeduct: numeric("commission_deduct", { scale: 2 }), // Commission amount deducted (nullable until processed)
 
-  method: payoutMethodEnum("method").notNull(), // UPI, NEFT, IMPS
+  requestedMethod: payoutMethodEnum("requested_method").notNull(), // UPI, NEFT, IMPS
+  paymentMethod: payoutMethodEnum("payment_method"), // UPI, NEFT, IMPS
   status: payoutStatusEnum("status").default("pending").notNull(), // pending, completed
 
   createdAt: timestamp("created_at").defaultNow().notNull(),

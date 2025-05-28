@@ -6,7 +6,7 @@ interface PayoutRequest {
   id: string;
   amount: number;
   balanceAtRequest?: number;
-  method: string;
+  requestedMethod: string;
   status: string;
   createdAt: string;
 }
@@ -153,7 +153,7 @@ const PayoutsPage: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: parseFloat(requestAmount),
-          method: paymentMethod,
+          selectedMethod: paymentMethod,
         }),
       });
 
@@ -347,7 +347,7 @@ const PayoutsPage: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <span className="bg-gray-100 px-2 py-1 rounded text-xs font-medium">
-                      {request.method}
+                      {request.requestedMethod}
                     </span>
                   </TableCell>
                   <TableCell>

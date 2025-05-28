@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
           balanceAtRequest: payoutRequests.balanceAtRequest,
           amountPaid: payoutRequests.amountPaid,
           commissionDeduct: payoutRequests.commissionDeduct,
-          method: payoutRequests.method,
+          requestedMethod: payoutRequests.requestedMethod,
           status: payoutRequests.status,
           createdAt: payoutRequests.createdAt,
           doctorName: doctor.name, // Added doctor name
@@ -95,17 +95,20 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { amount, method } = body;
+    const { amount, selectedMethod } = body;
 
     const parsedAmount = parseFloat(amount);
+
     if (!parsedAmount || parsedAmount <= 0) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
-
-    if (!["UPI", "NEFT", "IMPS"].includes(method)) {
+    console.log ("parsed amosdfasofgj", selectedMethod)
+    
+    if (!["UPI", "NEFT", "IMPS"].includes(selectedMethod)) {
       return NextResponse.json({ error: "Invalid method" }, { status: 400 });
     }
 
+    console.log("reached heredlogjaiodpfgioas dfisaopfdgiopdsaf")
     if (parseFloat(doctorData.balance) < parsedAmount) {
       return NextResponse.json(
         { error: "Insufficient balance" },
@@ -117,7 +120,7 @@ export async function POST(req: NextRequest) {
       doctorId: doctorData.id,
       amount: parsedAmount.toFixed(2),
       balanceAtRequest: parseFloat(doctorData.balance).toFixed(2),
-      method,
+      requestedMethod: selectedMethod,
       status: "pending",
     };
 
