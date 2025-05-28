@@ -1,26 +1,80 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FiToggleLeft, FiToggleRight } from 'react-icons/fi';
 
+type PayoutSettingsType = {
+  minimumPayoutAmount: number;
+  commissionRate: number;
+};
+
 export default function PayoutSettings() {
-  const [payoutsEnabled, setPayoutsEnabled] = useState(true);
-  const [minPayout, setMinPayout] = useState(1000);
-  const [commissionRate, setCommissionRate] = useState(3);
-  const [paypalEnabled, setPaypalEnabled] = useState(false);
-  const [ibanEnabled, setIbanEnabled] = useState(false);
-  const [swiftEnabled, setSwiftEnabled] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [minPayout, setMinPayout] = useState(0);
+  const [commissionRate, setCommissionRate] = useState(0);
+
+  // Load existing payout settings on mount
+  useEffect(() => {
+    async function fetchSettings() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch('/api/admin/payout/payout-settings');
+        if (res.ok) {
+          const data: PayoutSettingsType = await res.json();
+          setMinPayout(Number(data.minimumPayoutAmount));
+          setCommissionRate(Number(data.commissionRate));
+        } else if (res.status === 404) {
+          setError('Payout settings do not exist. Please create them.');
+        } else {
+          setError('Failed to load payout settings');
+        }
+      } catch {
+        setError('Failed to load payout settings');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchSettings();
+  }, []);
+
+  async function handleSubmit() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/admin/payout/payout-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          minimumPayoutAmount: minPayout,
+          commissionRate,
+        }),
+      });
+      if (res.ok) {
+        alert('Payout settings saved successfully');
+      } else {
+        const data = await res.json();
+        setError(data.error || 'Failed to save payout settings');
+      }
+    } catch {
+      setError('Failed to save payout settings');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="mx-auto p-4 bg-white shadow rounded-lg border border-gray-200 w-full md:max-w-3xl"> {/* Adjusted max-width */}
+    <div className="mx-auto p-4 bg-white shadow rounded-lg border border-gray-200 w-full md:max-w-3xl">
       <h2 className="text-xl font-semibold mb-4">Payout Settings</h2>
 
-      <div className="flex items-center justify-between mb-4 bg-gray-50 p-3 rounded-md">
-        <span className="text-sm font-medium">Enable payouts</span>
-        <div onClick={() => setPayoutsEnabled(!payoutsEnabled)} className="cursor-pointer">
-          {payoutsEnabled ? <FiToggleRight size={20} className="text-blue-500" /> : <FiToggleLeft size={20} className="text-gray-400" />}
-        </div>
-      </div>
+      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
       <div className="mb-4">
         <label className="block text-xs font-medium mb-1">Minimum payout amount</label>
@@ -51,23 +105,13 @@ export default function PayoutSettings() {
         <p className="text-xs text-gray-500 mt-1">Must be between 1-99</p>
       </div>
 
-      <h3 className="text-lg font-medium mb-3">Payout Methods</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-        {[{ label: "Paypal", enabled: paypalEnabled, setEnabled: setPaypalEnabled },
-          { label: "IBAN", enabled: ibanEnabled, setEnabled: setIbanEnabled },
-          { label: "Swift", enabled: swiftEnabled, setEnabled: setSwiftEnabled }].map((method, index) => (
-          <div
-            key={index}
-            className={`flex items-center justify-between border border-gray-200 rounded-md p-2 cursor-pointer text-sm ${method.enabled ? 'bg-blue-50' : 'bg-gray-50'}`}
-            onClick={() => method.setEnabled(!method.enabled)}
-          >
-            <span>{method.label}</span>
-            {method.enabled ? <FiToggleRight size={20} className="text-blue-500" /> : <FiToggleLeft size={20} className="text-gray-400" />}
-          </div>
-        ))}
-      </div>
-
-      <button className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors text-sm">Save Changes</button>
+      <button
+        disabled={loading}
+        onClick={handleSubmit}
+        className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors text-sm disabled:opacity-50"
+      >
+        Save Changes
+      </button>
     </div>
   );
 }

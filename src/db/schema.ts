@@ -18,6 +18,7 @@ import { uniqueIndex } from "drizzle-orm/pg-core";
 import { unique } from "drizzle-orm/pg-core";
 import { bigint } from "drizzle-orm/pg-core";
 import { uuid } from "drizzle-orm/pg-core";
+import { numeric } from "drizzle-orm/pg-core";
 
 // Enums for better type safety
 export const userRoleEnum = pgEnum("user_role", [
@@ -93,6 +94,9 @@ export const postStatusEnum = pgEnum("post_status", [
   "failed",
 ]);
 
+export const payoutStatusEnum = pgEnum("payout_status", ["pending", "completed"]);
+export const payoutMethodEnum = pgEnum("payout_method", ["UPI", "NEFT", "IMPS"]);
+
 ///
 // Users
 ///
@@ -156,16 +160,19 @@ export const usersRelations = relations(users, ({ one }) => ({
   }),
 }));
 
-export const emailOtps = pgTable("email_otps", {
-  email: varchar("email", { length: 255 }).notNull(),
-  otp: varchar("otp", { length: 6 }).notNull(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-}, (table) => ({
-  uniqueEmail: unique("unique_email").on(table.email), // 👈 Add unique constraint
-}));
-
+export const emailOtps = pgTable(
+  "email_otps",
+  {
+    email: varchar("email", { length: 255 }).notNull(),
+    otp: varchar("otp", { length: 6 }).notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  },
+  (table) => ({
+    uniqueEmail: unique("unique_email").on(table.email), // 👈 Add unique constraint
+  })
+);
 
 ///
 // Doctor
@@ -204,7 +211,27 @@ export const doctor = pgTable("doctor", {
   expireAt: timestamp("expire_at"),
   accountStatus: boolean("account_status").default(false).notNull(),
   accountVerified: boolean("account_verified").default(false).notNull(),
+  balance: numeric("balance", { scale: 2 }).default("0").notNull(),
+  totalWithdraw: numeric("total_withdraw", { scale: 2 }).default("0").notNull(),
+  totalEarnings: numeric("total_earnings", { scale: 2 }).default("0").notNull(),
 });
+
+export const payoutRequests = pgTable("payout_requests", {
+  id: serial("id").primaryKey(),
+
+  doctorId: integer("doctor_id")
+    .notNull()
+    .references(() => doctor.id, { onDelete: "cascade" }),
+
+  amount: numeric("amount", { scale: 2 }).notNull(), // Requested amount
+  balanceAtRequest: numeric("balance_at_request", { scale: 2 }).notNull(), // Doctor's balance at request time
+
+  method: payoutMethodEnum("method").notNull(), // UPI, NEFT, IMPS
+  status: payoutStatusEnum("status").default("pending").notNull(), // pending, completed
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 
 export const transactions = pgTable("transactions", {
   id: serial("id").primaryKey(),
@@ -213,7 +240,7 @@ export const transactions = pgTable("transactions", {
     .references(() => users.id), // Removed onDelete: "cascade"
   transactionId: varchar("transaction_id", { length: 255 }).notNull(),
   orderId: varchar("order_id", { length: 255 }).notNull(),
-  status: varchar("status", { length: 50 }).notNull(), 
+  status: varchar("status", { length: 50 }).notNull(),
   amount: integer("amount").notNull(),
   paymentMode: varchar("payment_mode", { length: 50 }), // e.g., "NET_BANKING", "UPI", "CREDIT_CARD"
   // Use bigint to store the timestamp as a number (e.g., milliseconds since epoch)
@@ -228,10 +255,13 @@ export const socialPlatforms = pgTable("social_platforms", {
   name: varchar("name", { length: 255 }).notNull(), // e.g., 'Facebook', 'Twitter'
 });
 
-export const doctorVerificationDocuments = pgTable("doctor_verification_documents", {
-  id: serial("id").primaryKey(), 
-  name: varchar("name", { length: 255 }).notNull(), 
-});
+export const doctorVerificationDocuments = pgTable(
+  "doctor_verification_documents",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+  }
+);
 
 export const emailConfig = pgTable("email_config", {
   singletonId: varchar("singleton_id", { length: 10 })
@@ -243,16 +273,36 @@ export const emailConfig = pgTable("email_config", {
   mailHost: varchar("mail_host", { length: 255 }).notNull(),
   mailPort: integer("mail_port").notNull(),
   mailUsername: varchar("mail_username", { length: 255 }),
-  mailPassword: varchar("mail_password", { length: 255 }), 
+  mailPassword: varchar("mail_password", { length: 255 }),
   mailEncryption: varchar("mail_encryption", { length: 10 }),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const socialPlatformRelations = relations(socialPlatforms, ({ many }) => ({
+export const payoutSettings = pgTable("payout_settings", {
+  singletonId: varchar("singleton_id", { length: 10 })
+    .primaryKey()
+    .default("singleton"),
+
+  minimumPayoutAmount: numeric("minimum_payout_amount", {
+    precision: 10,
+    scale: 2,
+  })
+    .notNull()
+    .default("500.00"),
+
+  commissionRate: numeric("commission_rate", { precision: 5, scale: 2 })
+    .notNull()
+    .default("3"),
+});
+
+export const socialPlatformRelations = relations(
+  socialPlatforms,
+  ({ many }) => ({
     postSocialPlatforms: many(post_social_platform),
-}));
+  })
+);
 
 export const zoomConfig = pgTable("zoom_config", {
   singletonId: varchar("singleton_id", { length: 10 })
@@ -267,23 +317,27 @@ export const zoomConfig = pgTable("zoom_config", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const socialConnections = pgTable("social_connections", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  provider: text("provider").notNull(), // Remove .unique() from here
-  accountName: text("account_name"),
-  accessToken: text("access_token").notNull(),
-  refreshToken: text("refresh_token"),
-  expiresAt: timestamp("expires_at", { mode: "date" }),
-  autoposting: boolean("autoposting").default(false),
-  disconnected: boolean("disconnected").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-}, (table) => ({
-  // Add composite unique constraint instead
-  uniqueUserProvider: unique().on(table.userId, table.provider),
-}));
+export const socialConnections = pgTable(
+  "social_connections",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    provider: text("provider").notNull(), // Remove .unique() from here
+    accountName: text("account_name"),
+    accessToken: text("access_token").notNull(),
+    refreshToken: text("refresh_token"),
+    expiresAt: timestamp("expires_at", { mode: "date" }),
+    autoposting: boolean("autoposting").default(false),
+    disconnected: boolean("disconnected").default(false),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    // Add composite unique constraint instead
+    uniqueUserProvider: unique().on(table.userId, table.provider),
+  })
+);
 
 // Posts table
 export const posts = pgTable("posts", {
@@ -296,13 +350,13 @@ export const posts = pgTable("posts", {
   status: postStatusEnum("status").default("scheduled").notNull(), // 'scheduled', 'posted', 'failed'
   interactions: integer("interactions").default(0),
   publishedBy: varchar("published_by", { length: 255 }),
-  scheduledTime: timestamp("scheduled_time"),// bull mq
+  scheduledTime: timestamp("scheduled_time"), // bull mq
   publishedTime: timestamp("published_time"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const postRelations = relations(posts, ({ many }) => ({
-    postSocialPlatforms: many(post_social_platform),
+  postSocialPlatforms: many(post_social_platform),
 }));
 
 // New table to link posts and social platforms
@@ -330,16 +384,19 @@ export const post_social_platform = pgTable(
   })
 );
 
-export const postSocialPlatformRelations = relations(post_social_platform, ({ one }) => ({
+export const postSocialPlatformRelations = relations(
+  post_social_platform,
+  ({ one }) => ({
     post: one(posts, {
-        fields: [post_social_platform.postId],
-        references: [posts.id],
+      fields: [post_social_platform.postId],
+      references: [posts.id],
     }),
     socialPlatform: one(socialPlatforms, {
-        fields: [post_social_platform.socialPlatformId],
-        references: [socialPlatforms.id],
+      fields: [post_social_platform.socialPlatformId],
+      references: [socialPlatforms.id],
     }),
-}));
+  })
+);
 
 export const doctor_social_media_analytics = pgTable(
   "doctor_social_media_analytics",
@@ -703,7 +760,7 @@ export const doctorConsultation = pgTable("doctor_consultation", {
   consultationLink: text("consultation_link"),
   isLiveConsultationEnabled: boolean("is_live_consultation_enabled").default(
     false
-  ), 
+  ),
 });
 
 export const appointmentSettings = pgTable("appointment_settings", {

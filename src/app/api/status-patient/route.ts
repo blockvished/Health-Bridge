@@ -123,7 +123,7 @@ export async function POST(req: Request) {
 
       // Create the JWT token with user data and payment details
       console.log("Creating JWT token for user:", finalUserId);
-      
+
       // Prepare response data
       const responseDetails = {
         transactionId: finalMerchantOrderId,
@@ -159,7 +159,7 @@ export async function POST(req: Request) {
         if (appointmentId) {
           // Convert appointmentId from string to number
           const appointmentIdNum = parseInt(appointmentId, 10);
-          
+
           // Validate that the conversion was successful
           if (isNaN(appointmentIdNum)) {
             console.log("Invalid appointmentId format:", appointmentId);
@@ -170,13 +170,56 @@ export async function POST(req: Request) {
               .where(eq(appointments.id, appointmentIdNum)); // Now using number instead of string
 
             if (appointmentData.length > 0) {
+              const appointment = appointmentData[0];
+
               await db
                 .update(appointments)
                 .set({
                   paymentStatus: true,
                 })
                 .where(eq(appointments.id, appointmentIdNum)); // Using number here too
-              console.log("Updated appointment payment status for ID:", appointmentIdNum);
+              console.log(
+                "Updated appointment payment status for ID:",
+                appointmentIdNum
+              );
+
+              const doctorId = appointment.doctorId;
+              const amount = appointment.amount || 0;
+
+              if (doctorId && amount != null) {
+                // Fetch current doctor's earnings and balance
+                const doctorData = await db
+                  .select({
+                    balance: doctor.balance,
+                    totalEarnings: doctor.totalEarnings,
+                  })
+                  .from(doctor)
+                  .where(eq(doctor.id, doctorId));
+
+                if (doctorData.length > 0) {
+                  const current = doctorData[0];
+
+                  const newBalance = Number(current.balance) + amount;
+                  const newTotalEarnings =
+                    Number(current.totalEarnings) + amount;
+
+                  await db
+                    .update(doctor)
+                    .set({
+                      balance: String(newBalance),
+                      totalEarnings: String(newTotalEarnings),
+                    })
+                    .where(eq(doctor.id, doctorId));
+
+                  console.log(
+                    `Doctor ID ${doctorId} balance and earnings updated: +₹${amount}`
+                  );
+                } else {
+                  console.log("Doctor not found with ID:", doctorId);
+                }
+              } else {
+                console.log("Missing doctorId or amount in appointment.");
+              }
             } else {
               console.log("Appointment not found with ID:", appointmentIdNum);
             }
@@ -184,7 +227,6 @@ export async function POST(req: Request) {
         } else {
           console.log("No appointmentId provided, skipping appointment update");
         }
-
       } catch (error) {
         console.error("Error saving transaction:", error);
         // Don't throw here, continue with the response

@@ -110,7 +110,7 @@ const DashboardSummaryCards: React.FC<{
         }
         bgColor="bg-green-100"
         iconColor="text-green-500"
-        route="#"
+        route="/admin/users"
       />
       <SummaryCard 
         title="Pending Verification" 
@@ -122,7 +122,7 @@ const DashboardSummaryCards: React.FC<{
         }
         bgColor="bg-red-100"
         iconColor="text-red-500"
-        route="#"
+        route="/admin/users"
       />
       <SummaryCard 
         title="Expired Accounts" 
@@ -134,7 +134,7 @@ const DashboardSummaryCards: React.FC<{
         }
         bgColor="bg-yellow-100"
         iconColor="text-yellow-500"
-        route="#"
+        route="/admin/users"
       />
     </div>
   );
