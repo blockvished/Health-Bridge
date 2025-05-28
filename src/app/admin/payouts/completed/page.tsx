@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -19,132 +19,263 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
-const PayoutCompleted = () => {
+// Type definitions
+interface PayoutRequest {
+  id: string | number;
+  doctorId: string | number;
+  doctorName?: string;
+  amount: number;
+  balanceAtRequest?: number;
+  amountPaid?: number;
+  commissionDeduct?: number;
+  method?: string;
+  status: "pending" | "completed" | string;
+  createdAt: string;
+}
+
+interface ApiResponse {
+  data?: PayoutRequest[];
+  payoutRequests?: PayoutRequest[];
+}
+
+type FilterStatus = "All" | "Pending" | "Completed";
+
+const PayoutRequests: React.FC = () => {
   const router = useRouter();
-  const [filter, setFilter] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [filter, setFilter] = useState<FilterStatus>("Completed");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Sample payout requests data
-  const payoutRequests = [
-    {
-      id: 2,
-      user: "Jane Smith",
-      amount: 7500,
-      status: "Approved",
-      date: "2025-03-16",
-    },
-  ];
+  // Fetch payout requests from API
+  useEffect(() => {
+    const fetchPayoutRequests = async (): Promise<void> => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/doctor/payout/request");
 
-  const handleAddPayout = () => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data: PayoutRequest[] | ApiResponse = await response.json();
+
+        // Ensure data is an array
+        if (Array.isArray(data)) {
+          setPayoutRequests(data);
+        } else if (data && Array.isArray(data.data)) {
+          // Handle case where API returns { data: [...] }
+          setPayoutRequests(data.data);
+        } else if (data && Array.isArray(data.payoutRequests)) {
+          // Handle case where API returns { payoutRequests: [...] }
+          setPayoutRequests(data.payoutRequests);
+        } else {
+          // If no array found, set empty array
+          console.warn("API response is not an array:", data);
+          setPayoutRequests([]);
+        }
+
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching payout requests:", err);
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error occurred";
+        setError(errorMessage);
+        setPayoutRequests([]); // Set empty array on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPayoutRequests();
+  }, []);
+
+  const handleAddPayout = (): void => {
     router.push("/admin/payouts/add");
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Pending":
+  const getStatusColor = (status: string | undefined): string => {
+    switch (status?.toLowerCase()) {
+      case "pending":
         return "text-yellow-600";
-      case "Approved":
+      case "completed":
         return "text-green-600";
-      case "Rejected":
-        return "text-red-600";
       default:
         return "text-gray-600";
     }
   };
 
-  const filteredRequests = payoutRequests.filter((request) => {
-    const filterMatch = filter === "All" || request.status === filter;
-    const searchMatch = request.user
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    return filterMatch && searchMatch;
-  });
+  const formatCurrency = (amount: number | undefined | null): string => {
+    if (!amount && amount !== 0) return "—";
+    return `₹${parseFloat(amount.toString()).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
+  };
+
+  const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return "—";
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const filteredRequests: PayoutRequest[] = Array.isArray(payoutRequests)
+    ? payoutRequests.filter((request: PayoutRequest) => {
+        const filterMatch =
+          filter === "All" ||
+          request.status?.toLowerCase() === filter.toLowerCase();
+
+        // Search in doctor name or doctor ID
+        const searchMatch =
+          !searchQuery ||
+          request.doctorName
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          request.doctorId?.toString().includes(searchQuery);
+
+        return filterMatch && searchMatch;
+      })
+    : [];
+
+  if (loading) {
+    return (
+      <div className="mx-auto p-4 bg-white shadow rounded-lg border border-gray-200 w-full">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">Loading payouts...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto p-4 bg-white shadow rounded-lg border border-gray-200 w-full">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-red-600">
+            Error loading payout requests: {error}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="mx-auto p-4 bg-white shadow rounded-lg border border-gray-200 w-full md:max-w-3xl">
-      <div className="flex flex-col sm:flex-row justify-between items-center border-b border-gray-200 pb-4">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2 sm:mb-0">
-          Payout Completed
-        </h1>
-        <Button
-          onClick={handleAddPayout}
-          className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white"
-        >
-          Add Payout
-        </Button>
+    <div className="mx-auto p-4 bg-white shadow rounded-lg border border-gray-200 w-full">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold mb-2 sm:mb-0">Payout Completed</h1>
+        <Button onClick={handleAddPayout}>Add Payout</Button>
       </div>
-      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4 p-2">
-        <Select value={filter} onValueChange={setFilter}>
-          <SelectTrigger className="w-full sm:w-[180px] bg-white">
-            <SelectValue placeholder="Filter" />
+
+      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
+        <Select
+          value={filter}
+          onValueChange={(value: FilterStatus) => setFilter(value)}
+        >
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue placeholder="Filter by Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="All">All</SelectItem>
+            <SelectItem value="All">All Status</SelectItem>
             <SelectItem value="Pending">Pending</SelectItem>
-            <SelectItem value="Approved">Approved</SelectItem>
-            <SelectItem value="Rejected">Rejected</SelectItem>
+            <SelectItem value="Completed">Completed</SelectItem>
           </SelectContent>
         </Select>
 
         <Input
-          placeholder="Search users"
-          className="w-full sm:w-[250px] bg-white"
+          placeholder="Search by doctor name or ID"
+          className="w-full sm:w-[300px]"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setSearchQuery(e.target.value)
+          }
         />
       </div>
+
       <div className="overflow-x-auto">
         <Table>
-          <TableHeader className="bg-gray-100">
+          <TableHeader>
             <TableRow>
-              <TableHead className="text-gray-600 font-semibold">
-                User
-              </TableHead>
-              <TableHead className="text-gray-600 font-semibold">
-                Amount
-              </TableHead>
-              <TableHead className="text-gray-600 font-semibold">
-                Status
-              </TableHead>
-              <TableHead className="text-gray-600 font-semibold">
-                Date
-              </TableHead>
-              <TableHead className="text-gray-600 font-semibold">
-                Actions
-              </TableHead>
+              <TableHead>ID</TableHead>
+              <TableHead>Doctor</TableHead>
+              <TableHead>Requested Amt</TableHead>
+              <TableHead>Bal at Req</TableHead>
+              <TableHead>Amt Paid</TableHead>
+              <TableHead>Commission Deduct</TableHead>
+              <TableHead>Method</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Created Date</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredRequests.map((request) => (
-              <TableRow key={request.id} className="hover:bg-gray-50">
-                <TableCell className="max-w-[150px] truncate">
-                  {request.user}
-                </TableCell>
-                <TableCell>₹{request.amount.toLocaleString()}</TableCell>
-                <TableCell>
-                  <span
-                    className={`font-medium ${getStatusColor(request.status)}`}
-                  >
-                    {request.status}
-                  </span>
-                </TableCell>
-                <TableCell>{request.date}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full sm:w-auto border-gray-300 hover:bg-gray-100"
-                  >
-                    View Details
-                  </Button>
+            {filteredRequests.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={9}
+                  className="text-center py-8 text-gray-500"
+                >
+                  No payout requests found
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              filteredRequests.map((request: PayoutRequest) => (
+                <TableRow key={request.id}>
+                  <TableCell className="font-mono text-sm">
+                    #{request.id}
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">
+                        {request.doctorName || `Doctor ID: ${request.doctorId}`}
+                      </div>
+                      {request.doctorName && (
+                        <div className="text-sm text-gray-500">
+                          ID: {request.doctorId}
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {formatCurrency(request.amount)}
+                  </TableCell>
+                  <TableCell>
+                    {formatCurrency(request.balanceAtRequest)}
+                  </TableCell>
+                  <TableCell>{formatCurrency(request.amountPaid)}</TableCell>
+                  <TableCell>
+                    {formatCurrency(request.commissionDeduct)}
+                  </TableCell>
+                  <TableCell>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                      {request.method?.toUpperCase()}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`font-medium capitalize ${getStatusColor(request.status)}`}
+                    >
+                      {request.status}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {formatDate(request.createdAt)}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
+
+      {filteredRequests.length > 0 && (
+        <div className="mt-4 text-sm text-gray-600">
+          Showing {filteredRequests.length} of{" "}
+          {Array.isArray(payoutRequests) ? payoutRequests.length : 0} payout
+          requests
+        </div>
+      )}
     </div>
   );
 };
 
-export default PayoutCompleted;
+export default PayoutRequests;

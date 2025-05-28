@@ -225,6 +225,8 @@ export const payoutRequests = pgTable("payout_requests", {
 
   amount: numeric("amount", { scale: 2 }).notNull(), // Requested amount
   balanceAtRequest: numeric("balance_at_request", { scale: 2 }).notNull(), // Doctor's balance at request time
+  amountPaid: numeric("amount_paid", { scale: 2 }), // Actual amount paid after deductions (nullable until processed)
+  commissionDeduct: numeric("commission_deduct", { scale: 2 }), // Commission amount deducted (nullable until processed)
 
   method: payoutMethodEnum("method").notNull(), // UPI, NEFT, IMPS
   status: payoutStatusEnum("status").default("pending").notNull(), // pending, completed
@@ -846,18 +848,3 @@ export type NewDoctor = InferInsertModel<typeof doctor>;
 export type NewDoctorEducation = InferInsertModel<typeof doctorEducation>;
 export type NewDoctorMetaTag = InferInsertModel<typeof doctorMetaTags>;
 export type NewDoctorExperience = InferInsertModel<typeof doctorExperience>;
-
-// export const platformSubscription = pgTable("platform_subscription", {
-//   id: serial("id").primaryKey(),
-//   doctorId: integer("doctor_id")
-//     .references(() => doctor.id)
-//     .notNull(),
-//   subscriptionType: subscriptionTypeEnum("subscription_type").notNull(),
-//   price: integer("price"),
-//   billingCycle: billingCycleEnum("billing_cycle"),
-//   lastBilling: timestamp("last_billing"),
-//   expireDate: timestamp("expire_date"),
-//   verified: boolean("verified").default(false),
-//   createdAt: timestamp("created_at").defaultNow(),
-//   updatedAt: timestamp("updated_at").defaultNow(),
-// });
