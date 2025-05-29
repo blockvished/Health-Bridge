@@ -11,8 +11,8 @@ const UNAVAILABLE_DATA_LINKS: Record<string, string> = {
   doctorInfoPage: "/admin/profile",
   doctorEduPage: "/admin/educations",
   doctorExpPage: "/admin/experiences",
-  doctorSchedulePage: "/admin/appointment/assign",
-  doctorConsultDetailPage: "/admin/live_consults/settings",
+  doctorSchedulePage: "/doctor/settings/set-schedule",
+  doctorConsultDetailPage: "/doctor/settings/live_consults",
   doctorClinicPage: "/admin/chamber",
 };
 

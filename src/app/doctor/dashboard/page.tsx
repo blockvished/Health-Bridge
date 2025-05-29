@@ -20,7 +20,7 @@ import {
 // import AppointmentsTable from "../_common/AppointmentsTable";
 // import NetIncomeTable from "../_common/NetIncomeTable";
 
-import AppointmentsPage from "../../appointment/all_list/page";
+import AppointmentsPage from "../../admin/appointment/all_list/page";
 import DoctorInfoModal from "./Modal"; // Import the modal component
 import Cookies from "js-cookie";
 
@@ -134,7 +134,7 @@ const DashboardSummaryCards: React.FC = () => {
         }
         bgColor="bg-blue-100"
         iconColor="text-blue-500"
-        route="/admin/dashboard/user"
+        route="/doctor/dashboard"
       />
       <SummaryCard
         title="Total Appointments"

@@ -25,14 +25,14 @@ const ADMIN_ROUTES = [
 ];
 
 const DOCTOR_ONLY_ROUTES = [
-  "/admin/dashboard/user",
-  "/admin/subscription",
-  "/admin/department",
-  "/admin/appointment/assign",
-  "/admin/live_consults/settings",
-  "/admin/profile/qr_code",
-  "/admin/payment/lists",
-  "/admin/domain",
+  "/doctor/dashboard/",
+  "/doctor/subscription",
+  "/doctor/settings/department",
+  "/doctor/settings/set-schedule",
+  "/doctor/settings/live_consults",
+  "/doctor/settings/qr_code",
+  "/doctor/payments",
+  "/doctor/domain",
   "/admin/payouts/setup_account",
   "/admin/payouts/user",
   "/admin/posts/settings",
@@ -59,7 +59,7 @@ const PATIENT_ONLY_ROUTES = [
 
 const DEFAULT_REDIRECT: Record<string, string> = {
   admin: "/admin/dashboard",
-  doctor: "/admin/dashboard/user",
+  doctor: "/doctor/dashboard",
   patient: "/admin/dashboard/patient",
 };
 
