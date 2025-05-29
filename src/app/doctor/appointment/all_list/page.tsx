@@ -10,7 +10,8 @@ import {
   FaUser, // Import FaUser for the person icon
 } from "react-icons/fa"; // Using react-icons
 import { format } from "date-fns";
-import AppointmentEditForm from "../AppointmentEditForm";
+import AppointmentEditForm from "../../../../app/admin/appointment/AppointmentEditForm";
+
 
 interface Appointment {
   appointmentId: string;

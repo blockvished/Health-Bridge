@@ -7,13 +7,13 @@ import { ChevronRight, AlertCircle } from "lucide-react";
 
 // Link mapping
 const UNAVAILABLE_DATA_LINKS: Record<string, string> = {
-  doctorVerificationPage: "admin/dashboard/verification",
-  doctorInfoPage: "/admin/profile",
-  doctorEduPage: "/admin/educations",
-  doctorExpPage: "/admin/experiences",
+  doctorVerificationPage: "/doctor/settings/verification",
+  doctorInfoPage: "/doctor/profile",
+  doctorEduPage: "/doctor/educations",
+  doctorExpPage: "/doctor/experiences",
   doctorSchedulePage: "/doctor/settings/set-schedule",
   doctorConsultDetailPage: "/doctor/settings/live_consults",
-  doctorClinicPage: "/admin/chamber",
+  doctorClinicPage: "/doctor/chamber",
 };
 
 // Label mapping

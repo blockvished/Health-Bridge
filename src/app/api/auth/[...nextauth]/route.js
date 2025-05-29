@@ -65,18 +65,13 @@ const handler = NextAuth({
     FacebookProvider({
       clientId: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-      authorization: {
-        params: {
-          scope: ["pages_show_list"].join(","),
-        },
-      },
     }),
   ],
   callbacks: {
     async jwt({
       token,
       account, // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      profile,
+      // profile,
     }) {
       // Store provider and access tokens in JWT
       if (account) {

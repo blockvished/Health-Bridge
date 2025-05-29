@@ -68,8 +68,8 @@ export const menuItemsDoctor: MenuItem[] = [
     name: "Payouts",
     svg: <FaWallet />,
     dropdown: [
-      { name: "Set Payout Account", link: "/admin/payouts/setup_account" },
-      { name: "Payouts", link: "/admin/payouts/user" },
+      { name: "Set Payout Account", link: "/doctor/payouts/set_account" },
+      { name: "Payouts", link: "/doctor/payouts/user" },
     ],
   },
   {
@@ -78,68 +78,68 @@ export const menuItemsDoctor: MenuItem[] = [
     dropdown: [
       {
         name: "Report",
-        link: "/admin/posts/report",
+        link: "/doctor/posts/report",
         svg: <FaSlidersH />,
       },
       {
         name: "All Posts",
-        link: "/admin/posts/all",
+        link: "/doctor/posts/all",
         svg: <FiBarChart2  />,
       },
-      { name: "Connections", link: "/admin/posts/connections",svg: <FaCog /> },
+      { name: "Connections", link: "/doctor/posts/connections",svg: <FaCog /> },
     ],
   },
-  { name: "Staff", link: "/admin/staff", svg: <FaUsers /> },
-  { name: "Patients", link: "/admin/patients", svg: <FaUserInjured /> },
+  { name: "Staff", link: "/doctor/staff", svg: <FaUsers /> },
+  { name: "Patients", link: "/doctor/patients", svg: <FaUserInjured /> },
   {
     name: "Appointments",
     svg: <FaCalendarAlt />,
     dropdown: [
-      { name: "Create New", link: "/admin/appointment" },
-      { name: "List by Date", link: "/admin/appointment/all_list" },
+      { name: "Create New", link: "/doctor/appointment" },
+      { name: "List by Date", link: "/doctor/appointment/all_list" },
     ],
   },
   {
     name: "Profile",
     svg: <FaUserMd />,
     dropdown: [
-      { name: "Personal Info", link: "/admin/profile" },
-      { name: "Manage Education", link: "/admin/educations" },
-      { name: "Manage Experiences", link: "/admin/experiences" },
+      { name: "Personal Info", link: "/doctor/profile" },
+      { name: "Manage Education", link: "/doctor/educations" },
+      { name: "Manage Experiences", link: "/doctor/experiences" },
     ],
   },
   {
     name: "Prescription",
     svg: <FaFileAlt />,
     dropdown: [
-      { name: "Create New", link: "/admin/prescription" },
-      { name: "Prescriptions", link: "/admin/prescription/all_prescription" },
+      { name: "Create New", link: "/doctor/prescription" },
+      { name: "Prescriptions", link: "/doctor/prescription/all_prescription" },
     ],
   },
   {
     name: "Rating & Reviews",
-    link: "/admin/dashboard/rating",
+    link: "/doctor/rating",
     svg: <FaStar />,
   },
-  { name: "Contact", link: "/admin/contact/user", svg: <FaEnvelope /> },
+  { name: "Contact", link: "/doctor/contact/user", svg: <FaEnvelope /> },
 ];
 
 export const menuItemsPatient: MenuItem[] = [
-  { name: "Dashboard", link: "/admin/dashboard/patient", svg: <MdDashboard /> },
+  { name: "Dashboard", link: "/patient/dashboard", svg: <MdDashboard /> },
   {
     name: "Rating & Reviews",
-    link: "/admin/patient/doctors",
+    link: "/patient/doctors",
     svg: <FaStar />,
   },
   {
     name: "Appointments",
-    link: "/admin/patient/appointments",
+    link: "/patient/appointments",
     svg: <FaCalendarAlt />,
   },
 
   {
     name: "Prescriptions",
-    link: "/admin/patient/prescriptions",
+    link: "/patient/prescriptions",
     svg: <FaFileAlt />,
   },
 ];

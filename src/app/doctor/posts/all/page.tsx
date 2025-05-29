@@ -1,7 +1,7 @@
 // report/page.tsx
 
 import React from "react";
-import AllPosts from "../all/AllPosts";
+import AllPosts from "./AllPosts";
 import PageWrapper from "../PageWrapper"; // Update import path as needed
 import Link from "next/link"; // Import Link
 

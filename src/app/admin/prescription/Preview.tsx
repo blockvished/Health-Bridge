@@ -140,7 +140,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
           )}
 
           {prescriptionSaved && (
-            <Link href="/admin/prescription/all_prescription">
+            <Link href="/doctor/prescription/all_prescription">
               <button className="ml-2 bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer">
                 <FaClipboardList /> All Prescriptions
               </button>

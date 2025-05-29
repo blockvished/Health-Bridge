@@ -20,7 +20,7 @@ import {
 // import AppointmentsTable from "../_common/AppointmentsTable";
 // import NetIncomeTable from "../_common/NetIncomeTable";
 
-import AppointmentsPage from "../../admin/appointment/all_list/page";
+import AppointmentsPage from "../../doctor/appointment/all_list/page";
 import DoctorInfoModal from "./Modal"; // Import the modal component
 import Cookies from "js-cookie";
 
@@ -158,7 +158,7 @@ const DashboardSummaryCards: React.FC = () => {
         }
         bgColor="bg-green-100"
         iconColor="text-green-500"
-        route="/admin/appointment/all_list"
+        route="/doctor/appointment/all_list"
       />
       <SummaryCard
         title="Staffs"
@@ -181,7 +181,7 @@ const DashboardSummaryCards: React.FC = () => {
         }
         bgColor="bg-red-100"
         iconColor="text-red-500"
-        route="/admin/staff"
+        route="/doctor/staff"
       />
       <SummaryCard
         title="Patients"
@@ -205,7 +205,7 @@ const DashboardSummaryCards: React.FC = () => {
         }
         bgColor="bg-yellow-100"
         iconColor="text-yellow-500"
-        route="/admin/patients"
+        route="/doctor/patients"
       />
     </div>
   );

@@ -132,7 +132,7 @@ const Login = () => {
       } else if (data.user.role === "admin") {
         router.push("/admin/dashboard");
       } else if (data.user.role === "patient") {
-        router.push("/admin/dashboard/patient");
+        router.push("/patient/dashboard");
       }
     } catch (err: unknown) {
       let errorMessage = "An unexpected error occurred during login";

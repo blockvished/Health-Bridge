@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import PostsSessionProvider from "./PostsSessionProvider";
+import PostsSessionProvider from "../../doctor/posts/PostsSessionProvider";
 
 interface PostsLayoutProps {
   children: ReactNode;

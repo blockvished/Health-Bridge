@@ -43,7 +43,7 @@ after admin is created, create plans and features using the script
 
 # doctor steps 
 signup doctor and create the clinic
-create clinic http://localhost:3000/admin/chamber
+create clinic http://localhost:3000/doctor/chamber
 create the interval and days http://localhost:3000/doctor/settings/set-schedule
 
 then need to update the consultation settings, otherwise amount will be 0 for the appointment 

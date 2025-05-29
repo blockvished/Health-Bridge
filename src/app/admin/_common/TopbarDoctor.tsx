@@ -233,7 +233,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                   {
                     name: "Update Profile",
                     icon: <FiEdit className="w-5 h-5 text-gray-600" />,
-                    path: "/admin/profile",
+                    path: "/doctor/profile",
                   },
                   {
                     name: "Change Password",
