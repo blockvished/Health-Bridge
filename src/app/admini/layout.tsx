@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import SidebarDoctor from "./_common/SidebarDoctor";
-import SidebarPatient from "./_common/SidebarPatient";
-import SidebarAdmin from "./_common/SidebarAdmin ";
-import TopbarDoctor from "./_common/TopbarDoctor";
-import TopbarPatient from "./_common/TopbarPatient";
-import TopbarAdmin from "./_common/TopbarAdmin";
-import Footer from "./_common/Footer";
+import SidebarDoctor from "./../admin/_common/SidebarDoctor";
+import SidebarPatient from "./../admin/_common/SidebarPatient";
+import SidebarAdmin from "./../admin/_common/SidebarAdmin ";
+import TopbarDoctor from "./../admin/_common/TopbarDoctor";
+import TopbarPatient from "./../admin/_common/TopbarPatient";
+import TopbarAdmin from "./../admin/_common/TopbarAdmin";
+import Footer from "./../admin/_common/Footer";
 
 export default function AdminLayout({
   children,
@@ -65,50 +65,6 @@ export default function AdminLayout({
     }
   };
 
-  const renderSidebar = () => {
-    switch (role) {
-      case "admin":
-        return (
-          <SidebarAdmin
-            isCollapsed={isCollapsed}
-            isMobile={isMobile}
-            sidebarOpen={sidebarOpen}
-          />
-        );
-      case "doctor":
-        return (
-          <SidebarDoctor
-            isCollapsed={isCollapsed}
-            isMobile={isMobile}
-            sidebarOpen={sidebarOpen}
-          />
-        );
-      case "patient":
-        return (
-          <SidebarPatient
-            isCollapsed={isCollapsed}
-            isMobile={isMobile}
-            sidebarOpen={sidebarOpen}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
-  const renderTopbar = () => {
-    switch (role) {
-      case "admin":
-        return <TopbarAdmin onToggleSidebar={toggleSidebar} />;
-      case "doctor":
-        return <TopbarDoctor onToggleSidebar={toggleSidebar} />;
-      case "patient":
-        return <TopbarPatient onToggleSidebar={toggleSidebar} />;
-      default:
-        return null;
-    }
-  };
-
   if (!role) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
@@ -116,18 +72,21 @@ export default function AdminLayout({
       </div>
     );
   }
-  
 
   return (
     <div>
       <div className="flex h-screen">
-        {renderSidebar()}
+        <SidebarAdmin
+          isCollapsed={isCollapsed}
+          isMobile={isMobile}
+          sidebarOpen={sidebarOpen}
+        />
         <div
           className={`flex flex-col w-full transition-all duration-300 ${
             isCollapsed ? "ml-0 md:ml-16" : "ml-0 md:ml-64"
           } ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}
         >
-          {renderTopbar()}
+          <TopbarAdmin onToggleSidebar={toggleSidebar} />
 
           <main
             className={`flex-1 p-4 ${isMobile && sidebarOpen ? "ml-1/2" : ""}`}

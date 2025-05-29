@@ -9,19 +9,18 @@ interface JWTPayloadWithRole extends JWTPayload {
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const ADMIN_ROUTES = [
-  "/admin/dashboard",
-  "/admin/dashboard",
-  "/admin/settings",
-  "/admin/payouts/settings",
-  "/admin/payouts/add",
-  "/admin/payouts/requests",
-  "/admin/payouts/completed",
-  "/admin/domain/request",
-  "/admin/domain/settings",
-  "/admin/package",
-  "/admin/payment/transactions",
-  "/admin/users",
-  "/admin/contact",
+  "/admini/dashboard",
+  "/admini/settings",
+  "/admini/payouts/settings",
+  "/admini/payouts/add",
+  "/admini/payouts/requests",
+  "/admini/payouts/completed",
+  "/admini/domain/request",
+  "/admini/domain/settings",
+  "/admini/plans",
+  "/admini/transactions",
+  "/admini/users",
+  "/admini/contact",
 ];
 
 const DOCTOR_ONLY_ROUTES = [
@@ -58,7 +57,7 @@ const PATIENT_ONLY_ROUTES = [
 ];
 
 const DEFAULT_REDIRECT: Record<string, string> = {
-  admin: "/admin/dashboard",
+  admin: "/admini/dashboard",
   doctor: "/doctor/dashboard",
   patient: "/patient/dashboard",
 };

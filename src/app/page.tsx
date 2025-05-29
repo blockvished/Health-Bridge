@@ -130,7 +130,7 @@ const Login = () => {
       if (data.user.role === "doctor") {
         router.push("/doctor/dashboard");
       } else if (data.user.role === "admin") {
-        router.push("/admin/dashboard");
+        router.push("/admini/dashboard");
       } else if (data.user.role === "patient") {
         router.push("/patient/dashboard");
       }

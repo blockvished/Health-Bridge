@@ -196,7 +196,7 @@ const AppointmentTable: React.FC<AppointmentTableProps> = ({
               Appointments
             </h2>
             <button
-              onClick={() => router.push("/doctor/appointment/all_list")}
+              onClick={() => router.push("/admin/appointment/all_list")}
               className="text-gray-600 text-sm border px-3 py-1 rounded-md flex items-center gap-1 hover:bg-gray-100 w-auto justify-center cursor-pointer"
             >
               <MdOutlineDateRange /> List by date
