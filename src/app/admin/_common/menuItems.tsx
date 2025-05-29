@@ -33,37 +33,37 @@ export interface MenuItem {
 }
 
 export const menuItemsDoctor: MenuItem[] = [
-  { name: "Dashboard", link: "/admin/dashboard/user", svg: <MdDashboard /> },
+  { name: "Dashboard", link: "/doctor/dashboard", svg: <MdDashboard /> },
   {
     name: "Subscription",
-    link: "/admin/subscription",
+    link: "/doctor/subscription",
     svg: <MdSubscriptions />,
   },
   {
     name: "Settings",
     svg: <AiFillSetting />,
     dropdown: [      
-      { name: "Verification", link: "/admin/dashboard/verification", svg: <FiFileText /> },
-      { name: "Departments", link: "/admin/department", svg: <FaBuilding /> },
+      { name: "Verification", link: "/doctor/settings/verification", svg: <FiFileText /> },
+      { name: "Departments", link: "/doctor/settings/department", svg: <FaBuilding /> },
       {
         name: "Set Schedule",
-        link: "/admin/appointment/assign",
+        link: "/doctor/settings/set-schedule",
         svg: <FaCalendarCheck />,
       },
       {
         name: "Consultation Settings",
-        link: "/admin/live_consults/settings",
+        link: "/doctor/settings/live_consults",
         svg: <FaSlidersH />,
       },
-      { name: "QR Code", link: "/admin/profile/qr_code", svg: <FaQrcode /> },
+      { name: "QR Code", link: "/doctor/settings/qr_code", svg: <FaQrcode /> },
     ],
   },
   {
     name: "Patient Transactions",
-    link: "/admin/payment/lists",
+    link: "/doctor/payments",
     svg: <MdPayment />,
   },
-  { name: "Custom Domain", link: "/admin/domain", svg: <MdDomain /> },
+  { name: "Custom Domain", link: "/doctor/domain", svg: <MdDomain /> },
   {
     name: "Payouts",
     svg: <FaWallet />,

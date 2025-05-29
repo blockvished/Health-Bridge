@@ -128,7 +128,7 @@ const Login = () => {
 
       // Redirect based on user role
       if (data.user.role === "doctor") {
-        router.push("/admin/dashboard/user");
+        router.push("/doctor/dashboard");
       } else if (data.user.role === "admin") {
         router.push("/admin/dashboard");
       } else if (data.user.role === "patient") {
