@@ -1,6 +1,7 @@
 // app/api/send-otp-email/route.ts
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
+import { sendEmail } from "./../../../../scripts/emailSender";
+// import { Resend } from "resend";
 import { db } from "../../../db/db";
 import { emailOtps } from "../../../db/schema"; // Import users table
 
@@ -36,27 +37,34 @@ export async function POST(req: Request) {
     );
   }
   console.log("Sending OTP to email:", email);
-  const resend = new Resend(process.env.RESEND_API_KEY!);
+  // const resend = new Resend(process.env.RESEND_API_KEY!);
 
   const otp = Math.floor(100000 + Math.random() * 900000);
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-  try {
-    const emailResponse = await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: email,
-      subject: "Email Verification Code",
-      html: `<p>This is your OTP for email verification: <strong>${otp}</strong></p>`,
-    });
+  const emailSubject = `Email Verification Code`;
+  const html = `<p>This is your OTP for email verification: <strong>${otp}</strong></p>`;
+  const text = `This is your OTP for email verification: ${otp}`;
+  // to is `email`
 
-    // Optional: check if email was accepted (basic check)
-    if (emailResponse.error) {
-      console.error("Email failed:", emailResponse.error);
-      return NextResponse.json(
-        { success: false, message: "Failed to send OTP email" },
-        { status: 500 }
-      );
-    }
+  try {
+    // ✅ Use custom mailer
+    await sendEmail(email, text, emailSubject, html);
+    // const emailResponse = await resend.emails.send({
+    //   from: "onboarding@resend.dev",
+    //   to: email,
+    //   subject: "Email Verification Code",
+    //   html: `<p>This is your OTP for email verification: <strong>${otp}</strong></p>`,
+    // });
+
+    // // Optional: check if email was accepted (basic check)
+    // if (emailResponse.error) {
+    //   console.error("Email failed:", emailResponse.error);
+    //   return NextResponse.json(
+    //     { success: false, message: "Failed to send OTP email" },
+    //     { status: 500 }
+    //   );
+    // }
 
     // Store OTP in DB
     await db

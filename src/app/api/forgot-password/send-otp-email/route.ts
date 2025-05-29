@@ -1,6 +1,7 @@
 // app/api/send-otp-email/route.ts
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
+// import { Resend } from "resend";
+import { sendEmail } from "./../../../../../scripts/emailSender";
 import { db } from "../../../../db/db";
 import { emailOtps, users } from "../../../../db/schema"; // Import users table
 import { eq } from "drizzle-orm";
@@ -34,26 +35,34 @@ export async function POST(req: Request) {
 
     console.log("User exists, sending OTP to email:", email);
 
-    const resend = new Resend(process.env.RESEND_API_KEY!);
+    // const resend = new Resend(process.env.RESEND_API_KEY!);
 
     const otp = Math.floor(100000 + Math.random() * 900000);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-    const emailResponse = await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: email,
-      subject: "Email Verification Code",
-      html: `<p>This is your OTP for email verification: <strong>${otp}</strong></p>`,
-    });
+    const emailSubject = `Email Verification Code`;
+    const html = `<p>This is your OTP for email verification: <strong>${otp}</strong></p>`;
+    const text = `This is your OTP for email verification: ${otp}`;
+    // to is `email`
+
+    // ✅ Use custom mailer
+    await sendEmail(email, text, emailSubject, html);
+
+    // const emailResponse = await resend.emails.send({
+    //   from: "onboarding@resend.dev",
+    //   to: email,
+    //   subject: "Email Verification Code",
+    //   html: `<p>This is your OTP for email verification: <strong>${otp}</strong></p>`,
+    // });
 
     // Optional: check if email was accepted (basic check)
-    if (emailResponse.error) {
-      console.error("Email failed:", emailResponse.error);
-      return NextResponse.json(
-        { success: false, message: "Failed to send OTP email" },
-        { status: 500 }
-      );
-    }
+    // if (emailResponse.error) {
+    //   console.error("Email failed:", emailResponse.error);
+    //   return NextResponse.json(
+    //     { success: false, message: "Failed to send OTP email" },
+    //     { status: 500 }
+    //   );
+    // }
 
     // Store OTP in DB
     await db
@@ -77,7 +86,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       message: "OTP sent and stored successfully",
-      existingUserId: existingUser[0].id
+      existingUserId: existingUser[0].id,
     });
   } catch (error) {
     console.error("Error:", error);
