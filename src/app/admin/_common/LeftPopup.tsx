@@ -208,7 +208,7 @@ const LeftPopup: React.FC<LeftPopupProps> = ({
       {/* Menu Options */}
       <div className="mt-3 space-y-1">
         <Link
-          href="/doctor/chamber"
+          href="/admin/chamber"
           className="flex items-center text-blue-600 hover:bg-blue-50 transition p-2 rounded-md"
         >
           <FaClinicMedical className="mr-2 w-5 h-5" />{" "}

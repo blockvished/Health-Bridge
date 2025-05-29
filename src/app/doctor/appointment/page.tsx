@@ -5,7 +5,7 @@ import { FiCalendar, FiClock, FiSearch } from "react-icons/fi";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Cookies from "js-cookie";
-import AppointmentTable from "./../../admin/appointment/AppointmentTable";
+import AppointmentTable from "./AppointmentTable";
 
 
 interface Clinic {

@@ -294,7 +294,7 @@ const Users: React.FC = () => {
                 <TableCell>{formatDate(user.createdAt)}</TableCell>
                 <TableCell>
                   <Link
-                    href={`/admin/users/${user.id}`}
+                    href={`/admini/users/${user.id}`}
                     className="bg-blue-500 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded-md transition-colors"
                   >
                     View

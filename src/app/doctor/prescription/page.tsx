@@ -4,11 +4,11 @@ import Cookies from "js-cookie";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { FaHospital, FaPlus, FaPrint } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
-import DrugEntry from "./../../../app/admin/prescription/DrugEntry";
+import DrugEntry from "./DrugEntry";
 
-import { Drug } from "./../../../app/admin/prescription/DrugEntry";
-import PrescriptionPreview from "./../../../app/admin/prescription/Preview";
-import DocumentPreviewModal from "./../../../app/admin/prescription/DocumentPreviewModal";
+import { Drug } from "./DrugEntry";
+import PrescriptionPreview from "./Preview";
+import DocumentPreviewModal from "./DocumentPreviewModal";
 import Image from "next/image";
 
 export interface Doctor {
