@@ -9,18 +9,18 @@ interface JWTPayloadWithRole extends JWTPayload {
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const ADMIN_ROUTES = [
-  "/admini/dashboard",
-  "/admini/settings",
-  "/admini/payouts/settings",
-  "/admini/payouts/add",
-  "/admini/payouts/requests",
-  "/admini/payouts/completed",
-  "/admini/domain/request",
-  "/admini/domain/settings",
-  "/admini/plans",
-  "/admini/transactions",
-  "/admini/users",
-  "/admini/contact",
+  "/admin/dashboard",
+  "/admin/settings",
+  "/admin/payouts/settings",
+  "/admin/payouts/add",
+  "/admin/payouts/requests",
+  "/admin/payouts/completed",
+  "/admin/domain/request",
+  "/admin/domain/settings",
+  "/admin/plans",
+  "/admin/transactions",
+  "/admin/users",
+  "/admin/contact",
 ];
 
 const DOCTOR_ONLY_ROUTES = [
@@ -57,7 +57,7 @@ const PATIENT_ONLY_ROUTES = [
 ];
 
 const DEFAULT_REDIRECT: Record<string, string> = {
-  admin: "/admini/dashboard",
+  admin: "/admin/dashboard",
   doctor: "/doctor/dashboard",
   patient: "/patient/dashboard",
 };
@@ -144,5 +144,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/register"],
+  matcher: ["/doctor/:path*", "/patient/:path*","/admin/:path*", "/register"],
 };

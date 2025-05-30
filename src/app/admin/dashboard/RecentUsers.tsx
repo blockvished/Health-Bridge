@@ -64,7 +64,7 @@ const RecentUsers: React.FC<RecentUsersProps> = ({ users }) => {
           ))}
         </ul>
       )}
-      <Link href="/admini/users" className="block text-center p-4 border-t border-gray-200 hover:bg-gray-100 cursor-pointer transition-colors">
+      <Link href="/admin/users" className="block text-center p-4 border-t border-gray-200 hover:bg-gray-100 cursor-pointer transition-colors">
         <span className="text-blue-600 text-sm">See all Users →</span>
       </Link>
     </div>

@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import SidebarDoctor from "./../admin/_common/SidebarDoctor";
-import SidebarPatient from "./../admin/_common/SidebarPatient";
-import SidebarAdmin from "./../admin/_common/SidebarAdmin ";
-import TopbarDoctor from "./../admin/_common/TopbarDoctor";
-import TopbarPatient from "./../admin/_common/TopbarPatient";
-import TopbarAdmin from "./../admin/_common/TopbarAdmin";
-import Footer from "./../admin/_common/Footer";
+import SidebarDoctor from "../_common/SidebarDoctor";
+import SidebarPatient from "../_common/SidebarPatient";
+import SidebarAdmin from "../_common/SidebarAdmin ";
+import TopbarDoctor from "../_common/TopbarDoctor";
+import TopbarPatient from "../_common/TopbarPatient";
+import TopbarAdmin from "../_common/TopbarAdmin";
+import Footer from "../_common/Footer";
 
 export default function AdminLayout({
   children,
