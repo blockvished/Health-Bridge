@@ -287,7 +287,7 @@ const EmailSettings: React.FC = () => {
             />
           </svg>
           <p className="text-blue-600 text-sm">
-            For Gmail: Enable 2FA and use App Passwords, or enable "Less secure app access"
+            {`For Gmail: Enable 2FA and use App Passwords, or enable "Less secure app access"`}
           </p>
         </div>
       </div>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FiToggleLeft, FiToggleRight } from 'react-icons/fi';
 
 type PayoutSettingsType = {
   minimumPayoutAmount: number;

@@ -1,12 +1,9 @@
 "use client";
 import { useState } from "react";
 import {
-  Paintbrush,
-  Settings,
   Shield,
   MessageCircle,
   Globe,
-  List,
 } from "lucide-react";
 
 import ZoomSettings from "./ZoomSettings";

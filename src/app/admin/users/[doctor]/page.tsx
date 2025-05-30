@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
 
 type Doctor = {
   id: string;
@@ -305,7 +306,10 @@ const DoctorData = () => {
             >
               &#x2715;
             </button>
-            <h3 id="modal-title" className="text-lg font-semibold mb-4 break-all">
+            <h3
+              id="modal-title"
+              className="text-lg font-semibold mb-4 break-all"
+            >
               {modalFileName}
             </h3>
 
@@ -319,22 +323,25 @@ const DoctorData = () => {
               <p className="text-red-600 text-center py-6">{modalError}</p>
             )}
 
-            {!modalLoading && !modalError && modalImageSrc && (
-              modalFileName &&
-              modalFileName.toLowerCase().endsWith(".pdf") ? (
+            {!modalLoading &&
+              !modalError &&
+              modalImageSrc &&
+              (modalFileName && modalFileName.toLowerCase().endsWith(".pdf") ? (
                 <embed
                   src={modalImageSrc}
                   type="application/pdf"
                   className="w-full h-[85vh] rounded"
                 />
               ) : (
-                <img
-                  src={modalImageSrc}
-                  alt={`Verification file ${modalFileName}`}
-                  className="max-w-full max-h-[85vh] object-contain rounded"
-                />
-              )
-            )}
+                <div className="relative w-full max-h-[85vh]">
+                  <Image
+                    src={modalImageSrc}
+                    alt={`Verification file ${modalFileName}`}
+                    fill
+                    className="object-contain rounded"
+                  />
+                </div>
+              ))}
           </div>
         </div>
       )}

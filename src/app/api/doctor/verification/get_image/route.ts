@@ -96,11 +96,23 @@ export async function GET(req: NextRequest) {
         "Content-Disposition": `inline; filename="${fileName}"`,
       },
     });
-  } catch (err: any) {
-    if (err.code === "ENOENT") {
-      return NextResponse.json({ error: "File not found." }, { status: 404 });
+  } catch (error: unknown) {
+    // Use 'unknown' for safer type handling in catch blocks
+    // Type guard to check if the error is an object with a 'code' property
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      typeof (error as { code: unknown }).code === "string" // Ensure 'code' is a string
+    ) {
+      const err = error as { code: string }; // Assert the type after the checks
+      if (err.code === "ENOENT") {
+        return NextResponse.json({ error: "File not found." }, { status: 404 });
+      }
     }
-    console.error("Error reading file:", err);
+
+    // Log the full error for better debugging
+    console.error("Error reading file:", error);
     return NextResponse.json(
       { error: "Failed to retrieve file." },
       { status: 500 }

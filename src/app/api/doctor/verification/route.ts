@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     process.cwd(),
     "private_uploads",
     "verification_docs",
-    userId.toString(),
+    userId.toString()
   );
 
   try {
@@ -55,7 +55,9 @@ export async function POST(req: NextRequest) {
         const originalName = file.name;
         const ext = originalName.split(".").pop();
         const base = originalName.substring(0, originalName.lastIndexOf("."));
-        const safeBase = base.replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_-]/g, "");
+        const safeBase = base
+          .replace(/\s+/g, "_")
+          .replace(/[^a-zA-Z0-9_-]/g, "");
         const newFileName = `${dateTimePrefix}_${safeBase}.${ext}`;
         const filePath = path.join(uploadDir, newFileName);
 
@@ -65,14 +67,20 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ success: true, message: "Files uploaded successfully." });
+    return NextResponse.json({
+      success: true,
+      message: "Files uploaded successfully.",
+    });
   } catch (err) {
     console.error("Upload error:", err);
-    return NextResponse.json({ error: "Failed to upload files." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to upload files." },
+      { status: 500 }
+    );
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   // Verify JWT token
   const decodedOrResponse = await verifyAuthToken();
   if (decodedOrResponse instanceof NextResponse) return decodedOrResponse;
@@ -97,20 +105,27 @@ export async function GET(req: NextRequest) {
     process.cwd(),
     "private_uploads",
     "verification_docs",
-    userId.toString(),
+    userId.toString()
   );
 
   try {
     const files = await readdir(folderPath);
     return NextResponse.json({ files });
-  } catch (err: any) {
-    if (err.code === "ENOENT") {
-      return NextResponse.json({ files: [] }); // No files yet
+  } catch (error: unknown) {
+    // Use 'unknown' for safer type handling in catch blocks
+    // Type guard to check if the error is an object with a 'code' property (common for Node.js fs errors)
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      typeof (error as { code: unknown }).code === "string" // Ensure 'code' is a string
+    ) {
+      const err = error as { code: string }; // Type assertion after checks
+      if (err.code === "ENOENT") {
+        // ENOENT indicates "Error NO ENtry" - typically means the file or directory does not exist.
+        // In this context, it means the folderPath does not exist, so there are "no files yet".
+        return NextResponse.json({ files: [] });
+      }
     }
-    console.error("Error reading verification files:", err);
-    return NextResponse.json(
-      { error: "Failed to list verification files." },
-      { status: 500 }
-    );
   }
 }

@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 import { verifyAuthToken } from "../../../../../lib/verify";
 import db from "../../../../../../db/db";
 import { doctor, users } from "../../../../../../db/schema";
-import { eq } from 'drizzle-orm';
+import { eq } from "drizzle-orm";
 
 interface Params {
   doctor: string;
@@ -10,7 +10,7 @@ interface Params {
 
 export async function POST(
   request: Request,
-  { params }: { params: Params }
+  { params }: { params: Promise<Params> }
 ) {
   // 1. Verify user token
   const decodedOrResponse = await verifyAuthToken();
@@ -38,10 +38,10 @@ export async function POST(
   }
 
   // 4. Validate doctorId param
-  const { doctor: doctorId } = params;
+  const { doctor: doctorId } = await params;
 
   if (!doctorId) {
-    return NextResponse.json({ error: 'Missing doctorId' }, { status: 400 });
+    return NextResponse.json({ error: "Missing doctorId" }, { status: 400 });
   }
 
   try {
@@ -53,7 +53,7 @@ export async function POST(
       .limit(1);
 
     if (current.length === 0) {
-      return NextResponse.json({ error: 'Doctor not found' }, { status: 404 });
+      return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
     }
 
     // 6. Toggle accountVerified status
@@ -68,6 +68,9 @@ export async function POST(
     return NextResponse.json({ accountVerified: !currentVerified });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

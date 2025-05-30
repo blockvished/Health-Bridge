@@ -6,7 +6,7 @@ import { verifyAuthToken } from "../../../../../app/lib/verify";
 import { InferInsertModel } from "drizzle-orm";
 import { desc } from "drizzle-orm";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const decodedOrResponse = await verifyAuthToken();
     if (decodedOrResponse instanceof NextResponse) {
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     }
 
     const userRole = user[0].role;
-    let fetchDoctorId = String(userId);
+    const fetchDoctorId = String(userId);
 
     if (userRole === "admin") {
       const requests = await db

@@ -317,7 +317,7 @@ const PayoutsPage: React.FC = () => {
         ) : payoutRequests.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <p>No payout requests found.</p>
-            <p className="text-sm mt-1">Click "Request Payout" to create your first request.</p>
+            <p className="text-sm mt-1">{`Click "Request Payout" to create your first request.`}</p>
           </div>
         ) : (
           <Table>

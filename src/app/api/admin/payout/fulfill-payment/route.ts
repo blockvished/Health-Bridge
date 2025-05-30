@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "../../../../../db/db";
 import {
-  doctor,
   payoutRequests,
   payoutSettings,
   users,

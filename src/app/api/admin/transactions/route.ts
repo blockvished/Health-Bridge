@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "../../../../db/db";
 import { transactions, users, doctor, plans } from "../../../../db/schema";
 import { eq } from "drizzle-orm";
 import { verifyAuthToken } from "@/lib/verify";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const decodedOrResponse = await verifyAuthToken();
 
   // Handle potential error response from token verification
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     return decodedOrResponse;
   }
 
-  const decoded = decodedOrResponse;
+  // const decoded = decodedOrResponse;
   try {
     // Join all the required tables
     const result = await db

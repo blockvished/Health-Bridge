@@ -1,13 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Cookies from "js-cookie";
 import SidebarDoctor from "../_common/SidebarDoctor";
-import SidebarPatient from "../_common/SidebarPatient";
-import SidebarAdmin from "../_common/SidebarAdmin ";
 import TopbarDoctor from "../_common/TopbarDoctor";
-import TopbarPatient from "../_common/TopbarPatient";
-import TopbarAdmin from "../_common/TopbarAdmin";
 import Footer from "../_common/Footer";
 
 export default function AdminLayout({
@@ -19,14 +14,8 @@ export default function AdminLayout({
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const roleFromCookie = Cookies.get("userRole");
-    setRole(roleFromCookie || null);
-
-    console.log(roleFromCookie)
-
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
