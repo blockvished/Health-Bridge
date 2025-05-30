@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -294,7 +293,7 @@ const Users: React.FC = () => {
                 <TableCell>{formatDate(user.createdAt)}</TableCell>
                 <TableCell>
                   <Link
-                    href={`/admini/users/${user.id}`}
+                    href={`/admin/users/${user.id}`}
                     className="bg-blue-500 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded-md transition-colors"
                   >
                     View

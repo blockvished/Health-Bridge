@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const transporterConfig: any = {
+    const transporterConfig = {
       host: mailHost,
       port: portNumber,
       secure: mailEncryption === 'SSL', // true for SSL

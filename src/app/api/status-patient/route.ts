@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
 import { Env, StandardCheckoutClient } from "pg-sdk-node";
 import {
   doctor,
   transactions,
-  users,
-  passwordResetTokens,
   appointments,
 } from "../../../db/schema";
 import db from "../../../db/db";

@@ -34,12 +34,6 @@ const InputField: React.FC<InputFieldProps> = ({
   );
 };
 
-interface ZoomSettingsData {
-  zoomAccountId: string;
-  zoomClientId: string;
-  zoomClientSecret: string;
-}
-
 const ZoomSettings: React.FC = () => {
   const [accountId, setAccountId] = useState("");
   const [clientId, setClientId] = useState("");
@@ -79,6 +73,43 @@ const ZoomSettings: React.FC = () => {
 
   const handleZoomIntegrationDoc = () => {
     window.open("https://doxe.originlabsoft.com/docs/#docs_zoom", "_blank");
+  };
+
+  const handleCheckConnection = async () => {
+    if (!accountId || !clientId || !clientSecret) {
+      setMessage({ type: 'error', text: 'Please fill in all fields before checking connection' });
+      return;
+    }
+
+    try {
+      setIsCheckingConnection(true);
+      setMessage(null);
+
+      const response = await fetch('/api/admin/settings/zoom_connection_test', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          zoomAccountId: accountId,
+          zoomClientId: clientId,
+          zoomClientSecret: clientSecret
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setMessage({ type: 'success', text: 'Connection successful! Zoom API is working correctly.' });
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Connection failed. Please check your credentials.' });
+      }
+    } catch (error) {
+      console.error('Error checking zoom connection:', error);
+      setMessage({ type: 'error', text: 'Failed to check connection. Please try again.' });
+    } finally {
+      setIsCheckingConnection(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -189,6 +220,7 @@ const ZoomSettings: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-2">
         <Button
           variant="outline"
+          onClick={handleCheckConnection}
           disabled={isCheckingConnection || isSaving}
           className="w-full sm:w-auto text-red-500 border-red-500 hover:bg-red-500 hover:text-white disabled:opacity-50"
         >

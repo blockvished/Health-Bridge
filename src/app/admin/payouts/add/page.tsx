@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 
 // Type definitions
 interface PayoutRequest {
@@ -53,7 +52,6 @@ type FilterStatus = "All" | "Pending" | "Completed";
 type PaymentMethod = "UPI" | "NEFT" | "IMPS";
 
 const AddPayouts: React.FC = () => {
-  const router = useRouter();
   const [filter, setFilter] = useState<FilterStatus>("Pending");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([]);

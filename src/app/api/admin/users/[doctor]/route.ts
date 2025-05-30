@@ -1,18 +1,24 @@
-import { NextResponse } from 'next/server';
-import { readdir } from 'fs/promises';
-import path from 'path';
-import { db } from '../../../../../db/db'; // Your Drizzle ORM instance
-import { doctor, doctorEducation, doctorExperience } from '../../../../../db/schema'; // Your table schemas
-import { eq } from 'drizzle-orm';
+import { NextResponse } from "next/server";
+import { readdir } from "fs/promises";
+import path from "path";
+import { db } from "../../../../../db/db"; // Your Drizzle ORM instance
+import {
+  doctor,
+  doctorEducation,
+  doctorExperience,
+} from "../../../../../db/schema"; // Your table schemas
+import { eq } from "drizzle-orm";
 
 export async function GET(
   request: Request,
-  { params }: { params: { doctor: string } }
+  { params }: { params: Promise<{ doctor: string }> }
 ) {
-  const doctorId = Number(params.doctor);
+  // Await the params Promise
+  const { doctor: doctorParam } = await params;
+  const doctorId = Number(doctorParam);
 
   if (isNaN(doctorId)) {
-    return NextResponse.json({ error: 'Invalid doctor ID' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid doctor ID" }, { status: 400 });
   }
 
   try {
@@ -22,10 +28,10 @@ export async function GET(
       .from(doctor)
       .where(eq(doctor.id, doctorId))
       .limit(1)
-      .then(res => res[0] ?? null);
+      .then((res) => res[0] ?? null);
 
     if (!doctorInfo) {
-      return NextResponse.json({ error: 'Doctor not found' }, { status: 404 });
+      return NextResponse.json({ error: "Doctor not found" }, { status: 404 });
     }
 
     // Fetch education and experience for this doctor
@@ -42,23 +48,42 @@ export async function GET(
     // Read verification files from the file system
     const folderPath = path.join(
       process.cwd(),
-      'private_uploads',
-      'verification_docs',
+      "private_uploads",
+      "verification_docs",
       String(doctorId)
     );
 
     let verificationFiles: string[] = [];
     try {
       verificationFiles = await readdir(folderPath);
-    } catch (err: any) {
-      if (err.code !== 'ENOENT') {
-        console.error('Error reading verification files:', err);
+    } catch (error: unknown) {
+      // Use 'unknown' for safer type handling in catch blocks
+      let isENOENT = false;
+
+      // Type guard to safely check if the error is an object with a 'code' property
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        typeof (error as { code: unknown }).code === "string"
+      ) {
+        const err = error as { code: string }; // Assert the type after checks
+        if (err.code === "ENOENT") {
+          isENOENT = true;
+        }
+      }
+
+      // If the error is NOT ENOENT (or if it's not an object with a 'code' property),
+      // then treat it as a generic 500 error.
+      if (!isENOENT) {
+        console.error("Error reading verification files:", error); // Log the full error object for debugging
         return NextResponse.json(
-          { error: 'Failed to list verification files.' },
+          { error: "Failed to list verification files." },
           { status: 500 }
         );
       }
-      // If folder doesn't exist, assume no files
+
+      // If the error IS ENOENT, assume no files.
       verificationFiles = [];
     }
 
@@ -70,9 +95,9 @@ export async function GET(
       verificationFiles,
     });
   } catch (error) {
-    console.error('Error fetching doctor data:', error);
+    console.error("Error fetching doctor data:", error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }

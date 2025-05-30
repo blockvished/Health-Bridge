@@ -5,9 +5,9 @@ import { doctorVerificationDocuments } from '../../../../../../db/schema'; // Ad
 import { eq } from 'drizzle-orm';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 // DELETE - Delete a specific document by ID
@@ -16,7 +16,7 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = await params; // Await the params Promise
 
     // Validate ID
     const documentId = parseInt(id);
@@ -70,7 +70,7 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = await params; // Await the params Promise
     
     console.log(`GET /api/admin/settings/doctor_verification/${id}`);
 

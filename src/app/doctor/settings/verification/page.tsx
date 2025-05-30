@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { UploadCloud, Loader2, X } from "lucide-react";
+import Image from "next/image";
 
 export default function DoctorVerification() {
   const [documents, setDocuments] = useState<{ id: number; name: string }[]>(
@@ -270,11 +271,14 @@ export default function DoctorVerification() {
                   className="w-full h-full rounded"
                 />
               ) : (
-                <img
-                  src={modalImageSrc}
-                  alt="Uploaded document"
-                  className="max-w-full max-h-full object-contain rounded"
-                />
+                <div className="relative max-w-full max-h-full">
+                  <Image
+                    src={modalImageSrc}
+                    alt="Uploaded document"
+                    fill
+                    className="object-contain rounded"
+                  />
+                </div>
               ))}
           </div>
         </div>
