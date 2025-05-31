@@ -24,7 +24,6 @@ jobs:
 
       - name: Build the project
         run: npm run build
-
   deploy:
     name: Deploy to VPS
     needs: build
@@ -50,5 +49,4 @@ jobs:
             echo "DATABASE_URL is: $DATABASE_URL"
             npm install
             npm run build
-            pm2 start npm --name "live_doctor" -- run start:prod
-            pm2 restart livedoctors 
+            pm2 start npm --name "livedoctors" -- run start:prod --update-env
