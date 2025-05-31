@@ -165,10 +165,10 @@ export const menuItemsAdmin: MenuItem[] = [
       { name: "Settings", link: "/admin/domain/settings" },
     ],
   },
-  { name: "Plans", link: "/admin/package", svg: <RiFileListFill /> },
+  { name: "Plans", link: "/admin/plans", svg: <RiFileListFill /> },
   {
     name: "Transactions",
-    link: "/admin/payment/transactions",
+    link: "/admin/transactions",
     svg: <MdAttachMoney />,
   },
   { name: "Users", link: "/admin/users", svg: <FaUsers /> },
