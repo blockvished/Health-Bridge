@@ -3,7 +3,7 @@ name: Build & Deploy Node.js App to VPS
 on:
   push:
     branches:
-      - main  # or change to your branch name
+      - main  # or change to your deployment branch
 
 jobs:
   build:
@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # or the version you use
+          node-version: '18'
 
       - name: Install dependencies
         run: npm ci
@@ -30,8 +30,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: production
-      url: http://${{ secrets.VPS_HOST }}
+      name: production  # No 'url' here
 
     steps:
       - name: Wait for Manual Approval
@@ -49,7 +48,7 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd /home/youruser/your-app-folder
+            cd /home/LiveDoctors-app/ld2025
             git pull origin main
             npm install
             npm run build
