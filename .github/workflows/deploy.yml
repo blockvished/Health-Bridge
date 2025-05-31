@@ -3,7 +3,7 @@ name: Build & Deploy Node.js App to VPS
 on:
   push:
     branches:
-      - main  # or change to your deployment branch
+      - main
 
 jobs:
   build:
@@ -30,16 +30,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: production  # No 'url' here
-
+      name: production   # <-- this triggers built-in manual approval!
     steps:
-      - name: Wait for Manual Approval
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ secrets.GITHUB_TOKEN }}
-          approvers: vinod-prgenix  # Your GitHub username
-          instructions: 'Approve to deploy to VPS'
-
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -52,4 +44,4 @@ jobs:
             git pull origin main
             npm install
             npm run build
-            pm2 restart all || pm2 start npm --name "my-app" -- start
+            pm2 restart livedoctors || pm2 start npm --name "livedoctors" -- start
