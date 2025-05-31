@@ -42,9 +42,11 @@ jobs:
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm use 22
+            nvm use --lts
             cd /home/LiveDoctors-app/LD2025
             export $(grep -v '^#' .env | xargs)
+            echo "DATABASE_URL is: $DATABASE_URL"
             npm install
-            npm run build
-            pm2 restart livedoctors || pm2 start npm --name "livedoctors" -- start
+            DATABASE_URL=$DATABASE_URL npm run build
+            pm2 start npm --name "live_doctor" -- run start:prod
+            pm2 restart livedoctors 
