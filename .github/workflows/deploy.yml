@@ -1,0 +1,56 @@
+name: Build & Deploy Node.js App to VPS
+
+on:
+  push:
+    branches:
+      - main  # or change to your branch name
+
+jobs:
+  build:
+    name: Build Project
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # or the version you use
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the project
+        run: npm run build
+
+  deploy:
+    name: Deploy to VPS
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: http://${{ secrets.VPS_HOST }}
+
+    steps:
+      - name: Wait for Manual Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: vinod-prgenix  # Your GitHub username
+          instructions: 'Approve to deploy to VPS'
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /home/youruser/your-app-folder
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart all || pm2 start npm --name "my-app" -- start
