@@ -472,8 +472,6 @@ const DoctorData = () => {
         </aside>
       </div>
       {/* Modal for verification file image/pdf */}
-      // Replace the modal section in your component with this updated version:
-      {/* Modal for verification file image/pdf */}
       {modalOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"

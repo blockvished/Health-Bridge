@@ -38,6 +38,7 @@ export async function GET() {
           amountPaid: payoutRequests.amountPaid,
           commissionDeduct: payoutRequests.commissionDeduct,
           requestedMethod: payoutRequests.requestedMethod,
+          paymentMethod: payoutRequests.paymentMethod,
           status: payoutRequests.status,
           createdAt: payoutRequests.createdAt,
           doctorName: doctor.name, // Added doctor name

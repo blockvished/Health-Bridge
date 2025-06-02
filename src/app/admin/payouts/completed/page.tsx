@@ -28,7 +28,7 @@ interface PayoutRequest {
   balanceAtRequest?: number;
   amountPaid?: number;
   commissionDeduct?: number;
-  method?: string;
+  paymentMethod?: string;
   status: "pending" | "completed" | string;
   createdAt: string;
 }
@@ -60,6 +60,8 @@ const PayoutRequests: React.FC = () => {
         }
 
         const data: PayoutRequest[] | ApiResponse = await response.json();
+
+        console.log(data);
 
         // Ensure data is an array
         if (Array.isArray(data)) {
@@ -113,10 +115,14 @@ const PayoutRequests: React.FC = () => {
 
   const formatDate = (dateString: string | undefined): string => {
     if (!dateString) return "—";
-    return new Date(dateString).toLocaleDateString("en-IN", {
+    return new Date(dateString).toLocaleString("en-IN", {
       year: "numeric",
       month: "short",
       day: "numeric",
+      hour: "2-digit", // Add this for hour
+      minute: "2-digit", // Add this for minute
+      second: "2-digit", // Add this for second
+      hour12: true, // Use 12-hour format with AM/PM
     });
   };
 
@@ -202,7 +208,7 @@ const PayoutRequests: React.FC = () => {
               <TableHead>Bal at Req</TableHead>
               <TableHead>Amt Paid</TableHead>
               <TableHead>Commission Deduct</TableHead>
-              <TableHead>Method</TableHead>
+              <TableHead>Pay Method</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created Date</TableHead>
             </TableRow>
@@ -247,7 +253,7 @@ const PayoutRequests: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                      {request.method?.toUpperCase()}
+                      {request.paymentMethod?.toUpperCase()}
                     </span>
                   </TableCell>
                   <TableCell>

@@ -28,7 +28,7 @@ interface PayoutRequest {
   balanceAtRequest?: number;
   amountPaid?: number;
   commissionDeduct?: number;
-  method?: string;
+  requestedMethod?: string;
   status: "pending" | "completed" | string;
   createdAt: string;
 }
@@ -53,14 +53,14 @@ const PayoutRequests: React.FC = () => {
     const fetchPayoutRequests = async (): Promise<void> => {
       try {
         setLoading(true);
-        const response = await fetch('/api/doctor/payout/request');
-        
+        const response = await fetch("/api/doctor/payout/request");
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data: PayoutRequest[] | ApiResponse = await response.json();
-        
+
         // Ensure data is an array
         if (Array.isArray(data)) {
           setPayoutRequests(data);
@@ -72,14 +72,15 @@ const PayoutRequests: React.FC = () => {
           setPayoutRequests(data.payoutRequests);
         } else {
           // If no array found, set empty array
-          console.warn('API response is not an array:', data);
+          console.warn("API response is not an array:", data);
           setPayoutRequests([]);
         }
-        
+
         setError(null);
       } catch (err) {
-        console.error('Error fetching payout requests:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+        console.error("Error fetching payout requests:", err);
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error occurred";
         setError(errorMessage);
         setPayoutRequests([]); // Set empty array on error
       } finally {
@@ -107,29 +108,39 @@ const PayoutRequests: React.FC = () => {
 
   const formatCurrency = (amount: number | undefined | null): string => {
     if (!amount && amount !== 0) return "—";
-    return `₹${parseFloat(amount.toString()).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+    return `₹${parseFloat(amount.toString()).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
   };
 
   const formatDate = (dateString: string | undefined): string => {
     if (!dateString) return "—";
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit", // Add this for hour
+      minute: "2-digit", // Add this for minute
+      second: "2-digit", // Add this for second
+      hour12: true, // Use 12-hour format with AM/PM
     });
   };
 
-  const filteredRequests: PayoutRequest[] = Array.isArray(payoutRequests) ? payoutRequests.filter((request: PayoutRequest) => {
-    const filterMatch = filter === "All" || 
-      request.status?.toLowerCase() === filter.toLowerCase();
-    
-    // Search in doctor name or doctor ID
-    const searchMatch = !searchQuery || 
-      (request.doctorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       request.doctorId?.toString().includes(searchQuery));
-    
-    return filterMatch && searchMatch;
-  }) : [];
+  const filteredRequests: PayoutRequest[] = Array.isArray(payoutRequests)
+    ? payoutRequests.filter((request: PayoutRequest) => {
+        const filterMatch =
+          filter === "All" ||
+          request.status?.toLowerCase() === filter.toLowerCase();
+
+        // Search in doctor name or doctor ID
+        const searchMatch =
+          !searchQuery ||
+          request.doctorName
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          request.doctorId?.toString().includes(searchQuery);
+
+        return filterMatch && searchMatch;
+      })
+    : [];
 
   if (loading) {
     return (
@@ -145,7 +156,9 @@ const PayoutRequests: React.FC = () => {
     return (
       <div className="mx-auto p-4 bg-white shadow rounded-lg border border-gray-200 w-full">
         <div className="flex justify-center items-center h-64">
-          <div className="text-red-600">Error loading payout requests: {error}</div>
+          <div className="text-red-600">
+            Error loading payout requests: {error}
+          </div>
         </div>
       </div>
     );
@@ -157,9 +170,12 @@ const PayoutRequests: React.FC = () => {
         <h1 className="text-2xl font-bold mb-2 sm:mb-0">Payout Requests</h1>
         <Button onClick={handleAddPayout}>Add Payout</Button>
       </div>
-      
+
       <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
-        <Select value={filter} onValueChange={(value: FilterStatus) => setFilter(value)}>
+        <Select
+          value={filter}
+          onValueChange={(value: FilterStatus) => setFilter(value)}
+        >
           <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter by Status" />
           </SelectTrigger>
@@ -174,7 +190,9 @@ const PayoutRequests: React.FC = () => {
           placeholder="Search by doctor name or ID"
           className="w-full sm:w-[300px]"
           value={searchQuery}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setSearchQuery(e.target.value)
+          }
         />
       </div>
 
@@ -184,11 +202,11 @@ const PayoutRequests: React.FC = () => {
             <TableRow>
               <TableHead>ID</TableHead>
               <TableHead>Doctor</TableHead>
-              <TableHead>Requested Amt</TableHead>
+              <TableHead>Req Amount</TableHead>
               <TableHead>Bal at Req</TableHead>
               <TableHead>Amt Paid</TableHead>
               <TableHead>Commission Deduct</TableHead>
-              <TableHead>Method</TableHead>
+              <TableHead>Req Method</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created Date</TableHead>
             </TableRow>
@@ -196,7 +214,10 @@ const PayoutRequests: React.FC = () => {
           <TableBody>
             {filteredRequests.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                <TableCell
+                  colSpan={9}
+                  className="text-center py-8 text-gray-500"
+                >
                   No payout requests found
                 </TableCell>
               </TableRow>
@@ -224,15 +245,13 @@ const PayoutRequests: React.FC = () => {
                   <TableCell>
                     {formatCurrency(request.balanceAtRequest)}
                   </TableCell>
-                  <TableCell>
-                    {formatCurrency(request.amountPaid)}
-                  </TableCell>
+                  <TableCell>{formatCurrency(request.amountPaid)}</TableCell>
                   <TableCell>
                     {formatCurrency(request.commissionDeduct)}
                   </TableCell>
                   <TableCell>
                     <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                      {request.method?.toUpperCase()}
+                      {request.requestedMethod?.toUpperCase()}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -254,7 +273,9 @@ const PayoutRequests: React.FC = () => {
 
       {filteredRequests.length > 0 && (
         <div className="mt-4 text-sm text-gray-600">
-          Showing {filteredRequests.length} of {Array.isArray(payoutRequests) ? payoutRequests.length : 0} payout requests
+          Showing {filteredRequests.length} of{" "}
+          {Array.isArray(payoutRequests) ? payoutRequests.length : 0} payout
+          requests
         </div>
       )}
     </div>
