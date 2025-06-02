@@ -7,13 +7,11 @@ import {
 } from "lucide-react";
 
 import ZoomSettings from "./ZoomSettings";
-import Email from "./EmailSettings";
 import DoctorVerificationForm from "./DoctorVerificationForm";
 
 
 const tabs = [
   { id: "zoom", label: "Zoom Settings", icon: Globe },
-  { id: "email", label: "Email Settings", icon: MessageCircle },
   { id: "doctors", label: "Doctors Verification", icon: Shield }, 
 ];
 
@@ -46,7 +44,6 @@ export default function SettingsPage() {
         </aside>
         <main className="md:w-3/4 bg-white p-6 rounded-md shadow-sm">
           {activeTab === "zoom" && <ZoomSettings />}
-          {activeTab === "email" && <Email />}
           {activeTab === "doctors" && <DoctorVerificationForm />}
 
         </main>

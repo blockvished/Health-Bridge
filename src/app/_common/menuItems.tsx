@@ -121,7 +121,6 @@ export const menuItemsDoctor: MenuItem[] = [
     link: "/doctor/rating",
     svg: <FaStar />,
   },
-  { name: "Contact", link: "/doctor/contact/user", svg: <FaEnvelope /> },
 ];
 
 export const menuItemsPatient: MenuItem[] = [
@@ -172,5 +171,4 @@ export const menuItemsAdmin: MenuItem[] = [
     svg: <MdAttachMoney />,
   },
   { name: "Users", link: "/admin/users", svg: <FaUsers /> },
-  { name: "Contact", link: "/admin/contact", svg: <FaEnvelope /> },
 ];
