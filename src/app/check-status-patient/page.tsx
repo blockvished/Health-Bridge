@@ -49,7 +49,7 @@ function PaymentStatusChecker() {
           setStatusDetails(data.details);
           setTimeout(() => {
             router.push(
-              `/admin/patient/appointments/`
+              `/patient/appointments/`
             );
           }, 3000); // 3-second delay to allow user to see success message
         } else {

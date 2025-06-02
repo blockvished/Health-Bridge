@@ -49,9 +49,9 @@ const DOCTOR_ONLY_ROUTES = [
 ];
 const PATIENT_ONLY_ROUTES = [
   "/patient/dashboard",
-  "/admin/patient/doctors",
-  "/admin/patient/appointments",
-  "/admin/patient/prescriptions",
+  "/patient/doctors",
+  "/patient/appointments",
+  "/patient/prescriptions",
 ];
 
 const DEFAULT_REDIRECT: Record<string, string> = {
