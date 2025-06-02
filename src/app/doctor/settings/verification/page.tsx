@@ -245,7 +245,7 @@ export default function DoctorVerification() {
           >
             <button
               onClick={closeModal}
-              className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
+              className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 z-10"
               aria-label="Close modal"
             >
               <X className="w-6 h-6" />
@@ -271,12 +271,12 @@ export default function DoctorVerification() {
                   className="w-full h-full rounded"
                 />
               ) : (
-                <div className="relative max-w-full max-h-full">
-                  <Image
+                <div className="flex justify-center items-center h-full">
+                  <img
                     src={modalImageSrc}
                     alt="Uploaded document"
-                    fill
-                    className="object-contain rounded"
+                    className="max-w-full max-h-full object-contain rounded"
+                    style={{ maxHeight: 'calc(95vh - 120px)' }}
                   />
                 </div>
               ))}
