@@ -20,7 +20,6 @@ const ADMIN_ROUTES = [
   "/admin/plans",
   "/admin/transactions",
   "/admin/users",
-  "/admin/contact",
 ];
 
 const DOCTOR_ONLY_ROUTES = [
@@ -47,7 +46,6 @@ const DOCTOR_ONLY_ROUTES = [
   "/doctor/prescription",
   "/doctor/prescription/all_prescription",
   "/doctor/rating",
-  "/doctor/contact/user",
 ];
 const PATIENT_ONLY_ROUTES = [
   "/patient/dashboard",
