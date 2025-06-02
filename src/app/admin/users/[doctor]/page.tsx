@@ -37,10 +37,25 @@ type Experience = {
   details?: string;
 };
 
+type Bank = {
+  id: number;
+  doctorId: number;
+  fullName: string;
+  state: string;
+  city: string;
+  pincode: string;
+  accountHolderName: string;
+  bankName: string;
+  accountNumber: string;
+  ifscCode: string;
+  upiId: string;
+}
+
 type DoctorDataResponse = {
   doctor: Doctor;
   education: Education[];
   experience: Experience[];
+  bankDetail: Bank;
   verificationFiles: string[];
 };
 
@@ -65,6 +80,8 @@ const DoctorData = () => {
         const res = await fetch(`/api/admin/users/${doctorId}`);
         if (!res.ok) throw new Error("Failed to fetch doctor data");
         const data = await res.json();
+
+        console.log (data)
         setDoctorData(data);
         setError(null);
       } catch (e) {
@@ -121,87 +138,182 @@ const DoctorData = () => {
     return <div className="p-4">Loading doctor data...</div>;
   }
 
-  const { doctor, education, experience, verificationFiles } = doctorData;
+  const { doctor, education, experience, bankDetail, verificationFiles } = doctorData;
 
   return (
     <>
-      <div className="max-w-6xl mx-auto p-6 bg-white shadow rounded-md flex gap-8">
+      <div className="max-w-7xl mx-auto p-6 bg-white shadow rounded-md flex gap-8">
         {/* Left side: Doctor info */}
         <div className="flex-1 min-w-0">
-          <h1 className="text-3xl font-bold mb-6">Doctor Profile</h1>
+          <h1 className="text-3xl font-bold mb-6 text-gray-800">Doctor Profile</h1>
 
-          <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-2">Basic Information</h2>
-            <p>
-              <strong>Name:</strong> {doctor.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {doctor.email}
-            </p>
-            <p>
-              <strong>Phone:</strong> {doctor.phone}
-            </p>
-            <p>
-              <strong>City:</strong> {doctor.city || "-"}
-            </p>
-            <p>
-              <strong>Pincode:</strong> {doctor.pincode || "-"}
-            </p>
-            <p>
-              <strong>Specialization:</strong> {doctor.specialization || "-"}
-            </p>
-            <p>
-              <strong>Degree:</strong> {doctor.degree || "-"}
-            </p>
-            <p>
-              <strong>Practice Type:</strong> {doctor.practiceType || "-"}
-            </p>
-            <p>
-              <strong>Experience:</strong> {doctor.experience ?? "-"} years
-            </p>
-            <p>
-              <strong>Account Verified:</strong>{" "}
-              {doctor.accountVerified ? "Yes" : "No"}
-            </p>
+          {/* Basic Information */}
+          <section className="mb-8 bg-gray-50 p-6 rounded-lg border">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b border-gray-200 pb-2">
+              Basic Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <p className="flex justify-between">
+                  <span className="font-medium text-gray-600">Name:</span>
+                  <span className="text-gray-800">{doctor.name}</span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="font-medium text-gray-600">Email:</span>
+                  <span className="text-gray-800">{doctor.email}</span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="font-medium text-gray-600">Phone:</span>
+                  <span className="text-gray-800">{doctor.phone}</span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="font-medium text-gray-600">City:</span>
+                  <span className="text-gray-800">{doctor.city || "-"}</span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="font-medium text-gray-600">Pincode:</span>
+                  <span className="text-gray-800">{doctor.pincode || "-"}</span>
+                </p>
+              </div>
+              <div className="space-y-3">
+                <p className="flex justify-between">
+                  <span className="font-medium text-gray-600">Specialization:</span>
+                  <span className="text-gray-800">{doctor.specialization || "-"}</span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="font-medium text-gray-600">Degree:</span>
+                  <span className="text-gray-800">{doctor.degree || "-"}</span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="font-medium text-gray-600">Practice Type:</span>
+                  <span className="text-gray-800">{doctor.practiceType || "-"}</span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="font-medium text-gray-600">Experience:</span>
+                  <span className="text-gray-800">{doctor.experience ?? "-"} years</span>
+                </p>
+                <p className="flex justify-between">
+                  <span className="font-medium text-gray-600">Account Verified:</span>
+                  <span className={`font-semibold ${doctor.accountVerified ? "text-green-600" : "text-red-600"}`}>
+                    {doctor.accountVerified ? "Yes" : "No"}
+                  </span>
+                </p>
+              </div>
+            </div>
           </section>
 
-          <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-2">Education</h2>
-            {education.length === 0 ? (
-              <p>No education records found.</p>
+          {/* Bank Details */}
+          <section className="mb-8 bg-purple-50 p-6 rounded-lg border border-purple-200">
+            <h2 className="text-xl font-semibold mb-4 text-purple-800 border-b border-purple-200 pb-2">
+              Bank Details
+            </h2>
+            {!bankDetail ? (
+              <p className="text-gray-500 italic">No bank details found.</p>
             ) : (
-              <ul className="list-disc list-inside space-y-1">
+              <div className="space-y-4">
+                <div key={bankDetail.id} className="bg-white p-4 rounded-md border border-purple-100 shadow-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <p className="flex justify-between">
+                        <span className="font-medium text-gray-600">Full Name:</span>
+                        <span className="text-gray-800">{bankDetail.fullName}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="font-medium text-gray-600">Account Holder:</span>
+                        <span className="text-gray-800">{bankDetail.accountHolderName}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="font-medium text-gray-600">Bank Name:</span>
+                        <span className="text-gray-800">{bankDetail.bankName}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="font-medium text-gray-600">Account Number:</span>
+                        <span className="text-gray-800 font-mono">{bankDetail.accountNumber}</span>
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      <p className="flex justify-between">
+                        <span className="font-medium text-gray-600">IFSC Code:</span>
+                        <span className="text-gray-800 font-mono">{bankDetail.ifscCode}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="font-medium text-gray-600">UPI ID:</span>
+                        <span className="text-gray-800">{bankDetail.upiId}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="font-medium text-gray-600">State:</span>
+                        <span className="text-gray-800">{bankDetail.state}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="font-medium text-gray-600">City:</span>
+                        <span className="text-gray-800">{bankDetail.city}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span className="font-medium text-gray-600">Pincode:</span>
+                        <span className="text-gray-800">{bankDetail.pincode}</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </section>  
+
+          {/* Education */}
+          <section className="mb-8 bg-blue-50 p-6 rounded-lg border border-blue-200">
+            <h2 className="text-xl font-semibold mb-4 text-blue-800 border-b border-blue-200 pb-2">
+              Education
+            </h2>
+            {education.length === 0 ? (
+              <p className="text-gray-500 italic">No education records found.</p>
+            ) : (
+              <div className="space-y-4">
                 {education.map((edu) => (
-                  <li key={edu.id}>
-                    <strong>{edu.title}</strong>{" "}
-                    {edu.institution && `- ${edu.institution}`} (
-                    {edu.yearFrom ?? "?"} - {edu.yearTo ?? "?"})
-                    {edu.details && (
-                      <div className="text-sm text-gray-600">{edu.details}</div>
+                  <div key={edu.id} className="bg-white p-4 rounded-md border border-blue-100 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+                      <h3 className="font-semibold text-gray-800 text-lg">{edu.title}</h3>
+                      <span className="text-sm text-gray-500 bg-blue-100 px-2 py-1 rounded-full">
+                        {edu.yearFrom ?? "?"} - {edu.yearTo ?? "?"}
+                      </span>
+                    </div>
+                    {edu.institution && (
+                      <p className="text-gray-600 mb-2 font-medium">{edu.institution}</p>
                     )}
-                  </li>
+                    {edu.details && (
+                      <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">{edu.details}</p>
+                    )}
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </section>
 
-          <section>
-            <h2 className="text-xl font-semibold mb-2">Experience</h2>
+          {/* Experience */}
+          <section className="mb-8 bg-green-50 p-6 rounded-lg border border-green-200">
+            <h2 className="text-xl font-semibold mb-4 text-green-800 border-b border-green-200 pb-2">
+              Experience
+            </h2>
             {experience.length === 0 ? (
-              <p>No experience records found.</p>
+              <p className="text-gray-500 italic">No experience records found.</p>
             ) : (
-              <ul className="list-disc list-inside space-y-1">
+              <div className="space-y-4">
                 {experience.map((exp) => (
-                  <li key={exp.id}>
-                    <strong>{exp.title}</strong>{" "}
-                    {exp.organization && `- ${exp.organization}`} (
-                    {exp.yearFrom ?? "?"} - {exp.yearTo ?? "Present"})
-                    {exp.details && (
-                      <div className="text-sm text-gray-600">{exp.details}</div>
+                  <div key={exp.id} className="bg-white p-4 rounded-md border border-green-100 shadow-sm">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+                      <h3 className="font-semibold text-gray-800 text-lg">{exp.title}</h3>
+                      <span className="text-sm text-gray-500 bg-green-100 px-2 py-1 rounded-full">
+                        {exp.yearFrom ?? "?"} - {exp.yearTo ?? "Present"}
+                      </span>
+                    </div>
+                    {exp.organization && (
+                      <p className="text-gray-600 mb-2 font-medium">{exp.organization}</p>
                     )}
-                  </li>
+                    {exp.details && (
+                      <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">{exp.details}</p>
+                    )}
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </section>
         </div>
@@ -221,7 +333,7 @@ const DoctorData = () => {
               {verificationFiles.map((file, i) => (
                 <li key={i}>
                   <button
-                    className="text-blue-600 underline hover:text-blue-800 transition-colors duration-200"
+                    className="text-blue-600 underline hover:text-blue-800 transition-colors duration-200 break-all text-left"
                     onClick={() => openModal(file)}
                     type="button"
                   >
@@ -232,7 +344,7 @@ const DoctorData = () => {
             </ul>
           )}
 
-          <div className="mb-4">
+          <div className="mb-4 p-3 bg-white rounded border">
             <span className="font-medium text-gray-700">
               Doctor Verification Status:
             </span>{" "}
