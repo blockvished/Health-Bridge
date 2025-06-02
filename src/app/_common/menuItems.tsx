@@ -6,7 +6,6 @@ import {
   FaUserMd,
   FaUsers,
   FaStar,
-  FaEnvelope,
   FaFileAlt,
   FaCalendarAlt,
   FaWallet,

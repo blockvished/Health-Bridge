@@ -46,6 +46,8 @@ export async function GET(req: NextRequest) {
       .select()
       .from(doctor)
       .where(eq(doctor.userId, userId));
+
+      void doctorData
     // fetchDoctorId stays as current userId
   } else if (userRole === "admin") {
     const adminProvidedUserId = url.searchParams.get("doctorId");

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { UploadCloud, Loader2, X } from "lucide-react";
-import Image from "next/image";
 
 export default function DoctorVerification() {
   const [documents, setDocuments] = useState<{ id: number; name: string }[]>(
