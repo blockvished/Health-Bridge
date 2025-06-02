@@ -1,18 +1,15 @@
 // Create and Get Patients for a Doctor
 
-import { NextRequest, NextResponse } from "next/server";
-import { eq, or } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 import { doctor, patient, transactions, users } from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { verifyAuthToken } from "../../../../lib/verify";
-import { hash } from "argon2";
-import { randomBytes } from "crypto";
 
 // =======================
 // GET - Fetch Patients for a Doctor
 // =======================
-export async function GET(req: NextRequest) {
-
+export async function GET() {
   // Verify JWT token using the modularized function
   const decodedOrResponse = await verifyAuthToken();
 
@@ -53,12 +50,12 @@ export async function GET(req: NextRequest) {
         // // Use bigint to store the timestamp as a number (e.g., milliseconds since epoch)
         timestamp: transactions.timestamp, // Store as number in TS, but as bigint in DB
         timestamp_date: transactions.timestamp_date,
-        createdAt: transactions.createdAt
+        createdAt: transactions.createdAt,
       })
       .from(patient)
       .innerJoin(transactions, eq(transactions.userId, patient.userId))
       .innerJoin(users, eq(users.id, patient.userId))
-      .where(eq(patient.doctorId, requiredDoctorId))
+      .where(eq(patient.doctorId, requiredDoctorId));
 
     return NextResponse.json({ Patients: patientsWithUsers });
   } catch (error) {
