@@ -266,23 +266,6 @@ export const doctorVerificationDocuments = pgTable(
   }
 );
 
-export const emailConfig = pgTable("email_config", {
-  singletonId: varchar("singleton_id", { length: 10 })
-    .primaryKey()
-    .default("singleton"),
-
-  mailType: varchar("mail_type", { length: 10 }).notNull(), // e.g., smtp/pop3
-  mailTitle: varchar("mail_title", { length: 255 }).notNull(),
-  mailHost: varchar("mail_host", { length: 255 }).notNull(),
-  mailPort: integer("mail_port").notNull(),
-  mailUsername: varchar("mail_username", { length: 255 }),
-  mailPassword: varchar("mail_password", { length: 255 }),
-  mailEncryption: varchar("mail_encryption", { length: 10 }),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
 export const payoutSettings = pgTable("payout_settings", {
   singletonId: varchar("singleton_id", { length: 10 })
     .primaryKey()
