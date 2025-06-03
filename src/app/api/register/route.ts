@@ -165,8 +165,6 @@ export async function POST(request: Request) {
       } catch (error) {
         console.error("Error creating/updating doctor record:", error);
       }
-
-      // TODO: Create a JWT token with 5 min expiration and send it back to the client
       
       return NextResponse.json(
         {

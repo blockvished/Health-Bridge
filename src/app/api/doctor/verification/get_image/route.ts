@@ -47,9 +47,7 @@ export async function GET(req: NextRequest) {
       .from(doctor)
       .where(eq(doctor.userId, userId));
 
-    if (!doctorData.length) {
-      return NextResponse.json({ error: "Doctor not found." }, { status: 404 });
-    }
+      void doctorData
     // fetchDoctorId stays as current userId
   } else if (userRole === "admin") {
     const adminProvidedUserId = url.searchParams.get("doctorId");
@@ -59,17 +57,14 @@ export async function GET(req: NextRequest) {
         { status: 400 }
       );
     }
-    fetchDoctorId = adminProvidedUserId;
 
     // Verify doctor exists for provided doctor id
     const doctorData = await db
       .select()
       .from(doctor)
       .where(eq(doctor.id, Number(fetchDoctorId)));
-
-    if (!doctorData.length) {
-      return NextResponse.json({ error: "Doctor not found." }, { status: 404 });
-    }
+    
+    fetchDoctorId = String(doctorData[0].userId);
   } else {
     // Other roles are not allowed
     return NextResponse.json({ error: "Unauthorized." }, { status: 403 });
@@ -82,8 +77,6 @@ export async function GET(req: NextRequest) {
     fetchDoctorId.toString(),
     fileName
   );
-
-  console.log("File path:", filePath);
 
   try {
     const fileBuffer = await fs.readFile(filePath);

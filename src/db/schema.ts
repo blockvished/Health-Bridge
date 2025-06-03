@@ -96,6 +96,8 @@ export const postStatusEnum = pgEnum("post_status", [
 
 export const payoutStatusEnum = pgEnum("payout_status", ["pending", "completed"]);
 export const payoutMethodEnum = pgEnum("payout_method", ["UPI", "NEFT", "IMPS"]);
+export const websiteStatusEnum = pgEnum("website_status", ["active", "inactive"]);
+
 
 ///
 // Users
@@ -110,8 +112,8 @@ export const users = pgTable("users", {
   password_hash: text("password"),
   salt: text("salt"),
   role: userRoleEnum("role").default("doctor").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const plans = pgTable("plans", {
@@ -193,8 +195,8 @@ export const doctor = pgTable("doctor", {
   experience: integer("experience"),
   aboutSelf: text("about_self"),
   aboutClinic: text("about_clinic"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
   image_link: text("image_link"),
   signature_link: text("signature_link"),
 
@@ -216,6 +218,45 @@ export const doctor = pgTable("doctor", {
   totalEarnings: numeric("total_earnings", { scale: 2 }).default("0").notNull(),
 });
 
+export const doctorWebsiteDetails = pgTable(
+  "doctor_website_details",
+  {
+    id: serial("id").primaryKey(),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctor.id, { onDelete: "cascade" }),
+
+    currentUrl: varchar("current_url", { length: 500 }).notNull(),
+    customDomain: varchar("custom_domain", { length: 255 }),
+    status: websiteStatusEnum("status").notNull().default("inactive"),
+
+    createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
+  }
+);
+
+export const customDomainSettings = pgTable('custom_domain_settings', {
+  id: serial('id').primaryKey(),
+  title: text('title').notNull().default('Custom Domain Integration Guideline'),
+  shortDetails: text('short_details').notNull().default('Custom Domain Integration Guideline short details'),
+  details: text('details').default(''),
+  serverIp: text('server_ip').notNull().default('200.201.231.122'),
+  
+  // DNS Record 1 (CNAME)
+  type1: text('type1').notNull().default('CNAME Record'),
+  host1: text('host1').notNull().default('www'),
+  value1: text('value1').notNull().default('www.livedoctors.in'),
+  ttl1: text('ttl1').notNull().default('Automatic'),
+  
+  // DNS Record 2 (A Record)
+  type2: text('type2').notNull().default('A Record'),
+  host2: text('host2').notNull().default('@'),
+  value2: text('value2').notNull().default('200.201.231.122'),
+  ttl2: text('ttl2').notNull().default('Automatic'),
+  
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
 export const payoutRequests = pgTable("payout_requests", {
   id: serial("id").primaryKey(),
 
@@ -232,7 +273,10 @@ export const payoutRequests = pgTable("payout_requests", {
   paymentMethod: payoutMethodEnum("payment_method"), // UPI, NEFT, IMPS
   status: payoutStatusEnum("status").default("pending").notNull(), // pending, completed
 
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }) // <-- Corrected line
+    .defaultNow()
+    .notNull(),
+
 });
 
 
@@ -249,8 +293,8 @@ export const transactions = pgTable("transactions", {
   // Use bigint to store the timestamp as a number (e.g., milliseconds since epoch)
   timestamp: bigint("timestamp", { mode: "number" }).notNull(), // Store as number in TS, but as bigint in DB
   timestamp_date: timestamp("timestamp_date"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const socialPlatforms = pgTable("social_platforms", {
@@ -299,8 +343,8 @@ export const zoomConfig = pgTable("zoom_config", {
   zoomClientId: varchar("zoom_client_id", { length: 255 }).notNull(),
   zoomClientSecret: varchar("zoom_client_secret", { length: 255 }).notNull(),
 
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const socialConnections = pgTable(
@@ -317,7 +361,7 @@ export const socialConnections = pgTable(
     expiresAt: timestamp("expires_at", { mode: "date" }),
     autoposting: boolean("autoposting").default(false),
     disconnected: boolean("disconnected").default(false),
-    createdAt: timestamp("created_at").defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
   },
   (table) => ({
     // Add composite unique constraint instead
@@ -336,9 +380,9 @@ export const posts = pgTable("posts", {
   status: postStatusEnum("status").default("scheduled").notNull(), // 'scheduled', 'posted', 'failed'
   interactions: integer("interactions").default(0),
   publishedBy: varchar("published_by", { length: 255 }),
-  scheduledTime: timestamp("scheduled_time"), // bull mq
-  publishedTime: timestamp("published_time"),
-  createdAt: timestamp("created_at").defaultNow(),
+  scheduledTime: timestamp("scheduled_time", { withTimezone: true, mode: 'date' }), 
+  publishedTime: timestamp("published_time", { withTimezone: true, mode: 'date' }),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const postRelations = relations(posts, ({ many }) => ({
@@ -358,7 +402,7 @@ export const post_social_platform = pgTable(
       .references(() => socialPlatforms.id, { onDelete: "cascade" }),
     // Add any additional fields relevant to the relationship
     // e.g., a timestamp for when the post was published on the platform
-    publishedAt: timestamp("published_at"),
+    publishedAt: timestamp("published_at", { withTimezone: true, mode: 'date' }),
     // You might also want to track the status of the post on each platform
     status: postStatusEnum("status").default("scheduled").notNull(),
   },
@@ -399,8 +443,8 @@ export const doctor_social_media_analytics = pgTable(
     numberOfPosts: integer("number_of_posts").notNull(),
     reach: doublePrecision("reach").notNull(), // Use double for percentage
     engagement: doublePrecision("engagement").notNull(), // Use double for percentage
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
   }
 );
 
@@ -437,8 +481,8 @@ export const patient = pgTable("patient", {
   height: integer("height"),
   address: text("address"),
   gender: genderEnum("gender"), // assuming genderEnum is already defined
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const patientRelations = relations(patient, ({ one, many }) => ({
@@ -463,7 +507,7 @@ export const doctor_ratings = pgTable("doctor_ratings", {
     .references(() => doctor.id), // Assuming doctors are in your 'users' table
   rating: integer("rating").notNull(),
   text: text("text"), // Optional text feedback
-  createdAt: timestamp("created_at").defaultNow(), // Automatically record creation time
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(), // Automatically record creation time
 });
 
 export const enableRating = pgTable("enable_rating", {
@@ -485,8 +529,8 @@ export const clinic = pgTable("clinic", {
   appointmentLimit: integer("appointment_limit"),
   active: boolean("active").default(true),
   address: text("address").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const staff = pgTable("staff", {
@@ -504,8 +548,8 @@ export const staff = pgTable("staff", {
     onDelete: "set null",
   }),
   role: varchar("role", { length: 100 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 // Define all possible permission types
@@ -513,8 +557,8 @@ export const permissionTypes = pgTable("permission_types", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 100 }).notNull().unique(),
   description: varchar("description", { length: 255 }),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 // Junction table for many-to-many relationship between staff and permissions
@@ -528,8 +572,8 @@ export const staffPermissions = pgTable(
     permissionTypeId: integer("permission_type_id")
       .notNull()
       .references(() => permissionTypes.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
   },
   (table) => {
     return {
@@ -558,8 +602,8 @@ export const prescription = pgTable("prescription", {
   nextFollowUp: integer("next_follow_up"),
   nextFollowUpType: TimeFrequencyType("next_follow_up_type"), // Use the enum here
   prescriptionNotes: text("prescription_notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const prescriptionRelations = relations(
@@ -588,8 +632,8 @@ export const medication = pgTable("medication", {
     .references(() => prescription.id, { onDelete: "cascade" }),
   drugType: DrugType("drug_type"),
   drugName: varchar("drug_name", { length: 255 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const medicationRelations = relations(medication, ({ one, many }) => ({
@@ -613,8 +657,8 @@ export const medicationDosage = pgTable("medication_dosage", {
   howManyDaysToTakeMedication: integer("how_many_days_to_take_medication"),
   medicationFrequecyType: TimeFrequencyType("medication_frequecy_type"),
   note: text("note"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const medicationDosageRelations = relations(
@@ -673,8 +717,8 @@ export const appointments = pgTable("appointments", {
   reason: text("reason"),
   isCancelled: boolean("is_cancelled").default(false).notNull(),
   cancelReason: text("cancel_reason"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const appointmentsRelations = relations(appointments, ({ one }) => ({
@@ -699,8 +743,8 @@ export const doctorEducation = pgTable("doctor_education", {
   yearTo: integer("year_to"),
   details: text("details"),
   sortOrder: integer("sort_order"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const doctorExperience = pgTable("doctor_experience", {
@@ -714,8 +758,8 @@ export const doctorExperience = pgTable("doctor_experience", {
   yearTo: integer("year_to"), // nullable for current roles
   details: text("details"),
   sortOrder: integer("sort_order"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'date' }).defaultNow(),
 });
 
 export const doctorMetaTags = pgTable(
@@ -762,7 +806,7 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
   userId: integer("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  expiresAt: timestamp("expires_at",{ withTimezone: true, mode: 'date' }).notNull(),
   used: boolean("used").default(false).notNull(), // 'true' or 'false'
 });
 

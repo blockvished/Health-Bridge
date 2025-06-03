@@ -48,6 +48,15 @@ interface PayoutApiResponse {
   };
 }
 
+interface BankDetails {
+  upiId?: string;
+  accountHolderName?: string;
+  bankName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+  error?: string;
+}
+
 type FilterStatus = "All" | "Pending" | "Completed";
 type PaymentMethod = "UPI" | "NEFT" | "IMPS";
 
@@ -57,22 +66,32 @@ const AddPayouts: React.FC = () => {
   const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<Record<string | number, PaymentMethod>>({});
-  const [processingRequestId, setProcessingRequestId] = useState<string | number | null>(null);
+  const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<
+    Record<string | number, PaymentMethod>
+  >({});
+  const [processingRequestId, setProcessingRequestId] = useState<
+    string | number | null
+  >(null);
+  const [bankDetails, setBankDetails] = useState<
+    Record<string | number, BankDetails>
+  >({});
+  const [loadingBankDetails, setLoadingBankDetails] = useState<
+    Record<string | number, boolean>
+  >({});
 
   // Fetch payout requests from API
   useEffect(() => {
     const fetchPayoutRequests = async (): Promise<void> => {
       try {
         setLoading(true);
-        const response = await fetch('/api/doctor/payout/request');
-        
+        const response = await fetch("/api/doctor/payout/request");
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data: PayoutRequest[] | ApiResponse = await response.json();
-        
+
         // Ensure data is an array
         if (Array.isArray(data)) {
           setPayoutRequests(data);
@@ -84,14 +103,15 @@ const AddPayouts: React.FC = () => {
           setPayoutRequests(data.payoutRequests);
         } else {
           // If no array found, set empty array
-          console.warn('API response is not an array:', data);
+          console.warn("API response is not an array:", data);
           setPayoutRequests([]);
         }
-        
+
         setError(null);
       } catch (err) {
-        console.error('Error fetching payout requests:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+        console.error("Error fetching payout requests:", err);
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error occurred";
         setError(errorMessage);
         setPayoutRequests([]); // Set empty array on error
       } finally {
@@ -102,83 +122,147 @@ const AddPayouts: React.FC = () => {
     fetchPayoutRequests();
   }, []);
 
-  const handlePaymentMethodChange = (requestId: string | number, method: PaymentMethod): void => {
-    setSelectedPaymentMethods(prev => ({
+  // Fetch bank details based on payment method
+  const fetchBankDetails = async (
+    doctorId: string | number,
+    method: PaymentMethod,
+    requestId: string | number
+  ): Promise<void> => {
+    try {
+      setLoadingBankDetails((prev) => ({
+        ...prev,
+        [requestId]: true,
+      }));
+
+      const response = await fetch(
+        `/api/admin/users/bank_data?type=${method}&doctorId=${doctorId}`
+      );
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          const errorData = await response.json();
+          setBankDetails((prev) => ({
+            ...prev,
+            [requestId]: { error: errorData.message },
+          }));
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const bankData: BankDetails = await response.json();
+      setBankDetails((prev) => ({
+        ...prev,
+        [requestId]: bankData,
+      }));
+    } catch (err) {
+      console.error("Error fetching bank details:", err);
+      setBankDetails((prev) => ({
+        ...prev,
+        [requestId]: { error: "Failed to load bank details" },
+      }));
+    } finally {
+      setLoadingBankDetails((prev) => ({
+        ...prev,
+        [requestId]: false,
+      }));
+    }
+  };
+
+  const handlePaymentMethodChange = (
+    requestId: string | number,
+    method: PaymentMethod
+  ): void => {
+    setSelectedPaymentMethods((prev) => ({
       ...prev,
-      [requestId]: method
+      [requestId]: method,
     }));
+
+    // Find the request to get doctorId
+    const request = payoutRequests.find((req) => req.id === requestId);
+    if (request) {
+      fetchBankDetails(request.doctorId, method, requestId);
+    }
   };
 
   const handlePay = async (request: PayoutRequest): Promise<void> => {
     const selectedMethod = selectedPaymentMethods[request.id];
-    
+
     if (!selectedMethod) {
-      alert('Please select a payment method first');
+      alert("Please select a payment method first");
       return;
     }
 
     try {
       setProcessingRequestId(request.id);
-      
-      const response = await fetch('/api/admin/payout/fulfill-payment', {
-        method: 'POST',
+
+      const response = await fetch("/api/admin/payout/fulfill-payment", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           id: request.id,
           amount: request.amount,
           selectedMethod: selectedMethod,
-        })
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.error || `HTTP error! status: ${response.status}`
+        );
       }
 
       const result: PayoutApiResponse = await response.json();
-      
+
       // Check if the response has a message (indicating success)
       if (result.message) {
         // Show success message with payment details
         alert(
           `Payment processed successfully!\n\n` +
-          `Request ID: #${request.id}\n` +
-          `Original Amount: ₹${result.details.originalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}\n` +
-          `Commission Deducted: ₹${result.details.commissionDeducted.toLocaleString('en-IN', { minimumFractionDigits: 2 })}\n` +
-          `Final Payout: ₹${result.details.finalPayoutAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}\n` +
-          `Payment Method: ${result.details.paymentMethod}`
+            `Request ID: #${request.id}\n` +
+            `Original Amount: ₹${result.details.originalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}\n` +
+            `Commission Deducted: ₹${result.details.commissionDeducted.toLocaleString("en-IN", { minimumFractionDigits: 2 })}\n` +
+            `Final Payout: ₹${result.details.finalPayoutAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}\n` +
+            `Payment Method: ${result.details.paymentMethod}`
         );
-        
+
         // Update the local state with the updated payout request from API response
-        setPayoutRequests(prev => 
-          prev.map(req => 
-            req.id === request.id 
-              ? { 
-                  ...req, 
-                  status: 'completed',
+        setPayoutRequests((prev) =>
+          prev.map((req) =>
+            req.id === request.id
+              ? {
+                  ...req,
+                  status: "completed",
                   amountPaid: result.details.finalPayoutAmount,
                   commissionDeduct: result.details.commissionDeducted,
-                  paymentMethod: result.details.paymentMethod
+                  paymentMethod: result.details.paymentMethod,
                 }
               : req
           )
         );
-        
-        // Clear the selected payment method for this request
-        setSelectedPaymentMethods(prev => {
+
+        // Clear the selected payment method and bank details for this request
+        setSelectedPaymentMethods((prev) => {
+          const updated = { ...prev };
+          delete updated[request.id];
+          return updated;
+        });
+
+        setBankDetails((prev) => {
           const updated = { ...prev };
           delete updated[request.id];
           return updated;
         });
       } else {
-        throw new Error('Unexpected response format');
+        throw new Error("Unexpected response format");
       }
-      
     } catch (error) {
-      console.error('Error processing payment:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error("Error processing payment:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
       alert(`Failed to process payment: ${errorMessage}`);
     } finally {
       setProcessingRequestId(null);
@@ -198,29 +282,138 @@ const AddPayouts: React.FC = () => {
 
   const formatCurrency = (amount: number | undefined | null): string => {
     if (!amount && amount !== 0) return "—";
-    return `₹${parseFloat(amount.toString()).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+    return `₹${parseFloat(amount.toString()).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
   };
 
   const formatDate = (dateString: string | undefined): string => {
     if (!dateString) return "—";
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit", // Add this for hour
+      minute: "2-digit", // Add this for minute
+      second: "2-digit", // Add this for second
+      hour12: true, // Use 12-hour format with AM/PM
     });
   };
 
-  const filteredRequests: PayoutRequest[] = Array.isArray(payoutRequests) ? payoutRequests.filter((request: PayoutRequest) => {
-    const filterMatch = filter === "All" || 
-      request.status?.toLowerCase() === filter.toLowerCase();
-    
-    // Search in doctor name or doctor ID
-    const searchMatch = !searchQuery || 
-      (request.doctorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       request.doctorId?.toString().includes(searchQuery));
-    
-    return filterMatch && searchMatch;
-  }) : [];
+  const renderBankDetailsRow = (requestId: string | number) => {
+    const details = bankDetails[requestId];
+    const isLoading = loadingBankDetails[requestId];
+    const selectedMethod = selectedPaymentMethods[requestId];
+
+    if (!selectedMethod && !isLoading && !details) return null;
+
+    return (
+      <TableRow key={`bank-${requestId}`} className="bg-gray-50">
+        <TableCell colSpan={7} className="py-3">
+          {isLoading && (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <span className="text-gray-600">Loading bank details...</span>
+            </div>
+          )}
+
+          {details?.error && (
+            <div className="flex items-center space-x-2 text-red-600">
+              <div className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center">
+                <span className="text-xs">!</span>
+              </div>
+              <span>{details.error}</span>
+            </div>
+          )}
+
+          {selectedMethod === "UPI" && details?.upiId && (
+            <div className="bg-blue-100 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="w-5 h-5 bg-blue-600 rounded flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">U</span>
+                </div>
+                <span className="font-semibold text-blue-800">
+                  UPI Payment Details
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="font-medium text-blue-700">UPI ID:</span>
+                  <span className="ml-2 text-blue-900 font-mono">
+                    {details.upiId}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {(selectedMethod === "NEFT" || selectedMethod === "IMPS") &&
+            details?.accountNumber && (
+              <div className="bg-green-100 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-5 h-5 bg-green-600 rounded flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">B</span>
+                  </div>
+                  <span className="font-semibold text-green-800">
+                    Bank Transfer Details ({selectedMethod})
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="font-medium text-green-700">
+                      Account Holder:
+                    </span>
+                    <span className="ml-2 text-green-900">
+                      {details.accountHolderName}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-green-700">
+                      Bank Name:
+                    </span>
+                    <span className="ml-2 text-green-900">
+                      {details.bankName}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-green-700">
+                      Account Number:
+                    </span>
+                    <span className="ml-2 text-green-900 font-mono">
+                      {details.accountNumber}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-green-700">
+                      IFSC Code:
+                    </span>
+                    <span className="ml-2 text-green-900 font-mono">
+                      {details.ifscCode}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+        </TableCell>
+      </TableRow>
+    );
+  };
+
+  const filteredRequests: PayoutRequest[] = Array.isArray(payoutRequests)
+    ? payoutRequests.filter((request: PayoutRequest) => {
+        const filterMatch =
+          filter === "All" ||
+          request.status?.toLowerCase() === filter.toLowerCase();
+
+        // Search in doctor name or doctor ID
+        const searchMatch =
+          !searchQuery ||
+          request.doctorName
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          request.doctorId?.toString().includes(searchQuery);
+
+        return filterMatch && searchMatch;
+      })
+    : [];
 
   if (loading) {
     return (
@@ -236,7 +429,9 @@ const AddPayouts: React.FC = () => {
     return (
       <div className="mx-auto p-4 bg-white shadow rounded-lg border border-gray-200 w-full">
         <div className="flex justify-center items-center h-64">
-          <div className="text-red-600">Error loading payout requests: {error}</div>
+          <div className="text-red-600">
+            Error loading payout requests: {error}
+          </div>
         </div>
       </div>
     );
@@ -245,11 +440,16 @@ const AddPayouts: React.FC = () => {
   return (
     <div className="mx-auto p-4 bg-white shadow rounded-lg border border-gray-200 w-full">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold mb-2 sm:mb-0">Fulfill Payout Requests</h1>
+        <h1 className="text-2xl font-bold mb-2 sm:mb-0">
+          Fulfill Payout Requests
+        </h1>
       </div>
-      
+
       <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
-        <Select value={filter} onValueChange={(value: FilterStatus) => setFilter(value)}>
+        <Select
+          value={filter}
+          onValueChange={(value: FilterStatus) => setFilter(value)}
+        >
           <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter by Status" />
           </SelectTrigger>
@@ -264,7 +464,9 @@ const AddPayouts: React.FC = () => {
           placeholder="Search by doctor name or ID"
           className="w-full sm:w-[300px]"
           value={searchQuery}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setSearchQuery(e.target.value)
+          }
         />
       </div>
 
@@ -284,84 +486,98 @@ const AddPayouts: React.FC = () => {
           <TableBody>
             {filteredRequests.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell
+                  colSpan={7}
+                  className="text-center py-8 text-gray-500"
+                >
                   No payout requests found
                 </TableCell>
               </TableRow>
             ) : (
-              filteredRequests.map((request: PayoutRequest) => (
-                <TableRow key={request.id}>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">
-                        {request.doctorName || `Doctor ID: ${request.doctorId}`}
-                      </div>
-                      {request.doctorName && (
-                        <div className="text-sm text-gray-500">
-                          ID: {request.doctorId}
+              filteredRequests.flatMap((request: PayoutRequest) =>
+                [
+                  <TableRow key={request.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">
+                          {request.doctorName ||
+                            `Doctor ID: ${request.doctorId}`}
                         </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {formatCurrency(request.amount)}
-                  </TableCell>
-                  <TableCell>
-                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                      {request.requestedMethod?.toUpperCase() || 'N/A'}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      value={selectedPaymentMethods[request.id] || ""}
-                      onValueChange={(value: PaymentMethod) => handlePaymentMethodChange(request.id, value)}
-                      disabled={processingRequestId !== null || request.status?.toLowerCase() === 'completed'}
-                    >
-                      <SelectTrigger className="w-[100px]">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="UPI">UPI</SelectItem>
-                        <SelectItem value="NEFT">NEFT</SelectItem>
-                        <SelectItem value="IMPS">IMPS</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`font-medium capitalize ${getStatusColor(request.status)}`}
-                    >
-                      {request.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {formatDate(request.createdAt)}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      size="sm"
-                      onClick={() => handlePay(request)}
-                      disabled={processingRequestId !== null || request.status?.toLowerCase() === 'completed'}
-                      className={`${
-                        request.status?.toLowerCase() === 'completed' 
-                          ? 'bg-gray-400 cursor-not-allowed' 
-                          : processingRequestId === request.id
-                          ? 'bg-blue-500 cursor-not-allowed'
-                          : processingRequestId !== null
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-green-600 hover:bg-green-700'
-                      }`}
-                    >
-                      {processingRequestId === request.id 
-                        ? 'Processing...' 
-                        : request.status?.toLowerCase() === 'completed' 
-                        ? 'Paid' 
-                        : 'Pay'
-                      }
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
+                        {request.doctorName && (
+                          <div className="text-sm text-gray-500">
+                            ID: {request.doctorId}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {formatCurrency(request.amount)}
+                    </TableCell>
+                    <TableCell>
+                      <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                        {request.requestedMethod?.toUpperCase() || "N/A"}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={selectedPaymentMethods[request.id] || ""}
+                        onValueChange={(value: PaymentMethod) =>
+                          handlePaymentMethodChange(request.id, value)
+                        }
+                        disabled={
+                          processingRequestId !== null ||
+                          request.status?.toLowerCase() === "completed"
+                        }
+                      >
+                        <SelectTrigger className="w-[100px]">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="UPI">UPI</SelectItem>
+                          <SelectItem value="NEFT">NEFT</SelectItem>
+                          <SelectItem value="IMPS">IMPS</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`font-medium capitalize ${getStatusColor(request.status)}`}
+                      >
+                        {request.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {formatDate(request.createdAt)}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        onClick={() => handlePay(request)}
+                        disabled={
+                          processingRequestId !== null ||
+                          request.status?.toLowerCase() === "completed"
+                        }
+                        className={`${
+                          request.status?.toLowerCase() === "completed"
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : processingRequestId === request.id
+                              ? "bg-blue-500 cursor-not-allowed"
+                              : processingRequestId !== null
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-green-600 hover:bg-green-700"
+                        }`}
+                      >
+                        {processingRequestId === request.id
+                          ? "Processing..."
+                          : request.status?.toLowerCase() === "completed"
+                            ? "Paid"
+                            : "Pay"}
+                      </Button>
+                    </TableCell>
+                  </TableRow>,
+                  renderBankDetailsRow(request.id),
+                ].filter(Boolean)
+              )
             )}
           </TableBody>
         </Table>
@@ -369,7 +585,9 @@ const AddPayouts: React.FC = () => {
 
       {filteredRequests.length > 0 && (
         <div className="mt-4 text-sm text-gray-600">
-          Showing {filteredRequests.length} of {Array.isArray(payoutRequests) ? payoutRequests.length : 0} payout requests
+          Showing {filteredRequests.length} of{" "}
+          {Array.isArray(payoutRequests) ? payoutRequests.length : 0} payout
+          requests
         </div>
       )}
     </div>

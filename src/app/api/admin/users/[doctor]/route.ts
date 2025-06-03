@@ -4,6 +4,7 @@ import path from "path";
 import { db } from "../../../../../db/db"; // Your Drizzle ORM instance
 import {
   doctor,
+  doctorBankDetail,
   doctorEducation,
   doctorExperience,
 } from "../../../../../db/schema"; // Your table schemas
@@ -45,17 +46,24 @@ export async function GET(
       .from(doctorExperience)
       .where(eq(doctorExperience.doctorId, doctorId));
 
+    const bankDetails = await db
+      .select()
+      .from(doctorBankDetail)
+      .where(eq(doctorBankDetail.doctorId, doctorId));
+
     // Read verification files from the file system
     const folderPath = path.join(
       process.cwd(),
       "private_uploads",
       "verification_docs",
-      String(doctorId)
+      String(doctorInfo.userId)
     );
 
     let verificationFiles: string[] = [];
     try {
       verificationFiles = await readdir(folderPath);
+      console.log("asdfghwioefrw suyif dfugv df")
+      console.log(verificationFiles)
     } catch (error: unknown) {
       // Use 'unknown' for safer type handling in catch blocks
       let isENOENT = false;
@@ -92,6 +100,7 @@ export async function GET(
       doctor: doctorInfo,
       education: educations,
       experience: experiences,
+      bankDetail: bankDetails[0],
       verificationFiles,
     });
   } catch (error) {
