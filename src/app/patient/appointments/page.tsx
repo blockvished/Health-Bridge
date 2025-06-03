@@ -59,6 +59,7 @@ export default function AppointmentsList() {
         }
 
         const data: ApiResponse = await response.json();
+        console.log(data)
 
         if (data.error) {
           throw new Error(data.error);
@@ -242,7 +243,12 @@ export default function AppointmentsList() {
 
   // Function to check if join button should be displayed
   const shouldShowJoinButton = (appointment: Appointment): boolean => {
-    // Only show join button for online consultations
+    // Don't show join button for cancelled appointments
+    if (appointment.isCancelled) {
+      return false;
+    }
+
+    // Only show join button for online consultations that are paid
     if (!appointment.mode || appointment.mode.toLowerCase() !== "online") {
       return false;
     }
@@ -259,11 +265,12 @@ export default function AppointmentsList() {
 
   // Function to check if payment button should be displayed
   const shouldShowPaymentButton = (appointment: Appointment): boolean => {
-    // Only show payment button for online consultations that are not paid yet
-    if (!appointment.mode || appointment.mode.toLowerCase() !== "online") {
+    // Don't show payment button for cancelled appointments
+    if (appointment.isCancelled) {
       return false;
     }
 
+    // Show payment button for both online and offline consultations that are not paid yet
     if (
       appointment.paymentStatus === "true" ||
       appointment.paymentStatus === true
@@ -272,6 +279,33 @@ export default function AppointmentsList() {
     }
 
     return true;
+  };
+
+  // Function to check if "Pay at Clinic" message should be displayed
+  const shouldShowPayAtClinicMessage = (appointment: Appointment): boolean => {
+    // Don't show pay at clinic message for cancelled appointments
+    if (appointment.isCancelled) {
+      return false;
+    }
+
+    // Show "Pay at Clinic" message for offline appointments that are paid
+    if (!appointment.mode || appointment.mode.toLowerCase() !== "offline") {
+      return false;
+    }
+
+    if (
+      appointment.paymentStatus === "true" ||
+      appointment.paymentStatus === true
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // Function to check if cancelled button should be displayed
+  const shouldShowCancelledButton = (appointment: Appointment): boolean => {
+    return appointment.isCancelled;
   };
 
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
@@ -342,15 +376,19 @@ export default function AppointmentsList() {
                       <span>₹ {appointment.amount}</span>
                       <span
                         className={`mt-1 px-3 py-1 ${getStatusClass(
-                          appointment.paymentStatus === true ||
-                            appointment.paymentStatus === "true"
+                          appointment.isCancelled
+                            ? "cancelled"
+                            : appointment.paymentStatus === true ||
+                              appointment.paymentStatus === "true"
                             ? "completed"
                             : "pending"
                         )} rounded-md text-xs inline-block`}
                       >
                         ●{" "}
-                        {appointment.paymentStatus === true ||
-                        appointment.paymentStatus === "true"
+                        {appointment.isCancelled
+                          ? "Cancelled"
+                          : appointment.paymentStatus === true ||
+                            appointment.paymentStatus === "true"
                           ? "Paid"
                           : "Pending"}
                       </span>
@@ -358,51 +396,76 @@ export default function AppointmentsList() {
                   </td>
 
                   <td className="p-3">
-                    {appointment.mode?.toLowerCase() === "offline" && (
-                      <span className="text-xs text-gray-500">N/A offline</span>
-                    )}
-                    
-                    {/* Join Button for paid online appointments */}
-                    {shouldShowJoinButton(appointment) && (
-                      <Link
-                        href={
-                          consultationLinks[appointment.appointmentId] || "#"
-                        }
-                      >
+                    <div className="flex flex-col gap-2">
+                      {/* Cancelled Button for cancelled appointments */}
+                      {shouldShowCancelledButton(appointment) && (
                         <button
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-md text-xs flex items-center gap-1"
-                          disabled={
-                            !consultationLinks[appointment.appointmentId]
+                          className="bg-gray-400 text-white font-bold py-2 px-3 rounded-md text-xs flex items-center gap-1 w-full justify-center cursor-not-allowed"
+                          disabled
+                        >
+                          Cancelled
+                        </button>
+                      )}
+
+                      {/* Join Button for paid online appointments */}
+                      {shouldShowJoinButton(appointment) && (
+                        <Link
+                          href={
+                            consultationLinks[appointment.appointmentId] || "#"
                           }
                         >
-                          <Video size={14} className="mr-1" /> Join
-                        </button>
-                      </Link>
-                    )}
+                          <button
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-md text-xs flex items-center gap-1 w-full justify-center"
+                            disabled={
+                              !consultationLinks[appointment.appointmentId]
+                            }
+                          >
+                            <Video size={14} className="mr-1" /> Join
+                          </button>
+                        </Link>
+                      )}
 
-                    {/* Payment Button for unpaid online appointments */}
-                    {shouldShowPaymentButton(appointment) && (
-                      <button
-                        onClick={() => handlePayment(appointment)}
-                        disabled={paymentLoading[appointment.appointmentId]}
-                        className="bg-green-500 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-2 px-3 rounded-md text-xs flex items-center gap-1"
-                      >
-                        {paymentLoading[appointment.appointmentId] ? (
-                          "Processing..."
-                        ) : (
-                          "Pay to Join"
-                        )}
-                      </button>
-                    )}
+                      {/* Payment Button for unpaid appointments (both online and offline) */}
+                      {shouldShowPaymentButton(appointment) && (
+                        <div className="flex flex-col gap-1">
+                          <button
+                            onClick={() => handlePayment(appointment)}
+                            disabled={paymentLoading[appointment.appointmentId]}
+                            className="bg-green-500 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-2 px-3 rounded-md text-xs flex items-center gap-1 w-full justify-center"
+                          >
+                            {paymentLoading[appointment.appointmentId] ? (
+                              "Processing..."
+                            ) : (
+                              appointment.mode?.toLowerCase() === "online" ? "Pay to Join" : "Pay Online"
+                            )}
+                          </button>
+                          
+                          {/* Show "Pay at Clinic" option for offline appointments */}
+                          {appointment.mode?.toLowerCase() === "offline" && (
+                            <span className="text-xs text-gray-600 text-center">
+                              or pay at clinic
+                            </span>
+                          )}
+                        </div>
+                      )}
 
-                    {/* Waiting message for paid online appointments without consultation link */}
-                    {appointment.mode?.toLowerCase() === "online" && 
-                     (appointment.paymentStatus === true || appointment.paymentStatus === "true") &&
-                     !consultationLinks[appointment.appointmentId] && (
-                      <span className="text-xs text-gray-500">
-                        Waiting to join
-                      </span>
-                    )}
+                      {/* Message for paid offline appointments */}
+                      {shouldShowPayAtClinicMessage(appointment) && (
+                        <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded text-center">
+                          ✓ Paid - Visit clinic
+                        </span>
+                      )}
+
+                      {/* Waiting message for paid online appointments without consultation link */}
+                      {appointment.mode?.toLowerCase() === "online" && 
+                       (appointment.paymentStatus === true || appointment.paymentStatus === "true") &&
+                       !consultationLinks[appointment.appointmentId] &&
+                       !appointment.isCancelled && (
+                        <span className="text-xs text-gray-500 text-center">
+                          Waiting to join
+                        </span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
