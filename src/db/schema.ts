@@ -96,6 +96,8 @@ export const postStatusEnum = pgEnum("post_status", [
 
 export const payoutStatusEnum = pgEnum("payout_status", ["pending", "completed"]);
 export const payoutMethodEnum = pgEnum("payout_method", ["UPI", "NEFT", "IMPS"]);
+export const websiteStatusEnum = pgEnum("website_status", ["active", "inactive"]);
+
 
 ///
 // Users
@@ -214,6 +216,45 @@ export const doctor = pgTable("doctor", {
   balance: numeric("balance", { scale: 2 }).default("0").notNull(),
   totalWithdraw: numeric("total_withdraw", { scale: 2 }).default("0").notNull(),
   totalEarnings: numeric("total_earnings", { scale: 2 }).default("0").notNull(),
+});
+
+export const doctorWebsiteDetails = pgTable(
+  "doctor_website_details",
+  {
+    id: serial("id").primaryKey(),
+    doctorId: integer("doctor_id")
+      .notNull()
+      .references(() => doctor.id, { onDelete: "cascade" }),
+
+    currentUrl: varchar("current_url", { length: 500 }).notNull(),
+    customDomain: varchar("custom_domain", { length: 255 }),
+    status: websiteStatusEnum("status").notNull().default("inactive"),
+
+    createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
+  }
+);
+
+export const customDomainSettings = pgTable('custom_domain_settings', {
+  id: serial('id').primaryKey(),
+  title: text('title').notNull().default('Custom Domain Integration Guideline'),
+  shortDetails: text('short_details').notNull().default('Custom Domain Integration Guideline short details'),
+  details: text('details').default(''),
+  serverIp: text('server_ip').notNull().default('200.201.231.122'),
+  
+  // DNS Record 1 (CNAME)
+  type1: text('type1').notNull().default('CNAME Record'),
+  host1: text('host1').notNull().default('www'),
+  value1: text('value1').notNull().default('www.livedoctors.in'),
+  ttl1: text('ttl1').notNull().default('Automatic'),
+  
+  // DNS Record 2 (A Record)
+  type2: text('type2').notNull().default('A Record'),
+  host2: text('host2').notNull().default('@'),
+  value2: text('value2').notNull().default('200.201.231.122'),
+  ttl2: text('ttl2').notNull().default('Automatic'),
+  
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
 export const payoutRequests = pgTable("payout_requests", {
