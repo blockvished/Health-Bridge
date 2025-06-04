@@ -35,11 +35,19 @@ jobs:
             cd /home/LiveDoctors-app/LD2025
             echo "Current directory: $(pwd)"
             
+            # ── Pull latest changes ────────────────────────────────────────
+            echo "=== PULLING LATEST CHANGES ==="
+            git pull origin main
+            
             # ── Check git status ───────────────────────────────────────────
             echo "=== GIT STATUS ==="
             git status --porcelain
             echo "Current branch: $(git branch --show-current)"
             echo "Latest commit: $(git log -1 --oneline)"
+            
+            # ── Install/update dependencies ────────────────────────────────
+            echo "=== INSTALLING DEPENDENCIES ==="
+            npm ci --production=false
             
             # ── Run build and see what happens ─────────────────────────────
             echo "=== RUNNING BUILD ==="
