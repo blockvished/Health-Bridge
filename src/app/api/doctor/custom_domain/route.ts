@@ -5,7 +5,7 @@ import { doctor, doctorWebsiteDetails } from "../../../../db/schema"; // Ensure 
 import { eq } from "drizzle-orm";
 import { verifyAuthToken } from "../../../../app/lib/verify"; // Assuming this utility exists for authentication
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const decodedOrResponse = await verifyAuthToken();
     if (decodedOrResponse instanceof NextResponse) return decodedOrResponse;
