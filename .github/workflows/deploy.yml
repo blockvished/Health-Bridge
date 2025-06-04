@@ -1,14 +1,12 @@
 name: Build & Deploy Node.js App to VPS
-
 on:
   push:
     branches: [ "main" ]          # deploy only when main is updated
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment:
-      name: production            # triggers GitHub’s built-in manual approval
+      name: production            # triggers GitHub's built-in manual approval
     # 1️⃣ ──────────────────────────────────────────────────────────────────────
     # Add every secret you need for build/run below.
     # These are **masked** in the logs by GitHub.
@@ -31,22 +29,26 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
             nvm use 22
-
-            # ── Go to the app directory & get latest code ────────────────
+            
+            # ── Go to the app directory ────────────────────────────────────
+            echo "=== NAVIGATING TO APP DIRECTORY ==="
             cd /home/LiveDoctors-app/LD2025
-            git fetch --all
-            git reset --hard origin/main     # force-sync to repo state
-
-            # ── Install deps & build with secrets in env ─────────────────
-            NODE_ENV=production npm ci
-            NODE_ENV=production DATABASE_URL="$DATABASE_URL" npm run build
-
-            # ── Start or restart with PM2, injecting updated env vars ────
-            if pm2 describe livedoctors > /dev/null 2>&1; then
-              DATABASE_URL="$DATABASE_URL" pm2 restart livedoctors --update-env
-            else
-              DATABASE_URL="$DATABASE_URL" pm2 start npm --name "livedoctors" -- start
-            fi
-
-            # (optional) save process list so it auto-starts on reboot
-            pm2 save
+            echo "Current directory: $(pwd)"
+            
+            # ── List directory contents ────────────────────────────────────
+            echo "=== DIRECTORY CONTENTS ==="
+            ls -la
+            
+            # ── Check for important files ──────────────────────────────────
+            echo "=== CHECKING FOR KEY FILES ==="
+            echo "package.json exists: $([ -f package.json ] && echo 'YES' || echo 'NO')"
+            echo "src/ directory exists: $([ -d src ] && echo 'YES' || echo 'NO')"
+            echo "db/ directory exists: $([ -d db ] && echo 'YES' || echo 'NO')"
+            echo "next.config.js exists: $([ -f next.config.js ] && echo 'YES' || echo 'NO')"
+            echo "tsconfig.json exists: $([ -f tsconfig.json ] && echo 'YES' || echo 'NO')"
+            
+            # ── Check git status ───────────────────────────────────────────
+            echo "=== GIT STATUS ==="
+            git status --porcelain
+            echo "Current branch: $(git branch --show-current)"
+            echo "Latest commit: $(git log -1 --oneline)"
