@@ -31,6 +31,9 @@ jobs:
             source ~/.bashrc || source ~/.profile || true
             # Verify Node.js is available
             echo "=== CHECKING NODE.JS INSTALLATION ==="
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            nvm use --lts
             which node || echo "Node not found in PATH"
             which npm || echo "npm not found in PATH"
             node --version || echo "Node version check failed"
