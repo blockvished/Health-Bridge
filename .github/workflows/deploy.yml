@@ -2,7 +2,7 @@ name: Build & Deploy Node.js App to VPS
 on:
   push:
     branches: [ "main" ]          # deploy only when main is updated
-jobs:
+jobs: 
   deploy:
     runs-on: ubuntu-latest
     environment:
@@ -25,8 +25,7 @@ jobs:
           # Forward the secret names to the remote shell (comma-separated list)
           envs: DATABASE_URL
           script: |
-            # ── Load Node.js 22 via nvm (non-interactive shell) ───────────
-            export NVM_DIR="$HOME/.nvm"
+            # ── Load Node.js 22 via nvm (non-interactive shell) ──────────
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
             nvm use 22
             
