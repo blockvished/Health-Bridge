@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import '@fortawesome/fontawesome-free/css/all.min.css';
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 type Doctor = {
   id: number;
@@ -57,54 +59,17 @@ export default function DoctorsPage() {
     if (p >= 1 && p <= totalPages) setPage(p);
   };
 
+  const generateDoctorSlug = (doctorName: string) => {
+    return doctorName.replace(/ /g, "-");
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header/Navigation */}
-      <nav className="bg-white shadow p-4 flex justify-between items-center px-4 md:px-8 lg:px-12"> {/* Added horizontal padding */}
-        <Link href="/">
-          <Image
-            src="/logo_live_doctors.png"
-            alt="Live Doctors"
-            width={160}
-            height={40}
-          />
-        </Link>
-        <div className="hidden md:flex space-x-6 text-gray-700">
-          <Link href="/" className="hover:text-blue-600">
-            Home
-          </Link>
-          <Link href="/pricing" className="hover:text-blue-600">
-            Pricing
-          </Link>
-          <Link href="/experts" className="text-blue-600 font-semibold">
-            {" "}
-            Experts
-          </Link>
-          <Link href="/faqs" className="hover:text-blue-600">
-            FAQs
-          </Link>
-          <Link href="/contact" className="hover:text-blue-600">
-            Contact
-          </Link>
-        </div>
-        <div className="flex space-x-2"> {/* Reduced space-x to space-x-2 */}
-          <Link
-            href="/sign-in"
-            className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 text-sm" // Smaller padding and text size
-          >
-            Sign In
-          </Link>
-          <Link
-            href="/get-started"
-            className="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm" // Smaller padding and text size
-          >
-            Get Started
-          </Link>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Section with Title and Description */}
-      <div className="bg-white shadow-md py-8 px-4 md:px-8 lg:px-12 text-center"> {/* Added horizontal padding */}
+      <div className="bg-white shadow-md py-8 px-4 md:px-8 lg:px-12 text-center">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">
           Our Expert Medical Practitioners and Specialists
         </h1>
@@ -116,7 +81,9 @@ export default function DoctorsPage() {
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="px-4 md:px-8 lg:px-12 py-4 flex flex-wrap gap-4 items-center bg-white shadow-md"> {/* Added horizontal padding */}
+      <div className="px-4 md:px-8 lg:px-12 py-4 flex flex-wrap gap-4 items-center bg-white shadow-md">
+        {" "}
+        {/* Added horizontal padding */}
         <select
           value={specialization}
           onChange={(e) => setSpecialization(e.target.value)}
@@ -129,7 +96,6 @@ export default function DoctorsPage() {
             </option>
           ))}
         </select>
-
         <select
           value={experience}
           onChange={(e) => setExperience(e.target.value)}
@@ -142,7 +108,6 @@ export default function DoctorsPage() {
             </option>
           ))}
         </select>
-
         <input
           type="text"
           value={name}
@@ -155,7 +120,9 @@ export default function DoctorsPage() {
         />
       </div>
 
-      <div className="p-4 md:p-8 lg:p-12 grow grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"> {/* Added horizontal padding */}
+      <div className="p-4 md:p-8 lg:p-12 grow grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {" "}
+        {/* Added horizontal padding */}
         {paginated.length > 0 ? (
           paginated.map((doc) => (
             <div
@@ -178,14 +145,19 @@ export default function DoctorsPage() {
                 <p className="text-sm text-gray-600">
                   {doc.experience} years experience
                 </p>
-                <button className="mt-3 inline-block px-3 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200"> {/* Smaller padding and text size */}
+                <Link
+                  href={`/profile/${generateDoctorSlug(doc.name)}`}
+                  className="mt-3 inline-block px-3 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200"
+                >
                   Book Appointment
-                </button>
+                </Link>
               </div>
             </div>
           ))
         ) : (
-          <p className="text-gray-600 px-4 md:px-8 lg:px-12">No doctors match the filters.</p>
+          <p className="text-gray-600 px-4 md:px-8 lg:px-12">
+            No doctors match the filters.
+          </p>
         )}
       </div>
 
@@ -217,112 +189,7 @@ export default function DoctorsPage() {
           </button>
         </div>
       )}
-
-      <footer className="bg-white border-t mt-8 text-sm text-gray-700">
-        <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-8 lg:px-12"> {/* Added horizontal padding */}
-          {/* Column 1 */}
-          <div className="text-center md:text-left">
-            <Image
-              src="/logo_live_doctors.png"
-              alt="Live Doctors"
-              width={160}
-              height={40}
-              className="mx-auto md:mx-0"
-            />
-            <p className="mt-4 text-gray-600 text-sm leading-relaxed">
-              Live Doctors is an all-in-one encompassing healthcare practice
-              management system designed & managed by Prgenix Consultants LLP to
-              streamline clinical operations and enhance marketing efforts for
-              all the doctors and medical practitioners.
-            </p>
-            <div className="flex justify-center md:justify-start gap-3 mt-4 text-gray-600 text-lg"> {/* Slightly reduced gap and icon size */}
-              <Link href="https://www.facebook.com/livedoctors.in">
-                <i className="fab fa-facebook-f"></i>
-              </Link>
-              <Link href="http://x.com/LiveDoctors24/">
-                <i className="fab fa-twitter"></i>
-              </Link>
-              <Link href="https://www.linkedin.com/company/livedoctorsofficial/">
-                <i className="fab fa-linkedin-in"></i>
-              </Link>
-              <Link href="https://www.instagram.com/livedoctors/">
-                <i className="fab fa-instagram"></i>
-              </Link>
-            </div>
-          </div>
-
-          {/* Column 2 */}
-          <div className="text-center md:text-left">
-            <h3 className="font-semibold mb-3 text-gray-800">Pages</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="https://app.livedoctors.in/page/terms-of-service"
-                  className="hover:text-blue-600"
-                >
-                  Terms of Use
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="https://app.livedoctors.in/page/privacy-policy"
-                  className="hover:text-blue-600"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="https://app.livedoctors.in/page/refund-policy"
-                  className="hover:text-blue-600"
-                >
-                  Refund Policy
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3 */}
-          <div className="text-center md:text-left">
-            <h3 className="font-semibold mb-3 text-gray-800">Resources</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="https://app.livedoctors.in/pricing"
-                  className="hover:text-blue-600"
-                >
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="https://app.livedoctors.in/faqs"
-                  className="hover:text-blue-600"
-                >
-                  FAQs
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="https://app.livedoctors.in/contact"
-                  className="hover:text-blue-600"
-                >
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Copyright Row */}
-        <div className="text-center py-4 border-t text-xs text-gray-500 px-4 md:px-8 lg:px-12"> {/* Added horizontal padding */}
-          Copyright © 2025. Live Doctors. All Rights Reserved. An Initiative of{" "}
-          <Link href="#" className="text-blue-600 font-medium">
-            Prgenix
-          </Link>
-          .
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
