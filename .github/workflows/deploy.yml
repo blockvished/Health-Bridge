@@ -35,20 +35,16 @@ jobs:
             cd /home/LiveDoctors-app/LD2025
             echo "Current directory: $(pwd)"
             
-            # ── List directory contents ────────────────────────────────────
-            echo "=== DIRECTORY CONTENTS ==="
-            ls -la
-            
-            # ── Check for important files ──────────────────────────────────
-            echo "=== CHECKING FOR KEY FILES ==="
-            echo "package.json exists: $([ -f package.json ] && echo 'YES' || echo 'NO')"
-            echo "src/ directory exists: $([ -d src ] && echo 'YES' || echo 'NO')"
-            echo "db/ directory exists: $([ -d db ] && echo 'YES' || echo 'NO')"
-            echo "next.config.js exists: $([ -f next.config.js ] && echo 'YES' || echo 'NO')"
-            echo "tsconfig.json exists: $([ -f tsconfig.json ] && echo 'YES' || echo 'NO')"
-            
             # ── Check git status ───────────────────────────────────────────
             echo "=== GIT STATUS ==="
             git status --porcelain
             echo "Current branch: $(git branch --show-current)"
             echo "Latest commit: $(git log -1 --oneline)"
+            
+            # ── Run build and see what happens ─────────────────────────────
+            echo "=== RUNNING BUILD ==="
+            npm run build
+            
+            # ── List contents after build ──────────────────────────────────
+            echo "=== DIRECTORY CONTENTS AFTER BUILD ==="
+            ls -la
