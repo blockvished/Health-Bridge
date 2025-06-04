@@ -40,6 +40,8 @@ export async function GET(req: NextRequest) {
   const userRole = user[0].role;
   let fetchDoctorId = String(userId);
 
+  console.log(userRole)
+
   if (userRole === "doctor") {
     // Verify doctor exists for this user
     const doctorData = await db
@@ -62,7 +64,7 @@ export async function GET(req: NextRequest) {
     const doctorData = await db
       .select()
       .from(doctor)
-      .where(eq(doctor.id, Number(fetchDoctorId)));
+      .where(eq(doctor.id, Number(adminProvidedUserId)));
     
     fetchDoctorId = String(doctorData[0].userId);
   } else {
