@@ -404,7 +404,7 @@ const DomainTable = () => {
                     <h6 className="font-medium text-yellow-800 mb-2">Important Notes:</h6>
                     <ul className="list-disc list-inside text-yellow-700 text-sm space-y-1">
                       <li>DNS changes may take up to 24-48 hours to propagate globally</li>
-                      <li>Make sure to add both records to your domain's DNS settings</li>
+                      <li>{`Make sure to add both records to your domain's DNS settings`}</li>
                       <li>Contact your domain registrar or hosting provider if you need help adding these records</li>
                       <li>You can use online DNS checker tools to verify the records are properly configured</li>
                     </ul>
