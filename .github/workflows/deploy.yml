@@ -25,10 +25,7 @@ jobs:
           # Forward the secret names to the remote shell (comma-separated list)
           envs: DATABASE_URL
           script: |
-            # ── Load Node.js 22 via nvm (non-interactive shell) ──────────
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm use 22
-            
+          
             # ── Go to the app directory ────────────────────────────────────
             echo "=== NAVIGATING TO APP DIRECTORY ==="
             cd /home/LiveDoctors-app/LD2025
