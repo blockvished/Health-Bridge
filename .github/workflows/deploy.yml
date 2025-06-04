@@ -28,6 +28,13 @@ jobs:
           
             # ── Go to the app directory ────────────────────────────────────
             echo "=== NAVIGATING TO APP DIRECTORY ==="
+            source ~/.bashrc || source ~/.profile || true
+            # Verify Node.js is available
+            echo "=== CHECKING NODE.JS INSTALLATION ==="
+            which node || echo "Node not found in PATH"
+            which npm || echo "npm not found in PATH"
+            node --version || echo "Node version check failed"
+            npm --version || echo "npm version check failed"
             cd /home/LiveDoctors-app/LD2025
             echo "Current directory: $(pwd)"
             
