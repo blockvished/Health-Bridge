@@ -71,13 +71,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     console.log("Doctor :", doctorEducations);
 
     // Return both doctor and consultation data
-    const responseData = {
+    const responseData = {    
       doctor: doctorData[0], // Return the first (and only) doctor
       consultation:
         consultationDataSettings.length > 0
           ? consultationDataSettings[0]
           : null, // Return consultation if exists, null
-      // educations:
+      educations: doctorEducations,
     };
 
     return NextResponse.json(responseData, {
