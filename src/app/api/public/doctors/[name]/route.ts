@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
+  appointmentDays,
+  appointmentTimeRanges,
   doctor,
   doctorConsultation,
   doctorEducation,
+  doctorExperience,
 } from "../../../../../db/schema";
 import { eq, ilike } from "drizzle-orm";
 import db from "../../../../../db/db";
@@ -46,6 +49,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         aboutSelf: doctor.aboutSelf,
         experience: doctor.experience,
         image: doctor.image_link,
+        clinic: doctor.aboutClinic,
       })
       .from(doctor)
       .where(ilike(doctor.name, `%${decodedName}%`))
@@ -68,16 +72,50 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .from(doctorEducation)
       .where(eq(doctorEducation.doctorId, reqDoctorId));
 
-    console.log("Doctor :", doctorEducations);
+    const doctorExperiences = await db
+      .select()
+      .from(doctorExperience)
+      .where(eq(doctorExperience.doctorId, reqDoctorId));
+
+    const days = await db
+      .select()
+      .from(appointmentDays)
+      .where(eq(appointmentDays.doctorId, reqDoctorId));
+
+    const result = await Promise.all(
+      days.map(async (day) => {
+        if (!day.isActive) {
+          return { ...day, times: [] };
+        }
+
+        const timeRanges = await db
+          .select({
+            from: appointmentTimeRanges.startTime,
+            to: appointmentTimeRanges.endTime,
+          })
+          .from(appointmentTimeRanges)
+          .where(eq(appointmentTimeRanges.dayId, day.id));
+
+        return {
+          ...day,
+          times: timeRanges.map(({ from, to }) => ({
+            from,
+            to,
+          })),
+        };
+      })
+    );
 
     // Return both doctor and consultation data
-    const responseData = {    
+    const responseData = {
       doctor: doctorData[0], // Return the first (and only) doctor
       consultation:
         consultationDataSettings.length > 0
           ? consultationDataSettings[0]
           : null, // Return consultation if exists, null
       educations: doctorEducations,
+      experience: doctorExperiences,
+      times: result,
     };
 
     return NextResponse.json(responseData, {
