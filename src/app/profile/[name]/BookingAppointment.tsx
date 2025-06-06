@@ -1,5 +1,5 @@
-// components/BookingAppointment.tsx
 import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type TimeSlot = {
   from: string;
@@ -48,6 +48,8 @@ export default function BookingAppointment({
     timeSlot: "",
   });
   const [availableTimeSlots, setAvailableTimeSlots] = useState<TimeSlot[]>([]);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   // Format time from 24h to 12h format
   const formatTime = (time: string) => {
@@ -74,6 +76,7 @@ export default function BookingAppointment({
   // Handle date change and update available time slots
   const handleDateChange = (selectedDate: string) => {
     setBookingForm((prev) => ({ ...prev, date: selectedDate, timeSlot: "" }));
+    setShowDatePicker(false);
 
     if (selectedDate) {
       const date = new Date(selectedDate);
@@ -122,6 +125,142 @@ export default function BookingAppointment({
   const getMinDate = () => {
     const today = new Date();
     return today.toISOString().split("T")[0];
+  };
+
+  // Calendar functions
+  const getDaysInMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+  };
+
+  const formatDateForInput = (year: number, month: number, day: number) => {
+    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  };
+
+  const isDateInPast = (year: number, month: number, day: number) => {
+    const today = new Date();
+    const dateToCheck = new Date(year, month, day);
+    today.setHours(0, 0, 0, 0);
+    return dateToCheck < today;
+  };
+
+  const isSelectedDate = (year: number, month: number, day: number) => {
+    if (!bookingForm.date) return false;
+    const selectedDate = new Date(bookingForm.date);
+    return selectedDate.getFullYear() === year && 
+           selectedDate.getMonth() === month && 
+           selectedDate.getDate() === day;
+  };
+
+  const renderCalendar = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const daysInMonth = getDaysInMonth(currentMonth);
+    const firstDay = getFirstDayOfMonth(currentMonth);
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+    const days = [];
+    
+    // Empty cells for days before the first day of the month
+    for (let i = 0; i < firstDay; i++) {
+      days.push(<div key={`empty-${i}`} className="p-2"></div>);
+    }
+
+    // Days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateString = formatDateForInput(year, month, day);
+      const isAvailable = isDateAvailable(dateString);
+      const isPast = isDateInPast(year, month, day);
+      const isSelected = isSelectedDate(year, month, day);
+      const isDisabled = isPast || !isAvailable;
+
+      days.push(
+        <button
+          key={day}
+          type="button"
+          onClick={() => !isDisabled && handleDateChange(dateString)}
+          disabled={isDisabled}
+          className={`
+            p-2 text-sm font-medium rounded-lg transition-all duration-200
+            ${isSelected 
+              ? 'bg-blue-600 text-white ring-2 ring-blue-300' 
+              : isAvailable && !isPast
+                ? 'bg-green-100 text-green-800 hover:bg-green-200 border border-green-300'
+                : isPast
+                  ? 'text-gray-300 cursor-not-allowed'
+                  : 'text-gray-400 cursor-not-allowed'
+            }
+            ${!isDisabled && !isSelected ? 'hover:scale-105' : ''}
+          `}
+        >
+          {day}
+        </button>
+      );
+    }
+
+    return (
+      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-50 p-4">
+        {/* Calendar header */}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            type="button"
+            onClick={() => setCurrentMonth(new Date(year, month - 1))}
+            className="p-1 hover:bg-gray-100 rounded"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <h3 className="font-semibold text-gray-900">
+            {monthNames[month]} {year}
+          </h3>
+          <button
+            type="button"
+            onClick={() => setCurrentMonth(new Date(year, month + 1))}
+            className="p-1 hover:bg-gray-100 rounded"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+
+        {/* Day names */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {dayNames.map(dayName => (
+            <div key={dayName} className="p-2 text-xs font-medium text-gray-500 text-center">
+              {dayName}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar days */}
+        <div className="grid grid-cols-7 gap-1">
+          {days}
+        </div>
+
+        {/* Legend */}
+        <div className="mt-4 pt-3 border-t border-gray-200">
+          <div className="flex items-center justify-center space-x-4 text-xs">
+            <div className="flex items-center">
+              <div className="w-3 h-3 bg-green-100 border border-green-300 rounded mr-1"></div>
+              <span className="text-gray-600">Available</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-3 h-3 bg-blue-600 rounded mr-1"></div>
+              <span className="text-gray-600">Selected</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-3 h-3 bg-gray-200 rounded mr-1"></div>
+              <span className="text-gray-600">Unavailable</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -201,18 +340,32 @@ export default function BookingAppointment({
               </select>
             </div>
 
-            {/* Date */}
-            <div>
+            {/* Custom Date Picker */}
+            <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Date <span className="text-red-500">*</span>
               </label>
-              <input
-                type="date"
-                min={getMinDate()}
-                value={bookingForm.date}
-                onChange={(e) => handleDateChange(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+              <button
+                type="button"
+                onClick={() => setShowDatePicker(!showDatePicker)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-left flex items-center justify-between"
+              >
+                <span className={bookingForm.date ? "text-gray-900" : "text-gray-500"}>
+                  {bookingForm.date 
+                    ? new Date(bookingForm.date).toLocaleDateString("en-US", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric"
+                      })
+                    : "Select a date"
+                  }
+                </span>
+                <ChevronRight className={`w-5 h-5 text-gray-400 transition-transform ${showDatePicker ? 'rotate-90' : ''}`} />
+              </button>
+              
+              {showDatePicker && renderCalendar()}
+              
               {bookingForm.date && !isDateAvailable(bookingForm.date) && (
                 <p className="text-red-500 text-sm mt-1">
                   Doctor is not available on this day. Please select from
@@ -285,6 +438,14 @@ export default function BookingAppointment({
           </form>
         </div>
       </div>
+
+      {/* Click outside to close date picker */}
+      {showDatePicker && (
+        <div 
+          className="fixed inset-0 z-40"
+          onClick={() => setShowDatePicker(false)}
+        />
+      )}
     </div>
   );
 }
