@@ -8,7 +8,11 @@ import DoctorHeader from "./DoctorHeader";
 import BookingAppointment from "./BookingAppointment";
 import EducationSection from "./EducationSection";
 import ExperienceSection from "./ExperienceSection";
-import { LoadingSpinner, ErrorMessage, NotFound } from "./LoadingErrorComponents";
+import {
+  LoadingSpinner,
+  ErrorMessage,
+  NotFound,
+} from "./LoadingErrorComponents";
 import { ApiResponse, PageProps } from "./doctor";
 
 type RatingData = {
@@ -57,7 +61,7 @@ export default function ProfilePage({ params }: PageProps) {
         const data = await response.json();
         console.log("API Response:", data);
         setProfileData(data);
-        console.log(data.doctor.id)
+        console.log(data.doctor.id);
       } catch (err) {
         console.error("Error fetching doctor data:", err);
         setError(err instanceof Error ? err.message : "An error occurred");
@@ -76,10 +80,12 @@ export default function ProfilePage({ params }: PageProps) {
 
       try {
         setRatingsLoading(true);
-        
+
         // Check if ratings are enabled for this doctor
-        console.log(profileData.doctor.id)
-        const enableResponse = await fetch(`/api/doctor/enable_ratings/${profileData.doctor.id}`);
+        console.log(profileData.doctor.id);
+        const enableResponse = await fetch(
+          `/api/doctor/enable_ratings/${profileData.doctor.id}`
+        );
 
         if (enableResponse.ok) {
           const enableData: EnableRatingData[] = await enableResponse.json();
@@ -88,7 +94,9 @@ export default function ProfilePage({ params }: PageProps) {
 
           // If ratings are enabled, fetch the ratings
           if (isEnabled) {
-            const ratingsResponse = await fetch(`/api/doctor/ratings/${profileData.doctor.id}`);
+            const ratingsResponse = await fetch(
+              `/api/doctor/ratings/${profileData.doctor.id}`
+            );
             if (ratingsResponse.ok) {
               const ratingsData: RatingData[] = await ratingsResponse.json();
               setRatings(ratingsData);
@@ -112,7 +120,7 @@ export default function ProfilePage({ params }: PageProps) {
           <svg
             key={star}
             className={`w-5 h-5 ${
-              star <= rating ? 'text-yellow-400' : 'text-gray-300'
+              star <= rating ? "text-yellow-400" : "text-gray-300"
             }`}
             fill="currentColor"
             viewBox="0 0 20 20"
@@ -127,10 +135,10 @@ export default function ProfilePage({ params }: PageProps) {
 
   const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -154,13 +162,16 @@ export default function ProfilePage({ params }: PageProps) {
             <div className="bg-yellow-100 p-3 rounded-full mr-3">
               <span className="text-2xl">⭐</span>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Patient Reviews</h2>
+            <h2 className="text-3xl font-bold text-gray-900">
+              Patient Reviews
+            </h2>
           </div>
           <div className="flex items-center justify-center mb-2">
             {renderStars(Math.round(averageRating))}
           </div>
           <p className="text-gray-600">
-            Average rating: {averageRating.toFixed(1)} out of 5 ({ratings.length} review{ratings.length !== 1 ? 's' : ''})
+            Average rating: {averageRating.toFixed(1)} out of 5 (
+            {ratings.length} review{ratings.length !== 1 ? "s" : ""})
           </p>
         </div>
 
@@ -181,9 +192,7 @@ export default function ProfilePage({ params }: PageProps) {
               </div>
 
               {/* Rating stars */}
-              <div className="mb-3">
-                {renderStars(review.rating)}
-              </div>
+              <div className="mb-3">{renderStars(review.rating)}</div>
 
               {/* Review text */}
               {review.text && (
@@ -216,18 +225,19 @@ export default function ProfilePage({ params }: PageProps) {
     return (
       <>
         <DoctorHeader doctor={doctor} />
-        
-        <BookingAppointment 
+
+        <BookingAppointment
           times={times}
           consultation={consultation}
           doctorId={doctor.id}
           doctorName={doctor.name}
+          clinics={profileData.clinics} // Add this
         />
-        
+
         <EducationSection educations={educations} />
-        
+
         <ExperienceSection experience={experience} />
-        
+
         <ReviewsSection />
       </>
     );

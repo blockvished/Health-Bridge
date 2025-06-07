@@ -61,12 +61,27 @@ export type ApiResponse = {
   doctor: DoctorData;
   consultation: ConsultationData;
   educations: EducationData[];
+  clinics: ClinicData[]
   experience: ExperienceData[];
   times: AvailabilityData[];
 };
 
+export type ClinicData = {
+  id: number;
+  doctorId: number;
+  name: string;
+  address: string;
+  department: string;
+  active: boolean;
+  appointmentLimit: number;
+  imageLink: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type BookingFormData = {
   consultationMode: string;
+  clinicId: string;
   date: string;
   timeSlot: string;
 };

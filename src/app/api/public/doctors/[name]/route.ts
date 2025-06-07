@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   appointmentDays,
   appointmentTimeRanges,
+  clinic,
   doctor,
   doctorConsultation,
   doctorEducation,
@@ -9,6 +10,7 @@ import {
 } from "../../../../../db/schema";
 import { eq, ilike } from "drizzle-orm";
 import db from "../../../../../db/db";
+import { and } from "drizzle-orm";
 
 type RouteParams = {
   params: Promise<{
@@ -77,6 +79,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .from(doctorExperience)
       .where(eq(doctorExperience.doctorId, reqDoctorId));
 
+    const doctorClinics = await db
+      .select()
+      .from(clinic)
+      .where(and(eq(clinic.doctorId, reqDoctorId), eq(clinic.active, true)));
+
     const days = await db
       .select()
       .from(appointmentDays)
@@ -113,6 +120,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         consultationDataSettings.length > 0
           ? consultationDataSettings[0]
           : null, // Return consultation if exists, null
+      clinics: doctorClinics,
       educations: doctorEducations,
       experience: doctorExperiences,
       times: result,
