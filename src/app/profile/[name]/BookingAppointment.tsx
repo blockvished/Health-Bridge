@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { TimeSlot, ClinicData, AvailabilityData, ConsultationData, BookingFormData } from "./doctor";
+import {
+  TimeSlot,
+  ClinicData,
+  AvailabilityData,
+  ConsultationData,
+  BookingFormData,
+} from "./doctor";
 
 type RegistrationFormData = {
   name: string;
@@ -52,6 +58,7 @@ export default function BookingAppointment({
   const [currentStep, setCurrentStep] = useState<"booking" | "auth">("booking");
   const [activeTab, setActiveTab] = useState<"register" | "login">("register");
   const [isNotRobot, setIsNotRobot] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Format time from 24h to 12h format
   const formatTime = (time: string) => {
@@ -96,25 +103,29 @@ export default function BookingAppointment({
   };
 
   // Handle booking form submission (Continue button)
-const handleBookingFormSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleBookingFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
-  // Validate required fields
-  if (
-    !bookingForm.consultationMode ||
-    !bookingForm.date ||
-    !bookingForm.timeSlot ||
-    (bookingForm.consultationMode === "offline" && !bookingForm.clinicId) // Add this condition
-  ) {
-    alert("Please fill in all required fields");
-    return;
-  }
+    // Validate required fields
 
-  // Move to auth step
-  setCurrentStep("auth");
-};
+    if (
+      !bookingForm.consultationMode ||
+      !bookingForm.date ||
+      !bookingForm.timeSlot ||
+      (bookingForm.consultationMode === "offline" && !bookingForm.clinicId)
+    ) {
+      alert("Please fill in all required fields");
+
+      return;
+    }
+
+    // Move to auth step
+
+    setCurrentStep("auth");
+  };
+
   // Handle registration form submission
-  const handleRegistrationSubmit = (e: React.FormEvent) => {
+  const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (
@@ -123,58 +134,187 @@ const handleBookingFormSubmit = (e: React.FormEvent) => {
       !registrationForm.password
     ) {
       alert("Please fill in all required fields");
+
       return;
     }
 
     if (!isNotRobot) {
       alert("Please verify that you are not a robot");
+
       return;
     }
 
-    // Console log the complete booking data with registration
-    console.log("Registration & Booking Form Data:", {
-      bookingData: {
-        ...bookingForm,
-        doctorId: doctorId,
-        doctorName: doctorName,
-        consultationFees: consultation.consultationFees,
-        selectedTimeSlot: availableTimeSlots.find(
-          (slot) => `${slot.from}-${slot.to}` === bookingForm.timeSlot
-        ),
-      },
-      registrationData: registrationForm,
-      formType: "registration",
-    });
-  };
+    setIsSubmitting(true);
 
+    try {
+      // Prepare data for new appointment API
+
+      const appointmentData = {
+        date: bookingForm.date,
+
+        timeSlot: bookingForm.timeSlot,
+
+        consultationMode: bookingForm.consultationMode,
+
+        doctorId: doctorId,
+
+        clinicId: bookingForm.clinicId,
+
+        consultationFees: consultation.consultationFees,
+
+        // Registration data
+
+        name: registrationForm.name,
+
+        email: registrationForm.email,
+
+        phone: registrationForm.phone,
+
+        password: registrationForm.password,
+      };
+
+      console.log("Sending new appointment data:", appointmentData);
+
+      const response = await fetch("/api/public/appointment/new", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(appointmentData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Appointment booked successfully!");
+
+        // Reset forms
+
+        setBookingForm({
+          consultationMode: "",
+
+          clinicId: "",
+
+          date: "",
+
+          timeSlot: "",
+        });
+
+        setRegistrationForm({
+          name: "",
+
+          email: "",
+
+          phone: "",
+
+          password: "",
+        });
+
+        setCurrentStep("booking");
+
+        setIsNotRobot(false);
+      } else {
+        alert("Failed to book appointment: " + result.error);
+      }
+    } catch (error) {
+      console.error("Error booking appointment:", error);
+
+      alert("An error occurred while booking the appointment");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   // Handle login form submission
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!loginForm.emailOrPhone || !loginForm.password) {
       alert("Please fill in all required fields");
+
       return;
     }
 
     if (!isNotRobot) {
       alert("Please verify that you are not a robot");
+
       return;
     }
 
-    // Console log the complete booking data with login
-    console.log("Login & Booking Form Data:", {
-      bookingData: {
-        ...bookingForm,
+    setIsSubmitting(true);
+
+    try {
+      // Prepare data for existing appointment API
+
+      const appointmentData = {
+        date: bookingForm.date,
+
+        timeSlot: bookingForm.timeSlot,
+
+        consultationMode: bookingForm.consultationMode,
+
         doctorId: doctorId,
-        doctorName: doctorName,
+
+        clinicId: bookingForm.clinicId,
+
         consultationFees: consultation.consultationFees,
-        selectedTimeSlot: availableTimeSlots.find(
-          (slot) => `${slot.from}-${slot.to}` === bookingForm.timeSlot
-        ),
-      },
-      loginData: loginForm,
-      formType: "login",
-    });
+
+        // Login data
+
+        emailOrPhone: loginForm.emailOrPhone,
+
+        password: loginForm.password,
+      };
+
+      console.log("Sending existing user appointment data:", appointmentData);
+
+      const response = await fetch("/api/public/appointment/existing", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(appointmentData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Appointment booked successfully!");
+
+        // Reset forms
+
+        setBookingForm({
+          consultationMode: "",
+
+          clinicId: "",
+
+          date: "",
+
+          timeSlot: "",
+        });
+
+        setLoginForm({
+          emailOrPhone: "",
+
+          password: "",
+        });
+
+        setCurrentStep("booking");
+
+        setIsNotRobot(false);
+      } else {
+        alert("Failed to book appointment: " + result.error);
+      }
+    } catch (error) {
+      console.error("Error booking appointment:", error);
+
+      alert("An error occurred while booking the appointment");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Handle back button
@@ -335,33 +475,35 @@ const handleBookingFormSubmit = (e: React.FormEvent) => {
   };
 
   // Render booking summary
-const renderBookingSummary = () => {
-  if (currentStep !== "auth") return null;
+  const renderBookingSummary = () => {
+    if (currentStep !== "auth") return null;
 
-  const selectedClinic = clinics.find(clinic => clinic.id === parseInt(bookingForm.clinicId));
+    const selectedClinic = clinics.find(
+      (clinic) => clinic.id === parseInt(bookingForm.clinicId)
+    );
 
-  return (
-    <div className="bg-blue-50 p-4 rounded-lg mb-6">
-      <h3 className="font-semibold text-gray-900 mb-3">Booking Summary</h3>
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-gray-600">Doctor:</span>
-          <span className="font-medium">{doctorName}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600">Mode:</span>
-          <span className="font-medium capitalize">
-            {bookingForm.consultationMode}
-          </span>
-        </div>
-        {bookingForm.consultationMode === "offline" && selectedClinic && (
+    return (
+      <div className="bg-blue-50 p-4 rounded-lg mb-6">
+        <h3 className="font-semibold text-gray-900 mb-3">Booking Summary</h3>
+        <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-600">Clinic:</span>
-            <span className="font-medium text-xs">
-              {selectedClinic.name} - {selectedClinic.address}
+            <span className="text-gray-600">Doctor:</span>
+            <span className="font-medium">{doctorName}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Mode:</span>
+            <span className="font-medium capitalize">
+              {bookingForm.consultationMode}
             </span>
           </div>
-        )}
+          {bookingForm.consultationMode === "offline" && selectedClinic && (
+            <div className="flex justify-between">
+              <span className="text-gray-600">Clinic:</span>
+              <span className="font-medium text-xs">
+                {selectedClinic.name} - {selectedClinic.address}
+              </span>
+            </div>
+          )}
 
           <div className="flex justify-between">
             <span className="text-gray-600">Date:</span>
@@ -451,6 +593,7 @@ const renderBookingSummary = () => {
             <button
               onClick={handleBack}
               className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+               disabled={isSubmitting}
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               Back
@@ -482,28 +625,30 @@ const renderBookingSummary = () => {
                   )}
                 </select>
               </div>
- <div>
-    <label className="block text-sm font-medium text-gray-700 mb-2">
-      Select Clinic <span className="text-red-500">*</span>
-    </label>
-    <select
-      value={bookingForm.clinicId}
-      onChange={(e) =>
-        setBookingForm((prev) => ({
-          ...prev,
-          clinicId: e.target.value,
-        }))
-      }
-      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-    >
-      <option value="">Select Clinic</option>
-      {clinics.filter(clinic => clinic.active).map((clinic) => (
-        <option key={clinic.id} value={clinic.id}>
-          {clinic.name} - {clinic.address}
-        </option>
-      ))}
-    </select>
-  </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Clinic <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={bookingForm.clinicId}
+                  onChange={(e) =>
+                    setBookingForm((prev) => ({
+                      ...prev,
+                      clinicId: e.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                >
+                  <option value="">Select Clinic</option>
+                  {clinics
+                    .filter((clinic) => clinic.active)
+                    .map((clinic) => (
+                      <option key={clinic.id} value={clinic.id}>
+                        {clinic.name} - {clinic.address}
+                      </option>
+                    ))}
+                </select>
+              </div>
               {/* Custom Date Picker */}
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -599,7 +744,7 @@ const renderBookingSummary = () => {
                   !bookingForm.date ||
                   !bookingForm.timeSlot ||
                   !isDateAvailable(bookingForm.date) ||
-                   !bookingForm.clinicId
+                  !bookingForm.clinicId
                 }
                 className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
