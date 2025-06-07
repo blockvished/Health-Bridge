@@ -16,24 +16,7 @@ export async function GET(req: NextRequest) {
   // Get ID from URL
   const userIdFromUrl = req.nextUrl.pathname.split("/").pop() || "unknown";
 
-  // Verify JWT token using the modularized function
-  const decodedOrResponse = await verifyAuthToken();
-
-  // Handle potential error response from token verification
-  if (decodedOrResponse instanceof NextResponse) {
-    return decodedOrResponse;
-  }
-
-  const decoded = decodedOrResponse;
-  const userId = Number(decoded.userId);
-
-  // Check if the requested ID matches the authenticated user's ID
-  if (String(userId) !== userIdFromUrl) {
-    return NextResponse.json(
-      { error: "Forbidden: You don't have access to this profile" },
-      { status: 403 }
-    );
-  }
+  const userId = Number(userIdFromUrl);
 
   // Query for doctor information
   const doctorData = await db
