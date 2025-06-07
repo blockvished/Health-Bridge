@@ -1,33 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-type TimeSlot = {
-  from: string;
-  to: string;
-};
-
-type AvailabilityData = {
-  id: number;
-  doctorId: number;
-  dayOfWeek: string;
-  isActive: boolean;
-  times: TimeSlot[];
-};
-
-type ConsultationData = {
-  id: number;
-  doctorId: number;
-  consultationFees: number;
-  consultationLink: string;
-  isLiveConsultationEnabled: boolean;
-  mode: string;
-};
-
-type BookingFormData = {
-  consultationMode: string;
-  date: string;
-  timeSlot: string;
-};
+import { TimeSlot, ClinicData, AvailabilityData, ConsultationData, BookingFormData } from "./doctor";
 
 type RegistrationFormData = {
   name: string;
@@ -44,6 +17,7 @@ type LoginFormData = {
 type BookingAppointmentProps = {
   times: AvailabilityData[];
   consultation: ConsultationData;
+  clinics: ClinicData[];
   doctorId: number;
   doctorName: string;
 };
@@ -51,11 +25,13 @@ type BookingAppointmentProps = {
 export default function BookingAppointment({
   times,
   consultation,
+  clinics,
   doctorId,
   doctorName,
 }: BookingAppointmentProps) {
   const [bookingForm, setBookingForm] = useState<BookingFormData>({
     consultationMode: "",
+    clinicId: "",
     date: "",
     timeSlot: "",
   });
@@ -120,23 +96,23 @@ export default function BookingAppointment({
   };
 
   // Handle booking form submission (Continue button)
-  const handleBookingFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+const handleBookingFormSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
 
-    // Validate required fields
-    if (
-      !bookingForm.consultationMode ||
-      !bookingForm.date ||
-      !bookingForm.timeSlot
-    ) {
-      alert("Please fill in all required fields");
-      return;
-    }
+  // Validate required fields
+  if (
+    !bookingForm.consultationMode ||
+    !bookingForm.date ||
+    !bookingForm.timeSlot ||
+    (bookingForm.consultationMode === "offline" && !bookingForm.clinicId) // Add this condition
+  ) {
+    alert("Please fill in all required fields");
+    return;
+  }
 
-    // Move to auth step
-    setCurrentStep("auth");
-  };
-
+  // Move to auth step
+  setCurrentStep("auth");
+};
   // Handle registration form submission
   const handleRegistrationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -359,23 +335,34 @@ export default function BookingAppointment({
   };
 
   // Render booking summary
-  const renderBookingSummary = () => {
-    if (currentStep !== "auth") return null;
+const renderBookingSummary = () => {
+  if (currentStep !== "auth") return null;
 
-    return (
-      <div className="bg-blue-50 p-4 rounded-lg mb-6">
-        <h3 className="font-semibold text-gray-900 mb-3">Booking Summary</h3>
-        <div className="space-y-2 text-sm">
+  const selectedClinic = clinics.find(clinic => clinic.id === parseInt(bookingForm.clinicId));
+
+  return (
+    <div className="bg-blue-50 p-4 rounded-lg mb-6">
+      <h3 className="font-semibold text-gray-900 mb-3">Booking Summary</h3>
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between">
+          <span className="text-gray-600">Doctor:</span>
+          <span className="font-medium">{doctorName}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-600">Mode:</span>
+          <span className="font-medium capitalize">
+            {bookingForm.consultationMode}
+          </span>
+        </div>
+        {bookingForm.consultationMode === "offline" && selectedClinic && (
           <div className="flex justify-between">
-            <span className="text-gray-600">Doctor:</span>
-            <span className="font-medium">{doctorName}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Mode:</span>
-            <span className="font-medium capitalize">
-              {bookingForm.consultationMode}
+            <span className="text-gray-600">Clinic:</span>
+            <span className="font-medium text-xs">
+              {selectedClinic.name} - {selectedClinic.address}
             </span>
           </div>
+        )}
+
           <div className="flex justify-between">
             <span className="text-gray-600">Date:</span>
             <span className="font-medium">
@@ -495,7 +482,28 @@ export default function BookingAppointment({
                   )}
                 </select>
               </div>
-
+ <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      Select Clinic <span className="text-red-500">*</span>
+    </label>
+    <select
+      value={bookingForm.clinicId}
+      onChange={(e) =>
+        setBookingForm((prev) => ({
+          ...prev,
+          clinicId: e.target.value,
+        }))
+      }
+      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+    >
+      <option value="">Select Clinic</option>
+      {clinics.filter(clinic => clinic.active).map((clinic) => (
+        <option key={clinic.id} value={clinic.id}>
+          {clinic.name} - {clinic.address}
+        </option>
+      ))}
+    </select>
+  </div>
               {/* Custom Date Picker */}
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -590,7 +598,8 @@ export default function BookingAppointment({
                   !bookingForm.consultationMode ||
                   !bookingForm.date ||
                   !bookingForm.timeSlot ||
-                  !isDateAvailable(bookingForm.date)
+                  !isDateAvailable(bookingForm.date) ||
+                   !bookingForm.clinicId
                 }
                 className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
