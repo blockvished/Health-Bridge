@@ -1,4 +1,4 @@
-// components/EducationSection.tsx
+// /EducationSection.tsx
 type EducationData = {
   id: number;
   doctorId: number;
@@ -49,16 +49,16 @@ export default function EducationSection({ educations }: EducationSectionProps) 
                   index % 2 === 0 ? "mr-auto pr-8" : "ml-auto pl-8"
                 }`}
               >
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow">
-                  {/* Year badge */}
-                  <div className="text-right mb-3">
-                    <span className="inline-block bg-blue-100 text-blue-700 text-sm font-semibold px-3 py-1 rounded-full">
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow relative">
+                  {/* Year badge - positioned at top right corner of each card */}
+                  <div className="absolute -top-3 -right-3">
+                    <span className="inline-block bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-full shadow-md">
                       {education.yearFrom} to {education.yearTo}
                     </span>
                   </div>
 
                   {/* Degree title */}
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 mt-2">
                     {education.title}
                   </h3>
 
