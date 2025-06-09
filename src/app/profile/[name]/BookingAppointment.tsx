@@ -7,6 +7,7 @@ import {
   ConsultationData,
   BookingFormData,
 } from "./doctor";
+import ReCAPTCHA from "react-google-recaptcha";
 
 type RegistrationFormData = {
   name: string;
@@ -43,56 +44,73 @@ type FormErrors = {
 // Add validation utilities
 const validateBookingForm = (form: BookingFormData): ValidationError[] => {
   const errors: ValidationError[] = [];
-  
+
   if (!form.consultationMode) {
-    errors.push({ field: 'consultationMode', message: 'Please select a consultation mode' });
+    errors.push({
+      field: "consultationMode",
+      message: "Please select a consultation mode",
+    });
   }
   if (!form.date) {
-    errors.push({ field: 'date', message: 'Please select a date' });
+    errors.push({ field: "date", message: "Please select a date" });
   }
   if (!form.timeSlot) {
-    errors.push({ field: 'timeSlot', message: 'Please select a time slot' });
+    errors.push({ field: "timeSlot", message: "Please select a time slot" });
   }
-  if (form.consultationMode === 'offline' && !form.clinicId) {
-    errors.push({ field: 'clinicId', message: 'Please select a clinic' });
+  if (form.consultationMode === "offline" && !form.clinicId) {
+    errors.push({ field: "clinicId", message: "Please select a clinic" });
   }
-  
+
   return errors;
 };
 
-const validateRegistrationForm = (form: RegistrationFormData): ValidationError[] => {
+const validateRegistrationForm = (
+  form: RegistrationFormData
+): ValidationError[] => {
   const errors: ValidationError[] = [];
-  
+
   if (!form.name?.trim()) {
-    errors.push({ field: 'name', message: 'Name is required' });
+    errors.push({ field: "name", message: "Name is required" });
   }
   if (!form.phone?.trim()) {
-    errors.push({ field: 'phone', message: 'Phone number is required' });
+    errors.push({ field: "phone", message: "Phone number is required" });
   } else if (!/^[0-9]{10}$/.test(form.phone)) {
-    errors.push({ field: 'phone', message: 'Please enter a valid 10-digit phone number' });
+    errors.push({
+      field: "phone",
+      message: "Please enter a valid 10-digit phone number",
+    });
   }
   if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    errors.push({ field: 'email', message: 'Please enter a valid email address' });
+    errors.push({
+      field: "email",
+      message: "Please enter a valid email address",
+    });
   }
   if (!form.password?.trim()) {
-    errors.push({ field: 'password', message: 'Password is required' });
+    errors.push({ field: "password", message: "Password is required" });
   } else if (form.password.length < 6) {
-    errors.push({ field: 'password', message: 'Password must be at least 6 characters' });
+    errors.push({
+      field: "password",
+      message: "Password must be at least 6 characters",
+    });
   }
-  
+
   return errors;
 };
 
 const validateLoginForm = (form: LoginFormData): ValidationError[] => {
   const errors: ValidationError[] = [];
-  
+
   if (!form.emailOrPhone?.trim()) {
-    errors.push({ field: 'emailOrPhone', message: 'Email or phone number is required' });
+    errors.push({
+      field: "emailOrPhone",
+      message: "Email or phone number is required",
+    });
   }
   if (!form.password?.trim()) {
-    errors.push({ field: 'password', message: 'Password is required' });
+    errors.push({ field: "password", message: "Password is required" });
   }
-  
+
   return errors;
 };
 
@@ -212,6 +230,53 @@ const Button = ({
   </button>
 );
 
+// Add types for popup components
+type PopupProps = {
+  isOpen: boolean;
+  message: string;
+  onClose: () => void;
+};
+
+// Add success popup component
+const SuccessPopup = ({ message, onClose }: Omit<PopupProps, "isOpen">) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl animate-slideIn">
+      <div className="flex items-center mb-4">
+        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+          <span className="text-green-600 text-xl">✓</span>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900">Success</h3>
+      </div>
+      <p className="text-gray-700 mb-6">{message}</p>
+      <div className="flex justify-end">
+        <Button onClick={onClose}>OK</Button>
+      </div>
+    </div>
+  </div>
+);
+
+// Add error popup component
+const ErrorPopup = ({ isOpen, message, onClose }: PopupProps) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl animate-slideIn">
+        <div className="flex items-center mb-4">
+          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+            <span className="text-red-600 text-xl">⚠️</span>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">Error</h3>
+        </div>
+        <p className="text-gray-700 mb-6">{message}</p>
+        <div className="flex justify-end">
+          <Button onClick={onClose}>OK</Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function BookingAppointment({
   times,
   consultation,
@@ -246,6 +311,9 @@ export default function BookingAppointment({
   const [errorMessage, setErrorMessage] = useState("");
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   // Format time from 24h to 12h format
   const formatTime = (time: string) => {
@@ -292,7 +360,7 @@ export default function BookingAppointment({
   // Handle booking form submission (Continue button)
   const handleBookingFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const errors = validateBookingForm(bookingForm);
     if (errors.length > 0) {
       setFormErrors({ booking: errors });
@@ -300,7 +368,7 @@ export default function BookingAppointment({
       setShowErrorPopup(true);
       return;
     }
-    
+
     setCurrentStep("auth");
   };
 
@@ -327,7 +395,7 @@ export default function BookingAppointment({
   // Handle registration form submission
   const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const errors = validateRegistrationForm(registrationForm);
     if (errors.length > 0) {
       setFormErrors({ registration: errors });
@@ -335,13 +403,13 @@ export default function BookingAppointment({
       setShowErrorPopup(true);
       return;
     }
-    
+
     if (!isNotRobot) {
       setErrorMessage("Please verify that you are not a robot");
       setShowErrorPopup(true);
       return;
     }
-    
+
     setIsSubmitting(true);
     setErrorMessage("");
 
@@ -387,14 +455,26 @@ export default function BookingAppointment({
 
         setCurrentStep("booking");
         setIsNotRobot(false);
-        redirectToAppointments();
+
+        // Show success message
+        setSuccessMessage(
+          "Appointment booked successfully! Redirecting to appointments page..."
+        );
+        setShowSuccessPopup(true);
+
+        // Redirect after a short delay
+        setTimeout(() => {
+          redirectToAppointments();
+        }, 2000);
       } else {
         setErrorMessage(result.error || "Failed to book appointment");
         setShowErrorPopup(true);
       }
     } catch (error) {
       console.error("Error booking appointment:", error);
-      setErrorMessage("An error occurred while booking the appointment. Please try again.");
+      setErrorMessage(
+        "An error occurred while booking the appointment. Please try again."
+      );
       setShowErrorPopup(true);
     } finally {
       setIsSubmitting(false);
@@ -403,7 +483,7 @@ export default function BookingAppointment({
   // Handle login form submission
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const errors = validateLoginForm(loginForm);
     if (errors.length > 0) {
       setFormErrors({ login: errors });
@@ -411,13 +491,13 @@ export default function BookingAppointment({
       setShowErrorPopup(true);
       return;
     }
-    
+
     if (!isNotRobot) {
       setErrorMessage("Please verify that you are not a robot");
       setShowErrorPopup(true);
       return;
     }
-    
+
     setIsSubmitting(true);
     setErrorMessage("");
 
@@ -459,14 +539,26 @@ export default function BookingAppointment({
 
         setCurrentStep("booking");
         setIsNotRobot(false);
-        redirectToAppointments();
+
+        // Show success message
+        setSuccessMessage(
+          "Appointment booked successfully! Redirecting to appointments page..."
+        );
+        setShowSuccessPopup(true);
+
+        // Redirect after a short delay
+        setTimeout(() => {
+          redirectToAppointments();
+        }, 2000);
       } else {
         setErrorMessage(result.error || "Failed to book appointment");
         setShowErrorPopup(true);
       }
     } catch (error) {
       console.error("Error booking appointment:", error);
-      setErrorMessage("An error occurred while booking the appointment. Please try again.");
+      setErrorMessage(
+        "An error occurred while booking the appointment. Please try again."
+      );
       setShowErrorPopup(true);
     } finally {
       setIsSubmitting(false);
@@ -691,28 +783,6 @@ export default function BookingAppointment({
     );
   };
 
-  // Update the error popup component
-  const ErrorPopup = () => {
-    if (!showErrorPopup) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-          <div className="flex items-center mb-4">
-            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
-              <span className="text-red-600 text-xl">⚠️</span>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900">Error</h3>
-          </div>
-          <p className="text-gray-700 mb-6">{errorMessage}</p>
-          <div className="flex justify-end">
-            <Button onClick={closeErrorPopup}>OK</Button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="max-w-5xl mx-auto px-6 py-16 bg-white">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -797,10 +867,15 @@ export default function BookingAppointment({
                     : []),
                 ]}
                 required
-                error={formErrors.booking?.find((e) => e.field === "consultationMode")?.message}
+                error={
+                  formErrors.booking?.find(
+                    (e) => e.field === "consultationMode"
+                  )?.message
+                }
               />
 
-              {bookingForm.consultationMode === "offline" && (
+              {/* Show clinic selection for both online and offline consultations */}
+              {bookingForm.consultationMode && (
                 <Select
                   label="Select Clinic"
                   value={bookingForm.clinicId}
@@ -817,7 +892,10 @@ export default function BookingAppointment({
                       label: `${clinic.name} - ${clinic.address}`,
                     }))}
                   required
-                  error={formErrors.booking?.find((e) => e.field === "clinicId")?.message}
+                  error={
+                    formErrors.booking?.find((e) => e.field === "clinicId")
+                      ?.message
+                  }
                 />
               )}
 
@@ -916,7 +994,8 @@ export default function BookingAppointment({
                   !bookingForm.date ||
                   !bookingForm.timeSlot ||
                   !isDateAvailable(bookingForm.date) ||
-                  (bookingForm.consultationMode === "offline" && !bookingForm.clinicId)
+                  (bookingForm.consultationMode === "offline" &&
+                    !bookingForm.clinicId)
                 }
               >
                 Continue →
@@ -971,7 +1050,10 @@ export default function BookingAppointment({
                     }
                     placeholder="Enter your full name"
                     required
-                    error={formErrors.registration?.find((e) => e.field === "name")?.message}
+                    error={
+                      formErrors.registration?.find((e) => e.field === "name")
+                        ?.message
+                    }
                     disabled={isSubmitting}
                   />
 
@@ -986,7 +1068,10 @@ export default function BookingAppointment({
                       }))
                     }
                     placeholder="Enter your email"
-                    error={formErrors.registration?.find((e) => e.field === "email")?.message}
+                    error={
+                      formErrors.registration?.find((e) => e.field === "email")
+                        ?.message
+                    }
                     disabled={isSubmitting}
                   />
 
@@ -1002,7 +1087,10 @@ export default function BookingAppointment({
                     }
                     placeholder="Enter your phone number"
                     required
-                    error={formErrors.registration?.find((e) => e.field === "phone")?.message}
+                    error={
+                      formErrors.registration?.find((e) => e.field === "phone")
+                        ?.message
+                    }
                     disabled={isSubmitting}
                   />
 
@@ -1018,23 +1106,21 @@ export default function BookingAppointment({
                     }
                     placeholder="Create a password"
                     required
-                    error={formErrors.registration?.find((e) => e.field === "password")?.message}
+                    error={
+                      formErrors.registration?.find(
+                        (e) => e.field === "password"
+                      )?.message
+                    }
                     disabled={isSubmitting}
                   />
 
                   {/* reCAPTCHA placeholder */}
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="notRobot"
-                      checked={isNotRobot}
-                      onChange={(e) => setIsNotRobot(e.target.checked)}
-                      className="w-4 h-4"
-                    />
-                    <label htmlFor="notRobot" className="text-sm text-gray-700">
-                      I'm not a robot
-                    </label>
-                  </div>
+                  <ReCAPTCHA
+                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+                    onChange={(token) => setRecaptchaToken(token)}
+                    theme="light" // or "dark"
+                    className="mt-4"
+                  />
 
                   <Button
                     type="submit"
@@ -1060,7 +1146,10 @@ export default function BookingAppointment({
                     }
                     placeholder="Enter email or mobile number"
                     required
-                    error={formErrors.login?.find((e) => e.field === "emailOrPhone")?.message}
+                    error={
+                      formErrors.login?.find((e) => e.field === "emailOrPhone")
+                        ?.message
+                    }
                     disabled={isSubmitting}
                   />
 
@@ -1076,7 +1165,10 @@ export default function BookingAppointment({
                     }
                     placeholder="Enter your password"
                     required
-                    error={formErrors.login?.find((e) => e.field === "password")?.message}
+                    error={
+                      formErrors.login?.find((e) => e.field === "password")
+                        ?.message
+                    }
                     disabled={isSubmitting}
                   />
 
@@ -1116,6 +1208,19 @@ export default function BookingAppointment({
         <div
           className="fixed inset-0 z-40"
           onClick={() => setShowDatePicker(false)}
+        />
+      )}
+
+      {/* Add popups */}
+      <ErrorPopup
+        isOpen={showErrorPopup}
+        message={errorMessage}
+        onClose={closeErrorPopup}
+      />
+      {showSuccessPopup && (
+        <SuccessPopup
+          message={successMessage}
+          onClose={() => setShowSuccessPopup(false)}
         />
       )}
     </div>
