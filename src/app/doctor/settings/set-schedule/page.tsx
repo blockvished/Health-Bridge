@@ -3,12 +3,10 @@
 import Cookies from "js-cookie";
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { FaPlus, FaTrash, FaSave, FaSpinner } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-import {
-  OpenDropdownState,
-  DayConfig,
-  generateTimeOptions,
-} from "./utils";
+import { OpenDropdownState, DayConfig, generateTimeOptions } from "./utils";
 import TimeDropdown from "./TimeDropdown";
 import TimeInput from "./TimeInput";
 
@@ -21,18 +19,29 @@ const AppointmentsSchedule: React.FC = () => {
   const [interval, setInterval] = useState<number>(0);
   const [inputValue, setInputValue] = useState<string>("");
   const [days, setDays] = useState<DayConfig[]>([]);
-  const [openDropdown, setOpenDropdown] = useState<OpenDropdownState | null>(null);
-  
+  const [openDropdown, setOpenDropdown] = useState<OpenDropdownState | null>(
+    null
+  );
+
   // Define days of week order as a memoized constant
-  const daysOfWeekOrder = useMemo(() => [
-    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
-  ], []);
-  
+  const daysOfWeekOrder = useMemo(
+    () => [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ],
+    []
+  );
+
   // Generate time options based on interval
   const timeOptions = useMemo(() => {
     return interval > 0 ? generateTimeOptions(interval) : [];
   }, [interval]);
-  
+
   // Initialize validation errors state with a more structured approach
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: {
@@ -47,44 +56,48 @@ const AppointmentsSchedule: React.FC = () => {
         [index: number]: { from: boolean; to: boolean; range: boolean };
       };
     } = {};
-    
-    days.forEach(day => {
+
+    days.forEach((day) => {
       if (day.isActive && day.times && day.times.length > 0) {
         day.times.forEach((time, index) => {
           const fromTime = time.from;
           const toTime = time.to;
-          
+
           if (!errors[day.dayOfWeek]) {
             errors[day.dayOfWeek] = {};
           }
-          
+
           if (!errors[day.dayOfWeek][index]) {
-            errors[day.dayOfWeek][index] = { from: false, to: false, range: false };
+            errors[day.dayOfWeek][index] = {
+              from: false,
+              to: false,
+              range: false,
+            };
           }
-          
+
           // Validate both times are set
           errors[day.dayOfWeek][index].from = !fromTime;
           errors[day.dayOfWeek][index].to = !toTime;
-          
+
           // Validate from time is before to time
           if (fromTime && toTime) {
-            const [fromHours, fromMinutes] = fromTime.split(':').map(Number);
-            const [toHours, toMinutes] = toTime.split(':').map(Number);
+            const [fromHours, fromMinutes] = fromTime.split(":").map(Number);
+            const [toHours, toMinutes] = toTime.split(":").map(Number);
             const fromValue = fromHours * 60 + fromMinutes;
             const toValue = toHours * 60 + toMinutes;
-            
+
             errors[day.dayOfWeek][index].range = fromValue >= toValue;
           }
         });
       }
     });
-    
+
     setValidationErrors(errors);
-    
+
     // Check if there are any validation errors
-    return !Object.values(errors).some(dayErrors => 
-      Object.values(dayErrors).some(timeErrors => 
-        timeErrors.from || timeErrors.to || timeErrors.range
+    return !Object.values(errors).some((dayErrors) =>
+      Object.values(dayErrors).some(
+        (timeErrors) => timeErrors.from || timeErrors.to || timeErrors.range
       )
     );
   }, [days]);
@@ -137,7 +150,7 @@ const AppointmentsSchedule: React.FC = () => {
           setInterval(fetchedInterval);
           setIntervalInDb(true);
           setInputValue(String(fetchedInterval));
-          
+
           // Sort days by active status and then by order of week
           const sortedDays = [...fetchedDaysFromApi].sort((a, b) => {
             if (a.isActive && !b.isActive) {
@@ -150,7 +163,7 @@ const AppointmentsSchedule: React.FC = () => {
             const indexB = daysOfWeekOrder.indexOf(b.dayOfWeek);
             return indexA - indexB;
           });
-          
+
           setDays(sortedDays);
         } else {
           setInterval(0);
@@ -206,6 +219,8 @@ const AppointmentsSchedule: React.FC = () => {
           : day
       )
     );
+    toast.info(`Time slot added to ${dayOfWeek}`);
+
   };
 
   // Remove time slot from a day
@@ -220,6 +235,7 @@ const AppointmentsSchedule: React.FC = () => {
           : day
       )
     );
+    toast.info("Time slot removed");
   };
 
   // Toggle dropdown for time selection
@@ -262,6 +278,7 @@ const AppointmentsSchedule: React.FC = () => {
   const handleUpdateInterval = async () => {
     if (!userId) {
       setShowError(true);
+      toast.info("Updating interval...");
       return;
     }
 
@@ -288,6 +305,7 @@ const AppointmentsSchedule: React.FC = () => {
 
       if (response.ok && data.success) {
         setIntervalInDb(true);
+        toast.success("Appointment interval updated successfully!");
 
         // If we're setting interval for the first time, fetch data again
         if (!intervalInDb) {
@@ -298,10 +316,12 @@ const AppointmentsSchedule: React.FC = () => {
           "Failed to update interval:",
           data.error || response.status
         );
+        toast.error("Failed to update interval. Please try again.");
         setShowError(true);
       }
     } catch (error) {
       console.error("Error updating interval:", error);
+      toast.error("An error occurred while updating the interval.");
       setShowError(true);
     } finally {
       setIsLoading(false);
@@ -314,57 +334,60 @@ const AppointmentsSchedule: React.FC = () => {
       console.error("User ID not found.");
       return;
     }
-    
+
     // Validate time slots before submitting
     const isValid = validateTimes();
     if (!isValid) {
-      alert("Please fix the time slot errors before saving.");
+      toast.error("Please fix the time slot errors before saving.");
       return;
     }
-    
+
     // Check if all active days have time slots
-    const activeDays = days.filter(day => day.isActive);
-    const missingTimeSlots = activeDays.some(day => !day.times || day.times.length === 0);
-    
+    const activeDays = days.filter((day) => day.isActive);
+    const missingTimeSlots = activeDays.some(
+      (day) => !day.times || day.times.length === 0
+    );
+
     if (missingTimeSlots) {
-      alert("All active days must have at least one time slot.");
+      toast.warning("All active days must have at least one time slot.");
       return;
     }
-    
+
     setIsSaving(true);
-    
+
     const scheduleData = days.map(({ id, dayOfWeek, isActive, times }) => ({
       id,
       dayOfWeek,
       isActive,
       times: isActive ? times : [],
     }));
-  
+
     try {
-      const response = await fetch(
-        `/api/doctor/appointments/times/${userId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({ schedule: scheduleData }),
-        }
-      );
-      
+      const response = await fetch(`/api/doctor/appointments/times/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ schedule: scheduleData }),
+      });
+
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         console.log("Schedule updated successfully");
-        alert("Schedule updated successfully!");
+        toast.success("Schedule updated successfully!");
       } else {
-        console.error("Failed to update schedule:", data.error || response.status);
+        console.error(
+          "Failed to update schedule:",
+          data.error || response.status
+        );
         alert("Failed to update schedule. Please try again.");
       }
     } catch (error) {
       console.error("Error updating schedule:", error);
-      alert("An error occurred while updating the schedule.");
+      toast.error("An error occurred while updating the schedule.");
+
     } finally {
       setIsSaving(false);
     }
@@ -403,7 +426,7 @@ const AppointmentsSchedule: React.FC = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="flex flex-col md:flex-row gap-4 p-4">
       {/* Left Panel - Interval Setting */}
@@ -526,7 +549,7 @@ const AppointmentsSchedule: React.FC = () => {
                           Please add at least one time slot for this day.
                         </p>
                       )}
-                      
+
                       {times?.map((time, index) => (
                         <div
                           key={index}
@@ -640,6 +663,18 @@ const AppointmentsSchedule: React.FC = () => {
           </div>
         </div>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 };

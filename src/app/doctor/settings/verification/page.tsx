@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { UploadCloud, Loader2, X } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function DoctorVerification() {
   const [documents, setDocuments] = useState<{ id: number; name: string }[]>(
@@ -35,6 +37,7 @@ export default function DoctorVerification() {
         }
       } catch (error) {
         console.error("Failed to fetch documents", error);
+        toast.error("Failed to load required documents");
       } finally {
         setLoading(false);
       }
@@ -48,6 +51,7 @@ export default function DoctorVerification() {
         }
       } catch (error) {
         console.error("Failed to fetch uploaded documents", error);
+        toast.error("Failed to load uploaded documents");
       } finally {
         setLoadingUploadedDocs(false);
       }
@@ -75,7 +79,8 @@ export default function DoctorVerification() {
       await axios.post("/api/doctor/verification", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Files uploaded successfully");
+      
+      toast.success("Files uploaded successfully!");
       setUploadedFiles(null);
 
       // Refresh the uploaded documents list after successful upload
@@ -85,7 +90,7 @@ export default function DoctorVerification() {
       }
     } catch (error) {
       console.error("Upload failed", error);
-      alert("Upload failed");
+      toast.error("Upload failed. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -113,6 +118,7 @@ export default function DoctorVerification() {
     } catch (error) {
       console.error("Failed to fetch document", error);
       setModalError("Failed to load document.");
+      toast.error("Failed to load document");
     } finally {
       setModalLoading(false);
     }
@@ -282,6 +288,20 @@ export default function DoctorVerification() {
           </div>
         </div>
       )}
+      
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 }
