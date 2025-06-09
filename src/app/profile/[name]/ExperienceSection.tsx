@@ -1,4 +1,4 @@
-// components/ExperienceSection.tsx
+// /ExperienceSection.tsx
 type ExperienceData = {
   id: number;
   doctorId: number;
@@ -49,16 +49,16 @@ export default function ExperienceSection({ experience }: ExperienceSectionProps
                   index % 2 === 0 ? "mr-auto pr-8" : "ml-auto pl-8"
                 }`}
               >
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow">
-                  {/* Year badge */}
-                  <div className="text-right mb-3">
-                    <span className="inline-block bg-green-100 text-green-700 text-sm font-semibold px-3 py-1 rounded-full">
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-100 hover:shadow-lg transition-shadow relative">
+                  {/* Year badge - positioned at top right corner */}
+                  <div className="absolute -top-3 -right-3">
+                    <span className="inline-block bg-green-500 text-white text-sm font-semibold px-3 py-1 rounded-full shadow-md">
                       {exp.yearFrom}-{exp.yearTo ? exp.yearTo : "Present"}
                     </span>
                   </div>
 
                   {/* Position title */}
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 mt-2">
                     {exp.title}, {exp.organization}
                   </h3>
 
