@@ -1,8 +1,10 @@
-// components/Navigation.tsx
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Navigation() {
+  const pathname = usePathname();
+  
   return (
     <nav className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
       <Link href="/">
@@ -16,13 +18,13 @@ export default function Navigation() {
       </Link>
       <ul className="flex space-x-6 text-gray-700">
         <li>
-          <Link href="/" className="hover:text-blue-500 transition-colors">
+          <Link href={pathname} className="hover:text-blue-500 transition-colors">
             Home
           </Link>
         </li>
         <li>
           <Link
-            href="/about"
+            href={`${pathname}/about`}
             className="hover:text-blue-500 transition-colors"
           >
             About

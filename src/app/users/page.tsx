@@ -82,12 +82,10 @@ export default function DoctorsPage() {
 
       {/* Search and Filter Bar */}
       <div className="px-4 md:px-8 lg:px-12 py-4 flex flex-wrap gap-4 items-center bg-white shadow-md">
-        {" "}
-        {/* Added horizontal padding */}
         <select
           value={specialization}
           onChange={(e) => setSpecialization(e.target.value)}
-          className="border p-2 rounded text-sm" // Smaller text size
+          className="border p-2 rounded text-sm"
         >
           <option value="">General Physician and Surgeon</option>{" "}
           {specializations.map((spec) => (
@@ -99,7 +97,7 @@ export default function DoctorsPage() {
         <select
           value={experience}
           onChange={(e) => setExperience(e.target.value)}
-          className="border p-2 rounded text-sm" // Smaller text size
+          className="border p-2 rounded text-sm"
         >
           <option value="">Select Experience</option>{" "}
           {[...Array(50)].map((_, i) => (
@@ -116,18 +114,17 @@ export default function DoctorsPage() {
             setPage(1);
           }}
           placeholder="Search by name"
-          className="border p-2 rounded w-48 text-sm" // Smaller text size
+          className="border p-2 rounded w-48 text-sm"
         />
       </div>
 
       <div className="p-4 md:p-8 lg:p-12 grow grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {" "}
-        {/* Added horizontal padding */}
         {paginated.length > 0 ? (
           paginated.map((doc) => (
-            <div
+            <Link
               key={doc.id}
-              className="bg-white shadow rounded-2xl overflow-hidden p-4 flex flex-col items-center"
+              href={`/profile/${generateDoctorSlug(doc.name)}`}
+              className="bg-white shadow rounded-2xl overflow-hidden p-4 flex flex-col items-center cursor-pointer hover:shadow-lg transition-shadow duration-200" // Added cursor-pointer and hover effect
             >
               <div className="relative w-full h-48 mb-4">
                 <Image
@@ -145,14 +142,12 @@ export default function DoctorsPage() {
                 <p className="text-sm text-gray-600">
                   {doc.experience} years experience
                 </p>
-                <Link
-                  href={`/profile/${generateDoctorSlug(doc.name)}`}
-                  className="mt-3 inline-block px-3 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200"
-                >
+                {/* Removed the individual Link for "Book Appointment" */}
+                <div className="mt-3 inline-block px-3 py-1 bg-blue-100 text-blue-600 rounded text-xs hover:bg-blue-200">
                   Book Appointment
-                </Link>
+                </div>
               </div>
-            </div>
+            </Link>
           ))
         ) : (
           <p className="text-gray-600 px-4 md:px-8 lg:px-12">
@@ -167,7 +162,7 @@ export default function DoctorsPage() {
           <button
             onClick={() => goToPage(page - 1)}
             disabled={page === 1}
-            className="px-2.5 py-1 border rounded disabled:opacity-40 text-sm" // Slightly smaller button
+            className="px-2.5 py-1 border rounded disabled:opacity-40 text-sm"
           >
             Prev
           </button>
@@ -175,7 +170,9 @@ export default function DoctorsPage() {
             <button
               key={i}
               onClick={() => goToPage(i + 1)}
-              className={`px-2.5 py-1 rounded border text-sm ${page === i + 1 ? "bg-blue-500 text-white" : "bg-white text-black"}`} // Slightly smaller button
+              className={`px-2.5 py-1 rounded border text-sm ${
+                page === i + 1 ? "bg-blue-500 text-white" : "bg-white text-black"
+              }`}
             >
               {i + 1}
             </button>
@@ -183,7 +180,7 @@ export default function DoctorsPage() {
           <button
             onClick={() => goToPage(page + 1)}
             disabled={page === totalPages}
-            className="px-2.5 py-1 border rounded disabled:opacity-40 text-sm" // Slightly smaller button
+            className="px-2.5 py-1 border rounded disabled:opacity-40 text-sm"
           >
             Next
           </button>
