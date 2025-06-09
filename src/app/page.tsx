@@ -220,7 +220,7 @@ const Login = () => {
             <div className="mt-6 space-y-3 mx-4">
               <div>
                 <label className="block text-gray-600 font-medium">
-                  Mobile / Email:{" "}
+                  Mobile / Email:
                 </label>
                 <div className={`relative flex items-center ${isMobileInput ? 'mt-1' : ''}`}>
                   {isMobileInput && (

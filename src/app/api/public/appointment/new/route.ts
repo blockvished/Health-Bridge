@@ -1,9 +1,17 @@
 // app/api/public/appointments/new/route.ts
 import { and, eq, or } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-import { appointments, doctorConsultation, NewAppointment, patient, users } from "../../../../../db/schema";
+import {
+  appointments,
+  doctorConsultation,
+  NewAppointment,
+  patient,
+  users,
+} from "../../../../../db/schema";
 import db from "../../../../../db/db";
 import { randomBytes } from "crypto";
+import { sign } from "jsonwebtoken";
+import { serialize } from "cookie"; // Needed for manual cookie setting
 import { hash } from "argon2";
 
 export async function POST(request: NextRequest) {
@@ -49,7 +57,7 @@ export async function POST(request: NextRequest) {
     const existingUsers = await db
       .select()
       .from(users)
-      .where(eq(users.phone, phone))
+      .where(eq(users.phone, phone));
 
     if (existingUsers.length > 0) {
       return NextResponse.json(
@@ -76,7 +84,7 @@ export async function POST(request: NextRequest) {
         salt,
         role: "patient",
       })
-      .returning({ id: users.id });
+      .returning({ id: users.id, role: users.role, name: users.name });
 
     console.log("user created");
     const [newPatient] = await db
@@ -89,7 +97,7 @@ export async function POST(request: NextRequest) {
         weight: null,
         height: null,
         address: "",
-        gender:  null,
+        gender: null,
       })
       .returning({ id: patient.id });
 
@@ -115,11 +123,43 @@ export async function POST(request: NextRequest) {
     console.log("appointment created");
 
     // login the user
+    const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is not set in environment variables.");
+}
 
-    return NextResponse.json({
-      success: true,
-      message: "Appointment created successfully for new patient.",
-    });
+const token = sign(
+  {
+    userId: newUser.id,  // Use newUser.id instead of users.id
+    role: newUser.role,  // Use newUser.role instead of users.role
+  },
+  JWT_SECRET,
+  { expiresIn: "1h" }
+);
+
+// Set cookie using "serialize" (works in /api routes)
+const response = NextResponse.json({
+  success: true,
+  message: "Login successful and appointment with patient created",
+  user: {
+    id: newUser.id,    // Use newUser.id instead of users.id
+    name: newUser.name || name, // Use newUser.name or fallback to name from request
+    role: newUser.role, // Use newUser.role instead of users.role
+  },
+});
+
+response.headers.set(
+  "Set-Cookie",
+  serialize("authToken", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60, // 1 hour
+  })
+);
+
+return response;
 
   } catch (error) {
     console.error("Error processing new appointment:", error);
