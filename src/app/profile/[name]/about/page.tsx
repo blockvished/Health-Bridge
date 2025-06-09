@@ -4,6 +4,7 @@
 import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type PageProps = {
   params: Promise<{
@@ -81,6 +82,11 @@ export default function ProfilePage({ params }: PageProps) {
   const [profileData, setProfileData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const pathname = usePathname();
+
+   const homePath = pathname.endsWith("/about")
+    ? pathname.slice(0, -6) // Remove "/about"
+    : pathname; // Keep as is if "/about" is not at the end
 
   // Unwrap the params Promise
   const resolvedParams = use(params);
@@ -462,13 +468,16 @@ export default function ProfilePage({ params }: PageProps) {
         </Link>
         <ul className="flex space-x-6 text-gray-700">
           <li>
-            <Link href="/" className="hover:text-blue-500 transition-colors">
+            <Link
+              href={homePath}
+              className="hover:text-blue-500 transition-colors"
+            >
               Home
             </Link>
           </li>
           <li>
             <Link
-              href="/about"
+              href={pathname}
               className="hover:text-blue-500 transition-colors"
             >
               About
