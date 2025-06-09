@@ -28,6 +28,190 @@ type BookingAppointmentProps = {
   doctorName: string;
 };
 
+// Add validation types
+type ValidationError = {
+  field: string;
+  message: string;
+};
+
+type FormErrors = {
+  booking?: ValidationError[];
+  registration?: ValidationError[];
+  login?: ValidationError[];
+};
+
+// Add validation utilities
+const validateBookingForm = (form: BookingFormData): ValidationError[] => {
+  const errors: ValidationError[] = [];
+  
+  if (!form.consultationMode) {
+    errors.push({ field: 'consultationMode', message: 'Please select a consultation mode' });
+  }
+  if (!form.date) {
+    errors.push({ field: 'date', message: 'Please select a date' });
+  }
+  if (!form.timeSlot) {
+    errors.push({ field: 'timeSlot', message: 'Please select a time slot' });
+  }
+  if (form.consultationMode === 'offline' && !form.clinicId) {
+    errors.push({ field: 'clinicId', message: 'Please select a clinic' });
+  }
+  
+  return errors;
+};
+
+const validateRegistrationForm = (form: RegistrationFormData): ValidationError[] => {
+  const errors: ValidationError[] = [];
+  
+  if (!form.name?.trim()) {
+    errors.push({ field: 'name', message: 'Name is required' });
+  }
+  if (!form.phone?.trim()) {
+    errors.push({ field: 'phone', message: 'Phone number is required' });
+  } else if (!/^[0-9]{10}$/.test(form.phone)) {
+    errors.push({ field: 'phone', message: 'Please enter a valid 10-digit phone number' });
+  }
+  if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    errors.push({ field: 'email', message: 'Please enter a valid email address' });
+  }
+  if (!form.password?.trim()) {
+    errors.push({ field: 'password', message: 'Password is required' });
+  } else if (form.password.length < 6) {
+    errors.push({ field: 'password', message: 'Password must be at least 6 characters' });
+  }
+  
+  return errors;
+};
+
+const validateLoginForm = (form: LoginFormData): ValidationError[] => {
+  const errors: ValidationError[] = [];
+  
+  if (!form.emailOrPhone?.trim()) {
+    errors.push({ field: 'emailOrPhone', message: 'Email or phone number is required' });
+  }
+  if (!form.password?.trim()) {
+    errors.push({ field: 'password', message: 'Password is required' });
+  }
+  
+  return errors;
+};
+
+// Add a reusable Input component
+const Input = ({
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  required = false,
+  error,
+  disabled = false,
+  className = "",
+}: {
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  required?: boolean;
+  error?: string;
+  disabled?: boolean;
+  className?: string;
+}) => (
+  <div className={className}>
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <input
+      type={type}
+      value={value}
+      onChange={onChange}
+      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+        error ? "border-red-500" : "border-gray-300"
+      } ${disabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
+      placeholder={placeholder}
+      disabled={disabled}
+    />
+    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+  </div>
+);
+
+// Add a reusable Select component
+const Select = ({
+  label,
+  value,
+  onChange,
+  options,
+  required = false,
+  error,
+  disabled = false,
+  className = "",
+}: {
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  options: { value: string; label: string }[];
+  required?: boolean;
+  error?: string;
+  disabled?: boolean;
+  className?: string;
+}) => (
+  <div className={className}>
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <select
+      value={value}
+      onChange={onChange}
+      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+        error ? "border-red-500" : "border-gray-300"
+      } ${disabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"}`}
+      disabled={disabled}
+    >
+      <option value="">Select {label}</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+  </div>
+);
+
+// Add loading spinner component
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center">
+    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+  </div>
+);
+
+// Add a reusable Button component
+const Button = ({
+  type = "button",
+  onClick,
+  disabled = false,
+  loading = false,
+  className = "",
+  children,
+}: {
+  type?: "button" | "submit" | "reset";
+  onClick?: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) => (
+  <button
+    type={type}
+    onClick={onClick}
+    disabled={disabled || loading}
+    className={`w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed ${className}`}
+  >
+    {loading ? <LoadingSpinner /> : children}
+  </button>
+);
+
 export default function BookingAppointment({
   times,
   consultation,
@@ -59,6 +243,9 @@ export default function BookingAppointment({
   const [activeTab, setActiveTab] = useState<"register" | "login">("register");
   const [isNotRobot, setIsNotRobot] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   // Format time from 24h to 12h format
   const formatTime = (time: string) => {
@@ -105,123 +292,110 @@ export default function BookingAppointment({
   // Handle booking form submission (Continue button)
   const handleBookingFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validate required fields
-
-    if (
-      !bookingForm.consultationMode ||
-      !bookingForm.date ||
-      !bookingForm.timeSlot ||
-      (bookingForm.consultationMode === "offline" && !bookingForm.clinicId)
-    ) {
-      alert("Please fill in all required fields");
-
+    
+    const errors = validateBookingForm(bookingForm);
+    if (errors.length > 0) {
+      setFormErrors({ booking: errors });
+      setErrorMessage(errors[0].message);
+      setShowErrorPopup(true);
       return;
     }
-
-    // Move to auth step
-
+    
     setCurrentStep("auth");
+  };
+
+  // Show error popup
+
+  const showError = (message: string) => {
+    setErrorMessage(message);
+    setShowErrorPopup(true);
+  };
+
+  // Close error popup
+
+  const closeErrorPopup = () => {
+    setShowErrorPopup(false);
+    setErrorMessage("");
+  };
+
+  // Redirect to patient appointments page
+
+  const redirectToAppointments = () => {
+    window.location.href = "/patient/appointments";
   };
 
   // Handle registration form submission
   const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (
-      !registrationForm.name ||
-      !registrationForm.phone ||
-      !registrationForm.password
-    ) {
-      alert("Please fill in all required fields");
-
+    
+    const errors = validateRegistrationForm(registrationForm);
+    if (errors.length > 0) {
+      setFormErrors({ registration: errors });
+      setErrorMessage(errors[0].message);
+      setShowErrorPopup(true);
       return;
     }
-
+    
     if (!isNotRobot) {
-      alert("Please verify that you are not a robot");
-
+      setErrorMessage("Please verify that you are not a robot");
+      setShowErrorPopup(true);
       return;
     }
-
+    
     setIsSubmitting(true);
+    setErrorMessage("");
 
     try {
-      // Prepare data for new appointment API
-
       const appointmentData = {
         date: bookingForm.date,
-
         timeSlot: bookingForm.timeSlot,
-
         consultationMode: bookingForm.consultationMode,
-
         doctorId: doctorId,
-
         clinicId: bookingForm.clinicId,
-
         consultationFees: consultation.consultationFees,
-
-        // Registration data
-
         name: registrationForm.name,
-
         email: registrationForm.email,
-
         phone: registrationForm.phone,
-
         password: registrationForm.password,
       };
 
-      console.log("Sending new appointment data:", appointmentData);
-
       const response = await fetch("/api/public/appointment/new", {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify(appointmentData),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        alert("Appointment booked successfully!");
-
         // Reset forms
-
         setBookingForm({
           consultationMode: "",
-
           clinicId: "",
-
           date: "",
-
           timeSlot: "",
         });
 
         setRegistrationForm({
           name: "",
-
           email: "",
-
           phone: "",
-
           password: "",
         });
 
         setCurrentStep("booking");
-
         setIsNotRobot(false);
+        redirectToAppointments();
       } else {
-        alert("Failed to book appointment: " + result.error);
+        setErrorMessage(result.error || "Failed to book appointment");
+        setShowErrorPopup(true);
       }
     } catch (error) {
       console.error("Error booking appointment:", error);
-
-      alert("An error occurred while booking the appointment");
+      setErrorMessage("An error occurred while booking the appointment. Please try again.");
+      setShowErrorPopup(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -229,89 +403,71 @@ export default function BookingAppointment({
   // Handle login form submission
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!loginForm.emailOrPhone || !loginForm.password) {
-      alert("Please fill in all required fields");
-
+    
+    const errors = validateLoginForm(loginForm);
+    if (errors.length > 0) {
+      setFormErrors({ login: errors });
+      setErrorMessage(errors[0].message);
+      setShowErrorPopup(true);
       return;
     }
-
+    
     if (!isNotRobot) {
-      alert("Please verify that you are not a robot");
-
+      setErrorMessage("Please verify that you are not a robot");
+      setShowErrorPopup(true);
       return;
     }
-
+    
     setIsSubmitting(true);
+    setErrorMessage("");
 
     try {
-      // Prepare data for existing appointment API
-
       const appointmentData = {
         date: bookingForm.date,
-
         timeSlot: bookingForm.timeSlot,
-
         consultationMode: bookingForm.consultationMode,
-
         doctorId: doctorId,
-
         clinicId: bookingForm.clinicId,
-
         consultationFees: consultation.consultationFees,
-
-        // Login data
-
         emailOrPhone: loginForm.emailOrPhone,
-
         password: loginForm.password,
       };
 
-      console.log("Sending existing user appointment data:", appointmentData);
-
       const response = await fetch("/api/public/appointment/existing", {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify(appointmentData),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        alert("Appointment booked successfully!");
-
         // Reset forms
-
         setBookingForm({
           consultationMode: "",
-
           clinicId: "",
-
           date: "",
-
           timeSlot: "",
         });
 
         setLoginForm({
           emailOrPhone: "",
-
           password: "",
         });
 
         setCurrentStep("booking");
-
         setIsNotRobot(false);
+        redirectToAppointments();
       } else {
-        alert("Failed to book appointment: " + result.error);
+        setErrorMessage(result.error || "Failed to book appointment");
+        setShowErrorPopup(true);
       }
     } catch (error) {
       console.error("Error booking appointment:", error);
-
-      alert("An error occurred while booking the appointment");
+      setErrorMessage("An error occurred while booking the appointment. Please try again.");
+      setShowErrorPopup(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -535,6 +691,28 @@ export default function BookingAppointment({
     );
   };
 
+  // Update the error popup component
+  const ErrorPopup = () => {
+    if (!showErrorPopup) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+          <div className="flex items-center mb-4">
+            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+              <span className="text-red-600 text-xl">⚠️</span>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900">Error</h3>
+          </div>
+          <p className="text-gray-700 mb-6">{errorMessage}</p>
+          <div className="flex justify-end">
+            <Button onClick={closeErrorPopup}>OK</Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-6 py-16 bg-white">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -593,7 +771,7 @@ export default function BookingAppointment({
             <button
               onClick={handleBack}
               className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
-               disabled={isSubmitting}
+              disabled={isSubmitting}
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               Back
@@ -603,33 +781,28 @@ export default function BookingAppointment({
           {/* Booking Form */}
           {currentStep === "booking" && (
             <form onSubmit={handleBookingFormSubmit} className="space-y-6">
-              {/* Consultation Mode */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Consultation Mode <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={bookingForm.consultationMode}
-                  onChange={(e) =>
-                    setBookingForm((prev) => ({
-                      ...prev,
-                      consultationMode: e.target.value,
-                    }))
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                >
-                  <option value="">Select Mode</option>
-                  <option value="offline">Offline (In-person)</option>
-                  {consultation.isLiveConsultationEnabled && (
-                    <option value="online">Online (Video Call)</option>
-                  )}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Clinic <span className="text-red-500">*</span>
-                </label>
-                <select
+              <Select
+                label="Consultation Mode"
+                value={bookingForm.consultationMode}
+                onChange={(e) =>
+                  setBookingForm((prev) => ({
+                    ...prev,
+                    consultationMode: e.target.value,
+                  }))
+                }
+                options={[
+                  { value: "offline", label: "Offline (In-person)" },
+                  ...(consultation.isLiveConsultationEnabled
+                    ? [{ value: "online", label: "Online (Video Call)" }]
+                    : []),
+                ]}
+                required
+                error={formErrors.booking?.find((e) => e.field === "consultationMode")?.message}
+              />
+
+              {bookingForm.consultationMode === "offline" && (
+                <Select
+                  label="Select Clinic"
                   value={bookingForm.clinicId}
                   onChange={(e) =>
                     setBookingForm((prev) => ({
@@ -637,18 +810,17 @@ export default function BookingAppointment({
                       clinicId: e.target.value,
                     }))
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                >
-                  <option value="">Select Clinic</option>
-                  {clinics
+                  options={clinics
                     .filter((clinic) => clinic.active)
-                    .map((clinic) => (
-                      <option key={clinic.id} value={clinic.id}>
-                        {clinic.name} - {clinic.address}
-                      </option>
-                    ))}
-                </select>
-              </div>
+                    .map((clinic) => ({
+                      value: clinic.id.toString(),
+                      label: `${clinic.name} - ${clinic.address}`,
+                    }))}
+                  required
+                  error={formErrors.booking?.find((e) => e.field === "clinicId")?.message}
+                />
+              )}
+
               {/* Custom Date Picker */}
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -737,19 +909,18 @@ export default function BookingAppointment({
               </div>
 
               {/* Continue Button */}
-              <button
+              <Button
                 type="submit"
                 disabled={
                   !bookingForm.consultationMode ||
                   !bookingForm.date ||
                   !bookingForm.timeSlot ||
                   !isDateAvailable(bookingForm.date) ||
-                  !bookingForm.clinicId
+                  (bookingForm.consultationMode === "offline" && !bookingForm.clinicId)
                 }
-                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 Continue →
-              </button>
+              </Button>
             </form>
           )}
 
@@ -768,6 +939,7 @@ export default function BookingAppointment({
                       ? "text-blue-600 border-b-2 border-blue-600"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
+                  disabled={isSubmitting}
                 >
                   👤 New Registration
                 </button>
@@ -779,6 +951,7 @@ export default function BookingAppointment({
                       ? "text-blue-600 border-b-2 border-blue-600"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
+                  disabled={isSubmitting}
                 >
                   Already have account?
                 </button>
@@ -787,77 +960,67 @@ export default function BookingAppointment({
               {/* Registration Form */}
               {activeTab === "register" && (
                 <form onSubmit={handleRegistrationSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={registrationForm.name}
-                      onChange={(e) =>
-                        setRegistrationForm((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter your full name"
-                    />
-                  </div>
+                  <Input
+                    label="Name"
+                    value={registrationForm.name}
+                    onChange={(e) =>
+                      setRegistrationForm((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter your full name"
+                    required
+                    error={formErrors.registration?.find((e) => e.field === "name")?.message}
+                    disabled={isSubmitting}
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={registrationForm.email}
-                      onChange={(e) =>
-                        setRegistrationForm((prev) => ({
-                          ...prev,
-                          email: e.target.value,
-                        }))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter your email"
-                    />
-                  </div>
+                  <Input
+                    label="Email"
+                    type="email"
+                    value={registrationForm.email}
+                    onChange={(e) =>
+                      setRegistrationForm((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter your email"
+                    error={formErrors.registration?.find((e) => e.field === "email")?.message}
+                    disabled={isSubmitting}
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      value={registrationForm.phone}
-                      onChange={(e) =>
-                        setRegistrationForm((prev) => ({
-                          ...prev,
-                          phone: e.target.value,
-                        }))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
+                  <Input
+                    label="Phone"
+                    type="tel"
+                    value={registrationForm.phone}
+                    onChange={(e) =>
+                      setRegistrationForm((prev) => ({
+                        ...prev,
+                        phone: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter your phone number"
+                    required
+                    error={formErrors.registration?.find((e) => e.field === "phone")?.message}
+                    disabled={isSubmitting}
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Password <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="password"
-                      value={registrationForm.password}
-                      onChange={(e) =>
-                        setRegistrationForm((prev) => ({
-                          ...prev,
-                          password: e.target.value,
-                        }))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Create a password"
-                    />
-                  </div>
+                  <Input
+                    label="Password"
+                    type="password"
+                    value={registrationForm.password}
+                    onChange={(e) =>
+                      setRegistrationForm((prev) => ({
+                        ...prev,
+                        password: e.target.value,
+                      }))
+                    }
+                    placeholder="Create a password"
+                    required
+                    error={formErrors.registration?.find((e) => e.field === "password")?.message}
+                    disabled={isSubmitting}
+                  />
 
                   {/* reCAPTCHA placeholder */}
                   <div className="flex items-center space-x-2">
@@ -873,54 +1036,49 @@ export default function BookingAppointment({
                     </label>
                   </div>
 
-                  <button
+                  <Button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    loading={isSubmitting}
+                    disabled={isSubmitting}
                   >
                     📅 Book Appointment
-                  </button>
+                  </Button>
                 </form>
               )}
 
               {/* Login Form */}
               {activeTab === "login" && (
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Username (Email or Mobile){" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={loginForm.emailOrPhone}
-                      onChange={(e) =>
-                        setLoginForm((prev) => ({
-                          ...prev,
-                          emailOrPhone: e.target.value,
-                        }))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter email or mobile number"
-                    />
-                  </div>
+                  <Input
+                    label="Username (Email or Mobile)"
+                    value={loginForm.emailOrPhone}
+                    onChange={(e) =>
+                      setLoginForm((prev) => ({
+                        ...prev,
+                        emailOrPhone: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter email or mobile number"
+                    required
+                    error={formErrors.login?.find((e) => e.field === "emailOrPhone")?.message}
+                    disabled={isSubmitting}
+                  />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Password <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="password"
-                      value={loginForm.password}
-                      onChange={(e) =>
-                        setLoginForm((prev) => ({
-                          ...prev,
-                          password: e.target.value,
-                        }))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter your password"
-                    />
-                  </div>
+                  <Input
+                    label="Password"
+                    type="password"
+                    value={loginForm.password}
+                    onChange={(e) =>
+                      setLoginForm((prev) => ({
+                        ...prev,
+                        password: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter your password"
+                    required
+                    error={formErrors.login?.find((e) => e.field === "password")?.message}
+                    disabled={isSubmitting}
+                  />
 
                   {/* reCAPTCHA placeholder */}
                   <div className="flex items-center space-x-2">
@@ -939,12 +1097,13 @@ export default function BookingAppointment({
                     </label>
                   </div>
 
-                  <button
+                  <Button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    loading={isSubmitting}
+                    disabled={isSubmitting}
                   >
                     📅 Book Appointment
-                  </button>
+                  </Button>
                 </form>
               )}
             </div>

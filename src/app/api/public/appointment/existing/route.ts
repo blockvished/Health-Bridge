@@ -9,8 +9,9 @@ import {
   users,
 } from "../../../../../db/schema";
 import db from "../../../../../db/db";
-import { randomBytes } from "crypto";
-import { hash } from "argon2";
+import { sign } from "jsonwebtoken";
+import { verify } from "argon2";
+import { serialize } from "cookie"; // Needed for manual cookie setting
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,23 +36,57 @@ export async function POST(request: NextRequest) {
     // Parse time slot (format: "09:00-10:00")
     const [timeFrom, timeTo] = timeSlot.split("-");
 
-    console.log("=== PARSED APPOINTMENT DATA ===");
-    console.log({
-      date,
-      timeFrom,
-      timeTo,
-      mode: consultationMode,
-      doctorId,
-      clinicId: parseInt(clinicId),
-      amount: consultationFees,
-      // Patient login data
-      loginData: {
-        emailOrPhone,
-        password,
-      },
-    });
-
     ////////////////////////////////////////////////////////////////////////////////////////
+
+    const userResult = await db
+      .select()
+      .from(users)
+      .where(or(eq(users.email, emailOrPhone), eq(users.phone, emailOrPhone)))
+      .limit(1);
+
+    if (userResult.length === 0) {
+      return NextResponse.json(
+        { success: false, message: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
+
+    const user = userResult[0];
+    const salt = user.salt || "";
+    const saltedPassword = salt + password;
+
+    if (!user.password_hash) {
+      return NextResponse.json(
+        { success: false, message: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
+
+    // Verify password
+    const passwordValid = await verify(user.password_hash, saltedPassword);
+
+    if (!passwordValid) {
+      return NextResponse.json(
+        { success: false, message: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
+
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+      throw new Error("JWT_SECRET is not set in environment variables.");
+    }
+
+    const token = sign(
+      {
+        userId: user.id,
+        role: user.role,
+      },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Set cookie using "serialize" (works in /api routes)
 
     const [doctorConsultationDetails] = await db
       .select({ consultationFees: doctorConsultation.consultationFees })
@@ -60,14 +95,23 @@ export async function POST(request: NextRequest) {
 
     const consultationFee = doctorConsultationDetails?.consultationFees;
 
-    // existing has issue
+    const userId = userResult[0].id;
+    // get patient id
+
+    const getPatient = await db
+      .select({ existingPatientId: patient.id })
+      .from(patient)
+      .where(eq(patient.userId, userId));
+
+    const existingPatientId = getPatient[0]?.existingPatientId;
+
     // create the appointment
     const appointmentData: NewAppointment = {
       date: date,
       timeFrom: timeTo,
       timeTo: timeFrom,
       mode: consultationMode as "online" | "offline",
-      patientId: parseInt(String(newPatientId), 10),
+      patientId: parseInt(String(existingPatientId), 10),
       doctorId: parseInt(String(doctorId), 10),
       clinicId: clinicId,
       amount: consultationFee,
@@ -80,24 +124,28 @@ export async function POST(request: NextRequest) {
     console.log("appointment created");
 
     // login the user
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
-      message: "Appointment created successfully for new patient.",
+      message: "Appointment created successfully for patient",
+      user: {
+        id: user.id,
+        name: user.name,
+        role: user.role,
+      },
     });
 
-    // TODO: Implement actual logic
-    // 1. Authenticate existing patient
-    // 2. Get patientId from authentication
-    // 3. Create appointment record
-    // 4. Send confirmation
+    response.headers.set(
+      "Set-Cookie",
+      serialize("authToken", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60, // 1 hour
+      })
+    );
 
-    return NextResponse.json({
-      success: true,
-      message: "Existing user appointment booking received",
-      appointmentId: "temp_existing_" + Date.now(), // Temporary ID
-      patientId: "temp_existing_patient_" + Date.now(), // Temporary patient ID from auth
-    });
+    return response;
   } catch (error) {
     console.error("Error processing existing user appointment:", error);
     return NextResponse.json(
@@ -108,28 +156,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} // send  the data to api /api/public/appointment/route.ts
-// and console there send
-
-// date, timeto, timefrom, mode, patientid will be generated based on data , doctorid, clinicid, amount,
-// for new -> name, email?, phone, password
-// for alreadyexisting - > email password
-
-// alreadyexisting or new
-
-// amout should be verified
-// validate mode in future
-
-//   const appointmentData: NewAppointment = {
-//     date: reqBody.date,
-//     timeFrom: reqBody.time.from,
-//     timeTo: reqBody.time.to,
-//     mode: reqBody.appointmentType.toLowerCase() as "online" | "offline",
-//     patientId: parseInt(String(newPatientId), 10),
-//     doctorId: parseInt(String(requiredDoctorId), 10),
-//     clinicId: reqBody.clinic_id,
-//     amount: consultationFee,
-//     reason: reqBody.reason,
-//     paymentStatus: false,
-//     visitStatus: false,
-//   };
+}
