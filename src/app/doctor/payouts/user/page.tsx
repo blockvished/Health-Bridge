@@ -1,5 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Type definitions
 interface PayoutRequest {
@@ -47,22 +49,31 @@ const TableBody: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <tbody>{children}</tbody>
 );
 
-const TableRow: React.FC<TableComponentProps> = ({ children, className = "" }) => (
+const TableRow: React.FC<TableComponentProps> = ({
+  children,
+  className = "",
+}) => (
   <tr className={`border-b border-gray-200 hover:bg-gray-50 ${className}`}>
     {children}
   </tr>
 );
 
-const TableHead: React.FC<TableComponentProps> = ({ children, className = "" }) => (
-  <th className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${className}`}>
+const TableHead: React.FC<TableComponentProps> = ({
+  children,
+  className = "",
+}) => (
+  <th
+    className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${className}`}
+  >
     {children}
   </th>
 );
 
-const TableCell: React.FC<TableComponentProps> = ({ children, className = "" }) => (
-  <td className={`px-4 py-3 text-sm text-gray-900 ${className}`}>
-    {children}
-  </td>
+const TableCell: React.FC<TableComponentProps> = ({
+  children,
+  className = "",
+}) => (
+  <td className={`px-4 py-3 text-sm text-gray-900 ${className}`}>{children}</td>
 );
 
 const PayoutsPage: React.FC = () => {
@@ -71,6 +82,7 @@ const PayoutsPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([]);
   const [requestsLoading, setRequestsLoading] = useState<boolean>(true);
+  const [submittingRequest, setSubmittingRequest] = useState<boolean>(false);
 
   const [balanceInfo, setBalanceInfo] = useState<BalanceInfo>({
     balance: 0,
@@ -91,7 +103,7 @@ const PayoutsPage: React.FC = () => {
         ]);
 
         if (!settingsRes.ok || !balanceRes.ok) {
-          throw new Error("Failed to fetch data");
+          throw new Error("Failed to fetch payout data");
         }
 
         const settingsData: PayoutSettings = await settingsRes.json();
@@ -104,8 +116,10 @@ const PayoutsPage: React.FC = () => {
           totalWithdraw: parseFloat(balanceData.totalWithdraw.toString()),
           totalEarnings: parseFloat(balanceData.totalEarnings.toString()),
         });
+
       } catch (error) {
         console.error("Error fetching payout data:", error);
+        toast.error("Failed to load payout settings. Please refresh the page.");
       } finally {
         setLoading(false);
       }
@@ -119,7 +133,7 @@ const PayoutsPage: React.FC = () => {
       try {
         setRequestsLoading(true);
         const response = await fetch("/api/doctor/payout/request");
-        
+
         if (!response.ok) {
           throw new Error("Failed to fetch payout requests");
         }
@@ -128,6 +142,7 @@ const PayoutsPage: React.FC = () => {
         setPayoutRequests(data.payoutRequests || []);
       } catch (error) {
         console.error("Error fetching payout requests:", error);
+        toast.error("Failed to load payout requests history.");
       } finally {
         setRequestsLoading(false);
       }
@@ -136,43 +151,99 @@ const PayoutsPage: React.FC = () => {
     fetchPayoutRequests();
   }, []);
 
+  const refreshPayoutRequests = async (): Promise<void> => {
+    try {
+      const refreshRes = await fetch("/api/doctor/payout/request");
+      if (refreshRes.ok) {
+        const refreshData: { payoutRequests: PayoutRequest[] } =
+          await refreshRes.json();
+        setPayoutRequests(refreshData.payoutRequests || []);
+      }
+    } catch (error) {
+      console.error("Error refreshing payout requests:", error);
+      toast.error("Failed to refresh payout requests.");
+    }
+  };
+
   const handleRequestSubmit = async (): Promise<void> => {
-    if (!requestAmount || parseFloat(requestAmount) < minimumPayout) {
-      alert(`Amount must be at least ₹${minimumPayout}`);
+    // Validation with toast messages
+    if (!requestAmount || requestAmount.trim() === "") {
+      toast.error("Please enter an amount.");
       return;
     }
 
-    if (parseFloat(requestAmount) > balanceInfo.balance) {
-      alert(`Amount cannot exceed your available balance of ₹${balanceInfo.balance.toFixed(2)}`);
+    const amount = parseFloat(requestAmount);
+
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Please enter a valid amount.");
       return;
     }
+
+    if (amount < minimumPayout) {
+      toast.error(`Amount must be at least ₹${minimumPayout}`);
+      return;
+    }
+
+    if (amount > balanceInfo.balance) {
+      toast.error(
+        `Amount cannot exceed your available balance of ₹${balanceInfo.balance.toFixed(2)}`
+      );
+      return;
+    }
+
+    setSubmittingRequest(true);
 
     try {
       const res = await fetch("/api/doctor/payout/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: parseFloat(requestAmount),
+          amount: amount,
           selectedMethod: paymentMethod,
         }),
       });
 
-      if (!res.ok) throw new Error("Request failed");
-      
-      alert("Payout request submitted!");
+      if (!res.ok) {
+        const errorData = await res
+          .json()
+          .catch(() => ({ message: "Unknown error" }));
+        throw new Error(
+          errorData.message || `Request failed with status ${res.status}`
+        );
+      }
+
+      // Success toast
+      setTimeout(() => {
+        toast.success(
+          `Payout request of ₹${amount.toLocaleString()} submitted successfully!`
+        );
+      }, 100);
+
+      // Reset form
       setRequestAmount("");
       setPaymentMethod("UPI");
       setShowForm(false);
-      
+
       // Refresh the payout requests list
-      const refreshRes = await fetch("/api/doctor/payout/request");
-      if (refreshRes.ok) {
-        const refreshData: { payoutRequests: PayoutRequest[] } = await refreshRes.json();
-        setPayoutRequests(refreshData.payoutRequests || []);
-      }
+      await refreshPayoutRequests();
+
+      // Update balance info (subtract the requested amount from current balance)
+      setBalanceInfo((prev) => ({
+        ...prev,
+        balance: prev.balance - amount,
+      }));
     } catch (error) {
-      console.error(error);
-      alert("Failed to submit payout request.");
+      console.error("Payout request error:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to submit payout request.";
+
+      setTimeout(() => {
+        toast.error(errorMessage);
+      }, 100);
+    } finally {
+      setSubmittingRequest(false);
     }
   };
 
@@ -203,8 +274,20 @@ const PayoutsPage: React.FC = () => {
     setRequestAmount(e.target.value);
   };
 
-  const handlePaymentMethodChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
+  const handlePaymentMethodChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ): void => {
     setPaymentMethod(e.target.value);
+  };
+
+  const handleFormToggle = () => {
+    if (balanceInfo.balance < minimumPayout) {
+      toast.warning(
+        `You need a minimum balance of ₹${minimumPayout} to request a payout. Your current balance is ₹${balanceInfo.balance.toFixed(2)}.`
+      );
+      return;
+    }
+    setShowForm((prev) => !prev);
   };
 
   return (
@@ -249,7 +332,7 @@ const PayoutsPage: React.FC = () => {
           <h4 className="text-gray-700 font-semibold text-md mb-4">
             Request a Payout
           </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm text-gray-600 mb-1">
                 Amount (₹)
@@ -260,8 +343,9 @@ const PayoutsPage: React.FC = () => {
                 placeholder="Enter amount"
                 value={requestAmount}
                 onChange={handleAmountChange}
-                className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 h-10"
                 max={balanceInfo.balance}
+                disabled={submittingRequest}
               />
               <p className="text-xs text-gray-500 mt-1">
                 Available: ₹{balanceInfo.balance.toFixed(2)}
@@ -274,20 +358,30 @@ const PayoutsPage: React.FC = () => {
               <select
                 value={paymentMethod}
                 onChange={handlePaymentMethodChange}
-                className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 h-10"
+                disabled={submittingRequest}
               >
                 <option value="UPI">UPI</option>
                 <option value="NEFT">NEFT</option>
                 <option value="IMPS">IMPS</option>
               </select>
             </div>
-            <div className="flex items-end">
+            <div className="sm:col-span-2 lg:col-span-1">
+              <label className="block text-sm text-gray-600 mb-1 invisible">
+                Action
+              </label>
               <button
                 onClick={handleRequestSubmit}
-                className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
-                disabled={!requestAmount || parseFloat(requestAmount) > balanceInfo.balance || parseFloat(requestAmount) < minimumPayout}
+                className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed h-10"
+                disabled={
+                  submittingRequest ||
+                  !requestAmount ||
+                  parseFloat(requestAmount) > balanceInfo.balance ||
+                  parseFloat(requestAmount) < minimumPayout ||
+                  isNaN(parseFloat(requestAmount))
+                }
               >
-                Submit Request
+                {submittingRequest ? "Submitting..." : "Submit Request"}
               </button>
             </div>
           </div>
@@ -301,8 +395,8 @@ const PayoutsPage: React.FC = () => {
             Payout Requests History
           </h3>
           <button
-            onClick={() => setShowForm((prev) => !prev)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+            onClick={handleFormToggle}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
             disabled={balanceInfo.balance < minimumPayout}
           >
             {showForm ? "Cancel" : "Request Payout"}
@@ -343,7 +437,10 @@ const PayoutsPage: React.FC = () => {
                     </span>
                   </TableCell>
                   <TableCell>
-                    ₹{parseFloat((request.balanceAtRequest || 0).toString()).toLocaleString()}
+                    ₹
+                    {parseFloat(
+                      (request.balanceAtRequest || 0).toString()
+                    ).toLocaleString()}
                   </TableCell>
                   <TableCell>
                     <span className="bg-gray-100 px-2 py-1 rounded text-xs font-medium">
@@ -371,11 +468,33 @@ const PayoutsPage: React.FC = () => {
       {balanceInfo.balance < minimumPayout && (
         <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <p className="text-yellow-800 text-sm">
-            <strong>Note:</strong> You need a minimum balance of ₹{minimumPayout} to request a payout. 
-            Your current balance is ₹{balanceInfo.balance.toFixed(2)}.
+            <strong>Note:</strong> You need a minimum balance of ₹
+            {minimumPayout} to request a payout. Your current balance is ₹
+            {balanceInfo.balance.toFixed(2)}.
           </p>
         </div>
       )}
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{
+          zIndex: 999999,
+        }}
+        toastStyle={{
+          zIndex: 999999,
+        }}
+        limit={3}
+      />
     </div>
   );
 };
