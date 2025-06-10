@@ -4,6 +4,8 @@ import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
 import { FiArrowLeft, FiCamera, FiEdit, FiTrash2 } from "react-icons/fi";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type StaffMember = {
   id: number;
@@ -96,6 +98,18 @@ const StaffForm: React.FC<StaffFormProps> = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size (e.g., max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error("Please select a valid image file");
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -130,6 +144,11 @@ const StaffForm: React.FC<StaffFormProps> = ({
     e.preventDefault();
     setSubmitting(true);
     setError(null);
+
+    // Show loading toast
+    const toastId = toast.loading(
+      initialStaffData?.id ? "Updating staff member..." : "Creating staff member..."
+    );
 
     try {
       const submitData = new FormData();
@@ -177,13 +196,32 @@ const StaffForm: React.FC<StaffFormProps> = ({
         );
       }
 
+      // Success toast
+      toast.update(toastId, {
+        render: initialStaffData?.id 
+          ? "Staff member updated successfully!" 
+          : "Staff member created successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+
       if (method === "PUT" && onStaffUpdated) {
         onStaffUpdated();
       } else if (method === "POST") {
         onBack(); // Go back after successful creation
       }
     } catch (err) {
-      setError((err as Error).message);
+      const errorMessage = (err as Error).message;
+      setError(errorMessage);
+      
+      // Error toast
+      toast.update(toastId, {
+        render: errorMessage,
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
     } finally {
       setSubmitting(false);
     }
@@ -368,7 +406,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium flex items-center justify-center cursor-pointer"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? "Saving..." : "Save"}
           </button>
@@ -407,11 +445,9 @@ const StaffPage: React.FC = () => {
         setClinicsData(data);
       } catch (err: unknown) {
         console.error("Error fetching clinics:", err);
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError(String(err)); // Fallback if it's not an Error
-        }
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        setError(errorMessage);
+        toast.error(`Failed to load clinics: ${errorMessage}`);
       } finally {
         setLoading(false);
       }
@@ -430,8 +466,12 @@ const StaffPage: React.FC = () => {
       const data: StaffMember[] = await res.json();
       console.log(data);
       setStaffMembers(data);
+      if (data.length > 0) {
+        console.log(`Loaded ${data.length} staff members`);
+      }
     } catch (error) {
       console.error("Error fetching staff:", error);
+      toast.error("Failed to load staff members");
     }
   }, [userId]);
 
@@ -473,13 +513,12 @@ const StaffPage: React.FC = () => {
       }
       const data = await response.json();
       setRolePermissions(data);
+      console.log("Role permissions loaded successfully");
     } catch (err: unknown) {
       console.error("Error fetching role permissions:", err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError(String(err)); // Fallback if it's not an Error
-      }
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage);
+      toast.error(`Failed to load role permissions: ${errorMessage}`);
     }
   };
 
@@ -495,8 +534,16 @@ const StaffPage: React.FC = () => {
 
   const handleDeleteStaff = async () => {
     if (!userId || !deleteStaffId) return;
+    
+    const staffToDelete = staffMembers.find(s => s.id === deleteStaffId);
+    const staffName = staffToDelete?.name || 'Unknown';
+    
     setLoading(true);
     setError(null);
+    
+    // Show loading toast
+    const toastId = toast.loading(`Deleting ${staffName}...`);
+    
     try {
       const res = await fetch(`/api/doctor/staff/${userId}`, {
         method: "DELETE",
@@ -505,21 +552,36 @@ const StaffPage: React.FC = () => {
         },
         body: JSON.stringify({ staffIdToDelete: deleteStaffId }),
       });
+      
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(
           errorData.message || `Failed to delete staff: ${res.status}`
         );
       }
+      
+      // Success toast
+      toast.update(toastId, {
+        render: `${staffName} deleted successfully!`,
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+      
       fetchStaff();
       handleCloseDeleteModal();
     } catch (err: unknown) {
       console.error("Error deleting staff:", err);
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError(String(err)); // Fallback if it's not an Error
-      }
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage);
+      
+      // Error toast
+      toast.update(toastId, {
+        render: `Failed to delete ${staffName}: ${errorMessage}`,
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
     } finally {
       setLoading(false);
     }
@@ -630,12 +692,14 @@ const StaffPage: React.FC = () => {
                         <button
                           onClick={() => handleEditClick(staff.id)}
                           className="p-1.5 border rounded-md bg-gray-200 hover:bg-gray-300 transition flex items-center justify-center w-8 h-8 cursor-pointer"
+                          title="Edit staff member"
                         >
                           <FiEdit className="text-gray-600" />
                         </button>
                         <button
                           onClick={() => handleShowDeleteModal(staff.id)}
                           className="p-1.5 border rounded-md bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center w-8 h-8 cursor-pointer"
+                          title="Delete staff member"
                         >
                           <FiTrash2 />
                         </button>
@@ -675,6 +739,27 @@ const StaffPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ 
+          zIndex: 999999,
+        }}
+        toastStyle={{
+          zIndex: 999999,
+        }}
+        limit={3} // Limit number of toasts
+      />
     </div>
   );
 };

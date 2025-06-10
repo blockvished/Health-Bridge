@@ -2,6 +2,8 @@
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Rating {
   id: number;
@@ -15,7 +17,6 @@ export default function RatingReviews() {
   const [userId, setUserId] = useState<string | null>(null);
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [enableRating, setEnableRating] = useState<boolean>(false);
   const [updatingStatus, setUpdatingStatus] = useState<boolean>(false);
 
@@ -28,7 +29,6 @@ export default function RatingReviews() {
     const fetchRatings = async () => {
       if (userId) {
         setLoading(true);
-        setError(null);
         try {
           const response = await fetch(`/api/doctor/ratings/${userId}`);
           if (!response.ok) {
@@ -37,11 +37,10 @@ export default function RatingReviews() {
           const data: Rating[] = await response.json();
           setRatings(data);
         } catch (err) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "An error occurred while fetching ratings"
-          );
+          const errorMessage = err instanceof Error
+            ? err.message
+            : "An error occurred while fetching ratings";
+          toast.error(errorMessage);
           console.error("Error fetching ratings:", err);
         } finally {
           setLoading(false);
@@ -78,6 +77,7 @@ export default function RatingReviews() {
           }
         } catch (err) {
           console.error("Error fetching rating status:", err);
+          toast.error("Failed to fetch rating status");
           setEnableRating(false);
         }
       }
@@ -111,13 +111,18 @@ export default function RatingReviews() {
 
       // Update state after successful API call
       setEnableRating(newValue);
+      
+      // Show success toast
+      toast.success(
+        `Rating ${newValue ? "enabled" : "disabled"} successfully!`
+      );
     } catch (err) {
       console.error("Error updating rating status:", err);
       // Revert the visual state if API call fails
       setEnableRating(enableRating);
-      setError(
-        err instanceof Error ? err.message : "Failed to update rating status"
-      );
+      
+      const errorMessage = err instanceof Error ? err.message : "Failed to update rating status";
+      toast.error(errorMessage);
     } finally {
       setUpdatingStatus(false);
     }
@@ -170,12 +175,6 @@ export default function RatingReviews() {
         </label>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
       {ratings.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse rounded-lg overflow-hidden shadow-sm">
@@ -214,6 +213,26 @@ export default function RatingReviews() {
           {loading ? "Loading ratings..." : "No ratings or reviews yet."}
         </div>
       )}
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ 
+          zIndex: 999999,
+        }}
+        toastStyle={{
+          zIndex: 999999,
+        }}
+        limit={3} // Limit number of toasts
+      />
     </div>
   );
 }
