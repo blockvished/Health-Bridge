@@ -90,9 +90,7 @@ const PayoutsPage: React.FC = () => {
           fetch("/api/doctor/payout/balance"),
         ]);
 
-        if (!settingsRes.ok || !balanceRes.ok) {
-          throw new Error("Failed to fetch data");
-        }
+        
 
         const settingsData: PayoutSettings = await settingsRes.json();
         const balanceData: BalanceInfo = await balanceRes.json();

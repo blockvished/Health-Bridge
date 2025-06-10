@@ -1,7 +1,11 @@
 // src/api/doctor/custom_domain/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "../../../../db/db"; // Adjust path as needed
-import { doctor, doctorWebsiteDetails } from "../../../../db/schema"; // Ensure doctor and doctorWebsiteDetails are imported
+import {
+  doctor,
+  doctorEducation,
+  doctorWebsiteDetails,
+} from "../../../../db/schema"; // Ensure doctor and doctorWebsiteDetails are imported
 import { eq } from "drizzle-orm";
 import { verifyAuthToken } from "../../../../app/lib/verify"; // Assuming this utility exists for authentication
 
@@ -44,7 +48,6 @@ export async function GET() {
       message: "Custom domains fetched successfully.",
       data: domains,
     });
-
   } catch (error) {
     console.error("API Error fetching custom domains:", error);
     return NextResponse.json(
@@ -62,12 +65,13 @@ export async function POST(req: NextRequest) {
     const numericUserId = Number(userId);
 
     const doctorData = await db
-      .select({ id: doctor.id })
+      .select({ id: doctor.id, name: doctor.name })
       .from(doctor)
       .where(eq(doctor.userId, numericUserId))
       .then((res) => res[0]); // Get the first result or undefined
 
-    if (!doctorData) { // Check if doctorData is undefined or null
+    if (!doctorData) {
+      // Check if doctorData is undefined or null
       return NextResponse.json(
         { error: "Doctor profile not found for this user." },
         { status: 404 }
@@ -75,12 +79,25 @@ export async function POST(req: NextRequest) {
     }
 
     const requiredDoctorId = doctorData.id;
+    const doctorName = doctorData.name ?? ""; 
+
+    function formatDoctorName(doctorName: string) {
+      // Use a regular expression to find spaces that are not at the beginning
+      // and replace them with hyphens.
+      return doctorName.replace(/ /g, "-");
+    }
+
+    const requiredDoctorName = formatDoctorName(doctorName);
 
     const body = await req.json();
     const { customDomain } = body;
 
     // 1. Validate customDomain input
-    if (!customDomain || typeof customDomain !== 'string' || customDomain.trim() === '') {
+    if (
+      !customDomain ||
+      typeof customDomain !== "string" ||
+      customDomain.trim() === ""
+    ) {
       return NextResponse.json(
         { error: "Custom domain is required and must be a non-empty string." },
         { status: 400 }
@@ -102,18 +119,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Generate currentUrl (Crucial as it's notNull in your schema)
-    const appBaseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL || "https://livedoctors24.com";
-
-    if (!appBaseUrl) {
-      console.warn("NEXT_PUBLIC_APP_BASE_URL is not set. Defaulting currentUrl to a placeholder.");
-      return NextResponse.json(
-        { error: "Application base URL is not configured. Please contact support." },
-        { status: 500 }
-      );
-    }
-
-    // Generate the current URL for the doctor
-    const generatedCurrentUrl = `${appBaseUrl}/doctors/${requiredDoctorId}`;
+    const generatedCurrentUrl = `https://livedoctors24.com/profile/${requiredDoctorName}`;
 
     // 4. Insert the new custom domain entry into the database
     const newWebsiteDetail = {
@@ -124,7 +130,10 @@ export async function POST(req: NextRequest) {
       // 'createdAt' will automatically default to current timestamp as per your Drizzle schema
     };
 
-    const insertedData = await db.insert(doctorWebsiteDetails).values(newWebsiteDetail).returning();
+    const insertedData = await db
+      .insert(doctorWebsiteDetails)
+      .values(newWebsiteDetail)
+      .returning();
 
     if (!insertedData || insertedData.length === 0) {
       return NextResponse.json(
@@ -138,12 +147,13 @@ export async function POST(req: NextRequest) {
       message: "Custom domain request submitted successfully.",
       data: insertedData[0], // Return the newly created record
     });
-
   } catch (error) {
     console.error("API Error adding custom domain:", error);
     // Generic error message for client to prevent leaking sensitive details
     return NextResponse.json(
-      { error: "Internal Server Error occurred while processing your request." },
+      {
+        error: "Internal Server Error occurred while processing your request.",
+      },
       { status: 500 }
     );
   }

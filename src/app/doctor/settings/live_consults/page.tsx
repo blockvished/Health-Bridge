@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { FaCheck, FaSpinner } from "react-icons/fa";
-// import { useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
 
 const LiveConsultationSettings = () => {
@@ -13,9 +14,7 @@ const LiveConsultationSettings = () => {
   const [liveConsultation, setLiveConsultation] = useState<boolean>(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [saving, setSaving] = useState<boolean>(false); // New state for saving status
-  const [error, setError] = useState<string | null>(null);
-  // const router = useRouter();
+  const [saving, setSaving] = useState<boolean>(false);
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -26,7 +25,8 @@ const LiveConsultationSettings = () => {
     const fetchConsultationSettings = async () => {
       if (userId) {
         setLoading(true);
-        setError(null);
+        toast.info("Loading consultation settings...");
+        
         try {
           const res = await fetch(
             `/api/doctor/consultation/settings/`
@@ -46,17 +46,19 @@ const LiveConsultationSettings = () => {
             setMeetingOption(settings.mode || "google");
             setMeetingLink(settings.consultationLink || "");
             setLiveConsultation(settings.isLiveConsultationEnabled || false);
+            toast.success("Settings loaded successfully!");
           } else {
             setConsultationFee("");
             setMeetingLink("");
             setLiveConsultation(false);
+            toast.info("No existing settings found. You can configure them now.");
           }
         } catch (err: unknown) {
           if (err instanceof Error) {
-            setError(err.message);
+            toast.error(`Failed to load consultation settings: ${err.message}`);
             console.error("Error fetching consultation settings:", err);
           } else {
-            setError("An unknown error occurred");
+            toast.error("Failed to load consultation settings. Please refresh the page.");
             console.error("Unknown error:", err);
           }        
         } finally {
@@ -68,14 +70,47 @@ const LiveConsultationSettings = () => {
     fetchConsultationSettings();
   }, [userId]);
 
+  const handleConsultationFeeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    // Only allow numbers and decimal point
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setConsultationFee(value);
+    } else {
+      toast.warning("Please enter a valid consultation fee (numbers only).");
+    }
+  };
+
+  const handleLiveConsultationToggle = () => {
+    const newStatus = !liveConsultation;
+    setLiveConsultation(newStatus);
+    
+    if (newStatus) {
+      toast.success("Live consultation enabled!");
+    } else {
+      toast.info("Live consultation disabled.");
+    }
+  };
+
   const handleSaveChanges = async () => {
     if (!userId) {
-      setError("User ID not found.");
+      toast.error("User session expired. Please login again.");
       return;
     }
 
-    setSaving(true); // Set saving to true when the process starts
-    setError(null);
+    // Validation before saving
+    if (!consultationFee || parseFloat(consultationFee) <= 0) {
+      toast.warning("Please enter a valid consultation fee.");
+      return;
+    }
+
+    if (!meetingLink || meetingLink.trim() === "") {
+      toast.warning("Please provide a meeting invitation link.");
+      return;
+    }
+
+    setSaving(true);
+    toast.info("Saving consultation settings...");
 
     try {
       const res = await fetch(`/api/doctor/consultation/settings/`, {
@@ -102,25 +137,20 @@ const LiveConsultationSettings = () => {
 
       const data = await res.json();
       console.log("Consultation settings saved:", data);
-      // Optionally show a success message to the user
+      toast.success("Consultation settings saved successfully!");
+      
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message);
+        toast.error(`Failed to save settings: ${err.message}`);
         console.error("Error saving consultation settings:", err);
       } else {
-        setError("An unexpected error occurred while saving consultation settings.");
+        toast.error("An unexpected error occurred while saving settings.");
         console.error("Error saving consultation settings:", err);
       }
     } finally {
-      setSaving(false); // Set saving back to false after completion (success or error)
+      setSaving(false);
     }
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-lg w-full p-4 text-red-500">Error: {error}</div>
-    );
-  }
+  };
 
   return (
     <div className="max-w-lg w-full p-4">
@@ -143,9 +173,10 @@ const LiveConsultationSettings = () => {
               </div>
               <input
                 type="text"
-                className="w-full border border-gray-300 rounded-r-md p-2 focus:outline-none"
+                className="w-full border border-gray-300 rounded-r-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={consultationFee}
-                onChange={(e) => setConsultationFee(e.target.value)}
+                onChange={handleConsultationFeeChange}
+                placeholder="Enter consultation fee"
               />
             </div>
           </div>
@@ -158,13 +189,12 @@ const LiveConsultationSettings = () => {
             </label>
             <div className="relative">
               <select
-                className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none appearance-none"
+                className="w-full border border-gray-300 rounded-md p-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                 value={meetingOption}
-                onChange={(e) =>
-                  setMeetingOption(
-                    e.target.value as "google" | "zoom" | "teams"
-                  )
-                }
+                onChange={(e) => {
+                  setMeetingOption(e.target.value as "google" | "zoom" | "teams");
+                  toast.info(`Switched to ${e.target.value === 'google' ? 'Google Meet' : e.target.value === 'zoom' ? 'Zoom' : 'Microsoft Teams'}`);
+                }}
               >
                 <option value="google">Google Meet</option>
                 <option value="zoom">Zoom</option>
@@ -199,9 +229,10 @@ const LiveConsultationSettings = () => {
               Meeting Invitation link <span className="text-red-500">*</span>
             </label>
             <textarea
-              className="w-full border border-gray-300 rounded-md p-2 h-24 focus:outline-none"
+              className="w-full border border-gray-300 rounded-md p-2 h-24 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={meetingLink}
               onChange={(e) => setMeetingLink(e.target.value)}
+              placeholder="Paste your meeting invitation link here..."
             />
           </div>
 
@@ -209,7 +240,7 @@ const LiveConsultationSettings = () => {
           <div className="flex items-center">
             <div
               className="relative inline-block w-10 mr-2 align-middle cursor-pointer"
-              onClick={() => setLiveConsultation(!liveConsultation)}
+              onClick={handleLiveConsultationToggle}
             >
               <input
                 type="checkbox"
@@ -219,7 +250,7 @@ const LiveConsultationSettings = () => {
                 onChange={() => {}}
               />
               <div
-                className={`block w-10 h-6 rounded-full ${
+                className={`block w-10 h-6 rounded-full transition-colors ${
                   liveConsultation ? "bg-blue-500" : "bg-gray-300"
                 }`}
               ></div>
@@ -245,8 +276,8 @@ const LiveConsultationSettings = () => {
           {/* Save Changes Button */}
           <button
             onClick={handleSaveChanges}
-            disabled={saving || loading} // Disable when saving or loading
-            className={`bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition flex items-center gap-2 w-fit ${
+            disabled={saving || loading}
+            className={`bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2 w-fit ${
               saving || loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
             }`}
           >
@@ -262,6 +293,19 @@ const LiveConsultationSettings = () => {
           </button>
         </div>
       </div>
+
+      <ToastContainer 
+        position="top-right" 
+        autoClose={3000} 
+        hideProgressBar={false} 
+        newestOnTop={false} 
+        closeOnClick 
+        rtl={false} 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover 
+        theme="light" 
+      />
     </div>
   );
 };

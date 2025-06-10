@@ -1,6 +1,8 @@
 "use client";
 import Cookies from "js-cookie";
 import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const PayoutForm = () => {
   const [fullName, setFullName] = useState("");
@@ -16,8 +18,10 @@ const PayoutForm = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
+    console.log("UserId from cookie:", idFromCookie);
     setUserId(idFromCookie || null);
   }, []);
 
@@ -25,9 +29,9 @@ const PayoutForm = () => {
     if (userId) {
       fetch(`/api/doctor/bank_details/${userId}`)
         .then((response) => {
+          console.log("Fetch response status:", response.status);
           if (!response.ok) {
             if (response.status === 404) {
-              // Bank details not found, initialize empty state
               setLoading(false);
               return null;
             }
@@ -36,7 +40,7 @@ const PayoutForm = () => {
           return response.json();
         })
         .then((data) => {
-          console.log(data);
+          console.log("Fetched data:", data);
           setLoading(false);
           if (data) {
             setFullName(data.fullName);
@@ -47,10 +51,11 @@ const PayoutForm = () => {
             setBankName(data.bankName);
             setAccountNumber(data.accountNumber);
             setIfscCode(data.ifscCode);
-            setUpiId(data.upiId || ""); // Handle potential null UPI ID
+            setUpiId(data.upiId || "");
           }
         })
         .catch((err) => {
+          console.log("Fetch error:", err);
           setLoading(false);
           setError(err.message);
           console.error("Error fetching bank details:", err);
@@ -97,8 +102,13 @@ const PayoutForm = () => {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    event.stopPropagation(); // Add this to prevent event bubbling
+    
+    console.log("🚀 Form submitted");
+    
     if (!userId) {
-      setError("User ID not found. Please log in again.");
+      console.log("❌ No userId, showing error toast");
+      toast.error("User ID not found. Please log in again.");
       return;
     }
 
@@ -115,41 +125,97 @@ const PayoutForm = () => {
       bankName,
       accountNumber,
       ifscCode,
-      upiId: upiId || null, // Send null if UPI ID is empty
+      upiId: upiId || null,
     };
 
+    console.log("📤 Submitting payout details:", payoutDetails);
+
     try {
+      console.log("🌐 Making API call...");
+      
+      // Simplified fetch without timeout complications
       const response = await fetch(`/api/doctor/bank_details/${userId}`, {
-        method: "POST", // Assuming you use POST to create/update
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payoutDetails),
       });
 
+      console.log("📥 Response received:");
+      console.log("   Status:", response.status);
+      console.log("   Status Text:", response.statusText);
+      console.log("   OK:", response.ok);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          `Failed to save bank details: ${response.status} - ${
-            errorData?.message || response.statusText
-          }`
-        );
+        console.log("❌ Response not OK, handling error...");
+        let errorData;
+        try {
+          errorData = await response.json();
+          console.log("📄 Error response data:", errorData);
+        } catch (jsonError) {
+          console.log("⚠️ Failed to parse error response as JSON:", jsonError);
+          errorData = { message: response.statusText };
+        }
+        
+        const errorMessage = `Failed to save bank details: ${response.status} - ${
+          errorData?.message || response.statusText
+        }`;
+        
+        console.log("🔴 About to show error toast:", errorMessage);
+        setError(errorMessage);
+        
+        // Use setTimeout to ensure toast shows
+        setTimeout(() => {
+          toast.error(errorMessage);
+        }, 100);
+        
+        return;
       }
 
-      console.log("Bank details saved successfully!");
-      // Optionally, show a success message to the user
+      console.log("✅ Response OK! About to show success toast...");
+      
+      // Try to read response data but don't let it block
+      try {
+        const responseData = await response.json();
+        console.log("📄 Success response data:", responseData);
+      } catch (jsonError) {
+        console.log("⚠️ Response might not have JSON body (that's OK):", jsonError);
+      }
+      
+      console.log("🟢 Calling success toast...");
+      
+      // Use setTimeout to ensure toast shows before any potential navigation
+      setTimeout(() => {
+        toast.success("Bank details saved successfully!", {
+          onClose: () => {
+            console.log("Success toast closed");
+          }
+        });
+      }, 100);
+      
     } catch (err: unknown) {
-      console.error("Error saving bank details:", err);
-      let errorMessage =
-        "An unexpected error occurred while saving bank details.";
+      console.error("💥 Caught error in handleSubmit:", err);
+      let errorMessage = "An unexpected error occurred while saving bank details.";
 
       if (err instanceof Error) {
         errorMessage = err.message;
+        console.log("Error name:", err.name);
+        console.log("Error stack:", err.stack);
       } else if (typeof err === "string") {
         errorMessage = err;
       }
+
+      console.log("🔴 About to show caught error toast:", errorMessage);
       setError(errorMessage);
+      
+      // Use setTimeout to ensure toast shows
+      setTimeout(() => {
+        toast.error(errorMessage);
+      }, 100);
+      
     } finally {
+      console.log("🏁 Finally block - setting loading to false");
       setLoading(false);
     }
   };
@@ -167,7 +233,7 @@ const PayoutForm = () => {
       <h2 className="text-lg font-semibold text-gray-800 mb-4">
         Setup Payout Account
       </h2>
-
+      
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-800">
@@ -296,16 +362,38 @@ const PayoutForm = () => {
               onChange={handleChange}
             />
           </div>
-          <div></div> {/* Empty div for grid alignment */}
+          <div></div>
         </div>
+        
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded text-sm shadow cursor-pointer"
+          className="bg-blue-600 text-white px-4 py-2 rounded text-sm shadow cursor-pointer disabled:opacity-50"
           disabled={loading}
         >
           {loading ? "Saving Changes..." : "Save Changes"}
         </button>
       </form>
+
+      {/* ToastContainer with higher z-index and explicit positioning */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ 
+          zIndex: 999999,
+        }}
+        toastStyle={{
+          zIndex: 999999,
+        }}
+        limit={3} // Limit number of toasts
+      />
     </div>
   );
 };
