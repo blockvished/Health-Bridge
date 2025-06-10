@@ -4,6 +4,8 @@ import Cookies from "js-cookie";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { FaHospital, FaPlus, FaPrint } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import DrugEntry from "./DrugEntry";
 
 import { Drug } from "./DrugEntry";
@@ -376,6 +378,45 @@ export default function CreatePrescription() {
     setIsPreviewModalOpen(false);
   };
 
+  // Validation function to check if preview should be allowed
+  const validatePrescription = () => {
+    const errors = [];
+
+    // Check if patient is selected
+    if (!selectedPatient) {
+      errors.push("Please select a patient");
+    }
+
+    // Check if at least one drug has a name
+    const hasValidDrug = prescription.drugs.some((drug) => drug.name.trim() !== "");
+    if (!hasValidDrug) {
+      errors.push("Please add at least one medication with a name");
+    }
+
+    return errors;
+  };
+
+  // Handle preview button click with validation
+  const handlePreviewClick = () => {
+    const validationErrors = validatePrescription();
+    
+    if (validationErrors.length > 0) {
+      // Show error toasts for each validation error
+      validationErrors.forEach((error) => {
+        toast.error(error);
+      });
+      return;
+    }
+
+    // If validation passes, show preview
+    setTogglePreview(true);
+  };
+
+  // Check if preview is allowed (for styling the button)
+  const isPreviewDisabled = () => {
+    return !selectedPatient || !prescription.drugs.some((drug) => drug.name.trim() !== "");
+  };
+
   return togglePreview ? (
     <PrescriptionPreview
       setTogglePreview={setTogglePreview}
@@ -627,13 +668,35 @@ export default function CreatePrescription() {
         {/* Preview Button */}
         <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6">
           <button
-            onClick={() => setTogglePreview((prev) => !prev)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 flex items-center gap-2 cursor-pointer"
+            onClick={handlePreviewClick}
+            disabled={isPreviewDisabled()}
+            className={`px-4 py-2 rounded-full shadow-lg flex items-center gap-2 cursor-pointer transition-colors ${
+              isPreviewDisabled()
+                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
           >
             <FaPrint className="text-white" />
             <span className="hidden md:inline">Preview</span>
           </button>
         </div>
+
+        {/* Toast Container */}
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          style={{ zIndex: 999999 }}
+          toastStyle={{ zIndex: 999999 }}
+          limit={3}
+        />
       </div>
     </div>
   );

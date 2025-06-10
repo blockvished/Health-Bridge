@@ -8,6 +8,8 @@ import {
   FaClipboardList,
 } from "react-icons/fa";
 import { useReactToPrint } from "react-to-print";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Drug } from "./DrugEntry";
 import Link from "next/link";
 import Image from "next/image";
@@ -67,11 +69,15 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
 }) => {
   const prescriptionRef = useRef<HTMLDivElement>(null);
   const [prescriptionSaved, setPrescriptionSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Fix for TypeScript issues
   const handlePrint = useReactToPrint({
     documentTitle: "Prescription",
-    onAfterPrint: () => console.log("Printed successfully"),
+    onAfterPrint: () => {
+      console.log("Printed successfully");
+      toast.success("Prescription printed successfully!");
+    },
     // This is the correct way to specify what to print
     contentRef: prescriptionRef,
   });
@@ -79,8 +85,12 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
   const handleSubmit = async () => {
     if (!activeClinic?.id || !patient?.id) {
       console.error("Missing required data: clinic or patient information");
+      toast.error("Missing required data: clinic or patient information");
       return;
     }
+
+    setIsSaving(true);
+    toast.info("Saving prescription...");
 
     try {
       // Option 1: Using FormData (if you really need FormData)
@@ -106,9 +116,18 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
       if (response.ok) {
         // Mark prescription as saved when successful
         setPrescriptionSaved(true);
+        toast.success("Prescription saved successfully!");
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || `Failed to save prescription (Status: ${response.status})`;
+        toast.error(errorMessage);
+        console.error("Failed to save prescription:", errorData);
       }
     } catch (error) {
       console.error("Error saving prescription:", error);
+      toast.error("An error occurred while saving the prescription. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -124,23 +143,23 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
           >
             <FaArrowLeft /> Edit
           </button>
-          {/* <button
-            className="ml-2 bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer"
-            onClick={handleSubmit}
-          >
-            <FaSave /> Save & Continue
-          </button> */}
+
           {!prescriptionSaved && (
             <button
-              className="ml-2 bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer"
+              className={`ml-2 px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer ${
+                isSaving 
+                  ? "bg-blue-400 text-white cursor-not-allowed" 
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
               onClick={handleSubmit}
+              disabled={isSaving}
             >
-              <FaSave /> Save & Continue
+              <FaSave /> {isSaving ? "Saving..." : "Save & Continue"}
             </button>
           )}
 
           {prescriptionSaved && (
-            <Link href="/admin/prescription/all_prescription">
+            <Link href="/doctor/prescription/all_prescription">
               <button className="ml-2 bg-blue-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer">
                 <FaClipboardList /> All Prescriptions
               </button>
@@ -149,7 +168,7 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
           {/* Fix for the onClick event handler */}
           <button
             onClick={() => handlePrint()}
-            className="ml-2 bg-green-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer"
+            className="ml-2 bg-green-600 text-white px-4 py-2 rounded shadow text-sm sm:text-base flex items-center gap-2 cursor-pointer hover:bg-green-700"
           >
             <FaPrint /> Print
           </button>
@@ -338,6 +357,23 @@ const PrescriptionPreview: React.FC<PrescriptionPreviewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 999999 }}
+        toastStyle={{ zIndex: 999999 }}
+        limit={3}
+      />
 
       {/* Add print-specific styles */}
       <style jsx global>{`
