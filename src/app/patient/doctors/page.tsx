@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Doctor {
   id: number;
@@ -125,10 +127,11 @@ export default function DoctorList() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Failed to submit rating:", errorData);
+        toast.error("Failed to submit rating. Please try again.");
         return;
       }
 
-      console.log("Rating submitted successfully!");
+      toast.success("Rating submitted successfully!");
       setSelectedDoctorId(null);
 
       // Optimistic update
@@ -141,6 +144,7 @@ export default function DoctorList() {
       }
     } catch (error) {
       console.error("An error occurred while submitting rating:", error);
+      toast.error("An error occurred while submitting rating. Please try again.");
     }
   };
 
@@ -181,6 +185,21 @@ export default function DoctorList() {
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-xl">
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 999999 }}
+        toastStyle={{ zIndex: 999999 }}
+        limit={3}
+      />
       <h2 className="text-lg font-semibold mb-4">Doctors</h2>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse rounded-lg overflow-hidden shadow-sm">
