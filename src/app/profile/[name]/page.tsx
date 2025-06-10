@@ -197,7 +197,7 @@ export default function ProfilePage({ params }: PageProps) {
               {/* Review text */}
               {review.text && (
                 <p className="text-gray-700 text-sm leading-relaxed">
-                  "{review.text}"
+                  {review.text}
                 </p>
               )}
             </div>

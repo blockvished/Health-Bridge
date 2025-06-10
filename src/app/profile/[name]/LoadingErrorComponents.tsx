@@ -41,7 +41,7 @@ export function NotFound({ doctorName }: NotFoundProps) {
           Profile Not Found
         </h2>
         <p className="text-yellow-700">
-          No doctor information found for "{doctorName}"
+          No doctor information found for {doctorName}
         </p>
       </div>
     </div>

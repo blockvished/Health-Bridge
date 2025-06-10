@@ -7,7 +7,6 @@ import {
   ConsultationData,
   BookingFormData,
 } from "./doctor";
-import ReCAPTCHA from "react-google-recaptcha";
 
 type RegistrationFormData = {
   name: string;
@@ -313,7 +312,6 @@ export default function BookingAppointment({
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   // Format time from 24h to 12h format
   const formatTime = (time: string) => {
@@ -372,22 +370,13 @@ export default function BookingAppointment({
     setCurrentStep("auth");
   };
 
-  // Show error popup
-
-  const showError = (message: string) => {
-    setErrorMessage(message);
-    setShowErrorPopup(true);
-  };
-
   // Close error popup
-
   const closeErrorPopup = () => {
     setShowErrorPopup(false);
     setErrorMessage("");
   };
 
   // Redirect to patient appointments page
-
   const redirectToAppointments = () => {
     window.location.href = "/patient/appointments";
   };
@@ -1115,12 +1104,21 @@ export default function BookingAppointment({
                   />
 
                   {/* reCAPTCHA placeholder */}
-                  <ReCAPTCHA
-                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-                    onChange={(token) => setRecaptchaToken(token)}
-                    theme="light" // or "dark"
-                    className="mt-4"
-                  />
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="notRobotRegister"
+                      checked={isNotRobot}
+                      onChange={(e) => setIsNotRobot(e.target.checked)}
+                      className="w-4 h-4"
+                    />
+                    <label
+                      htmlFor="notRobotRegister"
+                      className="text-sm text-gray-700"
+                    >
+                      {`I'm not a robot`}
+                    </label>
+                  </div>
 
                   <Button
                     type="submit"
@@ -1185,7 +1183,7 @@ export default function BookingAppointment({
                       htmlFor="notRobotLogin"
                       className="text-sm text-gray-700"
                     >
-                      I'm not a robot
+                      {`I'm not a robot`}
                     </label>
                   </div>
 
