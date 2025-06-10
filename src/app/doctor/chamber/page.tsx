@@ -5,6 +5,8 @@ import { FiUploadCloud } from "react-icons/fi";
 import { BsCheckCircle } from "react-icons/bs";
 import Cookies from "js-cookie";
 import Image from "next/image";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Clinic {
   id: number;
@@ -34,8 +36,6 @@ const ClinicList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingClinic, setEditingClinic] = useState<Clinic | null>(null);
-  // New state for toast message
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchClinics = async () => {
@@ -57,6 +57,7 @@ const ClinicList = () => {
           console.error("Error fetching clinics:", err);
           if (err instanceof Error) {
             setError(err.message);
+            toast.error(err.message);
           }
         } finally {
           setLoading(false);
@@ -66,16 +67,6 @@ const ClinicList = () => {
 
     fetchClinics();
   }, [userId]);
-
-  // Effect to manage toast message visibility
-  useEffect(() => {
-    if (toastMessage) {
-      const timer = setTimeout(() => {
-        setToastMessage(null);
-      }, 3000); // Hide toast after 3 seconds
-      return () => clearTimeout(timer); // Cleanup the timer
-    }
-  }, [toastMessage]);
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -94,13 +85,17 @@ const ClinicList = () => {
       fetchClinics(); // Refetch clinics if an action was successful
     }
     if (message) {
-      setToastMessage(message); // Display the toast message
+      if (success) {
+        toast.success(message);
+      } else {
+        toast.error(message);
+      }
     }
   };
 
   const handleDeleteClick = async (clinicId: number) => {
     if (!userId) {
-      console.error("User ID not found.");
+      toast.error("User ID not found.");
       return;
     }
 
@@ -120,7 +115,7 @@ const ClinicList = () => {
 
         if (response.ok) {
           console.log(`Clinic with ID ${clinicId} deleted successfully!`);
-          setToastMessage("Clinic deleted successfully!"); // Show success toast
+          toast.success("Clinic deleted successfully!");
           fetchClinics(); // Refetch the clinic list to update the UI
         } else {
           const errorData = await response.json();
@@ -128,8 +123,9 @@ const ClinicList = () => {
             `Failed to delete clinic with ID ${clinicId}:`,
             errorData
           );
-          setError(errorData.message || `Failed to delete clinic.`);
-          setToastMessage(errorData.error || errorData.message || "Failed to delete clinic."); // Show error toast
+          const errorMessage = errorData.error || errorData.message || "Failed to delete clinic.";
+          setError(errorMessage);
+          toast.error(errorMessage);
         }
       } catch (error: unknown) {
         console.error("An error occurred while deleting the clinic:", error);
@@ -138,7 +134,7 @@ const ClinicList = () => {
           errorMessage = error.message || errorMessage;
         }
         setError(errorMessage);
-        setToastMessage(errorMessage); // Show error toast
+        toast.error(errorMessage);
       }
     }
   };
@@ -165,6 +161,7 @@ const ClinicList = () => {
           errorMessage = err.message || errorMessage;
         }
         setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -207,12 +204,26 @@ const ClinicList = () => {
       {error && <p className="text-red-500 mt-2">{error}</p>}
       {loading && <p>Loading clinics...</p>}
 
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in-out">
-          {toastMessage}
-        </div>
-      )}
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ 
+          zIndex: 999999,
+        }}
+        toastStyle={{
+          zIndex: 999999,
+        }}
+        limit={3}
+      />
     </div>
   );
 };
@@ -391,7 +402,6 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
     id: editClinic?.id, // Include ID in the form data for editing
   });
   const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     // Pre-fill the form if editClinic prop is provided
@@ -435,6 +445,7 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
       }
     });
   };
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -444,13 +455,34 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    // Form validation with toast messages
+    if (!formData.department.trim()) {
+      toast.error("Please select a department.");
+      return;
+    }
+    
+    if (!formData.name.trim()) {
+      toast.error("Please enter clinic name.");
+      return;
+    }
+    
+    if (!formData.appointmentLimit || parseInt(formData.appointmentLimit) <= 0) {
+      toast.error("Please enter a valid appointment limit.");
+      return;
+    }
+    
+    if (!formData.address.trim()) {
+      toast.error("Please enter clinic address.");
+      return;
+    }
+    
     if (!userId) {
-      console.error("User ID not found.");
+      toast.error("User ID not found.");
       return;
     }
 
     setUploading(true);
-    setUploadError(null);
 
     const apiUrl = `/api/doctor/clinic/`; // Endpoint is the same
     const form = new FormData();
@@ -477,15 +509,13 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
         console.log(
           `Clinic data ${formData.id ? "updated" : "submitted"} successfully!`
         );
-        onClose(true, `Clinic data ${formData.id ? "updated" : "submitted"} successfully!`); // Pass success and message
+        const successMessage = `Clinic data ${formData.id ? "updated" : "submitted"} successfully!`;
+        onClose(true, successMessage);
       } else {
         const errorData = await response.json();
-       
-        setUploadError(
-          errorData.error || errorData.message || // Use errorData.error if available
-            `Failed to ${formData.id ? "update" : "submit"} clinic data.`
-        );
-        onClose(false, errorData.error || errorData.message || "Failed to save clinic."); // Pass error message to toast
+        const errorMessage = errorData.error || errorData.message || 
+          `Failed to ${formData.id ? "update" : "submit"} clinic data.`;
+        onClose(false, errorMessage);
       }
     } catch (error: unknown) {
       console.error("An error occurred while submitting:", error);
@@ -493,8 +523,7 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
       if (error instanceof Error) {
         errorMessage = error.message || errorMessage;
       }
-      setUploadError(errorMessage);
-      onClose(false, errorMessage); // Pass error message to toast
+      onClose(false, errorMessage);
     } finally {
       setUploading(false);
     }
@@ -536,6 +565,7 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
             )}
           </div>
         </div>
+        
         {/* Department Dropdown */}
         <div>
           <label className="block text-gray-700">Department *</label>
@@ -554,6 +584,7 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
             ))}
           </select>
         </div>
+        
         {/* Clinic Name */}
         <div>
           <label className="block text-gray-700">Name *</label>
@@ -566,21 +597,24 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
             required
           />
         </div>
+        
         {/* Appointment Limit */}
         <div>
-          <label className="block text-gray-700">Appointment Limit</label>
+          <label className="block text-gray-700">Appointment Limit *</label>
           <input
             type="number"
             name="appointmentLimit"
             value={formData.appointmentLimit}
             onChange={handleChange}
             className="w-full p-2 border border-gray-200 rounded-lg mt-1"
+            min="1"
             required
           />
         </div>
+        
         {/* Address */}
         <div>
-          <label className="block text-gray-700">Address</label>
+          <label className="block text-gray-700">Address *</label>
           <textarea
             name="address"
             value={formData.address}
@@ -589,6 +623,7 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
             required
           />
         </div>
+        
         {/* Active/Inactive Switch */}
         <div className="flex items-center">
           <input
@@ -603,7 +638,8 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
             Active
           </label>
         </div>
-        {/* Buttons and Error Message */}
+        
+        {/* Buttons */}
         <div className="flex justify-between">
           <button
             type="button"
@@ -615,13 +651,12 @@ const ClinicForm = ({ onClose, userId, editClinic }: ClinicFormProps) => {
           </button>
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-1/2"
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-1/2 disabled:bg-gray-400 disabled:cursor-not-allowed"
             disabled={uploading}
           >
             {uploading ? "Saving..." : editClinic ? "Update" : "Save"}
           </button>
         </div>
-        {uploadError && <p className="text-red-500 mt-2">{uploadError}</p>}
       </form>
     </div>
   );
