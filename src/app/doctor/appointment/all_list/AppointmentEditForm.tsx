@@ -5,6 +5,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { FiArrowLeft, FiSave, FiCalendar, FiClock } from "react-icons/fi";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Define interfaces
 interface TimeSlot {
@@ -130,6 +132,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
       } else {
         setAvailableTimes([]);
         setSelectedTime(null);
+        toast.warn("No available time slots for this day.");
       }
     },
     [days, originalTimeFrom, originalTimeTo]
@@ -160,11 +163,13 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
         }
       } else {
         console.error("Failed to fetch schedule data");
+        toast.error("Failed to load schedule data. Please try again.");
       }
     } catch (error) {
       console.error("Error fetching schedule data:", error);
+      toast.error("Error loading schedule data. Please check your connection.");
     }
-  },  [userId, selectedDate, updateAvailableTimes]);
+  }, [userId, selectedDate, updateAvailableTimes]);
 
   useEffect(() => {
     if (userId) {
@@ -185,10 +190,24 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
       name === "visitStatus" ||
       name === "isCancelled"
     ) {
+      const isChecked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({
         ...prev,
-        [name]: (e.target as HTMLInputElement).checked,
+        [name]: isChecked,
       }));
+
+      // Show appropriate toast messages for status changes
+      if (name === "paymentStatus") {
+        toast.info(isChecked ? "Payment marked as completed" : "Payment marked as pending");
+      } else if (name === "visitStatus") {
+        toast.info(isChecked ? "Visit marked as completed" : "Visit marked as pending");
+      } else if (name === "isCancelled") {
+        if (isChecked) {
+          toast.warn("Appointment marked for cancellation");
+        } else {
+          toast.info("Appointment cancellation removed");
+        }
+      }
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -197,11 +216,8 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
   // Check if a date is selectable
   const isDateSelectable = (date: Date, daysConfig: DayConfig[]) => {
     const dayNumber = date.getDay();
-
     const dayName = dayNames[dayNumber];
-
     const dayConfig = daysConfig.find((day) => day.dayOfWeek === dayName);
-
     return dayConfig?.isActive || false;
   };
 
@@ -230,6 +246,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
     if (!date) return;
     setSelectedDate(date);
     updateAvailableTimes(date);
+    toast.success(`Date selected: ${date.toLocaleDateString()}`);
   };
 
   // Format time for display
@@ -242,17 +259,38 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
     return `${formattedHour}:${minutes} ${ampm}`;
   };
 
+  // Handle time slot selection
+  const handleTimeSlotClick = (timeSlot: TimeSlot) => {
+    setSelectedTime(timeSlot);
+    const startTime = formatTime(timeSlot.from || timeSlot.startTime || "");
+    const endTime = formatTime(timeSlot.to || timeSlot.endTime || "");
+    toast.success(`Time slot selected: ${startTime} - ${endTime}`);
+  };
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!selectedDate || !selectedTime) {
-      setError("Please select a date and time");
+      const errorMessage = "Please select a date and time";
+      setError(errorMessage);
+      toast.error(errorMessage);
+      return;
+    }
+
+    // Validation for cancellation reason
+    if (formData.isCancelled && !formData.cancelReason.trim()) {
+      const errorMessage = "Please provide a reason for cancellation";
+      setError(errorMessage);
+      toast.error(errorMessage);
       return;
     }
 
     setIsSubmitting(true);
     setError(null);
+
+    // Show loading toast
+    const loadingToast = toast.loading("Updating appointment...");
 
     // Format the date to YYYY-MM-DD string
     const formattedDate = selectedDate.toISOString().split("T")[0];
@@ -276,14 +314,27 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
       });
       console.log(updateData);
 
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
+
       if (response.ok) {
-        onSuccess(); // Refresh appointment table
+        toast.success("Appointment updated successfully!");
+        setTimeout(() => {
+          onSuccess(); // Refresh appointment table
+        }, 1000); // Small delay to show the success message
       } else {
         const errorData = await response.json();
-        setError(errorData.message || "Failed to update appointment");
+        const errorMessage = errorData.message || "Failed to update appointment";
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
+      
+      const errorMessage = "An unexpected error occurred. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
       console.error("Error updating appointment:", err);
     } finally {
       setIsSubmitting(false);
@@ -389,7 +440,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
                   <button
                     key={timeSlot.id}
                     type="button"
-                    onClick={() => setSelectedTime(timeSlot)}
+                    onClick={() => handleTimeSlotClick(timeSlot)}
                     className={`px-3 py-2 rounded-md text-sm flex items-center gap-1 cursor-pointer ${
                       selectedTime?.id === timeSlot.id
                         ? "bg-blue-500 text-white"
@@ -478,7 +529,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
           {formData.isCancelled && (
             <div className="col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Cancellation Reason
+                Cancellation Reason <span className="text-red-500">*</span>
               </label>
               <textarea
                 name="cancelReason"
@@ -504,7 +555,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 border border-gray 300 rounded-md text-gray-700 hover:bg-gray-50 cursor-pointer"
+            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 cursor-pointer"
             disabled={isSubmitting}
           >
             Cancel
@@ -524,6 +575,27 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
           </button>
         </div>
       </form>
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{
+          zIndex: 999999,
+        }}
+        toastStyle={{
+          zIndex: 999999,
+        }}
+        limit={3} // Limit number of toasts
+      />
     </div>
   );
 };
