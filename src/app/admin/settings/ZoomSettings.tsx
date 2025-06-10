@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, AlertTriangle, Loader2 } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface InputFieldProps {
   label: string;
@@ -27,7 +29,7 @@ const InputField: React.FC<InputFieldProps> = ({
         onChange={onChange}
         disabled={disabled}
         className={`w-full border rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-          disabled ? 'bg-gray-100 cursor-not-allowed' : ''
+          disabled ? "bg-gray-100 cursor-not-allowed" : ""
         }`}
       />
     </div>
@@ -41,7 +43,10 @@ const ZoomSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isCheckingConnection, setIsCheckingConnection] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   // Fetch existing settings on component mount
   useEffect(() => {
@@ -51,7 +56,7 @@ const ZoomSettings: React.FC = () => {
   const fetchZoomSettings = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/admin/settings/zoom_settings');
+      const response = await fetch("/api/admin/settings/zoom_settings");
       const result = await response.json();
 
       if (result.success && result.data) {
@@ -60,8 +65,8 @@ const ZoomSettings: React.FC = () => {
         setClientSecret(result.data.zoomClientSecret || "");
       }
     } catch (error) {
-      console.error('Error fetching zoom settings:', error);
-      setMessage({ type: 'error', text: 'Failed to load zoom settings' });
+      console.error("Error fetching zoom settings:", error);
+      setMessage({ type: "error", text: "Failed to load zoom settings" });
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +82,7 @@ const ZoomSettings: React.FC = () => {
 
   const handleCheckConnection = async () => {
     if (!accountId || !clientId || !clientSecret) {
-      setMessage({ type: 'error', text: 'Please fill in all fields before checking connection' });
+      toast.error("Please fill in all fields before checking connection");
       return;
     }
 
@@ -85,28 +90,30 @@ const ZoomSettings: React.FC = () => {
       setIsCheckingConnection(true);
       setMessage(null);
 
-      const response = await fetch('/api/admin/settings/zoom_connection_test', {
-        method: 'POST',
+      const response = await fetch("/api/admin/settings/zoom_connection_test", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           zoomAccountId: accountId,
           zoomClientId: clientId,
-          zoomClientSecret: clientSecret
+          zoomClientSecret: clientSecret,
         }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        setMessage({ type: 'success', text: 'Connection successful! Zoom API is working correctly.' });
+        toast.success("Connection successful! Zoom API is working correctly.");
       } else {
-        setMessage({ type: 'error', text: result.error || 'Connection failed. Please check your credentials.' });
+        toast.error(
+          result.error || "Connection failed. Please check your credentials."
+        );
       }
     } catch (error) {
-      console.error('Error checking zoom connection:', error);
-      setMessage({ type: 'error', text: 'Failed to check connection. Please try again.' });
+      console.log("Error checking zoom connection:", error);
+      toast.error("Failed to check connection. Please try again.");
     } finally {
       setIsCheckingConnection(false);
     }
@@ -114,7 +121,7 @@ const ZoomSettings: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!accountId || !clientId || !clientSecret) {
-      setMessage({ type: 'error', text: 'Please fill in all fields' });
+      toast.error("Please fill in all fields");
       return;
     }
 
@@ -122,30 +129,29 @@ const ZoomSettings: React.FC = () => {
       setIsSaving(true);
       setMessage(null);
 
-      const response = await fetch('/api/admin/settings/zoom_settings', {
-        method: 'POST',
+      const response = await fetch("/api/admin/settings/zoom_settings", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           zoomAccountId: accountId,
           zoomClientId: clientId,
-          zoomClientSecret: clientSecret
+          zoomClientSecret: clientSecret,
         }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        setMessage({ type: 'success', text: result.message });
-        // Update the client secret display
-        setClientSecret("****************");
+        toast.success(result.message || "Settings saved successfully");
       } else {
-        setMessage({ type: 'error', text: result.error || 'Failed to save settings' });
+        toast.error(result.error || "Failed to save settings");
+
       }
     } catch (error) {
-      console.error('Error saving zoom settings:', error);
-      setMessage({ type: 'error', text: 'Failed to save zoom settings' });
+      console.log("Error saving zoom settings:", error);
+      toast.error("Failed to save zoom settings");
     } finally {
       setIsSaving(false);
     }
@@ -162,19 +168,22 @@ const ZoomSettings: React.FC = () => {
 
   return (
     <div>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 999999 }}
+        toastStyle={{ zIndex: 999999 }}
+        limit={3}
+      />
       <h2 className="text-lg font-semibold mb-4">Zoom Settings</h2>
-
-      {message && (
-        <div
-          className={`mb-4 p-3 rounded-md ${
-            message.type === 'success'
-              ? 'bg-green-100 text-green-700 border border-green-300'
-              : 'bg-red-100 text-red-700 border border-red-300'
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
 
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
         <Button
