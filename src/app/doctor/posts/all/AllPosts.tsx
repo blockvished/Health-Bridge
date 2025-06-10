@@ -107,7 +107,7 @@ function Posts() {
       </p>
       <div className="flex justify-center">
         <Link
-          href="/admin/posts/add-new"
+          href="/doctor/posts/add-new"
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors font-medium flex items-center"
         >
           <svg

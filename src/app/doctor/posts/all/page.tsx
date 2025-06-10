@@ -10,7 +10,7 @@ export default function ReportsPage() {
     <PageWrapper
       title="Multi Posting"
       button={
-        <Link href="/admin/posts/add-new">
+        <Link href="/doctor/posts/add-new">
           <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors font-medium text-sm flex items-center">
             <svg
               className="w-4 h-4 mr-2"

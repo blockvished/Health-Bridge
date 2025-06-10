@@ -90,8 +90,8 @@ export default function SocialMediaDashboard() {
       engagementChange: 28.8,
     },
     {
-      platform: "TikTok",
-      icon: "tiktok",
+      platform: "Google Business",
+      icon: "google",
       color: "#000000",
       totalFollowers: 408,
       totalFollowersChange: 35.5,
@@ -154,10 +154,10 @@ export default function SocialMediaDashboard() {
             <span className="text-pink-600 font-bold">Ig</span>
           </div>
         );
-      case "tiktok":
+      case "googleBusiness":
         return (
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
-            <span className="text-black font-bold">T</span>
+            <span className="text-black font-bold">G</span>
           </div>
         );
       default:
