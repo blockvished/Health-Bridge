@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { FaUserEdit, FaGlobe, FaSearch } from "react-icons/fa";
 import UpdateInfoTab from "./UpdateInfoTab";
 import SocialSettingsTab from "./SocialSettingsTab";
-import SEOSettingsTab from "./SEOSettingsTab";
 import ProfileCard from "./ProfileCard";
 import Cookies from "js-cookie";
 
@@ -36,7 +35,6 @@ const Profile: React.FC = () => {
   const tabs = [
     { name: "Update Info", icon: <FaUserEdit /> },
     { name: "Social Settings", icon: <FaGlobe /> },
-    { name: "SEO Settings", icon: <FaSearch /> },
   ];
 
   useEffect(() => {
@@ -111,11 +109,6 @@ const Profile: React.FC = () => {
             doctor={doctorData}
             setDoctorData={setDoctorData}
           />
-        );
-
-      case "SEO Settings":
-        return (
-          <SEOSettingsTab doctor={doctorData} setDoctorData={setDoctorData} />
         );
       default:
         return <div>No content available</div>;
