@@ -242,12 +242,12 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                   {
                     name: "Update Profile",
                     icon: <FiEdit className="w-5 h-5 text-gray-600" />,
-                    path: "/admin/profile",
+                    path: "/doctor/profile",
                   },
                   {
                     name: "Change Password",
                     icon: <FiLock className="w-5 h-5 text-gray-600" />,
-                    path: "/admin/change_password",
+                    path: "/doctor/change_password",
                   },
                 ].map(({ name, icon, path }) => (
                   <li key={name}>

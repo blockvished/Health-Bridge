@@ -137,7 +137,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                   {
                     name: "Change Password",
                     icon: <FiLock className="w-5 h-5 text-gray-600" />,
-                    path: "/admin/change_password",
+                    path: "/patient/change_password",
                   },
                 ].map(({ name, icon, path }) => (
                   <li key={name}>
