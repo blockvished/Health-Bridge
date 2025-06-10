@@ -100,7 +100,7 @@ export async function PUT(req: NextRequest) {
     const existingUsers = await db
       .select()
       .from(users)
-      .where(or(eq(users.email, email)));
+      .where(or(eq(users.phone, phone)));
 
     // Filter out the current user from results
     const conflictingUsers = existingUsers.filter(
@@ -109,7 +109,7 @@ export async function PUT(req: NextRequest) {
 
     if (conflictingUsers.length > 0) {
       return NextResponse.json(
-        { error: "Email already in use by another user." },
+        { error: "Phone already in use by another user." },
         { status: 409 }
       );
     }

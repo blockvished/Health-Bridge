@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { FiEdit, FiSave, FiTrash2, FiX } from "react-icons/fi";
 import { LuMenu, LuPlus } from "react-icons/lu";
 import Cookies from "js-cookie";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Define the Patient interface
 interface Patient {
@@ -116,7 +118,6 @@ const PatientForm: React.FC<PatientFormProps> = ({
   const [gender, setGender] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const idFromCookie = Cookies.get("userId");
@@ -143,27 +144,26 @@ const PatientForm: React.FC<PatientFormProps> = ({
 
     // Validate age, weight, and height are not negative
     if (parseInt(age) < 0) {
-      setError("Age cannot be negative");
+      toast.error("Age cannot be negative");
       return;
     }
 
     if (weight && parseFloat(weight) < 0) {
-      setError("Weight cannot be negative");
+      toast.error("Weight cannot be negative");
       return;
     }
 
     if (height && parseFloat(height) < 10) {
-      setError("Height cannot be that low");
+      toast.error("Height cannot be that low");
       return;
     }
 
     if (!userId) {
-      setError("User ID not found.");
+      toast.error("User ID not found");
       return;
     }
 
     setIsSubmitting(true);
-    setError(null);
 
     try {
       // Create JSON payload
@@ -206,22 +206,25 @@ const PatientForm: React.FC<PatientFormProps> = ({
         console.log(
           `Patient ${editingPatient ? "updated" : "created"} successfully`
         );
+        toast.success(
+          `Patient ${editingPatient ? "updated" : "created"} successfully!`
+        );
         onPatientAdded(); // Refresh the patient list
         onBack(); // Go back to the patient list after submission
       } else {
         const errorData = await response.json();
-        console.error(
-          `Failed to ${editingPatient ? "update" : "create"} patient:`,
-          errorData
-        );
-        setError(
+        // console.error(
+        //   `Failed to ${editingPatient ? "update" : "create"} patient:`,
+        //   errorData
+        // );
+        toast.error(
           errorData.message ||
             `Failed to ${editingPatient ? "update" : "create"} patient`
         );
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      setError("An error occurred while submitting the form");
+      // console.error("Error submitting form:", error);
+      toast.error("An error occurred while submitting the form");
     } finally {
       setIsSubmitting(false);
     }
@@ -229,11 +232,6 @@ const PatientForm: React.FC<PatientFormProps> = ({
 
   return (
     <div className="bg-white rounded-md">
-      {error && (
-        <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">
-          {error}
-        </div>
-      )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           label="Abha Id"
@@ -401,7 +399,6 @@ const PatientsTable: React.FC<{
 }) => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -430,18 +427,17 @@ const PatientsTable: React.FC<{
           const data = await response.json();
           if (data && data.Patients) {
             setPatients(data.Patients);
-            setError(null);
           } else {
             setPatients([]);
-            setError("No patients found for this doctor.");
+            toast.info("No patients found for this doctor");
           }
         } else {
-          console.error("Failed to fetch patients data");
-          setError("Failed to fetch patients data.");
+          // console.error("Failed to fetch patients data");
+          toast.error("Failed to fetch patients data");
         }
       } catch (err) {
-        console.error("Error fetching patients data:", err);
-        setError("Error fetching patients data.");
+        // console.error("Error fetching patients data:", err);
+        toast.error("Error fetching patients data");
       } finally {
         setLoading(false);
       }
@@ -466,18 +462,17 @@ const PatientsTable: React.FC<{
         const data = await response.json();
         if (data && data.Patients) {
           setPatients(data.Patients);
-          setError(null);
         } else {
           setPatients([]);
-          setError("No patients found for this doctor.");
+          toast.info("No patients found for this doctor");
         }
       } else {
-        console.error("Failed to fetch patients data");
-        setError("Failed to fetch patients data.");
+        // console.error("Failed to fetch patients data");
+        toast.error("Failed to fetch patients data");
       }
     } catch (err) {
-      console.error("Error fetching patients data:", err);
-      setError("Error fetching patients data.");
+      // console.error("Error fetching patients data:", err);
+      toast.error("Error fetching patients data");
     } finally {
       setLoading(false);
     }
@@ -503,15 +498,16 @@ const PatientsTable: React.FC<{
 
       if (response.ok) {
         console.log("Patient deleted successfully");
+        toast.success(`Patient ${patientToDelete.name} deleted successfully!`);
         fetchPatients(); // Refresh the list after deletion
       } else {
         const errorData = await response.json();
-        console.error("Failed to delete patient:", errorData);
-        setError(errorData.message || "Failed to delete patient");
+        // console.error("Failed to delete patient:", errorData);
+        toast.error(errorData.message || "Failed to delete patient");
       }
     } catch (err) {
-      console.error("Error deleting patient:", err);
-      setError("Error deleting patient");
+      // console.error("Error deleting patient:", err);
+      toast.error("Error deleting patient");
     } finally {
       setIsDeleting(false);
     }
@@ -529,17 +525,8 @@ const PatientsTable: React.FC<{
     );
   }
 
-  if (error && patients.length === 0) {
-    return <div className="p-4 text-center text-red-500">{error}</div>;
-  }
-
   return (
     <div className="overflow-x-auto">
-      {error && (
-        <div className="bg-red-100 text-red-700 p-3 rounded-md mb-4">
-          {error}
-        </div>
-      )}
       <table className="w-full border-collapse border-0">
         <thead>
           <tr className="bg-gray-50 text-gray-600">
@@ -661,6 +648,26 @@ const Patients: React.FC = () => {
           key={refreshCounter}
         />
       )}
+      
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ 
+          zIndex: 999999,
+        }}
+        toastStyle={{
+          zIndex: 999999,
+        }}
+        limit={3} // Limit number of toasts
+      />
     </div>
   );
 };
