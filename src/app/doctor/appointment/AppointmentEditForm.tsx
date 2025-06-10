@@ -5,6 +5,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { FiArrowLeft, FiSave, FiCalendar, FiClock } from "react-icons/fi";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Define interfaces
 interface TimeSlot {
@@ -78,7 +80,6 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
   const [availableTimes, setAvailableTimes] = useState<TimeSlot[]>([]);
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Parse the original time values
   const originalTimeFrom = appointment.timeFrom.substring(0, 5);
@@ -164,7 +165,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
     } catch (error) {
       console.error("Error fetching schedule data:", error);
     }
-  },  [userId, selectedDate, updateAvailableTimes]);
+  }, [userId, selectedDate, updateAvailableTimes]);
 
   useEffect(() => {
     if (userId) {
@@ -247,12 +248,11 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
     e.preventDefault();
 
     if (!selectedDate || !selectedTime) {
-      setError("Please select a date and time");
+      toast.error("Please select a date and time");
       return;
     }
 
     setIsSubmitting(true);
-    setError(null);
 
     // Format the date to YYYY-MM-DD string
     const formattedDate = selectedDate.toISOString().split("T")[0];
@@ -277,14 +277,15 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
       console.log(updateData);
 
       if (response.ok) {
+        toast.success("Appointment updated successfully!");
         onSuccess(); // Refresh appointment table
       } else {
         const errorData = await response.json();
-        setError(errorData.message || "Failed to update appointment");
+        toast.error(errorData.message || "Failed to update appointment");
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
-      console.error("Error updating appointment:", err);
+      toast.error("An unexpected error occurred. Please try again.");
+      // console.error("Error updating appointment:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -492,13 +493,6 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
           )}
         </div>
 
-        {/* Error message */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded-md">
-            {error}
-          </div>
-        )}
-
         {/* Form Actions */}
         <div className="flex justify-end gap-3 mt-4">
           <button
@@ -524,6 +518,21 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
           </button>
         </div>
       </form>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 999999 }}
+        toastStyle={{ zIndex: 999999 }}
+        limit={3}
+      />
     </div>
   );
 };

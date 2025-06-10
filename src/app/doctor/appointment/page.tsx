@@ -6,7 +6,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Cookies from "js-cookie";
 import AppointmentTable from "./AppointmentTable";
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Clinic {
   id: number;
@@ -62,8 +63,6 @@ const Appointments = () => {
     useState<boolean>(false);
   const [reason, setReason] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const [refreshAppointments, setRefreshAppointments] = useState(false);
   const [activeClinic, setActiveClinic] = useState<Clinic>();
   const [allClinics, setAllClinics] = useState<Clinic[]>([]);
@@ -432,7 +431,6 @@ const Appointments = () => {
       !selectedTime ||
       (patientType === "Old" && !selectedPatient)
     ) {
-      setSubmitError("Please complete all required fields");
       return;
     }
 
@@ -469,8 +467,6 @@ const Appointments = () => {
     };
 
     setIsSubmitting(true);
-    setSubmitError(null);
-    setSubmitSuccess(false);
 
     try {
       const formData = new FormData();
@@ -513,16 +509,14 @@ const Appointments = () => {
           gender: "Male",
         });
         setUploadedFiles([]);
-        setSubmitSuccess(true);
         setRefreshAppointments((prev) => !prev);
-        // Optionally refresh appointment table if implemented
-        // refreshAppointmentTable();
+        toast.success("Appointment created successfully!");
       } else {
         const errorData = await response.json();
-        setSubmitError(errorData.message || "Failed to create appointment");
+        toast.error(errorData.message || "Failed to create appointment");
       }
     } catch (error: unknown) {
-      console.error("Error creating appointment:", error);
+      toast.error("An error occurred while creating the appointment");
     } finally {
       setIsSubmitting(false);
     }
@@ -972,19 +966,6 @@ const Appointments = () => {
             )}
           </div>
 
-          {/* Error and Success Messages */}
-          {submitError && (
-            <div className="mb-4 p-2 bg-red-50 text-red-600 border border-red-200 rounded-md">
-              {submitError}
-            </div>
-          )}
-
-          {submitSuccess && (
-            <div className="mb-4 p-2 bg-green-50 text-green-600 border border-green-200 rounded-md">
-              Appointment created successfully!
-            </div>
-          )}
-
           <button
             type="submit"
             className={`bg-blue-500 text-white w-full py-2 rounded-md hover:bg-blue-600 flex items-center justify-center gap-2 ${
@@ -1015,6 +996,21 @@ const Appointments = () => {
 
       {/* Right: Appointments Table */}
       <AppointmentTable userId={userId} refresh={refreshAppointments} />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 999999 }}
+        toastStyle={{ zIndex: 999999 }}
+        limit={3}
+      />
     </div>
   );
 };
