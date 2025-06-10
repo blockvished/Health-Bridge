@@ -517,6 +517,7 @@ const Appointments = () => {
       }
     } catch (error: unknown) {
       toast.error("An error occurred while creating the appointment");
+      console.log(error)
     } finally {
       setIsSubmitting(false);
     }

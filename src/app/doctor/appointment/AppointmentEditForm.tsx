@@ -285,7 +285,7 @@ const AppointmentEditForm: React.FC<AppointmentEditProps> = ({
       }
     } catch (err) {
       toast.error("An unexpected error occurred. Please try again.");
-      // console.error("Error updating appointment:", err);
+      console.log("Error updating appointment:", err);
     } finally {
       setIsSubmitting(false);
     }

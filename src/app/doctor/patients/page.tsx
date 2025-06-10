@@ -225,6 +225,7 @@ const PatientForm: React.FC<PatientFormProps> = ({
     } catch (error) {
       // console.error("Error submitting form:", error);
       toast.error("An error occurred while submitting the form");
+      console.log(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -438,6 +439,7 @@ const PatientsTable: React.FC<{
       } catch (err) {
         // console.error("Error fetching patients data:", err);
         toast.error("Error fetching patients data");
+        console.log(err);
       } finally {
         setLoading(false);
       }
@@ -473,6 +475,7 @@ const PatientsTable: React.FC<{
     } catch (err) {
       // console.error("Error fetching patients data:", err);
       toast.error("Error fetching patients data");
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -508,6 +511,7 @@ const PatientsTable: React.FC<{
     } catch (err) {
       // console.error("Error deleting patient:", err);
       toast.error("Error deleting patient");
+      console.log(err);
     } finally {
       setIsDeleting(false);
     }
@@ -648,7 +652,7 @@ const Patients: React.FC = () => {
           key={refreshCounter}
         />
       )}
-      
+
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -660,7 +664,7 @@ const Patients: React.FC = () => {
         draggable
         pauseOnHover
         theme="light"
-        style={{ 
+        style={{
           zIndex: 999999,
         }}
         toastStyle={{

@@ -27,7 +27,6 @@ export async function POST(request: NextRequest) {
       consultationMode,
       doctorId,
       clinicId,
-      consultationFees,
       // Login data
       emailOrPhone,
       password,

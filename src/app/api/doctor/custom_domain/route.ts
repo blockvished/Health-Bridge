@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "../../../../db/db"; // Adjust path as needed
 import {
   doctor,
-  doctorEducation,
   doctorWebsiteDetails,
 } from "../../../../db/schema"; // Ensure doctor and doctorWebsiteDetails are imported
 import { eq } from "drizzle-orm";

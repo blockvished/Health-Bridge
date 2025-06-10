@@ -1,5 +1,5 @@
 // app/api/public/appointments/new/route.ts
-import { and, eq, or } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import {
   appointments,

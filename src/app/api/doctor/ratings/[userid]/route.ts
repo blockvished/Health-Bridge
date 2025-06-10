@@ -7,7 +7,6 @@ import {
   users,
 } from "../../../../../db/schema";
 import db from "../../../../../db/db";
-import { verifyAuthToken } from "../../../../lib/verify";
 
 // =======================
 // Get - All RAtings of Doctor
