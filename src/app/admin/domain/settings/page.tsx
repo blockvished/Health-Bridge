@@ -2,7 +2,8 @@
 // CustomDomainSettings.tsx
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-// Remove the import since we're using fetch now
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CustomDomainSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +47,7 @@ const CustomDomainSettings: React.FC = () => {
         setTtl2(settings.ttl2);
       } catch (error) {
         console.error("Failed to load settings:", error);
-        // Keep default values if loading fails
+        toast.error("Failed to load domain settings. Using default values.");
       } finally {
         setIsLoading(false);
       }
@@ -86,10 +87,10 @@ const CustomDomainSettings: React.FC = () => {
 
       const savedSettings = await response.json();
       console.log("Settings saved successfully:", savedSettings);
-      // You can add a toast notification here
+      toast.success("Domain settings saved successfully!");
     } catch (error) {
       console.error("Failed to save settings:", error);
-      // You can add error handling/toast here
+      toast.error(`Failed to save settings`);
     } finally {
       setIsSaving(false);
     }
@@ -111,138 +112,166 @@ const CustomDomainSettings: React.FC = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg p-4 sm:p-6 shadow-md">
-      <h2 className="text-lg font-semibold mb-4">Domain Settings</h2>
+    <>
+      <div className="bg-white rounded-lg p-4 sm:p-6 shadow-md">
+        <h2 className="text-lg font-semibold mb-4">Domain Settings</h2>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Title</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Short Details</label>
+          <input
+            type="text"
+            value={shortDetails}
+            onChange={(e) => setShortDetails(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Details</label>
+          <textarea
+            value={details}
+            onChange={(e) => setDetails(e.target.value)}
+            className="w-full border rounded-lg p-2 h-32"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block font-medium mb-1">Your Server IP Address</label>
+          <input
+            type="text"
+            value={serverIp}
+            onChange={(e) => setServerIp(e.target.value)}
+            className="w-full border rounded-lg p-2"
+          />
+          <p className="text-xs text-blue-600 mt-1">
+            This IP address will be used to setup users custom domain &gt; DNS
+            settings
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label className="block font-medium mb-1">Type1</label>
+            <input
+              type="text"
+              value={type1}
+              onChange={(e) => setType1(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+          </div>
+          <div>
+            <label className="block font-medium mb-1">Host1</label>
+            <input
+              type="text"
+              value={host1}
+              onChange={(e) => setHost1(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+          </div>
+          <div>
+            <label className="block font-medium mb-1">Value1</label>
+            <input
+              type="text"
+              value={value1}
+              onChange={(e) => setValue1(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+          </div>
+          <div>
+            <label className="block font-medium mb-1">TTL1</label>
+            <input
+              type="text"
+              value={ttl1}
+              onChange={(e) => setTtl1(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label className="block font-medium mb-1">Type2</label>
+            <input
+              type="text"
+              value={type2}
+              onChange={(e) => setType2(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+          </div>
+          <div>
+            <label className="block font-medium mb-1">Host2</label>
+            <input
+              type="text"
+              value={host2}
+              onChange={(e) => setHost2(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+          </div>
+          <div>
+            <label className="block font-medium mb-1">Value2</label>
+            <input
+              type="text"
+              value={value2}
+              onChange={(e) => setValue2(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+          </div>
+          <div>
+            <label className="block font-medium mb-1">TTL2</label>
+            <input
+              type="text"
+              value={ttl2}
+              onChange={(e) => setTtl2(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+          </div>
+        </div>
+
+        <Button 
+          onClick={handleSaveSettings} 
+          className="bg-blue-500 text-white"
+          disabled={isSaving}
+        >
+          {isSaving ? "Saving..." : "Save Changes"}
+        </Button>
       </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Short Details</label>
-        <input
-          type="text"
-          value={shortDetails}
-          onChange={(e) => setShortDetails(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Details</label>
-        <textarea
-          value={details}
-          onChange={(e) => setDetails(e.target.value)}
-          className="w-full border rounded-lg p-2 h-32"
-        />
-      </div>
-
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Your Server IP Address</label>
-        <input
-          type="text"
-          value={serverIp}
-          onChange={(e) => setServerIp(e.target.value)}
-          className="w-full border rounded-lg p-2"
-        />
-        <p className="text-xs text-blue-600 mt-1">
-          This IP address will be used to setup users custom domain &gt; DNS
-          settings
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <div>
-          <label className="block font-medium mb-1">Type1</label>
-          <input
-            type="text"
-            value={type1}
-            onChange={(e) => setType1(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-        </div>
-        <div>
-          <label className="block font-medium mb-1">Host1</label>
-          <input
-            type="text"
-            value={host1}
-            onChange={(e) => setHost1(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-        </div>
-        <div>
-          <label className="block font-medium mb-1">Value1</label>
-          <input
-            type="text"
-            value={value1}
-            onChange={(e) => setValue1(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-        </div>
-        <div>
-          <label className="block font-medium mb-1">TTL1</label>
-          <input
-            type="text"
-            value={ttl1}
-            onChange={(e) => setTtl1(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <div>
-          <label className="block font-medium mb-1">Type2</label>
-          <input
-            type="text"
-            value={type2}
-            onChange={(e) => setType2(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-        </div>
-        <div>
-          <label className="block font-medium mb-1">Host2</label>
-          <input
-            type="text"
-            value={host2}
-            onChange={(e) => setHost2(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-        </div>
-        <div>
-          <label className="block font-medium mb-1">Value2</label>
-          <input
-            type="text"
-            value={value2}
-            onChange={(e) => setValue2(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-        </div>
-        <div>
-          <label className="block font-medium mb-1">TTL2</label>
-          <input
-            type="text"
-            value={ttl2}
-            onChange={(e) => setTtl2(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-        </div>
-      </div>
-
-      <Button 
-        onClick={handleSaveSettings} 
-        className="bg-blue-500 text-white"
-        disabled={isSaving}
-      >
-        {isSaving ? "Saving..." : "Save Changes"}
-      </Button>
-    </div>
+      <ToastContainer 
+        position="top-right" 
+        autoClose={5000} 
+        hideProgressBar={false} 
+        newestOnTop={true} 
+        closeOnClick 
+        rtl={false} 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover 
+        theme="light" 
+        style={{ 
+          zIndex: 9999999, 
+          top: '20px', 
+          right: '20px' 
+        }} 
+        toastStyle={{ 
+          zIndex: 9999999, 
+          fontSize: '14px', 
+          padding: '12px 16px', 
+          borderRadius: '8px', 
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)' 
+        }} 
+        limit={3} 
+      />
+    </>
   );
 };
 

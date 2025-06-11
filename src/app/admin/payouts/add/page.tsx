@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Type definitions
 interface PayoutRequest {
@@ -189,7 +191,14 @@ const AddPayouts: React.FC = () => {
     const selectedMethod = selectedPaymentMethods[request.id];
 
     if (!selectedMethod) {
-      alert("Please select a payment method first");
+      toast.warning("Please select a payment method first", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
       return;
     }
 
@@ -219,15 +228,31 @@ const AddPayouts: React.FC = () => {
 
       // Check if the response has a message (indicating success)
       if (result.message) {
-        // Show success message with payment details
-        alert(
-          `Payment processed successfully!\n\n` +
-            `Request ID: #${request.id}\n` +
-            `Original Amount: ₹${result.details.originalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}\n` +
-            `Commission Deducted: ₹${result.details.commissionDeducted.toLocaleString("en-IN", { minimumFractionDigits: 2 })}\n` +
-            `Final Payout: ₹${result.details.finalPayoutAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}\n` +
-            `Payment Method: ${result.details.paymentMethod}`
+        // Show success toast with payment details
+        const SuccessMessage = () => (
+          <div>
+            <div className="font-semibold text-green-800 mb-2">Payment Processed Successfully!</div>
+            <div className="text-sm space-y-1">
+              <div><strong>Request ID:</strong> #{request.id}</div>
+              <div><strong>Original Amount:</strong> ₹{result.details.originalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</div>
+              <div><strong>Commission Deducted:</strong> ₹{result.details.commissionDeducted.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</div>
+              <div><strong>Final Payout:</strong> ₹{result.details.finalPayoutAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</div>
+              <div><strong>Payment Method:</strong> {result.details.paymentMethod}</div>
+            </div>
+          </div>
         );
+
+        toast.success(<SuccessMessage />, {
+          position: "top-right",
+          autoClose: 8000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          style: {
+            minWidth: '350px',
+          }
+        });
 
         // Update the local state with the updated payout request from API response
         setPayoutRequests((prev) =>
@@ -263,7 +288,15 @@ const AddPayouts: React.FC = () => {
       console.error("Error processing payment:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
-      alert(`Failed to process payment: ${errorMessage}`);
+      
+      toast.error(`Failed to process payment: ${errorMessage}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } finally {
       setProcessingRequestId(null);
     }
@@ -590,6 +623,33 @@ const AddPayouts: React.FC = () => {
           requests
         </div>
       )}
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ 
+          zIndex: 9999999,
+          top: '20px',
+          right: '20px'
+        }}
+        toastStyle={{ 
+          zIndex: 9999999,
+          fontSize: '14px',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+        }}
+        limit={3}
+      />
     </div>
   );
 };
