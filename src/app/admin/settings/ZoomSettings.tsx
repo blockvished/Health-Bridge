@@ -43,10 +43,6 @@ const ZoomSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isCheckingConnection, setIsCheckingConnection] = useState(false);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
 
   // Fetch existing settings on component mount
   useEffect(() => {
@@ -66,7 +62,6 @@ const ZoomSettings: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching zoom settings:", error);
-      setMessage({ type: "error", text: "Failed to load zoom settings" });
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +83,6 @@ const ZoomSettings: React.FC = () => {
 
     try {
       setIsCheckingConnection(true);
-      setMessage(null);
 
       const response = await fetch("/api/admin/settings/zoom_connection_test", {
         method: "POST",
@@ -127,7 +121,6 @@ const ZoomSettings: React.FC = () => {
 
     try {
       setIsSaving(true);
-      setMessage(null);
 
       const response = await fetch("/api/admin/settings/zoom_settings", {
         method: "POST",

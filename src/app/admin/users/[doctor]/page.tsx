@@ -3,6 +3,8 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type Doctor = {
   id: string;
@@ -63,6 +65,7 @@ const DoctorData = () => {
   const doctorId = params?.doctor;
   const [doctorData, setDoctorData] = useState<DoctorDataResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isUpdatingVerification, setIsUpdatingVerification] = useState(false);
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -85,6 +88,7 @@ const DoctorData = () => {
         setError(null);
       } catch (e) {
         setError((e as Error).message);
+        toast.error("Failed to load doctor data");
       }
     };
 
@@ -114,6 +118,7 @@ const DoctorData = () => {
     } catch (err) {
       console.error("Failed to fetch file", err);
       setModalError("Failed to load file.");
+      toast.error("Failed to load verification file");
     } finally {
       setModalLoading(false);
     }
@@ -127,6 +132,54 @@ const DoctorData = () => {
     setModalImageSrc(null);
     setModalError(null);
     setModalFileName(null);
+  };
+
+  const handleVerificationToggle = async () => {
+    if (!doctorData) return;
+    
+    setIsUpdatingVerification(true);
+    const wasVerified = doctorData.doctor.accountVerified;
+    
+    try {
+      const response = await fetch(
+        `/api/admin/users/${doctorId}/verify`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error("Failed to update verification status");
+      }
+      
+      const data = await response.json();
+      
+      setDoctorData((prev) =>
+        prev
+          ? {
+              ...prev,
+              doctor: {
+                ...prev.doctor,
+                accountVerified: data.accountVerified,
+              },
+            }
+          : prev
+      );
+
+      // Show success toast based on the action performed
+      if (wasVerified) {
+        toast.success("Doctor account marked as pending verification");
+      } else {
+        toast.success("Doctor account verified successfully!");
+      }
+      
+    } catch (err) {
+      console.error("Verification update failed:", err);
+      toast.error(`Failed to update verification status: ${(err as Error).message}`);
+    } finally {
+      setIsUpdatingVerification(false);
+    }
   };
 
   if (error) {
@@ -432,44 +485,24 @@ const DoctorData = () => {
 
           <button
             type="button"
-            className={`w-full py-2 rounded-md font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 ${
+            className={`w-full py-2 rounded-md font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed ${
               doctor.accountVerified
                 ? "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
                 : "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500"
             }`}
-            onClick={async () => {
-              try {
-                const response = await fetch(
-                  `/api/admin/users/${doctorId}/verify`,
-                  {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                  }
-                );
-                if (!response.ok) {
-                  throw new Error("Failed to update verification status");
-                }
-                const data = await response.json();
-                setDoctorData((prev) =>
-                  prev
-                    ? {
-                        ...prev,
-                        doctor: {
-                          ...prev.doctor,
-                          accountVerified: data.accountVerified,
-                        },
-                      }
-                    : prev
-                );
-              } catch (err) {
-                alert((err as Error).message);
-              }
-            }}
+            onClick={handleVerificationToggle}
+            disabled={isUpdatingVerification}
           >
-            {doctor.accountVerified ? "Mark as Pending" : "Mark as Verified"}
+            {isUpdatingVerification 
+              ? "Updating..." 
+              : doctor.accountVerified 
+                ? "Mark as Pending" 
+                : "Mark as Verified"
+            }
           </button>
         </aside>
       </div>
+      
       {/* Modal for verification file image/pdf */}
       {modalOpen && (
         <div
@@ -542,6 +575,29 @@ const DoctorData = () => {
           </div>
         </div>
       )}
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 9999999, top: '20px', right: '20px' }}
+        toastStyle={{
+          zIndex: 9999999,
+          fontSize: '14px',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+        }}
+        limit={3}
+      />
     </>
   );
 };

@@ -104,8 +104,6 @@ const DoctorVerificationForm: React.FC = () => {
   >([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
 
   // Delete confirmation state
@@ -137,7 +135,6 @@ const DoctorVerificationForm: React.FC = () => {
   const fetchVerificationDocuments = async (silent = false) => {
     try {
       setLoading(true);
-      setError(null);
 
       const response = await fetch("/api/admin/settings/doctor_verification");
 
@@ -162,13 +159,11 @@ const DoctorVerificationForm: React.FC = () => {
         // Check if it's HTML (404 page)
         if (errorText.includes("<!DOCTYPE") || errorText.includes("<html>")) {
           const errorMsg = "API route not found. Please ensure /api/admin/settings/doctor_verification route exists.";
-          setError(errorMsg);
           if (!silent) {
             toast.error(errorMsg);
           }
         } else {
           const errorMsg = `Failed to fetch documents: ${response.status} ${response.statusText}`;
-          setError(errorMsg);
           if (!silent) {
             toast.error(errorMsg);
           }
@@ -192,7 +187,6 @@ const DoctorVerificationForm: React.FC = () => {
         }
       } else {
         const errorMsg = "Failed to fetch verification documents";
-        setError(errorMsg);
         if (!silent) {
           toast.error(errorMsg);
         }
@@ -214,7 +208,6 @@ const DoctorVerificationForm: React.FC = () => {
         errorMsg = "Error fetching verification documents. Please check the console for details.";
       }
 
-      setError(errorMsg);
       if (!silent) {
         toast.error(errorMsg);
       }
@@ -289,9 +282,7 @@ const DoctorVerificationForm: React.FC = () => {
       }
     } catch (err) {
       const errorMsg = "Error removing document";
-      setError(errorMsg);
       toast.error(errorMsg);
-      setTimeout(() => setError(null), 3000);
       console.error("Remove error:", err);
     } finally {
       setIsDeleting(false);
@@ -309,7 +300,6 @@ const DoctorVerificationForm: React.FC = () => {
   const handleSaveSettings = async () => {
     try {
       setSaving(true);
-      setError(null);
       console.log("Starting save operation...");
 
       // Filter out empty fields
@@ -319,7 +309,6 @@ const DoctorVerificationForm: React.FC = () => {
 
       if (validFields.length === 0) {
         const errorMsg = "Please add at least one document name before saving.";
-        setError(errorMsg);
         toast.error(errorMsg);
         setSaving(false);
         return;
@@ -357,7 +346,6 @@ const DoctorVerificationForm: React.FC = () => {
           errorMsg = `Failed to save: ${response.status} ${response.statusText}`;
         }
         
-        setError(errorMsg);
         toast.error(errorMsg);
         setSaving(false);
         return;
@@ -369,8 +357,6 @@ const DoctorVerificationForm: React.FC = () => {
       if (result.success) {
         console.log("Save successful, showing toast...");
         // Clear previous success/error states
-        setError(null);
-        setSuccess(null);
         setHasChanges(false);
         
         // First refresh data silently
@@ -422,15 +408,11 @@ const DoctorVerificationForm: React.FC = () => {
         err.message.includes("Unexpected token")
       ) {
         errorMsg = "Server returned invalid response. The API route may not exist or is returning HTML instead of JSON.";
-        setError(errorMsg);
         toast.error(errorMsg);
       } else {
         errorMsg = "Error saving changes. Please check the console for details.";
-        setError(errorMsg);
         toast.error(errorMsg);
       }
-
-      setTimeout(() => setError(null), 5000);
     } finally {
       setSaving(false);
     }
@@ -439,8 +421,6 @@ const DoctorVerificationForm: React.FC = () => {
   const handleDiscardChanges = () => {
     fetchVerificationDocuments();
     setHasChanges(false);
-    setError(null);
-    setSuccess(null);
     toast.info("All unsaved changes have been discarded");
   };
 
