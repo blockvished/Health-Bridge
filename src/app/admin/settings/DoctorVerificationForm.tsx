@@ -37,22 +37,6 @@ const DeleteConfirmation: React.FC<DeleteConfirmationProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        style={{ zIndex: 999999 }}
-        toastStyle={{ zIndex: 999999 }}
-        limit={3}
-      />
-
       <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">
@@ -136,12 +120,21 @@ const DoctorVerificationForm: React.FC = () => {
   });
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Add toast container at the top level of the component
+  useEffect(() => {
+    // Test toast on component mount
+    toast.info("Component mounted", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }, []);
+
   // Fetch existing verification documents on component mount
   useEffect(() => {
     fetchVerificationDocuments();
   }, []);
 
-  const fetchVerificationDocuments = async () => {
+  const fetchVerificationDocuments = async (silent = false) => {
     try {
       setLoading(true);
       setError(null);
@@ -156,6 +149,9 @@ const DoctorVerificationForm: React.FC = () => {
         if (response.status === 404) {
           console.log("API route not found, showing empty state");
           setVerificationFields([]);
+          if (!silent) {
+            toast.warning("API route not found. Please ensure the verification endpoint exists.");
+          }
           setLoading(false);
           return;
         }
@@ -165,13 +161,17 @@ const DoctorVerificationForm: React.FC = () => {
 
         // Check if it's HTML (404 page)
         if (errorText.includes("<!DOCTYPE") || errorText.includes("<html>")) {
-          setError(
-            "API route not found. Please ensure /api/admin/settings/doctor_verification route exists."
-          );
+          const errorMsg = "API route not found. Please ensure /api/admin/settings/doctor_verification route exists.";
+          setError(errorMsg);
+          if (!silent) {
+            toast.error(errorMsg);
+          }
         } else {
-          setError(
-            `Failed to fetch documents: ${response.status} ${response.statusText}`
-          );
+          const errorMsg = `Failed to fetch documents: ${response.status} ${response.statusText}`;
+          setError(errorMsg);
+          if (!silent) {
+            toast.error(errorMsg);
+          }
         }
 
         setVerificationFields([]);
@@ -184,34 +184,43 @@ const DoctorVerificationForm: React.FC = () => {
 
       if (result.success && Array.isArray(result.data)) {
         setVerificationFields(result.data);
+        if (result.data.length > 0 && !silent) {
+          toast.success(`Successfully loaded ${result.data.length} verification documents`);
+        }
       } else if (result.success && !result.data) {
         // Handle case where API returns success but no data
         setVerificationFields([]);
+        if (!silent) {
+          toast.info("No verification documents found. Add your first document to get started.");
+        }
       } else {
-        setError("Failed to fetch verification documents");
+        const errorMsg = "Failed to fetch verification documents";
+        setError(errorMsg);
+        if (!silent) {
+          toast.error(errorMsg);
+        }
         setVerificationFields([]);
       }
     } catch (err) {
       console.error("Fetch error:", err);
 
+      let errorMsg = "";
       // Better error handling for different types of errors
       if (err instanceof TypeError && err.message.includes("Failed to fetch")) {
-        setError(
-          "Network error: Could not connect to the server. Please check if the server is running."
-        );
+        errorMsg = "Network error: Could not connect to the server. Please check if the server is running.";
       } else if (
         err instanceof SyntaxError &&
         err.message.includes("Unexpected token")
       ) {
-        setError(
-          "Server returned invalid response. The API route may not exist or is returning HTML instead of JSON."
-        );
+        errorMsg = "Server returned invalid response. The API route may not exist or is returning HTML instead of JSON.";
       } else {
-        setError(
-          "Error fetching verification documents. Please check the console for details."
-        );
+        errorMsg = "Error fetching verification documents. Please check the console for details.";
       }
 
+      setError(errorMsg);
+      if (!silent) {
+        toast.error(errorMsg);
+      }
       setVerificationFields([]);
     } finally {
       setLoading(false);
@@ -245,6 +254,7 @@ const DoctorVerificationForm: React.FC = () => {
       index: -1,
       documentName: "",
     });
+    toast.info("Deletion cancelled");
   };
 
   const handleDeleteConfirm = async () => {
@@ -257,6 +267,7 @@ const DoctorVerificationForm: React.FC = () => {
       setVerificationFields(newFields);
       setHasChanges(newFields.some((f) => f.isNew) || newFields.length === 0);
       setDeleteConfirmation({ isOpen: false, index: -1, documentName: "" });
+      toast.success("Document field removed successfully");
       return;
     }
 
@@ -275,12 +286,14 @@ const DoctorVerificationForm: React.FC = () => {
 
       if (result.success) {
         setVerificationFields(verificationFields.filter((_, i) => i !== index));
-        toast.success("Document removed successfully");
+        toast.success(`"${field.name}" document removed successfully`);
       } else {
         toast.error(result.error || "Failed to remove document");
       }
     } catch (err) {
-      setError("Error removing document");
+      const errorMsg = "Error removing document";
+      setError(errorMsg);
+      toast.error(errorMsg);
       setTimeout(() => setError(null), 3000);
       console.error("Remove error:", err);
     } finally {
@@ -300,6 +313,7 @@ const DoctorVerificationForm: React.FC = () => {
     try {
       setSaving(true);
       setError(null);
+      console.log("Starting save operation...");
 
       // Filter out empty fields
       const validFields = verificationFields.filter(
@@ -307,12 +321,17 @@ const DoctorVerificationForm: React.FC = () => {
       );
 
       if (validFields.length === 0) {
-        setError("Please add at least one document name before saving.");
+        const errorMsg = "Please add at least one document name before saving.";
+        setError(errorMsg);
+        toast.error(errorMsg);
         setSaving(false);
         return;
       }
 
       console.log("Saving documents:", validFields);
+
+      // Count new documents before saving
+      const newDocsCount = verificationFields.filter((f) => f.isNew).length;
 
       // Use bulk update approach - send all documents at once
       const response = await fetch("/api/admin/settings/doctor_verification", {
@@ -334,12 +353,15 @@ const DoctorVerificationForm: React.FC = () => {
         const errorText = await response.text();
         console.error("Save response error:", errorText);
 
-        // Check if it's HTML (404 page)
+        let errorMsg = "";
         if (errorText.includes("<!DOCTYPE") || errorText.includes("<html>")) {
-          setError("API route not found. Please check your API setup.");
+          errorMsg = "API route not found. Please check your API setup.";
         } else {
-          setError(`Failed to save: ${response.status} ${response.statusText}`);
+          errorMsg = `Failed to save: ${response.status} ${response.statusText}`;
         }
+        
+        setError(errorMsg);
+        toast.error(errorMsg);
         setSaving(false);
         return;
       }
@@ -348,29 +370,67 @@ const DoctorVerificationForm: React.FC = () => {
       console.log("Save result:", result);
 
       if (result.success) {
-        toast.success("All changes saved successfully!");
-
+        console.log("Save successful, showing toast...");
+        // Clear previous success/error states
+        setError(null);
+        setSuccess(null);
         setHasChanges(false);
-        // Refresh data to ensure consistency
-        await fetchVerificationDocuments();
+        
+        // First refresh data silently
+        await fetchVerificationDocuments(true);
+
+        // Then show success toast - using the same pattern as delete
+        const toastMessage = newDocsCount > 0
+          ? `✅ All verification documents saved successfully! ${newDocsCount} new document${newDocsCount > 1 ? 's' : ''} added. Total: ${validFields.length} documents.`
+          : `✅ All verification documents saved successfully! Total: ${validFields.length} documents.`;
+
+        // Force a small delay to ensure state updates are complete
+        setTimeout(() => {
+          toast.success(toastMessage, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            style: {
+              background: "#fff",
+              color: "#333",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
+              borderRadius: "8px",
+              padding: "16px",
+              fontSize: "14px",
+              zIndex: 9999999
+            }
+          });
+          console.log("Toast should be visible now");
+        }, 100);
+
       } else {
-        toast.error("Failed to save documents");
+        console.log("Save failed, showing error toast...");
+        toast.error(result.error || "Failed to save documents");
       }
     } catch (err) {
       console.error("Save error:", err);
 
+      let errorMsg = "";
       // Better error handling for different types of errors
       if (err instanceof TypeError && err.message.includes("Failed to fetch")) {
-        toast.error("Network error: Could not connect to the server...");
+        errorMsg = "Network error: Could not connect to the server.";
+        toast.error(errorMsg);
       } else if (
         err instanceof SyntaxError &&
         err.message.includes("Unexpected token")
       ) {
-        setError(
-          "Server returned invalid response. The API route may not exist or is returning HTML instead of JSON."
-        );
+        errorMsg = "Server returned invalid response. The API route may not exist or is returning HTML instead of JSON.";
+        setError(errorMsg);
+        toast.error(errorMsg);
       } else {
-        setError("Error saving changes. Please check the console for details.");
+        errorMsg = "Error saving changes. Please check the console for details.";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
 
       setTimeout(() => setError(null), 5000);
@@ -384,6 +444,7 @@ const DoctorVerificationForm: React.FC = () => {
     setHasChanges(false);
     setError(null);
     setSuccess(null);
+    toast.info("All unsaved changes have been discarded");
   };
 
   if (loading) {
@@ -397,6 +458,33 @@ const DoctorVerificationForm: React.FC = () => {
 
   return (
     <div>
+      {/* Move ToastContainer to the very top of the return statement */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ 
+          zIndex: 9999999,
+          top: '20px',
+          right: '20px'
+        }}
+        toastStyle={{ 
+          zIndex: 9999999,
+          fontSize: '14px',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+        }}
+        limit={3}
+      />
+
       <h2 className="text-lg font-semibold mb-4">
         Doctor Verification Documents
       </h2>
