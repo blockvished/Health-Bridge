@@ -184,9 +184,6 @@ const DoctorVerificationForm: React.FC = () => {
 
       if (result.success && Array.isArray(result.data)) {
         setVerificationFields(result.data);
-        if (result.data.length > 0 && !silent) {
-          toast.success(`Successfully loaded ${result.data.length} verification documents`);
-        }
       } else if (result.success && !result.data) {
         // Handle case where API returns success but no data
         setVerificationFields([]);
