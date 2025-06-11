@@ -1,5 +1,7 @@
 "use client"
 import React, { useState, useEffect } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface DomainRequest {
   id: number;
@@ -99,9 +101,22 @@ const CustomDomainRequest: React.FC = () => {
 
       setEditingId(null);
       setEditValues({ currentDomain: '', status: '' });
+      
+      // Show success toast
+      toast.success('Domain request updated successfully!', {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      
     } catch (err) {
       console.error('Save error:', err); // Debug log
       setError('Failed to save changes');
+      
+      // Show error toast
+      toast.error('Failed to save changes. Please try again.', {
+        position: "top-right",
+        autoClose: 5000,
+      });
     }
   };
 
@@ -145,106 +160,131 @@ const CustomDomainRequest: React.FC = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg p-4 shadow-md overflow-x-auto">
-      <h2 className="text-lg font-semibold mb-4">Domain Request</h2>
-      {domainRequests.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <p>No domain requests found</p>
-        </div>
-      ) : (
-        <table className="w-full text-left min-w-[800px]">
-          <thead>
-            <tr className="text-gray-500">
-              <th className="py-2 px-2 sm:px-4 whitespace-nowrap">#</th> 
-              <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Current Domain</th>
-              <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Custom Domain</th>
-              <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Date</th>
-              <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Status</th>
-              <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {domainRequests.map((request) => (
-              <tr key={request.id} className="border-t">
-                <td className="py-2 px-2 sm:px-4 whitespace-nowrap">{request.id}</td>
-                
-                {/* Editable Current Domain */}
-                <td className="py-2 px-2 sm:px-4">
-                  {editingId === request.id ? (
-                    <input
-                      type="text"
-                      value={editValues.currentDomain}
-                      onChange={(e) => setEditValues(prev => ({ ...prev, currentDomain: e.target.value }))}
-                      className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter domain URL"
-                    />
-                  ) : (
-                    <a 
-                      href={request.currentDomain} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline break-all"
-                    >
-                      {request.currentDomain}
-                    </a>
-                  )}
-                </td>
-                
-                <td className="py-2 px-2 sm:px-4 whitespace-nowrap">{request.customDomain}</td>
-                <td className="py-2 px-2 sm:px-4 whitespace-nowrap">{request.date}</td>
-                
-                {/* Editable Status */}
-                <td className="py-2 px-2 sm:px-4 whitespace-nowrap">
-                  {editingId === request.id ? (
-                    <select
-                      value={editValues.status}
-                      onChange={(e) => handleStatusChange(e.target.value)}
-                      className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                      <option value="pending">Pending</option>
-                      <option value="approved">Approved</option>
-                    </select>
-                  ) : (
-                    <span className={`${getStatusColor(request.status)} rounded-full px-2 py-1 text-xs`}>
-                      {request.status}
-                    </span>
-                  )}
-                </td>
-                
-                {/* Action Buttons */}
-                <td className="py-2 px-2 sm:px-4 whitespace-nowrap">
-                  {editingId === request.id ? (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleSave(request.id)}
-                        className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={handleCancel}
-                        className="px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleEdit(request)}
-                      className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      Edit
-                    </button>
-                  )}
-                </td>
+    <>
+      <div className="bg-white rounded-lg p-4 shadow-md overflow-x-auto">
+        <h2 className="text-lg font-semibold mb-4">Domain Request</h2>
+        {domainRequests.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            <p>No domain requests found</p>
+          </div>
+        ) : (
+          <table className="w-full text-left min-w-[800px]">
+            <thead>
+              <tr className="text-gray-500">
+                <th className="py-2 px-2 sm:px-4 whitespace-nowrap">#</th> 
+                <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Current Domain</th>
+                <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Custom Domain</th>
+                <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Date</th>
+                <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Status</th>
+                <th className="py-2 px-2 sm:px-4 whitespace-nowrap">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+            </thead>
+            <tbody>
+              {domainRequests.map((request) => (
+                <tr key={request.id} className="border-t">
+                  <td className="py-2 px-2 sm:px-4 whitespace-nowrap">{request.id}</td>
+                  
+                  {/* Editable Current Domain */}
+                  <td className="py-2 px-2 sm:px-4">
+                    {editingId === request.id ? (
+                      <input
+                        type="text"
+                        value={editValues.currentDomain}
+                        onChange={(e) => setEditValues(prev => ({ ...prev, currentDomain: e.target.value }))}
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter domain URL"
+                      />
+                    ) : (
+                      <a 
+                        href={request.currentDomain} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline break-all"
+                      >
+                        {request.currentDomain}
+                      </a>
+                    )}
+                  </td>
+                  
+                  <td className="py-2 px-2 sm:px-4 whitespace-nowrap">{request.customDomain}</td>
+                  <td className="py-2 px-2 sm:px-4 whitespace-nowrap">{request.date}</td>
+                  
+                  {/* Editable Status */}
+                  <td className="py-2 px-2 sm:px-4 whitespace-nowrap">
+                    {editingId === request.id ? (
+                      <select
+                        value={editValues.status}
+                        onChange={(e) => handleStatusChange(e.target.value)}
+                        className="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                      </select>
+                    ) : (
+                      <span className={`${getStatusColor(request.status)} rounded-full px-2 py-1 text-xs`}>
+                        {request.status}
+                      </span>
+                    )}
+                  </td>
+                  
+                  {/* Action Buttons */}
+                  <td className="py-2 px-2 sm:px-4 whitespace-nowrap">
+                    {editingId === request.id ? (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleSave(request.id)}
+                          className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={handleCancel}
+                          className="px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleEdit(request)}
+                        className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      
+      {/* Toast Container */}
+      <ToastContainer 
+        position="top-right" 
+        autoClose={5000} 
+        hideProgressBar={false} 
+        newestOnTop={true} 
+        closeOnClick 
+        rtl={false} 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover 
+        theme="light" 
+        style={{ zIndex: 9999999, top: '20px', right: '20px' }} 
+        toastStyle={{ 
+          zIndex: 9999999, 
+          fontSize: '14px', 
+          padding: '12px 16px', 
+          borderRadius: '8px', 
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)' 
+        }} 
+        limit={3} 
+      />
+    </>
   );
 };
 
