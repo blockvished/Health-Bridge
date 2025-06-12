@@ -17,13 +17,13 @@ export default function Navbar() {
       <div className="hidden md:flex space-x-6 text-gray-700">
         <Link href="/" className="hover:text-blue-600">Home</Link>
         <Link href="/pricing" className="hover:text-blue-600">Pricing</Link>
-        <Link href="/experts" className="text-blue-600 font-semibold">Experts</Link>
+        <Link href="/users" className="text-blue-600 font-semibold">Experts</Link>
         <Link href="/faqs" className="hover:text-blue-600">FAQs</Link>
         <Link href="/contact" className="hover:text-blue-600">Contact</Link>
       </div>
       <div className="flex space-x-2">
         <Link
-          href="/sign-in"
+          href="/"
           className="px-3 py-1.5 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 text-sm"
         >
           Sign In

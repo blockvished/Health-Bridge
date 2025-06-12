@@ -50,16 +50,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
 
         if (response.ok) {
           const data = await response.json();
-          // let metemeta;
-          // if (data.metaTags) {
-          //   if (Array.isArray(data.metaTags)) {
-          //     const tags = data.metaTags.map(
-          //       (tagObj: { tag: string }) => tagObj.tag
-          //     );
-          //     metemeta = tags;
-              
-          //   }
-          // }
+        
           if (data.doctor) {
             setDoctorData({
               name: data.doctor.name || "",
@@ -77,23 +68,6 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
 
     fetchDoctorData();
   }, [userId]);
-
-  // useEffect(() => {
-  //   const fetchDoctor = async () => {
-  //     try {
-  //       const response = await fetch("/api/doctor");
-  //       const data = await response.json();
-  //       if (data.length > 0) {
-  //         setDoctorData(data[0]);
-  //         console.log(data);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching doctor data:", error);
-  //     }
-  //   };
-
-  //   fetchDoctor();
-  // }, []);
 
   // Handle logout
   const handleLogout = async () => {
@@ -237,7 +211,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                   {
                     name: "View Profile",
                     icon: <FiUser className="w-5 h-5 text-gray-600" />,
-                    path: "#",
+                    path: `/profile/${doctorData?.name.replace(/\s+/g, "-").toLowerCase()}`,
                   },
                   {
                     name: "Update Profile",
