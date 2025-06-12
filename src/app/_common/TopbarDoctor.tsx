@@ -174,7 +174,7 @@ const Topbar: React.FC<{ onToggleSidebar: () => void }> = ({
                   (item, index) => (
                     <li key={index}>
                       <Link
-                        href={`/admin/${item.toLowerCase()}`}
+                        href={`/doctor/${item.toLowerCase()}`}
                         className="block px-4 py-3 text-gray-800 hover:bg-blue-50 transition cursor-pointer"
                         onClick={() => setDropdownOpen(false)}
                       >

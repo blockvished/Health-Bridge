@@ -25,7 +25,6 @@ const LiveConsultationSettings = () => {
     const fetchConsultationSettings = async () => {
       if (userId) {
         setLoading(true);
-        toast.info("Loading consultation settings...");
         
         try {
           const res = await fetch(
@@ -46,7 +45,6 @@ const LiveConsultationSettings = () => {
             setMeetingOption(settings.mode || "google");
             setMeetingLink(settings.consultationLink || "");
             setLiveConsultation(settings.isLiveConsultationEnabled || false);
-            toast.success("Settings loaded successfully!");
           } else {
             setConsultationFee("");
             setMeetingLink("");
