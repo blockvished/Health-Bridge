@@ -1,6 +1,6 @@
-# LiveDoctors
+# Health Bridge
 
-Live Doctors platform feature update
+Health Bridge platform feature update
 
 ---
 
